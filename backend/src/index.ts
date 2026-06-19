@@ -15,6 +15,7 @@ import paymentRoutes from './routes/payment.routes';
 dotenv.config();
 
 const app = express();
+app.set('trust proxy', 1); // Trust the first proxy (Railway)
 const PORT = process.env.PORT || 3001;
 
 
