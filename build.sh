@@ -6,6 +6,15 @@ export PATH="$PATH:`pwd`/flutter/bin"
 echo "Checking Flutter Version..."
 flutter --version
 
+echo "Setting up environment..."
+if [ ! -f .env ]; then
+  if [ -f .env.example ]; then
+    cp .env.example .env
+  else
+    touch .env
+  fi
+fi
+
 echo "Building Flutter Web App..."
 flutter config --enable-web
 flutter pub get
