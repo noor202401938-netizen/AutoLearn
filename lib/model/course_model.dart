@@ -91,7 +91,7 @@ class CourseModel {
         map['updatedAt'] != null ? parseDate(map['updatedAt']) : null;
 
     return CourseModel(
-      courseId: map['courseId'] ?? '',
+      courseId: map['id'] ?? map['courseId'] ?? '',
       title: map['title'] ?? '',
       description: map['description'] ?? '',
       instructor: map['instructor'] ?? '',
@@ -188,7 +188,7 @@ class ModuleModel {
 
   factory ModuleModel.fromMap(Map<String, dynamic> map) {
     return ModuleModel(
-      moduleId: map['moduleId'] ?? '',
+      moduleId: map['id'] ?? map['moduleId'] ?? '',
       title: map['title'] ?? '',
       lessons: map['lessons'] != null
           ? (map['lessons'] as List)
@@ -230,7 +230,7 @@ class LessonModel {
 
   factory LessonModel.fromMap(Map<String, dynamic> map) {
     return LessonModel(
-      lessonId: map['lessonId'] ?? '',
+      lessonId: map['id'] ?? map['lessonId'] ?? '',
       title: map['title'] ?? '',
       duration: map['duration'] ?? 0,
       type: map['type'] ?? 'video',

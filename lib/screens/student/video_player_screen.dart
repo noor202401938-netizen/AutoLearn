@@ -158,14 +158,16 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(widget.lesson.title),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        title: Text(widget.lesson.title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           // Captions toggle
           IconButton(
-            icon: Icon(_showCaptions ? Icons.closed_caption : Icons.closed_caption_outlined),
+            icon: Icon(_showCaptions ? Icons.closed_caption : Icons.closed_caption_outlined, color: Colors.white),
             onPressed: () {
               setState(() {
                 _showCaptions = !_showCaptions;
@@ -175,7 +177,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           ),
           // Summary toggle
           IconButton(
-            icon: Icon(_showSummary ? Icons.summarize : Icons.summarize_outlined),
+            icon: Icon(_showSummary ? Icons.summarize : Icons.summarize_outlined, color: Colors.white),
             onPressed: () {
               setState(() {
                 _showSummary = !_showSummary;
@@ -185,11 +187,26 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _errorMessage != null
-              ? _buildErrorView()
-              : _buildVideoPlayer(),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
+              Theme.of(context).colorScheme.background,
+            ],
+            stops: const [0.0, 0.4],
+          ),
+        ),
+        child: SafeArea(
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator(color: Colors.white))
+              : _errorMessage != null
+                  ? _buildErrorView()
+                  : _buildVideoPlayer(),
+        ),
+      ),
     );
   }
 
@@ -200,15 +217,20 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Theme.of(context).colorScheme.error),
+            Icon(Icons.error_outline, size: 64, color: Colors.redAccent.withOpacity(0.8)),
             const SizedBox(height: 16),
             Text(
               _errorMessage!,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16, color: Colors.white),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white.withOpacity(0.1),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
               onPressed: () => Navigator.pop(context),
               child: const Text('Go Back'),
             ),
@@ -229,10 +251,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               player: YoutubePlayer(
                 controller: _youtubeController!,
                 showVideoProgressIndicator: true,
-                progressIndicatorColor: Theme.of(context).colorScheme.primary,
+                progressIndicatorColor: Theme.of(context).colorScheme.secondary,
                 progressColors: ProgressBarColors(
-                  playedColor: Theme.of(context).colorScheme.primary,
-                  handleColor: Theme.of(context).colorScheme.primary,
+                  playedColor: Theme.of(context).colorScheme.secondary,
+                  handleColor: Theme.of(context).colorScheme.secondary,
                 ),
               ),
               builder: (context, player) => player,
@@ -250,6 +272,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -258,7 +281,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   '${widget.moduleTitle} • ${widget.courseTitle}',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    color: Colors.white.withOpacity(0.7),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -267,13 +290,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 if (_progress != null) ...[
                   Row(
                     children: [
-                      const Icon(Icons.check_circle_outline, size: 20, color: Colors.green),
+                      const Icon(Icons.check_circle_outline, size: 20, color: Colors.greenAccent),
                       const SizedBox(width: 8),
                       Text(
                         _progress!.isCompleted
                             ? 'Completed'
                             : '${_progress!.completionPercentage.toStringAsFixed(0)}% Watched',
-                        style: const TextStyle(fontSize: 14),
+                        style: const TextStyle(fontSize: 14, color: Colors.white),
                       ),
                     ],
                   ),
@@ -294,8 +317,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 
   Widget _buildAISummary() {
-    return Card(
-      color: Theme.of(context).colorScheme.primaryContainer,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -303,14 +331,14 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           children: [
             Row(
               children: [
-                Icon(Icons.auto_awesome, color: Theme.of(context).colorScheme.primary),
+                Icon(Icons.auto_awesome, color: Theme.of(context).colorScheme.secondary),
                 const SizedBox(width: 8),
                 Text(
                   'AI Summary',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                 ),
               ],
@@ -318,7 +346,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             const SizedBox(height: 12),
             Text(
               _aiSummary!.summary,
-              style: const TextStyle(fontSize: 14, height: 1.5),
+              style: const TextStyle(fontSize: 14, height: 1.5, color: Colors.white),
             ),
             if (_aiSummary!.keyPoints.isNotEmpty) ...[
               const SizedBox(height: 16),
@@ -327,6 +355,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(height: 8),
@@ -335,12 +364,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.arrow_right, size: 20, color: Theme.of(context).colorScheme.primary),
+                        Icon(Icons.arrow_right, size: 20, color: Theme.of(context).colorScheme.secondary),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             point,
-                            style: const TextStyle(fontSize: 14),
+                            style: TextStyle(fontSize: 14, color: Colors.white.withOpacity(0.9)),
                           ),
                         ),
                       ],
@@ -355,17 +384,23 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   Widget _buildCaptions() {
     if (_captions == null || _captions!.captions.isEmpty) {
-      return Card(
+      return Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white.withOpacity(0.1)),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
             children: [
-              const Icon(Icons.info_outline, color: Colors.orange),
+              const Icon(Icons.info_outline, color: Colors.orangeAccent),
               const SizedBox(width: 8),
-              const Expanded(
+              Expanded(
                 child: Text(
                   'Captions not available for this video. Connect YouTube API to enable captions.',
-                  style: TextStyle(fontSize: 14),
+                  style: TextStyle(fontSize: 14, color: Colors.white.withOpacity(0.7)),
                 ),
               ),
             ],
@@ -374,7 +409,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       );
     }
 
-    return Card(
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -382,13 +423,14 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           children: [
             Row(
               children: [
-                Icon(Icons.closed_caption, color: Theme.of(context).colorScheme.primary),
+                Icon(Icons.closed_caption, color: Theme.of(context).colorScheme.secondary),
                 const SizedBox(width: 8),
                 const Text(
                   'Captions',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
                 ),
               ],
@@ -404,7 +446,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: Text(
                       caption.text,
-                      style: const TextStyle(fontSize: 14, height: 1.5),
+                      style: TextStyle(fontSize: 14, height: 1.5, color: Colors.white.withOpacity(0.8)),
                     ),
                   );
                 },

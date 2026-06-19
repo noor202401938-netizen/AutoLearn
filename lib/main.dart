@@ -7,7 +7,7 @@ import 'screens/welcome_screen.dart';
 import 'screens/user_info_screen.dart';
 import 'screens/login_page.dart';
 import 'screens/signup_page.dart';
-import 'theme.dart';
+import 'theme/app_theme.dart';
 import 'screens/role_based_wrapper.dart';
 import 'repository/user_preferences_repository.dart';
 import 'utils/preference_notifier.dart';
@@ -88,8 +88,8 @@ class _MyAppState extends State<MyApp> {
       child: MaterialApp(
         title: 'AI Tutor',
         debugShowCheckedModeBanner: false,
-        themeMode: themeMode,
-        theme: AppTheme.lightTheme,
+        themeMode: ThemeMode.dark, // Force dark theme for Luminous Professional
+        theme: AppTheme.darkTheme,
         darkTheme: AppTheme.darkTheme,
         home: const SplashScreen(), // Start with splash screen
         routes: {

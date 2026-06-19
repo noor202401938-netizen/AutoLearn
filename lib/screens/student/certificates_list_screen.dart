@@ -1,5 +1,6 @@
 // lib/screens/student/certificates_list_screen.dart
 import 'package:flutter/material.dart';
+import '../../repository/auth_repository.dart';
 import '../../repository/certificate_repository.dart';
 import '../../model/certificate_model.dart';
 import 'certificate_screen.dart';
@@ -25,7 +26,7 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
   Future<void> _loadCertificates() async {
     setState(() => _isLoading = true);
     try {
-      final user = null /* was FirebaseAuth.instance.currentUser */;
+      final user = AuthRepository.getCurrentUser();
       if (user != null) {
         final certificates = await _certificateRepository.getUserCertificates(user.uid);
         setState(() {
@@ -54,111 +55,133 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('My Certificates'),
-        backgroundColor: const Color(0xFF4169E1),
-        foregroundColor: Colors.white,
+        title: const Text('My Certificates', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _certificates.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.workspace_premium_outlined,
-                        size: 80,
-                        color: Colors.grey.shade400,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No Certificates Yet',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Complete lessons to earn certificates',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade500,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              : RefreshIndicator(
-                  onRefresh: _loadCertificates,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _certificates.length,
-                    itemBuilder: (context, index) {
-                      final certificate = _certificates[index];
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        elevation: 2,
-                        child: ListTile(
-                          leading: Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF4169E1).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(
-                              Icons.workspace_premium,
-                              color: Color(0xFF4169E1),
-                              size: 28,
-                            ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
+              Theme.of(context).colorScheme.background,
+            ],
+            stops: const [0.0, 0.4],
+          ),
+        ),
+        child: SafeArea(
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator(color: Colors.white))
+              : _certificates.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.workspace_premium_outlined,
+                            size: 80,
+                            color: Colors.white.withOpacity(0.3),
                           ),
-                          title: Text(
-                            certificate.courseName,
-                            style: const TextStyle(
+                          const SizedBox(height: 16),
+                          Text(
+                            'No Certificates Yet',
+                            style: TextStyle(
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                              color: Colors.white.withOpacity(0.7),
                             ),
                           ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 4),
-                              Text(
-                                certificate.lessonName,
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Completed: ${_formatDate(certificate.completionDate)}',
-                                style: TextStyle(
-                                  color: Colors.grey.shade500,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
+                          const SizedBox(height: 8),
+                          Text(
+                            'Complete lessons to earn certificates',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white.withOpacity(0.5),
+                            ),
                           ),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => CertificateScreen(
-                                  certificate: certificate,
+                        ],
+                      ),
+                    )
+                  : RefreshIndicator(
+                      onRefresh: _loadCertificates,
+                      child: ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: _certificates.length,
+                        itemBuilder: (context, index) {
+                          final certificate = _certificates[index];
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.05),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: Colors.white.withOpacity(0.1)),
+                            ),
+                            child: ListTile(
+                              leading: Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  Icons.workspace_premium,
+                                  color: Theme.of(context).colorScheme.secondary,
+                                  size: 28,
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                              title: Text(
+                                certificate.courseName,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    certificate.lessonName,
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.7),
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Completed: ${_formatDate(certificate.completionDate)}',
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.5),
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              trailing: Icon(Icons.chevron_right, color: Colors.white.withOpacity(0.5)),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CertificateScreen(
+                                      certificate: certificate,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+        ),
+      ),
     );
   }
 

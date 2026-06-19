@@ -83,17 +83,17 @@ class _StudentHomeState extends State<StudentHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text(
           'AI Tutor',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
-        backgroundColor: const Color(0xFF4169E1),
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined),
+            icon: const Icon(Icons.notifications_outlined, color: Colors.white),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('No new notifications')),
@@ -103,35 +103,58 @@ class _StudentHomeState extends State<StudentHome> {
           const SizedBox(width: 8),
         ],
       ),
-      body: _getSelectedScreen(),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
+              Theme.of(context).colorScheme.background,
+            ],
+            stops: const [0.0, 0.4],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.school_outlined),
-            activeIcon: Icon(Icons.school),
-            label: 'Courses',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.show_chart_outlined),
-            activeIcon: Icon(Icons.show_chart),
-            label: 'Progress',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: const Color(0xFF4169E1),
-        unselectedItemColor: Colors.grey,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
+        ),
+        child: SafeArea(
+          child: _getSelectedScreen(),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          border: Border(top: BorderSide(color: Colors.white.withOpacity(0.1))),
+        ),
+        child: BottomNavigationBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined),
+              activeIcon: Icon(Icons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.school_outlined),
+              activeIcon: Icon(Icons.school),
+              label: 'Courses',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.show_chart_outlined),
+              activeIcon: Icon(Icons.show_chart),
+              label: 'Progress',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline),
+              activeIcon: Icon(Icons.person),
+              label: 'Profile',
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          selectedItemColor: Theme.of(context).colorScheme.secondary,
+          unselectedItemColor: Colors.white.withOpacity(0.5),
+          onTap: _onItemTapped,
+          type: BottomNavigationBarType.fixed,
+        ),
       ),
     );
   }
@@ -144,16 +167,6 @@ class _StudentHomeState extends State<StudentHome> {
           // Header Section
           Container(
             width: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF4169E1),
-                  Color(0xFF1E3A8A),
-                ],
-              ),
-            ),
             padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,14 +174,14 @@ class _StudentHomeState extends State<StudentHome> {
                 Text(
                   'Welcome back,',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.9),
+                    color: Colors.white.withOpacity(0.7),
                     fontSize: 16,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   _userProfile?['displayName'] ??
-                      null /* was FirebaseAuth.instance.currentUser */?.email?.split('@')[0] ??
+                      _authRepository.getCurrentUser()?.email?.split('@')[0] ??
                       'Student',
                   style: const TextStyle(
                     color: Colors.white,
@@ -180,15 +193,9 @@ class _StudentHomeState extends State<StudentHome> {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Colors.white.withOpacity(0.05),
                     borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
+                    border: Border.all(color: Colors.white.withOpacity(0.1)),
                   ),
                   child: Row(
                     children: [
@@ -197,33 +204,33 @@ class _StudentHomeState extends State<StudentHome> {
                           'Courses',
                           _stats['enrolledCourses'].toString(),
                           Icons.book,
-                          Colors.blue,
+                          Theme.of(context).colorScheme.primary,
                         ),
                       ),
                       Container(
                         width: 1,
                         height: 40,
-                        color: Colors.grey.shade300,
+                        color: Colors.white.withOpacity(0.1),
                       ),
                       Expanded(
                         child: _buildQuickStat(
                           'Completed',
                           _stats['completedCourses'].toString(),
                           Icons.check_circle,
-                          Colors.green,
+                          Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       Container(
                         width: 1,
                         height: 40,
-                        color: Colors.grey.shade300,
+                        color: Colors.white.withOpacity(0.1),
                       ),
                       Expanded(
                         child: _buildQuickStat(
                           'Lessons',
                           _stats['totalLessonsWatched'].toString(),
                           Icons.play_circle,
-                          Colors.orange,
+                          Colors.orangeAccent,
                         ),
                       ),
                     ],
@@ -247,21 +254,22 @@ class _StudentHomeState extends State<StudentHome> {
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
                     TextButton(
                       onPressed: () {
                         setState(() => _selectedIndex = 1);
                       },
-                      child: const Text('See All'),
+                      child: Text('See All', style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
                 _isLoadingCourses
-                    ? const Center(
+                    ? Center(
                   child: CircularProgressIndicator(
-                    color: Color(0xFF4169E1),
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 )
                     : _featuredCourses.isEmpty
@@ -271,14 +279,14 @@ class _StudentHomeState extends State<StudentHome> {
                       Icon(
                         Icons.auto_stories_outlined,
                         size: 80,
-                        color: Colors.grey.shade300,
+                        color: Colors.white.withOpacity(0.3),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         'No courses available yet',
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.grey.shade600,
+                          color: Colors.white.withOpacity(0.5),
                         ),
                       ),
                     ],
@@ -310,6 +318,7 @@ class _StudentHomeState extends State<StudentHome> {
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
         const SizedBox(height: 4),
@@ -317,7 +326,7 @@ class _StudentHomeState extends State<StudentHome> {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey.shade600,
+            color: Colors.white.withOpacity(0.5),
           ),
         ),
       ],
@@ -338,15 +347,15 @@ class _StudentHomeState extends State<StudentHome> {
             Icon(
               Icons.analytics_outlined,
               size: 100,
-              color: Colors.grey.shade300,
+              color: Colors.white.withOpacity(0.3),
             ),
             const SizedBox(height: 24),
-            Text(
+            const Text(
               'No progress data',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade700,
+                color: Colors.white,
               ),
             ),
             const SizedBox(height: 8),
@@ -354,7 +363,7 @@ class _StudentHomeState extends State<StudentHome> {
               'Start learning to track your progress',
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.grey.shade500,
+                color: Colors.white.withOpacity(0.5),
               ),
             ),
           ],
@@ -364,22 +373,29 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Widget _buildProfileScreen() {
-    final user = null /* was FirebaseAuth.instance.currentUser */;
+    final user = _authRepository.getCurrentUser();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
           const SizedBox(height: 20),
-          CircleAvatar(
-            radius: 60,
-            backgroundColor: const Color(0xFF4169E1).withValues(alpha: 0.1),
-            child: Text(
-              (user?.displayName ?? user?.email ?? 'U')[0].toUpperCase(),
-              style: const TextStyle(
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF4169E1),
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
+            ),
+            child: CircleAvatar(
+              radius: 56,
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              child: Text(
+                (user?.displayName ?? user?.email ?? 'U')[0].toUpperCase(),
+                style: TextStyle(
+                  fontSize: 48,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
             ),
           ),
@@ -389,6 +405,7 @@ class _StudentHomeState extends State<StudentHome> {
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 8),
@@ -396,7 +413,7 @@ class _StudentHomeState extends State<StudentHome> {
             user?.email ?? '',
             style: TextStyle(
               fontSize: 16,
-              color: Colors.grey.shade600,
+              color: Colors.white.withOpacity(0.7),
             ),
           ),
           const SizedBox(height: 32),
@@ -404,27 +421,27 @@ class _StudentHomeState extends State<StudentHome> {
           _buildProfileOption(
             'Edit Profile',
             Icons.edit,
-                () {},
+                () { Navigator.pushNamed(context, '/edit_profile'); },
           ),
           _buildProfileOption(
             'Change Password',
             Icons.lock_outline,
-                () {},
+                () { Navigator.pushNamed(context, '/change_password'); },
           ),
           _buildProfileOption(
             'Notifications',
             Icons.notifications_outlined,
-                () {},
+                () { Navigator.pushNamed(context, '/notifications'); },
           ),
           _buildProfileOption(
             'Help & Support',
             Icons.help_outline,
-                () {},
+                () { Navigator.pushNamed(context, '/help_support'); },
           ),
           _buildProfileOption(
             'About',
             Icons.info_outline,
-                () {},
+                () { Navigator.pushNamed(context, '/about'); },
           ),
           const SizedBox(height: 20),
 
@@ -461,19 +478,23 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Widget _buildProfileOption(String title, IconData icon, VoidCallback onTap) {
-    return Card(
-      elevation: 0,
-      color: Colors.grey.shade50,
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+      ),
       child: ListTile(
-        leading: Icon(icon, color: const Color(0xFF4169E1)),
+        leading: Icon(icon, color: Theme.of(context).colorScheme.secondary),
         title: Text(
           title,
           style: const TextStyle(
             fontWeight: FontWeight.w500,
+            color: Colors.white,
           ),
         ),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: Icon(Icons.chevron_right, color: Colors.white.withOpacity(0.5)),
         onTap: onTap,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -483,11 +504,12 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Widget _buildCourseCard(CourseModel course) {
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
       ),
       child: InkWell(
         onTap: () {
@@ -501,7 +523,7 @@ class _StudentHomeState extends State<StudentHome> {
             ),
           );
         },
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
@@ -512,28 +534,28 @@ class _StudentHomeState extends State<StudentHome> {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: const Color(0xFF4169E1).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  color: Theme.of(context).colorScheme.primaryContainer,
                 ),
                 child: course.thumbnailURL.isNotEmpty
                     ? ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                   child: Image.network(
                     course.thumbnailURL,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      return const Icon(
+                      return Icon(
                         Icons.school,
                         size: 40,
-                        color: Color(0xFF4169E1),
+                        color: Theme.of(context).colorScheme.primary,
                       );
                     },
                   ),
                 )
-                    : const Icon(
+                    : Icon(
                   Icons.school,
                   size: 40,
-                  color: Color(0xFF4169E1),
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               const SizedBox(width: 12),
@@ -547,6 +569,7 @@ class _StudentHomeState extends State<StudentHome> {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -556,7 +579,7 @@ class _StudentHomeState extends State<StudentHome> {
                       course.instructor,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey.shade600,
+                        color: Colors.white.withOpacity(0.7),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -570,7 +593,7 @@ class _StudentHomeState extends State<StudentHome> {
                         const SizedBox(width: 4),
                         Text(
                           course.rating.toStringAsFixed(1),
-                          style: const TextStyle(fontSize: 12),
+                          style: const TextStyle(fontSize: 12, color: Colors.white),
                         ),
                         const SizedBox(width: 8),
                         Container(
@@ -579,14 +602,14 @@ class _StudentHomeState extends State<StudentHome> {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.green.withValues(alpha: 0.1),
+                            color: Colors.green.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
                             course.level.toUpperCase(),
                             style: const TextStyle(
                               fontSize: 10,
-                              color: Colors.green,
+                              color: Colors.greenAccent,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -603,13 +626,13 @@ class _StudentHomeState extends State<StudentHome> {
                   Text(
                     course.price == 0
                         ? 'FREE'
-                        : '\${course.price.toStringAsFixed(0)}',
+                        : '\$${course.price.toStringAsFixed(0)}',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: course.price == 0
-                          ? Colors.green
-                          : const Color(0xFF4169E1),
+                          ? Colors.greenAccent
+                          : Theme.of(context).colorScheme.secondary,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -617,7 +640,7 @@ class _StudentHomeState extends State<StudentHome> {
                     '${course.duration}h',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.grey.shade600,
+                      color: Colors.white.withOpacity(0.5),
                     ),
                   ),
                 ],

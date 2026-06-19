@@ -68,26 +68,43 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Notifications'),
-        backgroundColor: const Color(0xFF4169E1),
-        foregroundColor: Colors.white,
+        title: const Text('Notifications', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           if (_notifications.any((n) => !n.isRead))
             TextButton(
               onPressed: _markAllAsRead,
               child: const Text(
                 'Mark all read',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _notifications.isEmpty
-              ? _buildEmptyState()
-              : _buildNotificationsList(),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
+              Theme.of(context).colorScheme.background,
+            ],
+            stops: const [0.0, 0.4],
+          ),
+        ),
+        child: SafeArea(
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator(color: Colors.white))
+              : _notifications.isEmpty
+                  ? _buildEmptyState()
+                  : _buildNotificationsList(),
+        ),
+      ),
     );
   }
 
@@ -96,11 +113,11 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.notifications_none, size: 80, color: Colors.grey[300]),
+          Icon(Icons.notifications_none, size: 80, color: Colors.white.withOpacity(0.3)),
           const SizedBox(height: 16),
           Text(
             'No Notifications',
-            style: TextStyle(fontSize: 20, color: Colors.grey[700]),
+            style: TextStyle(fontSize: 20, color: Colors.white.withOpacity(0.5)),
           ),
         ],
       ),
@@ -113,39 +130,44 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
       itemCount: _notifications.length,
       itemBuilder: (context, index) {
         final notification = _notifications[index];
-        return Card(
+        return Container(
           margin: const EdgeInsets.only(bottom: 12),
-          color: notification.isRead ? Colors.white : Colors.blue[50],
+          decoration: BoxDecoration(
+            color: notification.isRead ? Colors.white.withOpacity(0.05) : Theme.of(context).colorScheme.primary.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: notification.isRead ? Colors.white.withOpacity(0.1) : Theme.of(context).colorScheme.secondary.withOpacity(0.5),
+            ),
+          ),
           child: ListTile(
             leading: Icon(
               _getNotificationIcon(notification.type),
-              color: const Color(0xFF4169E1),
+              color: notification.isRead ? Colors.white.withOpacity(0.5) : Theme.of(context).colorScheme.secondary,
             ),
             title: Text(
               notification.title,
               style: TextStyle(
-                fontWeight: notification.isRead
-                    ? FontWeight.normal
-                    : FontWeight.bold,
+                color: Colors.white,
+                fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
               ),
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(notification.body),
+                Text(notification.body, style: TextStyle(color: Colors.white.withOpacity(0.7))),
                 const SizedBox(height: 4),
                 Text(
                   _formatTime(notification.createdAt),
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey[600],
+                    color: Colors.white.withOpacity(0.5),
                   ),
                 ),
               ],
             ),
             trailing: notification.isRead
                 ? null
-                : const Icon(Icons.circle, size: 8, color: Colors.blue),
+                : Icon(Icons.circle, size: 8, color: Theme.of(context).colorScheme.secondary),
             onTap: () => _markAsRead(notification),
           ),
         );

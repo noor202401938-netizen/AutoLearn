@@ -1,4 +1,4 @@
-﻿// lib/screens/student/edit_profile_screen.dart
+// lib/screens/student/edit_profile_screen.dart
 import 'package:flutter/material.dart';
 import '../../repository/user_repository.dart';
 import '../../repository/auth_repository.dart';
@@ -137,13 +137,28 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Edit Profile'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        title: const Text('Edit Profile', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: _isLoading && _userProfile == null
-          ? const Center(child: CircularProgressIndicator())
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
+              Theme.of(context).colorScheme.background,
+            ],
+            stops: const [0.0, 0.4],
+          ),
+        ),
+        child: SafeArea(
+          child: _isLoading && _userProfile == null
+              ? const Center(child: CircularProgressIndicator(color: Colors.white))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Form(
@@ -154,18 +169,31 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     const SizedBox(height: 20),
                     // Profile Picture Placeholder
                     Center(
-                      child: CircleAvatar(
-                        radius: 60,
-                        backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                        child: Text(
-                          (_nameController.text.isNotEmpty
-                                  ? _nameController.text
-                                  : null /* was FirebaseAuth.instance.currentUser */?.email ?? 'U')[0]
-                              .toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 48,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primary,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Theme.of(context).colorScheme.secondary.withOpacity(0.5), width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+                              blurRadius: 10,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
+                        child: CircleAvatar(
+                          radius: 60,
+                          backgroundColor: Colors.white.withOpacity(0.1),
+                          child: Text(
+                            (_nameController.text.isNotEmpty
+                                    ? _nameController.text
+                                    : AuthRepository.getCurrentUser()?.email ?? 'U')[0]
+                                .toUpperCase(),
+                            style: const TextStyle(
+                              fontSize: 48,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
@@ -173,64 +201,47 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     const SizedBox(height: 32),
                     
                     // Display Name
-                    TextFormField(
+                    _buildTextField(
                       controller: _nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Full Name',
-                        hintText: 'Enter your full name',
-                        prefixIcon: Icon(Icons.person_outline),
-                        border: OutlineInputBorder(),
-                      ),
+                      label: 'Full Name',
+                      hint: 'Enter your full name',
+                      icon: Icons.person_outline,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return 'Please enter your name';
                         }
                         return null;
                       },
-                      onChanged: (value) => setState(() {}), // Update avatar
+                      onChanged: (value) => setState(() {}),
                     ),
                     const SizedBox(height: 16),
                     
                     // Email (read-only)
-                    TextFormField(
-                      initialValue: null /* was FirebaseAuth.instance.currentUser */?.email ?? '',
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        prefixIcon: Icon(Icons.email_outlined),
-                        border: OutlineInputBorder(),
-                      ),
+                    _buildTextField(
+                      controller: TextEditingController(text: AuthRepository.getCurrentUser()?.email ?? ''),
+                      label: 'Email',
+                      hint: '',
+                      icon: Icons.email_outlined,
                       readOnly: true,
-                      enabled: false,
                     ),
                     const SizedBox(height: 16),
                     
                     // Phone
-                    TextFormField(
+                    _buildTextField(
                       controller: _phoneController,
+                      label: 'Phone Number',
+                      hint: 'Enter your phone number',
+                      icon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
-                      decoration: const InputDecoration(
-                        labelText: 'Phone Number',
-                        hintText: 'Enter your phone number',
-                        prefixIcon: Icon(Icons.phone_outlined),
-                        border: OutlineInputBorder(),
-                      ),
                     ),
                     const SizedBox(height: 16),
                     
                     // Grade Dropdown
-                    DropdownButtonFormField<String>(
+                    _buildDropdown(
                       value: _gradeController.text.isEmpty ? null : _gradeController.text,
-                      decoration: const InputDecoration(
-                        labelText: 'Grade/Level',
-                        prefixIcon: Icon(Icons.school_outlined),
-                        border: OutlineInputBorder(),
-                      ),
-                      items: _grades.map((grade) {
-                        return DropdownMenuItem(
-                          value: grade,
-                          child: Text(grade),
-                        );
-                      }).toList(),
+                      label: 'Grade/Level',
+                      icon: Icons.school_outlined,
+                      items: _grades,
                       onChanged: (value) {
                         setState(() {
                           _gradeController.text = value ?? '';
@@ -240,19 +251,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     const SizedBox(height: 16),
                     
                     // Interest Dropdown
-                    DropdownButtonFormField<String>(
+                    _buildDropdown(
                       value: _interestController.text.isEmpty ? null : _interestController.text,
-                      decoration: const InputDecoration(
-                        labelText: 'Interest',
-                        prefixIcon: Icon(Icons.favorite_outline),
-                        border: OutlineInputBorder(),
-                      ),
-                      items: _interests.map((interest) {
-                        return DropdownMenuItem(
-                          value: interest,
-                          child: Text(interest),
-                        );
-                      }).toList(),
+                      label: 'Interest',
+                      icon: Icons.favorite_outline,
+                      items: _interests,
                       onChanged: (value) {
                         setState(() {
                           _interestController.text = value ?? '';
@@ -262,37 +265,125 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     const SizedBox(height: 32),
                     
                     // Save Button
-                    ElevatedButton(
-                      onPressed: _isLoading ? null : _saveProfile,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
                         ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      child: _isLoading
-                          ? SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.onPrimary),
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _saveProfile,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        ),
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                            : const Text(
+                                'Save Changes',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            )
-                          : const Text(
-                              'Save Changes',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData icon,
+    bool readOnly = false,
+    TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
+    void Function(String)? onChanged,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(readOnly ? 0.02 : 0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+      ),
+      child: TextFormField(
+        controller: controller,
+        readOnly: readOnly,
+        keyboardType: keyboardType,
+        style: TextStyle(color: readOnly ? Colors.white.withOpacity(0.5) : Colors.white),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+          hintText: hint,
+          hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+          prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.7)),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.all(20),
+        ),
+        validator: validator,
+        onChanged: onChanged,
+      ),
+    );
+  }
+
+  Widget _buildDropdown({
+    required String? value,
+    required String label,
+    required IconData icon,
+    required List<String> items,
+    required void Function(String?) onChanged,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+      ),
+      child: DropdownButtonFormField<String>(
+        value: value,
+        dropdownColor: const Color(0xFF1E1E2C),
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+          prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.7)),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.all(20),
+        ),
+        items: items.map((item) {
+          return DropdownMenuItem(
+            value: item,
+            child: Text(item),
+          );
+        }).toList(),
+        onChanged: onChanged,
+      ),
     );
   }
 }

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../repository/course_repository.dart';
 import '../../repository/progress_repository.dart';
+import '../../repository/auth_repository.dart';
 import '../../business_logic/video_manager.dart';
 import '../../model/course_model.dart';
 import '../../model/video_progress_model.dart';
@@ -76,21 +77,40 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
   }
 
   String _getUserId() {
-    final user = null /* was FirebaseAuth.instance.currentUser */;
+    final user = AuthRepository.getCurrentUser();
     return user?.uid ?? '';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(widget.title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: _loading
-          ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary))
-          : _course == null
-              ? _buildErrorView()
-              : _buildCourseContent(),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
+              Theme.of(context).colorScheme.background,
+            ],
+            stops: const [0.0, 0.3],
+          ),
+        ),
+        child: SafeArea(
+          child: _loading
+              ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary))
+              : _course == null
+                  ? _buildErrorView()
+                  : _buildCourseContent(),
+        ),
+      ),
     );
   }
 
@@ -150,42 +170,53 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
             if (_courseCompletion > 0)
               Container(
                 margin: const EdgeInsets.all(16),
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceVariant,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Theme.of(context).dividerColor),
+                  color: Theme.of(context).colorScheme.surface.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white.withOpacity(0.1)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.trending_up, color: Theme.of(context).colorScheme.primary),
-                        const SizedBox(width: 8),
+                        Icon(Icons.trending_up, color: Theme.of(context).colorScheme.secondary),
+                        const SizedBox(width: 12),
                         Text(
                           'Course Progress',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    LinearProgressIndicator(
-                      value: _courseCompletion / 100,
-                      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                      valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
-                      minHeight: 8,
+                    const SizedBox(height: 16),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: LinearProgressIndicator(
+                        value: _courseCompletion / 100,
+                        backgroundColor: Colors.white.withOpacity(0.1),
+                        valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.secondary),
+                        minHeight: 10,
+                      ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
                     Text(
                       '${_courseCompletion.toStringAsFixed(0)}% Complete',
                       style: const TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
                   ],
@@ -198,6 +229,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
               final module = entry.value;
               return _buildModuleCard(module, moduleIndex);
             }),
+            const SizedBox(height: 24),
           ],
         ),
       ),
@@ -205,22 +237,43 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
   }
 
   Widget _buildModuleCard(ModuleModel module, int moduleIndex) {
-    return Card(
+    return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: ExpansionTile(
-        leading: CircleAvatar(
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          child: Text(
-            '${moduleIndex + 1}',
-            style: TextStyle(color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.bold),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Theme(
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            leading: CircleAvatar(
+              backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+              child: Text(
+                '${moduleIndex + 1}',
+                style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
+              ),
+            ),
+            title: Text(
+              module.title,
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+            subtitle: Text(
+              '${module.lessons.length} ${module.lessons.length == 1 ? 'lesson' : 'lessons'}',
+              style: TextStyle(color: Colors.white.withOpacity(0.6)),
+            ),
+            children: module.lessons.map((lesson) => _buildLessonTile(module, lesson)).toList(),
           ),
         ),
-        title: Text(
-          module.title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text('${module.lessons.length} ${module.lessons.length == 1 ? 'lesson' : 'lessons'}'),
-        children: module.lessons.map((lesson) => _buildLessonTile(module, lesson)).toList(),
       ),
     );
   }
@@ -230,42 +283,58 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
     final isCompleted = progress?.isCompleted ?? false;
     final isVideo = lesson.type == 'video' && lesson.videoURL != null && lesson.videoURL!.isNotEmpty;
 
-    return ListTile(
-      leading: Icon(
-        _getLessonIcon(lesson.type),
-        color: isCompleted ? Colors.green : Theme.of(context).colorScheme.primary,
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: Colors.white.withOpacity(0.05))),
       ),
-      title: Text(lesson.title),
-      subtitle: Row(
-        children: [
-          if (lesson.duration > 0)
-            Text(
-              '${lesson.duration} min',
-              style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            ),
-          if (progress != null && !isCompleted) ...[
-            const SizedBox(width: 8),
-            Text(
-              '${progress.completionPercentage.toStringAsFixed(0)}%',
-              style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.primary),
-            ),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: isCompleted ? Colors.green.withOpacity(0.2) : Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            _getLessonIcon(lesson.type),
+            color: isCompleted ? Colors.greenAccent : Theme.of(context).colorScheme.secondary,
+            size: 20,
+          ),
+        ),
+        title: Text(
+          lesson.title,
+          style: TextStyle(color: Colors.white.withOpacity(isCompleted ? 0.6 : 0.9)),
+        ),
+        subtitle: Row(
+          children: [
+            if (lesson.duration > 0)
+              Text(
+                '${lesson.duration} min',
+                style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.5)),
+              ),
+            if (progress != null && !isCompleted) ...[
+              const SizedBox(width: 8),
+              Text(
+                '${progress.completionPercentage.toStringAsFixed(0)}%',
+                style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.secondary),
+              ),
+            ],
           ],
-        ],
+        ),
+        trailing: isCompleted
+            ? const Icon(Icons.check_circle, color: Colors.greenAccent)
+            : Icon(Icons.chevron_right, color: Colors.white.withOpacity(0.5)),
+        onTap: () {
+          if (isVideo) {
+            _navigateToVideoPlayer(module, lesson);
+          } else if (lesson.type == 'quiz') {
+            _navigateToQuiz(module, lesson);
+          } else if (lesson.type == 'assignment') {
+            _navigateToAssignment(module, lesson);
+          } else {
+            _showLessonInfo(lesson);
+          }
+        },
       ),
-      trailing: isCompleted
-          ? const Icon(Icons.check_circle, color: Colors.green)
-          : const Icon(Icons.chevron_right),
-      onTap: () {
-        if (isVideo) {
-          _navigateToVideoPlayer(module, lesson);
-        } else if (lesson.type == 'quiz') {
-          _navigateToQuiz(module, lesson);
-        } else if (lesson.type == 'assignment') {
-          _navigateToAssignment(module, lesson);
-        } else {
-          _showLessonInfo(lesson);
-        }
-      },
     );
   }
 

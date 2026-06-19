@@ -29,113 +29,151 @@ class HelpSupportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Help & Support'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        title: const Text('Help & Support', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              Icons.help_outline,
-              size: 80,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'How can we help you?',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 32),
-            
-            // Contact Support
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.email, color: Theme.of(context).colorScheme.primary),
-                title: const Text('Contact Support'),
-                subtitle: const Text('Email us at support@autolearn.com'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: _launchEmail,
-              ),
-            ),
-            const SizedBox(height: 12),
-            
-            // FAQ
-            Card(
-              child: ExpansionTile(
-                leading: Icon(Icons.help, color: Theme.of(context).colorScheme.primary),
-                title: const Text('Frequently Asked Questions'),
-                children: [
-                  _buildFAQItem(
-                    context,
-                    'How do I enroll in a course?',
-                    'Browse courses from the Courses tab, select a course, and click the Enroll button. For paid courses, you\'ll need to complete payment first.',
-                  ),
-                  _buildFAQItem(
-                    context,
-                    'Can I access courses offline?',
-                    'Currently, courses require an internet connection. We\'re working on offline support for future updates.',
-                  ),
-                  _buildFAQItem(
-                    context,
-                    'How do I reset my password?',
-                    'On the login screen, click "Forgot Password?" and enter your email address. You\'ll receive a password reset link.',
-                  ),
-                  _buildFAQItem(
-                    context,
-                    'How do I change my profile information?',
-                    'Go to Profile > Edit Profile to update your name, phone, grade, and interests.',
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            
-            // Privacy Policy
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.privacy_tip, color: Theme.of(context).colorScheme.primary),
-                title: const Text('Privacy Policy'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  // Navigate to privacy policy or open URL
-                  _launchURL('https://autolearn.com/privacy');
-                },
-              ),
-            ),
-            const SizedBox(height: 12),
-            
-            // Terms of Service
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.description, color: Theme.of(context).colorScheme.primary),
-                title: const Text('Terms of Service'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  // Navigate to terms or open URL
-                  _launchURL('https://autolearn.com/terms');
-                },
-              ),
-            ),
-            const SizedBox(height: 32),
-            
-            // App Version
-            Center(
-              child: Text(
-                'App Version 1.0.0',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
+              Theme.of(context).colorScheme.background,
+            ],
+            stops: const [0.0, 0.4],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.help_outline,
+                  size: 80,
+                  color: Colors.white.withOpacity(0.5),
                 ),
-              ),
+                const SizedBox(height: 24),
+                const Text(
+                  'How can we help you?',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                
+                // Contact Support
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                  ),
+                  child: ListTile(
+                    leading: Icon(Icons.email, color: Theme.of(context).colorScheme.secondary),
+                    title: const Text('Contact Support', style: TextStyle(color: Colors.white)),
+                    subtitle: Text('Email us at support@autolearn.com', style: TextStyle(color: Colors.white.withOpacity(0.5))),
+                    trailing: Icon(Icons.chevron_right, color: Colors.white.withOpacity(0.5)),
+                    onTap: _launchEmail,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                
+                // FAQ
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                  ),
+                  child: ExpansionTile(
+                    leading: Icon(Icons.help, color: Theme.of(context).colorScheme.secondary),
+                    title: const Text('Frequently Asked Questions', style: TextStyle(color: Colors.white)),
+                    iconColor: Colors.white,
+                    collapsedIconColor: Colors.white.withOpacity(0.5),
+                    children: [
+                      _buildFAQItem(
+                        context,
+                        'How do I enroll in a course?',
+                        'Browse courses from the Courses tab, select a course, and click the Enroll button. For paid courses, you\'ll need to complete payment first.',
+                      ),
+                      _buildFAQItem(
+                        context,
+                        'Can I access courses offline?',
+                        'Currently, courses require an internet connection. We\'re working on offline support for future updates.',
+                      ),
+                      _buildFAQItem(
+                        context,
+                        'How do I reset my password?',
+                        'On the login screen, click "Forgot Password?" and enter your email address. You\'ll receive a password reset link.',
+                      ),
+                      _buildFAQItem(
+                        context,
+                        'How do I change my profile information?',
+                        'Go to Profile > Edit Profile to update your name, phone, grade, and interests.',
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                
+                // Privacy Policy
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                  ),
+                  child: ListTile(
+                    leading: Icon(Icons.privacy_tip, color: Theme.of(context).colorScheme.secondary),
+                    title: const Text('Privacy Policy', style: TextStyle(color: Colors.white)),
+                    trailing: Icon(Icons.chevron_right, color: Colors.white.withOpacity(0.5)),
+                    onTap: () {
+                      _launchURL('https://autolearn.com/privacy');
+                    },
+                  ),
+                ),
+                const SizedBox(height: 12),
+                
+                // Terms of Service
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                  ),
+                  child: ListTile(
+                    leading: Icon(Icons.description, color: Theme.of(context).colorScheme.secondary),
+                    title: const Text('Terms of Service', style: TextStyle(color: Colors.white)),
+                    trailing: Icon(Icons.chevron_right, color: Colors.white.withOpacity(0.5)),
+                    onTap: () {
+                      _launchURL('https://autolearn.com/terms');
+                    },
+                  ),
+                ),
+                const SizedBox(height: 32),
+                
+                // App Version
+                Center(
+                  child: Text(
+                    'App Version 1.0.0',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white.withOpacity(0.3),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -152,6 +190,7 @@ class HelpSupportScreen extends StatelessWidget {
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 8),
@@ -159,7 +198,7 @@ class HelpSupportScreen extends StatelessWidget {
             answer,
             style: TextStyle(
               fontSize: 14,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              color: Colors.white.withOpacity(0.7),
             ),
           ),
         ],

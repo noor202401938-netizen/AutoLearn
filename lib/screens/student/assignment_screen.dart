@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../business_logic/ai_feedback_engine.dart';
 import '../../business_logic/certificate_manager.dart';
+import '../../repository/auth_repository.dart';
 import '../../repository/quiz_repository.dart';
 import '../../model/quiz_model.dart';
 import 'certificate_screen.dart';
@@ -54,7 +55,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
 
       // Check for existing submission
       if (_assignment != null) {
-        final user = null /* was FirebaseAuth.instance.currentUser */;
+        final user = AuthRepository.getCurrentUser();
         if (user != null) {
           _existingSubmission = await _quizRepository.getUserAssignmentSubmission(
             userId: user.uid,
@@ -90,7 +91,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
       return;
     }
 
-    final user = null /* was FirebaseAuth.instance.currentUser */;
+    final user = AuthRepository.getCurrentUser();
     if (user == null || _assignment == null) return;
 
     setState(() => _isSubmitting = true);
@@ -168,18 +169,35 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(_assignment?.title ?? 'Assignment'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        title: Text(_assignment?.title ?? 'Assignment', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _assignment == null
-              ? const Center(child: Text('Assignment not found'))
-              : _showFeedback && _existingSubmission != null
-                  ? _buildFeedbackView()
-                  : _buildAssignmentView(),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
+              Theme.of(context).colorScheme.background,
+            ],
+            stops: const [0.0, 0.4],
+          ),
+        ),
+        child: SafeArea(
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator(color: Colors.white))
+              : _assignment == null
+                  ? const Center(child: Text('Assignment not found', style: TextStyle(color: Colors.white)))
+                  : _showFeedback && _existingSubmission != null
+                      ? _buildFeedbackView()
+                      : _buildAssignmentView(),
+        ),
+      ),
     );
   }
 
@@ -193,7 +211,12 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Assignment info card
-          Card(
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -204,13 +227,14 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 12),
                   if (_assignment!.description.isNotEmpty) ...[
                     Text(
                       _assignment!.description,
-                      style: const TextStyle(fontSize: 16),
+                      style: TextStyle(fontSize: 16, color: Colors.white.withOpacity(0.9)),
                     ),
                     const SizedBox(height: 16),
                   ],
@@ -219,7 +243,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                       Icon(
                         Icons.calendar_today,
                         size: 16,
-                        color: isOverdue ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurfaceVariant,
+                        color: isOverdue ? Colors.redAccent : Colors.white.withOpacity(0.7),
                       ),
                       const SizedBox(width: 8),
                       Text(
@@ -231,7 +255,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                                     ? 'Due tomorrow'
                                     : 'Due in $daysUntilDue days',
                         style: TextStyle(
-                          color: isOverdue ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurfaceVariant,
+                          color: isOverdue ? Colors.redAccent : Colors.white.withOpacity(0.7),
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -240,11 +264,11 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Icon(Icons.stars, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      Icon(Icons.stars, size: 16, color: Colors.white.withOpacity(0.7)),
                       const SizedBox(width: 8),
                       Text(
                         '${_assignment!.maxPoints} points',
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        style: TextStyle(color: Colors.white.withOpacity(0.7)),
                       ),
                     ],
                   ),
@@ -262,18 +286,20 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
             ),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                color: Colors.white.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white.withOpacity(0.1)),
               ),
               child: Text(
                 _assignment!.instructions,
-                style: const TextStyle(fontSize: 16, height: 1.5),
+                style: const TextStyle(fontSize: 16, height: 1.5, color: Colors.white),
               ),
             ),
             const SizedBox(height: 24),
@@ -285,46 +311,68 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 12),
-          TextField(
-            controller: _submissionController,
-            maxLines: 15,
-            decoration: InputDecoration(
-              hintText: 'Type your assignment submission here...',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
+            ),
+            child: TextField(
+              controller: _submissionController,
+              maxLines: 15,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintText: 'Type your assignment submission here...',
+                hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.all(20),
               ),
-              filled: true,
-              fillColor: Theme.of(context).colorScheme.surfaceContainerLowest,
             ),
           ),
 
           const SizedBox(height: 24),
 
           // Submit button
-          SizedBox(
+          Container(
             width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
             child: ElevatedButton(
               onPressed: _isSubmitting ? null : _submitAssignment,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
               child: _isSubmitting
-                  ? SizedBox(
+                  ? const SizedBox(
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.onPrimary),
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
                   : const Text(
                       'Submit Assignment',
-                      style: TextStyle(fontSize: 16),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
             ),
           ),
@@ -344,28 +392,24 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Theme.of(context).colorScheme.primary,
-                    Theme.of(context).colorScheme.primaryContainer,
-                  ],
-                ),
+                color: Colors.white.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white.withOpacity(0.1)),
               ),
               child: Column(
                 children: [
                   Icon(
                     Icons.assignment_turned_in,
                     size: 48,
-                    color: Theme.of(context).colorScheme.onPrimary,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                   const SizedBox(height: 16),
                   Text(
                     '${_existingSubmission!.score} / ${_assignment!.maxPoints}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 36,
                       fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onPrimary,
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -373,7 +417,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                     'Points Earned',
                     style: TextStyle(
                       fontSize: 18,
-                      color: Theme.of(context).colorScheme.onPrimary,
+                      color: Colors.white.withOpacity(0.7),
                     ),
                   ),
                 ],
@@ -388,18 +432,20 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
+              color: Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
             ),
             child: Text(
               _existingSubmission!.feedback ?? 'No feedback available',
-              style: const TextStyle(fontSize: 16, height: 1.5),
+              style: const TextStyle(fontSize: 16, height: 1.5, color: Colors.white),
             ),
           ),
 
@@ -411,35 +457,51 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Theme.of(context).dividerColor),
+              color: Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
             ),
             child: Text(
               _existingSubmission!.content,
-              style: const TextStyle(fontSize: 16, height: 1.5),
+              style: const TextStyle(fontSize: 16, height: 1.5, color: Colors.white),
             ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
 
           // Done button
-          SizedBox(
+          Container(
             width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
             child: ElevatedButton(
               onPressed: () => Navigator.pop(context),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Text('Done'),
+              child: const Text('Done', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
           ),
         ],

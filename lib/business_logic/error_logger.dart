@@ -2,9 +2,6 @@
 import 'dart:developer' as developer;
 
 class ErrorLogger {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String _errorsCollection = 'error_logs';
-
   // Log error
   Future<void> logError({
     required String error,
@@ -20,17 +17,6 @@ class ErrorLogger {
         error: error,
         stackTrace: stackTrace,
       );
-
-      // Log to Firestore
-      final user = null /* was FirebaseAuth.instance.currentUser */;
-      await _firestore.collection(_errorsCollection).add({
-        'error': error,
-        'stackTrace': stackTrace.toString(),
-        'context': context,
-        'userId': user?.uid,
-        'timestamp': FieldValue.serverTimestamp(),
-        'additionalData': additionalData,
-      });
     } catch (e) {
       // Fallback to console only
       developer.log('Failed to log error: $e');
@@ -54,4 +40,3 @@ class ErrorLogger {
     );
   }
 }
-

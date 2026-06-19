@@ -1,7 +1,7 @@
 // lib/repository/auth_repository.dart
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import '../backend/api_client.dart';
 
 class AuthRepository {
@@ -21,7 +21,7 @@ class AuthRepository {
         await _apiClient.setToken(data['token']);
         
         // Save minimal user info to secure storage to mimic sync access
-        await _storage.write(key: 'user_uid', value: data['user']['uid']);
+        await _storage.write(key: 'user_uid', value: data['user']['id'] ?? data['user']['uid']);
         await _storage.write(key: 'user_role', value: data['user']['role']);
         
         return data['user'];
@@ -43,7 +43,7 @@ class AuthRepository {
         final data = jsonDecode(response.body);
         await _apiClient.setToken(data['token']);
         
-        await _storage.write(key: 'user_uid', value: data['user']['uid']);
+        await _storage.write(key: 'user_uid', value: data['user']['id'] ?? data['user']['uid']);
         await _storage.write(key: 'user_role', value: data['user']['role']);
         
         return data['user'];
@@ -92,7 +92,10 @@ class AuthRepository {
     return "Not implemented in backend yet";
   }
 
-  User? getCurrentUser() {
-    return FirebaseAuth.instance.currentUser;
+  // Returns a mock user object with a uid
+  Future<Map<String, dynamic>?> getCurrentUser() async {
+    final uid = await getCurrentUserUid();
+    if (uid == null) return null;
+    return {'uid': uid};
   }
 }

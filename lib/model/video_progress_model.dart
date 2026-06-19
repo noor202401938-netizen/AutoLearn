@@ -1,4 +1,4 @@
-﻿import 'package:cloud_firestore/cloud_firestore.dart';
+
 // lib/model/video_progress_model.dart
 
 class VideoProgressModel {
@@ -51,7 +51,7 @@ class VideoProgressModel {
   // Create from Firestore document
   factory VideoProgressModel.fromMap(Map<String, dynamic> map) {
     return VideoProgressModel(
-      progressId: map['progressId'] ?? '',
+      progressId: map['id'] ?? map['progressId'] ?? '',
       userId: map['userId'] ?? '',
       courseId: map['courseId'] ?? '',
       moduleId: map['moduleId'] ?? '',
@@ -61,11 +61,11 @@ class VideoProgressModel {
       totalDuration: map['totalDuration'] ?? 0,
       isCompleted: map['isCompleted'] ?? false,
       lastWatchedAt: map['lastWatchedAt'] != null
-          ? (map['lastWatchedAt'] as Timestamp).toDate()
+          ? (DateTime.tryParse(map['lastWatchedAt']?.toString() ?? '') ?? DateTime.now())
           : null,
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
+      createdAt: (DateTime.tryParse(map['createdAt']?.toString() ?? '') ?? DateTime.now()),
       updatedAt: map['updatedAt'] != null
-          ? (map['updatedAt'] as Timestamp).toDate()
+          ? (DateTime.tryParse(map['updatedAt']?.toString() ?? '') ?? DateTime.now())
           : null,
     );
   }
@@ -136,7 +136,7 @@ class VideoSummaryModel {
       videoId: map['videoId'] ?? '',
       summary: map['summary'] ?? '',
       keyPoints: List<String>.from(map['keyPoints'] ?? []),
-      generatedAt: (map['generatedAt'] as Timestamp).toDate(),
+      generatedAt: (DateTime.tryParse(map['generatedAt']?.toString() ?? '') ?? DateTime.now()),
     );
   }
 }
@@ -172,7 +172,7 @@ class VideoCaptionModel {
           ? (map['captions'] as List).map((item) => CaptionItem.fromMap(item)).toList()
           : [],
       lastUpdated: map['lastUpdated'] != null
-          ? (map['lastUpdated'] as Timestamp).toDate()
+          ? (DateTime.tryParse(map['lastUpdated']?.toString() ?? '') ?? DateTime.now())
           : null,
     );
   }
@@ -205,5 +205,6 @@ class CaptionItem {
     );
   }
 }
+
 
 

@@ -121,25 +121,32 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header with Stats
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+      extendBodyBehindAppBar: true,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
+              Theme.of(context).colorScheme.background,
+            ],
+            stops: const [0.0, 0.4],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Header with Stats
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.05),
+                  border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.1))),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                   LayoutBuilder(
                     builder: (context, constraints) {
                       final isNarrow = constraints.maxWidth < 360;
@@ -152,35 +159,13 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                               style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
+                                color: Colors.white,
                               ),
                             ),
                             const SizedBox(height: 12),
                             SizedBox(
                               width: double.infinity,
-                              child: ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Theme.of(context).colorScheme.primary,
-                                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 12,
-                                  ),
-                                ),
-                                icon: const Icon(Icons.add),
-                                label: const Text('Create Course'),
-                                onPressed: () async {
-                                  final result = await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const CreateCourseScreen(),
-                                    ),
-                                  );
-                                  if (result == true) {
-                                    _loadCourses();
-                                  }
-                                },
-                              ),
+                              child: _buildCreateButton(),
                             ),
                           ],
                         );
@@ -193,37 +178,15 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                             child: Text(
                               'Course Management',
                               style: TextStyle(
-                                fontSize: 24,
+                                fontSize: 28,
                                 fontWeight: FontWeight.bold,
+                                color: Colors.white,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           const SizedBox(width: 12),
-                          ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.primary,
-                              foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                            ),
-                            icon: const Icon(Icons.add),
-                            label: const Text('Create Course'),
-                            onPressed: () async {
-                              final result = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const CreateCourseScreen(),
-                                ),
-                              );
-                              if (result == true) {
-                                _loadCourses();
-                              }
-                            },
-                          ),
+                          _buildCreateButton(),
                         ],
                       );
                     },
@@ -259,60 +222,43 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
 
             // Search and Filters
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
-                  TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search courses...',
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      filled: true,
-                      fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white.withOpacity(0.1)),
                     ),
-                    onChanged: (value) {
-                      _searchQuery = value;
-                      _filterCourses();
-                    },
+                    child: TextField(
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: 'Search courses...',
+                        hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+                        prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.5)),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      ),
+                      onChanged: (value) {
+                        _searchQuery = value;
+                        _filterCourses();
+                      },
+                    ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   Row(
                     children: [
                       Expanded(
-                        child: ChoiceChip(
-                          label: const Text('All'),
-                          selected: _filterStatus == null,
-                          onSelected: (selected) {
-                            setState(() => _filterStatus = null);
-                            _filterCourses();
-                          },
-                        ),
+                        child: _buildFilterChip('All', null),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: ChoiceChip(
-                          label: const Text('Published'),
-                          selected: _filterStatus == 'published',
-                          selectedColor: Colors.green.shade100,
-                          onSelected: (selected) {
-                            setState(() => _filterStatus = 'published');
-                            _filterCourses();
-                          },
-                        ),
+                        child: _buildFilterChip('Published', 'published'),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: ChoiceChip(
-                          label: const Text('Draft'),
-                          selected: _filterStatus == 'draft',
-                          selectedColor: Colors.orange.shade100,
-                          onSelected: (selected) {
-                            setState(() => _filterStatus = 'draft');
-                            _filterCourses();
-                          },
-                        ),
+                        child: _buildFilterChip('Draft', 'draft'),
                       ),
                     ],
                   ),
@@ -335,14 +281,14 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                               Icon(
                                 Icons.school_outlined,
                                 size: 80,
-                                color: Colors.grey.shade300,
+                                color: Colors.white.withOpacity(0.2),
                               ),
                               const SizedBox(height: 16),
                               Text(
                                 'No courses found',
                                 style: TextStyle(
                                   fontSize: 18,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  color: Colors.white.withOpacity(0.7),
                                 ),
                               ),
                             ],
@@ -350,8 +296,9 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                         )
                       : RefreshIndicator(
                           onRefresh: _loadCourses,
+                          color: Theme.of(context).colorScheme.secondary,
                           child: ListView.builder(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                             itemCount: _filteredCourses.length,
                             itemBuilder: (context, index) {
                               return _buildCourseCard(
@@ -366,12 +313,84 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
     );
   }
 
+  Widget _buildCreateButton() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+        icon: const Icon(Icons.add),
+        label: const Text('Create Course', style: TextStyle(fontWeight: FontWeight.bold)),
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const CreateCourseScreen(),
+            ),
+          );
+          if (result == true) {
+            _loadCourses();
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(String label, String? value) {
+    final isSelected = _filterStatus == value;
+    return InkWell(
+      onTap: () {
+        setState(() => _filterStatus = value);
+        _filterCourses();
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? Theme.of(context).colorScheme.primary.withOpacity(0.2) : Colors.white.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? Theme.of(context).colorScheme.secondary : Colors.white.withOpacity(0.1),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.white.withOpacity(0.7),
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildStatChip(String label, String value, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -380,15 +399,15 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
             label,
             style: TextStyle(
               fontSize: 12,
-              color: color,
+              color: color.withOpacity(0.9),
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 6),
           Text(
             value,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 16,
               color: color,
               fontWeight: FontWeight.bold,
             ),
@@ -399,29 +418,49 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
   }
 
   Widget _buildCourseCard(CourseModel course) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface.withOpacity(0.4),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  width: 60,
-                  height: 60,
+                  width: 64,
+                  height: 64,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    gradient: LinearGradient(
+                      colors: [
+                        Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                        Theme.of(context).colorScheme.secondary.withOpacity(0.5),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    border: Border.all(color: Colors.white.withOpacity(0.2)),
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.school,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 30,
+                    color: Colors.white,
+                    size: 32,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -429,18 +468,19 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                       Text(
                         course.title,
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         course.instructor,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          color: Colors.white.withOpacity(0.7),
                         ),
                       ),
                     ],
@@ -448,58 +488,64 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
+                    horizontal: 10,
+                    vertical: 6,
                   ),
                   decoration: BoxDecoration(
                     color: course.isPublished
-                        ? Colors.green.withOpacity(0.1)
-                        : Colors.orange.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(4),
+                        ? Colors.greenAccent.withOpacity(0.1)
+                        : Colors.orangeAccent.withOpacity(0.1),
+                    border: Border.all(
+                      color: course.isPublished
+                          ? Colors.greenAccent.withOpacity(0.5)
+                          : Colors.orangeAccent.withOpacity(0.5),
+                    ),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     course.isPublished ? 'PUBLISHED' : 'DRAFT',
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
-                      color: course.isPublished ? Colors.green : Colors.orange,
+                      color: course.isPublished ? Colors.greenAccent : Colors.orangeAccent,
+                      letterSpacing: 1,
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             Row(
               children: [
-                Icon(Icons.people, size: 16, color: Colors.grey.shade600),
-                const SizedBox(width: 4),
-                Text('${course.enrollmentCount} enrolled'),
-                const SizedBox(width: 16),
-                Icon(Icons.star, size: 16, color: Colors.amber),
-                const SizedBox(width: 4),
-                Text(course.rating.toStringAsFixed(1)),
-                const SizedBox(width: 16),
-                Icon(Icons.access_time, size: 16, color: Colors.grey.shade600),
-                const SizedBox(width: 4),
-                Text('${course.duration}h'),
+                Icon(Icons.people, size: 16, color: Colors.white.withOpacity(0.5)),
+                const SizedBox(width: 6),
+                Text('${course.enrollmentCount} enrolled', style: TextStyle(color: Colors.white.withOpacity(0.8))),
+                const SizedBox(width: 20),
+                const Icon(Icons.star, size: 16, color: Colors.amberAccent),
+                const SizedBox(width: 6),
+                Text(course.rating.toStringAsFixed(1), style: TextStyle(color: Colors.white.withOpacity(0.8))),
+                const SizedBox(width: 20),
+                Icon(Icons.access_time, size: 16, color: Colors.white.withOpacity(0.5)),
+                const SizedBox(width: 6),
+                Text('${course.duration}h', style: TextStyle(color: Colors.white.withOpacity(0.8))),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
+            Divider(color: Colors.white.withOpacity(0.1)),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                IconButton(
-                  icon: Icon(
-                    course.isPublished
-                        ? Icons.visibility_off
-                        : Icons.visibility,
-                    color: course.isPublished ? Colors.orange : Colors.green,
-                  ),
-                  onPressed: () => _togglePublishStatus(course),
+                _buildActionButton(
+                  icon: course.isPublished ? Icons.visibility_off : Icons.visibility,
+                  color: course.isPublished ? Colors.orangeAccent : Colors.greenAccent,
                   tooltip: course.isPublished ? 'Unpublish' : 'Publish',
+                  onPressed: () => _togglePublishStatus(course),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.blue),
+                const SizedBox(width: 8),
+                _buildActionButton(
+                  icon: Icons.edit,
+                  color: Colors.blueAccent,
+                  tooltip: 'Edit',
                   onPressed: () async {
                     final result = await Navigator.push(
                       context,
@@ -511,10 +557,12 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                       _loadCourses();
                     }
                   },
-                  tooltip: 'Edit',
                 ),
-                IconButton(
-                  icon: const Icon(Icons.folder, color: Colors.purple),
+                const SizedBox(width: 8),
+                _buildActionButton(
+                  icon: Icons.folder,
+                  color: Colors.purpleAccent,
+                  tooltip: 'Manage Content',
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -523,17 +571,35 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                       ),
                     ).then((_) => _loadCourses());
                   },
-                  tooltip: 'Manage Content',
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => _deleteCourse(course),
+                const SizedBox(width: 8),
+                _buildActionButton(
+                  icon: Icons.delete,
+                  color: Colors.redAccent,
                   tooltip: 'Delete',
+                  onPressed: () => _deleteCourse(course),
                 ),
               ],
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildActionButton({required IconData icon, required Color color, required String tooltip, required VoidCallback onPressed}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        shape: BoxShape.circle,
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: IconButton(
+        icon: Icon(icon, color: color, size: 20),
+        onPressed: onPressed,
+        tooltip: tooltip,
+        constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+        padding: EdgeInsets.zero,
       ),
     );
   }

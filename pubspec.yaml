@@ -18,6 +18,7 @@ dependencies:
 
   # UI
   cupertino_icons: ^1.0.6
+  google_fonts: ^6.1.0
 
   # Video Player
   youtube_player_flutter: ^9.0.0

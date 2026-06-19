@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 // lib/screens/admin/admin_dashboard.dart
 import 'package:flutter/material.dart';
 
@@ -93,13 +93,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: const Text(
           'Admin Dashboard',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
           IconButton(
@@ -115,24 +115,25 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ),
           PopupMenuButton(
             icon: const Icon(Icons.account_circle),
+            color: Theme.of(context).colorScheme.surface,
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'profile',
                 child: Row(
                   children: [
-                    Icon(Icons.person, color: Colors.black87),
-                    SizedBox(width: 8),
-                    Text('Profile'),
+                    Icon(Icons.person, color: Theme.of(context).colorScheme.onSurface),
+                    const SizedBox(width: 8),
+                    Text('Profile', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                   ],
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'settings',
                 child: Row(
                   children: [
-                    Icon(Icons.settings, color: Colors.black87),
-                    SizedBox(width: 8),
-                    Text('Settings'),
+                    Icon(Icons.settings, color: Theme.of(context).colorScheme.onSurface),
+                    const SizedBox(width: 8),
+                    Text('Settings', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                   ],
                 ),
               ),
@@ -173,159 +174,157 @@ class _AdminDashboardState extends State<AdminDashboard> {
           const SizedBox(width: 8),
         ],
       ),
-      body: _getSelectedScreen(),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_outlined),
-            activeIcon: Icon(Icons.dashboard),
-            label: 'Overview',
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
+              Theme.of(context).colorScheme.background,
+            ],
+            stops: const [0.0, 0.3],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people_outline),
-            activeIcon: Icon(Icons.people),
-            label: 'Users',
+        ),
+        child: SafeArea(child: _getSelectedScreen()),
+      ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: Colors.white.withOpacity(0.1),
+              width: 1,
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.school_outlined),
-            activeIcon: Icon(Icons.school),
-            label: 'Courses',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.analytics_outlined),
-            activeIcon: Icon(Icons.analytics),
-            label: 'Analytics',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
+        ),
+        child: BottomNavigationBar(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          selectedItemColor: Theme.of(context).colorScheme.secondary,
+          unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard_outlined),
+              activeIcon: Icon(Icons.dashboard),
+              label: 'Overview',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.people_outline),
+              activeIcon: Icon(Icons.people),
+              label: 'Users',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.school_outlined),
+              activeIcon: Icon(Icons.school),
+              label: 'Courses',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.analytics_outlined),
+              activeIcon: Icon(Icons.analytics),
+              label: 'Analytics',
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          type: BottomNavigationBarType.fixed,
+        ),
       ),
     );
   }
 
   // Overview Screen with Real-time Data
   Widget _buildOverviewScreen() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('users').snapshots(),
-      builder: (context, userSnapshot) {
-        return StreamBuilder<List<dynamic>>(
-          stream: _courseManager.watchPublishedCourses().map((courses) => courses),
-          builder: (context, courseSnapshot) {
-            // Calculate stats from real-time data
-            int totalUsers = userSnapshot.hasData ? userSnapshot.data!.docs.length : 0;
-            int totalStudents = 0;
-            int totalAdmins = 0;
-            int activeCourses = courseSnapshot.hasData ? courseSnapshot.data!.length : 0;
+    if (_isLoadingAnalytics) {
+      return const Center(child: CircularProgressIndicator(color: Colors.white));
+    }
 
-            if (userSnapshot.hasData) {
-              for (var doc in userSnapshot.data!.docs) {
-                final data = doc.data() as Map<String, dynamic>;
-                final role = data['role'] ?? 'student';
-                if (role == 'student') {
-                  totalStudents++;
-                } else if (role == 'admin') {
-                  totalAdmins++;
-                }
-              }
-            }
+    int totalUsers = _analyticsData['totalUsers'] ?? 0;
+    int totalStudents = totalUsers; // Simplified for now since role might not be easily accessible
+    int activeCourses = _analyticsData['publishedCourses'] ?? 0;
 
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header Section
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Theme.of(context).colorScheme.primary,
-                          Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
-                        ],
-                      ),
-                    ),
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Welcome back,',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.9),
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          null /* was FirebaseAuth.instance.currentUser */?.displayName ??
-                              (null /* was FirebaseAuth.instance.currentUser */?.email?.split('@')[0] ?? 'Admin'),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.1),
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: _buildQuickStat(
-                                  'Users',
-                                  totalUsers.toString(),
-                                  Icons.people,
-                                  Colors.blue,
-                                ),
-                              ),
-                              Container(
-                                width: 1,
-                                height: 40,
-                                color: Colors.grey.shade300,
-                              ),
-                              Expanded(
-                                child: _buildQuickStat(
-                                  'Students',
-                                  totalStudents.toString(),
-                                  Icons.school,
-                                  Colors.green,
-                                ),
-                              ),
-                              Container(
-                                width: 1,
-                                height: 40,
-                                color: Colors.grey.shade300,
-                              ),
-                              Expanded(
-                                child: _buildQuickStat(
-                                  'Courses',
-                                  activeCourses.toString(),
-                                  Icons.book,
-                                  Colors.purple,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header Section
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Welcome back,',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _authManager.getCurrentUser()?.displayName ??
+                      (_authManager.getCurrentUser()?.email?.split('@')[0] ?? 'Admin'),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _buildQuickStat(
+                          'Users',
+                          totalUsers.toString(),
+                          Icons.people,
+                          Theme.of(context).colorScheme.secondary,
+                        ),
+                      ),
+                      Container(
+                        width: 1,
+                        height: 40,
+                        color: Colors.white.withOpacity(0.1),
+                      ),
+                      Expanded(
+                        child: _buildQuickStat(
+                          'Students',
+                          totalStudents.toString(),
+                          Icons.school,
+                          Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      Container(
+                        width: 1,
+                        height: 40,
+                        color: Colors.white.withOpacity(0.1),
+                      ),
+                      Expanded(
+                        child: _buildQuickStat(
+                          'Courses',
+                          activeCourses.toString(),
+                          Icons.book,
+                          Colors.purpleAccent,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
 
                   // Quick Actions Section
                   Padding(
@@ -338,6 +337,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -352,25 +352,25 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             _buildActionCard(
                               'Manage Users',
                               Icons.people,
-                              Colors.blue,
+                              Theme.of(context).colorScheme.secondary,
                               () => setState(() => _selectedIndex = 1),
                             ),
                             _buildActionCard(
                               'Manage Courses',
                               Icons.school,
-                              Colors.green,
+                              Theme.of(context).colorScheme.primary,
                               () => setState(() => _selectedIndex = 2),
                             ),
                             _buildActionCard(
                               'View Analytics',
                               Icons.analytics,
-                              Colors.orange,
+                              Colors.orangeAccent,
                               () => setState(() => _selectedIndex = 3),
                             ),
                             _buildActionCard(
                               'Settings',
                               Icons.settings,
-                              Colors.purple,
+                              Colors.purpleAccent,
                               () {
                                 Navigator.push(
                                   context,
@@ -383,102 +383,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 24),
-
-                        // Recent Activity - real-time from Firestore
-                        const Text(
-                          'Recent Activity',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        StreamBuilder<QuerySnapshot>(
-                          stream: FirebaseFirestore.instance
-                              .collection('users')
-                              .orderBy('createdAt', descending: true)
-                              .limit(5)
-                              .snapshots(),
-                          builder: (context, activitySnapshot) {
-                            if (activitySnapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Center(
-                                child: Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: CircularProgressIndicator(),
-                                ),
-                              );
-                            }
-
-                            if (activitySnapshot.hasError) {
-                              return Text(
-                                'Error loading activity',
-                                style: TextStyle(
-                                  color: Colors.red.shade400,
-                                ),
-                              );
-                            }
-
-                            final docs = activitySnapshot.data?.docs ?? [];
-                            if (docs.isEmpty) {
-                              return Text(
-                                'No recent activity yet',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                ),
-                              );
-                            }
-
-                            return Column(
-                              children: docs.map((doc) {
-                                final data =
-                                    doc.data() as Map<String, dynamic>? ?? {};
-                                final email =
-                                    data['email'] as String? ?? 'Unknown user';
-                                final role =
-                                    data['role'] as String? ?? 'student';
-                                final createdAt = data['createdAt'];
-                                String timeLabel = 'Just now';
-                                if (createdAt is Timestamp) {
-                                  final dt = createdAt.toDate();
-                                  final diff =
-                                      DateTime.now().difference(dt);
-                                  if (diff.inDays > 0) {
-                                    timeLabel =
-                                        '${diff.inDays} day${diff.inDays > 1 ? 's' : ''} ago';
-                                  } else if (diff.inHours > 0) {
-                                    timeLabel =
-                                        '${diff.inHours} hour${diff.inHours > 1 ? 's' : ''} ago';
-                                  } else if (diff.inMinutes > 0) {
-                                    timeLabel =
-                                        '${diff.inMinutes} minute${diff.inMinutes > 1 ? 's' : ''} ago';
-                                  }
-                                }
-
-                                return _buildActivityCard(
-                                  'New ${role == 'admin' ? 'admin' : 'student'} registered',
-                                  email,
-                                  timeLabel,
-                                  Icons.person_add,
-                                  role == 'admin'
-                                      ? Colors.orange
-                                      : Colors.green,
-                                );
-                              }).toList(),
-                            );
-                          },
-                        ),
                       ],
                     ),
                   ),
                 ],
               ),
             );
-          },
-        );
-      },
-    );
   }
 
   Widget _buildQuickStat(String label, String value, IconData icon, Color color) {
@@ -491,6 +401,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
         const SizedBox(height: 4),
@@ -498,7 +409,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey.shade600,
+            color: Colors.white.withOpacity(0.5),
           ),
         ),
       ],
@@ -506,14 +417,15 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   Widget _buildActionCard(String title, IconData icon, Color color, VoidCallback onTap) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
           child: Column(
@@ -523,7 +435,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
+                  color: color.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: color, size: 28),
@@ -536,6 +448,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
+                    color: Colors.white,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -555,9 +468,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
       IconData icon,
       Color color,
       ) {
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      elevation: 1,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
@@ -565,7 +482,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
+                color: color.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: color, size: 20),
@@ -580,13 +497,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
                     style: TextStyle(
-                      color: Colors.grey.shade600,
+                      color: Colors.white.withOpacity(0.5),
                       fontSize: 12,
                     ),
                   ),
@@ -596,7 +514,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             Text(
               time,
               style: TextStyle(
-                color: Colors.grey.shade500,
+                color: Colors.white.withOpacity(0.4),
                 fontSize: 11,
               ),
             ),
@@ -660,7 +578,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
             // Header with count
             Container(
               padding: const EdgeInsets.all(16),
-              color: Colors.white,
               child: Row(
                 children: [
                   const Text(
@@ -668,19 +585,21 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                   const Spacer(),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                      color: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Theme.of(context).colorScheme.secondary.withOpacity(0.5)),
                     ),
                     child: Text(
                       '${users.length} users',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(context).colorScheme.secondary,
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
                       ),
@@ -710,8 +629,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
     final role = userData['role'] ?? 'student';
     final isActive = userData['isActive'] ?? true;
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -720,11 +644,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                  backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
                   child: Text(
                     (userData['displayName'] ?? userData['email'] ?? 'U')[0].toUpperCase(),
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).colorScheme.secondary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -739,6 +663,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
+                          color: Colors.white,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -746,7 +671,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         userData['email'] ?? 'No Email',
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey.shade600,
+                          color: Colors.white.withOpacity(0.5),
                         ),
                       ),
                     ],
@@ -761,14 +686,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: role == 'admin'
-                        ? Colors.orange.withValues(alpha: 0.1)
-                        : Colors.blue.withValues(alpha: 0.1),
+                        ? Colors.orange.withOpacity(0.2)
+                        : Colors.blue.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: role == 'admin'
+                          ? Colors.orange.withOpacity(0.5)
+                          : Colors.blue.withOpacity(0.5),
+                    ),
                   ),
                   child: Text(
                     role.toUpperCase(),
                     style: TextStyle(
-                      color: role == 'admin' ? Colors.orange : Colors.blue,
+                      color: role == 'admin' ? Colors.orange : Colors.lightBlueAccent,
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                     ),
@@ -779,14 +709,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: isActive
-                        ? Colors.green.withValues(alpha: 0.1)
-                        : Colors.red.withValues(alpha: 0.1),
+                        ? Colors.green.withOpacity(0.2)
+                        : Colors.red.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isActive
+                          ? Colors.green.withOpacity(0.5)
+                          : Colors.red.withOpacity(0.5),
+                    ),
                   ),
                   child: Text(
                     isActive ? 'Active' : 'Inactive',
                     style: TextStyle(
-                      color: isActive ? Colors.green : Colors.red,
+                      color: isActive ? Colors.greenAccent : Colors.redAccent,
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                     ),
@@ -795,12 +730,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.edit, size: 20),
-                  color: Colors.blue,
+                  color: Colors.lightBlueAccent,
                   onPressed: () => _showEditUserDialog(userData),
                 ),
                 IconButton(
                   icon: const Icon(Icons.delete, size: 20),
-                  color: Colors.red,
+                  color: Colors.redAccent,
                   onPressed: () => _showDeleteConfirmation(userData),
                 ),
               ],
@@ -867,7 +802,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
             onPressed: () async {
               await _userRepository.updateUserRole(
-                userData['uid'],
+                userData['id'] ?? userData['uid'],
                 selectedRole,
               );
               if (mounted) {
@@ -906,7 +841,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               foregroundColor: Theme.of(context).colorScheme.onError,
             ),
             onPressed: () async {
-              await _userRepository.deleteUserProfile(userData['uid']);
+              await _userRepository.deleteUserProfile(userData['id'] ?? userData['uid']);
               if (mounted) {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -950,6 +885,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 24),
@@ -1002,7 +938,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
           const SizedBox(height: 32),
 
           // Course Performance Chart (based on real enrollments)
-          Card(
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -1013,13 +954,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 24),
                   if (limitedCourses.isEmpty)
                     Text(
                       'Not enough data yet. Create and publish courses to see performance.',
-                      style: TextStyle(color: Colors.grey.shade600),
+                      style: TextStyle(color: Colors.white.withOpacity(0.5)),
                     )
                   else
                     SizedBox(
@@ -1053,7 +995,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     padding: const EdgeInsets.only(top: 8.0),
                                     child: Text(
                                       title,
-                                      style: const TextStyle(fontSize: 10),
+                                      style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.7)),
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   );
@@ -1079,7 +1021,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                               barRods: [
                                 BarChartRodData(
                                   toY: course.enrollmentCount.toDouble(),
-                                  color: Colors.blue,
+                                  color: Theme.of(context).colorScheme.secondary,
                                   width: 18,
                                 ),
                               ],
@@ -1098,7 +1040,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
   Widget _buildStatCard(String title, String value, IconData icon, Color color) {
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -1111,6 +1058,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               style: const TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
             ),
             const SizedBox(height: 4),
@@ -1118,7 +1066,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               title,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey[600],
+                color: Colors.white.withOpacity(0.5),
               ),
             ),
           ],

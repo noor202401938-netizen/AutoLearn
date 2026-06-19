@@ -1,4 +1,4 @@
-﻿import 'package:cloud_firestore/cloud_firestore.dart';
+
 // lib/model/certificate_model.dart
 
 class CertificateModel {
@@ -36,21 +36,21 @@ class CertificateModel {
       'lessonName': lessonName,
       'completionDate': completionDate.toIso8601String(),
       'dayOfWeek': dayOfWeek,
-      'createdAt': FieldValue.serverTimestamp(),
+      'createdAt': DateTime.now().toIso8601String(),
     };
   }
 
   // Create from Firestore document
   factory CertificateModel.fromMap(Map<String, dynamic> map) {
     return CertificateModel(
-      certificateId: map['certificateId'] ?? '',
+      certificateId: map['id'] ?? map['certificateId'] ?? '',
       userId: map['userId'] ?? '',
       userName: map['userName'] ?? '',
       courseId: map['courseId'] ?? '',
       courseName: map['courseName'] ?? '',
       lessonId: map['lessonId'] ?? '',
       lessonName: map['lessonName'] ?? '',
-      completionDate: (map['completionDate'] as Timestamp).toDate(),
+      completionDate: (DateTime.tryParse(map['completionDate']?.toString() ?? '') ?? DateTime.now()),
       dayOfWeek: map['dayOfWeek'] ?? '',
     );
   }

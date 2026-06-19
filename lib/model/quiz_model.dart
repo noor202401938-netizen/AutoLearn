@@ -1,4 +1,4 @@
-﻿import 'package:cloud_firestore/cloud_firestore.dart';
+
 // lib/model/quiz_model.dart
 
 class QuizModel {
@@ -49,7 +49,7 @@ class QuizModel {
 
   factory QuizModel.fromMap(Map<String, dynamic> map) {
     return QuizModel(
-      quizId: map['quizId'] ?? '',
+      quizId: map['id'] ?? map['quizId'] ?? '',
       courseId: map['courseId'] ?? '',
       moduleId: map['moduleId'] ?? '',
       lessonId: map['lessonId'] ?? '',
@@ -62,9 +62,9 @@ class QuizModel {
           : [],
       timeLimit: map['timeLimit'] ?? 0,
       passingScore: map['passingScore'] ?? 70,
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
+      createdAt: (DateTime.tryParse(map['createdAt']?.toString() ?? '') ?? DateTime.now()),
       updatedAt: map['updatedAt'] != null
-          ? (map['updatedAt'] as Timestamp).toDate()
+          ? (DateTime.tryParse(map['updatedAt']?.toString() ?? '') ?? DateTime.now())
           : null,
       createdBy: map['createdBy'],
     );
@@ -107,7 +107,7 @@ class QuestionModel {
 
   factory QuestionModel.fromMap(Map<String, dynamic> map) {
     return QuestionModel(
-      questionId: map['questionId'] ?? '',
+      questionId: map['id'] ?? map['questionId'] ?? '',
       questionText: map['questionText'] ?? '',
       type: QuestionType.values.firstWhere(
         (e) => e.toString().split('.').last == map['type'],
@@ -150,7 +150,7 @@ class OptionModel {
 
   factory OptionModel.fromMap(Map<String, dynamic> map) {
     return OptionModel(
-      optionId: map['optionId'] ?? '',
+      optionId: map['id'] ?? map['optionId'] ?? '',
       text: map['text'] ?? '',
     );
   }
@@ -208,9 +208,9 @@ class QuizSubmissionModel {
 
   factory QuizSubmissionModel.fromMap(Map<String, dynamic> map) {
     return QuizSubmissionModel(
-      submissionId: map['submissionId'] ?? '',
+      submissionId: map['id'] ?? map['submissionId'] ?? '',
       userId: map['userId'] ?? '',
-      quizId: map['quizId'] ?? '',
+      quizId: map['id'] ?? map['quizId'] ?? '',
       courseId: map['courseId'] ?? '',
       moduleId: map['moduleId'] ?? '',
       lessonId: map['lessonId'] ?? '',
@@ -219,7 +219,7 @@ class QuizSubmissionModel {
       totalPoints: map['totalPoints'] ?? 0,
       earnedPoints: map['earnedPoints'] ?? 0,
       passed: map['passed'] ?? false,
-      submittedAt: (map['submittedAt'] as Timestamp).toDate(),
+      submittedAt: (DateTime.tryParse(map['submittedAt']?.toString() ?? '') ?? DateTime.now()),
       timeSpent: map['timeSpent'],
     );
   }
@@ -274,18 +274,18 @@ class AssignmentModel {
 
   factory AssignmentModel.fromMap(Map<String, dynamic> map) {
     return AssignmentModel(
-      assignmentId: map['assignmentId'] ?? '',
+      assignmentId: map['id'] ?? map['assignmentId'] ?? '',
       courseId: map['courseId'] ?? '',
       moduleId: map['moduleId'] ?? '',
       lessonId: map['lessonId'] ?? '',
       title: map['title'] ?? '',
       description: map['description'] ?? '',
       instructions: map['instructions'] ?? '',
-      dueDate: (map['dueDate'] as Timestamp).toDate(),
+      dueDate: (DateTime.tryParse(map['dueDate']?.toString() ?? '') ?? DateTime.now()),
       maxPoints: map['maxPoints'] ?? 100,
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
+      createdAt: (DateTime.tryParse(map['createdAt']?.toString() ?? '') ?? DateTime.now()),
       updatedAt: map['updatedAt'] != null
-          ? (map['updatedAt'] as Timestamp).toDate()
+          ? (DateTime.tryParse(map['updatedAt']?.toString() ?? '') ?? DateTime.now())
           : null,
       createdBy: map['createdBy'],
     );
@@ -341,9 +341,9 @@ class AssignmentSubmissionModel {
 
   factory AssignmentSubmissionModel.fromMap(Map<String, dynamic> map) {
     return AssignmentSubmissionModel(
-      submissionId: map['submissionId'] ?? '',
+      submissionId: map['id'] ?? map['submissionId'] ?? '',
       userId: map['userId'] ?? '',
-      assignmentId: map['assignmentId'] ?? '',
+      assignmentId: map['id'] ?? map['assignmentId'] ?? '',
       courseId: map['courseId'] ?? '',
       moduleId: map['moduleId'] ?? '',
       lessonId: map['lessonId'] ?? '',
@@ -351,12 +351,14 @@ class AssignmentSubmissionModel {
       feedback: map['feedback'],
       score: map['score'],
       isGraded: map['isGraded'] ?? false,
-      submittedAt: (map['submittedAt'] as Timestamp).toDate(),
+      submittedAt: (DateTime.tryParse(map['submittedAt']?.toString() ?? '') ?? DateTime.now()),
       gradedAt: map['gradedAt'] != null
-          ? (map['gradedAt'] as Timestamp).toDate()
+          ? (DateTime.tryParse(map['gradedAt']?.toString() ?? '') ?? DateTime.now())
           : null,
     );
   }
 }
+
+
 
 

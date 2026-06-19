@@ -90,12 +90,94 @@ class _UserInfoPageState extends State<UserInfoPage> {
     }
   }
 
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String labelText,
+    required String hintText,
+    required IconData prefixIcon,
+    TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: labelText,
+        labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+        hintText: hintText,
+        hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+        prefixIcon: Icon(prefixIcon, color: Theme.of(context).colorScheme.secondary),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+        ),
+        filled: true,
+        fillColor: Colors.white.withOpacity(0.05),
+      ),
+      validator: validator,
+    );
+  }
+
+  Widget _buildDropdown({
+    required String value,
+    required String labelText,
+    required IconData prefixIcon,
+    required List<String> items,
+    required void Function(String?) onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      value: value,
+      dropdownColor: const Color(0xFF1E1E2C),
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: labelText,
+        labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+        prefixIcon: Icon(prefixIcon, color: Theme.of(context).colorScheme.secondary),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+        ),
+        filled: true,
+        fillColor: Colors.white.withOpacity(0.05),
+      ),
+      items: items.map((item) {
+        return DropdownMenuItem(value: item, child: Text(item));
+      }).toList(),
+      onChanged: onChanged,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Theme.of(context).colorScheme.primaryContainer,
+              Theme.of(context).colorScheme.background,
+            ],
+            stops: const [0.0, 0.6],
+          ),
         ),
         child: SafeArea(
           child: Center(
@@ -107,44 +189,38 @@ class _UserInfoPageState extends State<UserInfoPage> {
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer,
+                      color: Colors.white.withOpacity(0.1),
                       shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white.withOpacity(0.2)),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.person_add_rounded,
                       size: 60,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 30),
 
-                  // White Card Container
+                  // Glassmorphic Card Container
                   Container(
                     padding: const EdgeInsets.all(32),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
+                      color: Colors.white.withOpacity(0.05),
                       borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 40,
-                          spreadRadius: 5,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
+                      border: Border.all(color: Colors.white.withOpacity(0.1)),
                     ),
                     child: Form(
                       key: _formKey,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text(
+                          const Text(
                             "Tell Us About Yourself",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
+                              color: Colors.white,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -153,39 +229,17 @@ class _UserInfoPageState extends State<UserInfoPage> {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 14,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Colors.white.withOpacity(0.7),
                             ),
                           ),
                           const SizedBox(height: 28),
 
                           // Full Name
-                          TextFormField(
+                          _buildTextField(
                             controller: _nameController,
-                            decoration: InputDecoration(
-                              labelText: "Full Name",
-                              hintText: "Enter your full name",
-                              prefixIcon: Icon(
-                                Icons.person_outline,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Theme.of(context).dividerColor),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Theme.of(context).dividerColor),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  width: 2,
-                                ),
-                              ),
-                              filled: true,
-                              fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                            ),
+                            labelText: "Full Name",
+                            hintText: "Enter your full name",
+                            prefixIcon: Icons.person_outline,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter your name';
@@ -196,70 +250,21 @@ class _UserInfoPageState extends State<UserInfoPage> {
                           const SizedBox(height: 16),
 
                           // Phone Number (Optional)
-                          TextFormField(
+                          _buildTextField(
                             controller: _phoneController,
                             keyboardType: TextInputType.phone,
-                            decoration: InputDecoration(
-                              labelText: "Phone Number (Optional)",
-                              hintText: "Enter your phone number",
-                              prefixIcon: Icon(
-                                Icons.phone_outlined,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Theme.of(context).dividerColor),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Theme.of(context).dividerColor),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  width: 2,
-                                ),
-                              ),
-                              filled: true,
-                              fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                            ),
+                            labelText: "Phone Number (Optional)",
+                            hintText: "Enter your phone number",
+                            prefixIcon: Icons.phone_outlined,
                           ),
                           const SizedBox(height: 16),
 
                           // Education Level Dropdown
-                          DropdownButtonFormField<String>(
-                            initialValue: _selectedGrade,
-                            decoration: InputDecoration(
-                              labelText: "Education Level",
-                              prefixIcon: Icon(
-                                Icons.school_outlined,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Theme.of(context).dividerColor),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Theme.of(context).dividerColor),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  width: 2,
-                                ),
-                              ),
-                              filled: true,
-                              fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                            ),
-                            items: _grades.map((grade) {
-                              return DropdownMenuItem(
-                                value: grade,
-                                child: Text(grade),
-                              );
-                            }).toList(),
+                          _buildDropdown(
+                            value: _selectedGrade,
+                            labelText: "Education Level",
+                            prefixIcon: Icons.school_outlined,
+                            items: _grades,
                             onChanged: (value) {
                               setState(() => _selectedGrade = value!);
                             },
@@ -267,38 +272,11 @@ class _UserInfoPageState extends State<UserInfoPage> {
                           const SizedBox(height: 16),
 
                           // Interest Dropdown
-                          DropdownButtonFormField<String>(
-                            initialValue: _selectedInterest,
-                            decoration: InputDecoration(
-                              labelText: "Primary Interest",
-                              prefixIcon: Icon(
-                                Icons.interests_outlined,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Theme.of(context).dividerColor),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Theme.of(context).dividerColor),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  width: 2,
-                                ),
-                              ),
-                              filled: true,
-                              fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                            ),
-                            items: _interests.map((interest) {
-                              return DropdownMenuItem(
-                                value: interest,
-                                child: Text(interest),
-                              );
-                            }).toList(),
+                          _buildDropdown(
+                            value: _selectedInterest,
+                            labelText: "Primary Interest",
+                            prefixIcon: Icons.interests_outlined,
+                            items: _interests,
                             onChanged: (value) {
                               setState(() => _selectedInterest = value!);
                             },
@@ -307,27 +285,40 @@ class _UserInfoPageState extends State<UserInfoPage> {
 
                           // Continue Button
                           _isLoading
-                              ? Center(
-                            child: CircularProgressIndicator(
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
+                              ? const Center(
+                            child: CircularProgressIndicator(color: Colors.white),
                           )
-                              : ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.primary,
-                              foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                              minimumSize: const Size(double.infinity, 56),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                              : Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
                               ),
-                              elevation: 3,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
-                            onPressed: _saveUserInfo,
-                            child: const Text(
-                              "Continue",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                shadowColor: Colors.transparent,
+                                foregroundColor: Colors.white,
+                                minimumSize: const Size(double.infinity, 56),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              onPressed: _saveUserInfo,
+                              child: const Text(
+                                "Continue",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
@@ -345,7 +336,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                             child: Text(
                               "Skip for now",
                               style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
+                                color: Colors.white.withOpacity(0.7),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -360,7 +351,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                               Text(
                                 "Already have an account? ",
                                   style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    color: Colors.white.withOpacity(0.7),
                                     fontSize: 15,
                                   ),
                               ),
@@ -375,7 +366,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                                 child: Text(
                                   "Login",
                                     style: TextStyle(
-                                      color: Theme.of(context).colorScheme.primary,
+                                      color: Theme.of(context).colorScheme.secondary,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 15,
                                     ),

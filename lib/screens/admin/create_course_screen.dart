@@ -1,6 +1,7 @@
 // lib/screens/admin/create_course_screen.dart
 import 'package:flutter/material.dart';
 import '../../business_logic/course_manager.dart';
+import '../../repository/auth_repository.dart';
 import '../../model/course_model.dart';
 
 class CreateCourseScreen extends StatefulWidget {
@@ -44,7 +45,7 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final currentUser = null /* was FirebaseAuth.instance.currentUser */;
+      final currentUser = AuthRepository.getCurrentUser();
       if (currentUser == null) {
         throw Exception('Not authenticated');
       }
@@ -107,27 +108,37 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Create New Course'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        title: const Text('Create New Course', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: Form(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
+              Theme.of(context).colorScheme.background,
+            ],
+            stops: const [0.0, 0.4],
+          ),
+        ),
+        child: SafeArea(
+          child: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(24),
           children: [
             // Title
-            TextFormField(
+            _buildTextField(
               controller: _titleController,
-              decoration: InputDecoration(
-                labelText: 'Course Title *',
-                hintText: 'e.g., Introduction to Flutter',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                prefixIcon: const Icon(Icons.title),
-              ),
+              label: 'Course Title *',
+              hint: 'e.g., Introduction to Flutter',
+              icon: Icons.title,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter course title';
@@ -135,20 +146,15 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
 
             // Description
-            TextFormField(
+            _buildTextField(
               controller: _descriptionController,
+              label: 'Description *',
+              hint: 'Describe what students will learn...',
+              icon: Icons.description,
               maxLines: 4,
-              decoration: InputDecoration(
-                labelText: 'Description *',
-                hintText: 'Describe what students will learn...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                prefixIcon: const Icon(Icons.description),
-              ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter course description';
@@ -156,19 +162,14 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
 
             // Instructor
-            TextFormField(
+            _buildTextField(
               controller: _instructorController,
-              decoration: InputDecoration(
-                labelText: 'Instructor Name *',
-                hintText: 'e.g., John Doe',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                prefixIcon: const Icon(Icons.person),
-              ),
+              label: 'Instructor Name *',
+              hint: 'e.g., John Doe',
+              icon: Icons.person,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter instructor name';
@@ -176,19 +177,14 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
 
             // Category
-            TextFormField(
+            _buildTextField(
               controller: _categoryController,
-              decoration: InputDecoration(
-                labelText: 'Category *',
-                hintText: 'e.g., Mobile Development',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                prefixIcon: const Icon(Icons.category),
-              ),
+              label: 'Category *',
+              hint: 'e.g., Mobile Development',
+              icon: Icons.category,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter category';
@@ -196,42 +192,19 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
 
             // Level
-            DropdownButtonFormField<String>(
-              initialValue: _selectedLevel,
-              decoration: InputDecoration(
-                labelText: 'Level *',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                prefixIcon: const Icon(Icons.signal_cellular_alt),
-              ),
-              items: const [
-                DropdownMenuItem(value: 'beginner', child: Text('Beginner')),
-                DropdownMenuItem(
-                    value: 'intermediate', child: Text('Intermediate')),
-                DropdownMenuItem(value: 'advanced', child: Text('Advanced')),
-              ],
-              onChanged: (value) {
-                setState(() => _selectedLevel = value!);
-              },
-            ),
-            const SizedBox(height: 16),
+            _buildDropdownField(),
+            const SizedBox(height: 20),
 
             // Duration
-            TextFormField(
+            _buildTextField(
               controller: _durationController,
+              label: 'Duration (hours) *',
+              hint: 'e.g., 10',
+              icon: Icons.access_time,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'Duration (hours) *',
-                hintText: 'e.g., 10',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                prefixIcon: const Icon(Icons.access_time),
-              ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter duration';
@@ -242,20 +215,15 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
 
             // Price
-            TextFormField(
+            _buildTextField(
               controller: _priceController,
+              label: 'Price (USD) *',
+              hint: 'e.g., 49.99 or 0 for free',
+              icon: Icons.attach_money,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'Price (USD) *',
-                hintText: 'e.g., 49.99 or 0 for free',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                prefixIcon: const Icon(Icons.attach_money),
-              ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter price';
@@ -269,63 +237,151 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
 
             // Thumbnail URL
-            TextFormField(
+            _buildTextField(
               controller: _thumbnailController,
-              decoration: InputDecoration(
-                labelText: 'Thumbnail URL',
-                hintText: 'https://example.com/image.jpg',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                prefixIcon: const Icon(Icons.image),
-                helperText: 'Optional: Leave empty for default icon',
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Publish Toggle
-            SwitchListTile(
-              title: const Text('Publish Course'),
-              subtitle: const Text(
-                  'Published courses will be visible to students'),
-              value: _isPublished,
-              onChanged: (value) {
-                setState(() => _isPublished = value);
-              },
-              activeThumbColor: Theme.of(context).colorScheme.primary,
+              label: 'Thumbnail URL',
+              hint: 'https://example.com/image.jpg',
+              icon: Icons.image,
+              helperText: 'Optional: Leave empty for default icon',
             ),
             const SizedBox(height: 32),
+
+            // Publish Toggle
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white.withOpacity(0.1)),
+              ),
+              child: SwitchListTile(
+                title: const Text('Publish Course', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                subtitle: Text(
+                  'Published courses will be visible to students',
+                  style: TextStyle(color: Colors.white.withOpacity(0.6)),
+                ),
+                value: _isPublished,
+                onChanged: (value) {
+                  setState(() => _isPublished = value);
+                },
+                activeColor: Theme.of(context).colorScheme.secondary,
+              ),
+            ),
+            const SizedBox(height: 40),
 
             // Create Button
             _isLoading
                 ? Center(
-              child: CircularProgressIndicator(
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            )
-                : ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                minimumSize: const Size(double.infinity, 56),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              onPressed: _createCourse,
-              child: const Text(
-                'Create Course',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+                    child: CircularProgressIndicator(
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  )
+                : Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(double.infinity, 60),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      onPressed: _createCourse,
+                      child: const Text(
+                        'Create Course',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
           ],
         ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData icon,
+    int maxLines = 1,
+    TextInputType? keyboardType,
+    String? helperText,
+    String? Function(String?)? validator,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+      ),
+      child: TextFormField(
+        controller: controller,
+        style: const TextStyle(color: Colors.white),
+        maxLines: maxLines,
+        keyboardType: keyboardType,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+          hintText: hint,
+          hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+          helperText: helperText,
+          helperStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.5)),
+        ),
+        validator: validator,
+      ),
+    );
+  }
+
+  Widget _buildDropdownField() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+      ),
+      child: DropdownButtonFormField<String>(
+        initialValue: _selectedLevel,
+        dropdownColor: Theme.of(context).colorScheme.surface,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          labelText: 'Level *',
+          labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          prefixIcon: Icon(Icons.signal_cellular_alt, color: Colors.white.withOpacity(0.5)),
+        ),
+        items: const [
+          DropdownMenuItem(value: 'beginner', child: Text('Beginner', style: TextStyle(color: Colors.white))),
+          DropdownMenuItem(value: 'intermediate', child: Text('Intermediate', style: TextStyle(color: Colors.white))),
+          DropdownMenuItem(value: 'advanced', child: Text('Advanced', style: TextStyle(color: Colors.white))),
+        ],
+        onChanged: (value) {
+          setState(() => _selectedLevel = value!);
+        },
       ),
     );
   }
