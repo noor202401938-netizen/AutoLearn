@@ -12,4 +12,9 @@ class FirestoreService {
       return [];
     }
   }
+
+  Future<void> updateUserRole(String uid, String role) async {}
+  Future<void> deleteUserProfile(String uid) async {}
+  Stream<dynamic> streamUserProfile(String uid) async* {}
+  Future<void> updateUserProfile(String uid, Map<String, dynamic> data) async {}
 }

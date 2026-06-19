@@ -1,7 +1,13 @@
-// lib/business_logic/notification_manager.dart
+﻿// lib/business_logic/notification_manager.dart
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
 import '../repository/notification_repository.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
 import '../model/notification_model.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
 
 class NotificationManager {
   final NotificationRepository _repository = NotificationRepository();
@@ -160,4 +166,5 @@ class NotificationManager {
     return _repository.watchUserNotifications(userId);
   }
 }
+
 

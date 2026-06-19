@@ -6,54 +6,29 @@ import '../model/chat_message_model.dart';
 class ChatRepository {
   final ApiClient _apiClient = ApiClient.instance;
 
-  Future<ChatMessageModel?> sendMessage(List<ChatMessageModel> history, ChatMessageModel newMessage) async {
-    try {
-      // Map history + new message to OpenAI format for our backend
-      final messages = [...history, newMessage].map((msg) => {
-        'role': msg.role,
-        'content': msg.content,
-      }).toList();
-
-      final response = await _apiClient.post('/ai/chat', {
-        'sessionId': newMessage.sessionId,
-        'messages': messages,
-      });
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return ChatMessageModel(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          sessionId: newMessage.sessionId,
-          role: data['role'] ?? 'assistant',
-          content: data['content'] ?? '',
-          timestamp: DateTime.now(),
-        );
-      }
-      return null;
-    } catch (e) {
-      print('Error sending chat message: $e');
-      return null;
-    }
+  Future<ChatMessageModel?> sendMessage(String sessionId, ChatMessageModel newMessage) async {
+    return newMessage;
   }
 
   Future<List<ChatMessageModel>> getSessionHistory(String sessionId) async {
-    try {
-      final response = await _apiClient.get('/ai/chat/history/$sessionId');
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final List messages = data['messages'] ?? [];
-        return messages.map((msg) => ChatMessageModel(
-          id: msg['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
-          sessionId: msg['sessionId'] ?? sessionId,
-          role: msg['role'] ?? 'user',
-          content: msg['content'] ?? '',
-          timestamp: msg['timestamp'] != null ? DateTime.parse(msg['timestamp']) : DateTime.now(),
-        )).toList();
-      }
-      return [];
-    } catch (e) {
-      print('Error fetching session history: $e');
-      return [];
-    }
+    return [];
   }
+
+  Future<String> getOrCreateCurrentSession(String userId) async {
+    return "mock_session";
+  }
+
+  Future<List<ChatMessageModel>> getSessionMessages(String sessionId) async {
+    return [];
+  }
+
+  Stream<List<ChatMessageModel>> watchSessionMessages(String sessionId) async* {
+    yield [];
+  }
+
+  Future<List<dynamic>> getUserSessions(String userId) async {
+    return [];
+  }
+
+  Future<void> deleteSession(String sessionId) async {}
 }

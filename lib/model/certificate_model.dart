@@ -1,4 +1,4 @@
-// lib/model/certificate_model.dart
+﻿// lib/model/certificate_model.dart
 
 class CertificateModel {
   final String certificateId;
@@ -68,3 +68,4 @@ class CertificateModel {
     return days[date.weekday - 1];
   }
 }
+

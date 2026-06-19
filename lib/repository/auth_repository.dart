@@ -1,6 +1,7 @@
 // lib/repository/auth_repository.dart
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../backend/api_client.dart';
 
 class AuthRepository {
@@ -89,5 +90,9 @@ class AuthRepository {
   Future<String?> sendPasswordResetEmail(String email) async {
     // Implement in backend
     return "Not implemented in backend yet";
+  }
+
+  User? getCurrentUser() {
+    return FirebaseAuth.instance.currentUser;
   }
 }

@@ -1,4 +1,4 @@
-// lib/model/notification_model.dart
+﻿// lib/model/notification_model.dart
 
 class NotificationModel {
   final String notificationId;
@@ -49,4 +49,5 @@ class NotificationModel {
     );
   }
 }
+
 

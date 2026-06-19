@@ -1,9 +1,19 @@
-// lib/business_logic/analytics_monitoring_manager.dart
+﻿// lib/business_logic/analytics_monitoring_manager.dart
 import '../repository/progress_repository.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+
 import '../repository/enrollment_repository.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+
 import '../repository/quiz_repository.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+
 import '../backend/api_client.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+
 import 'dart:convert';
+import 'package:firebase_analytics/firebase_analytics.dart';
+
 
 class AnalyticsMonitoringManager {
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
@@ -80,4 +90,5 @@ class AnalyticsMonitoringManager {
     });
   }
 }
+
 

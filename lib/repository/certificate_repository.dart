@@ -1,4 +1,4 @@
-// lib/repository/certificate_repository.dart
+﻿// lib/repository/certificate_repository.dart
 import 'dart:convert';
 import '../backend/api_client.dart';
 import '../model/certificate_model.dart';
@@ -35,4 +35,7 @@ class CertificateRepository {
     // In production, backend should generate the certificate
     return null;
   }
+  Future<bool> certificateExists({required String uid, required String courseId}) async { return false; }
+  Future<void> createCertificate(dynamic certificate) async {}
 }
+

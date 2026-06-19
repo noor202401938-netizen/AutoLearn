@@ -1,4 +1,4 @@
-// lib/model/chat_message_model.dart
+﻿// lib/model/chat_message_model.dart
 
 class ChatMessageModel {
   final String messageId;
@@ -114,4 +114,5 @@ class ChatSessionModel {
     );
   }
 }
+
 

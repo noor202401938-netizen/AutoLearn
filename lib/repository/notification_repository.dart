@@ -27,8 +27,8 @@ class NotificationRepository {
     }
   }
 
-  Future<void> markAsRead({required String uid, required String notificationId}) async {
-    await _apiClient.put('/user/notifications/$notificationId/read', {});
+  Future<void> markAsRead(String id) async {
+    await _apiClient.put('/user/notifications/$id/read', {});
   }
 
   Future<void> markAllAsRead(String uid) async {
@@ -38,4 +38,8 @@ class NotificationRepository {
   Stream<int> watchUnreadCount(String uid) async* {
     yield 0;
   }
+  
+  Future<void> createNotification(dynamic notification) async {}
+  Future<int> getUnreadCount(String userId) async { return 0; }
+  Stream<List<dynamic>> watchUserNotifications(String userId) async* { yield []; }
 }

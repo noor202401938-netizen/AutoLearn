@@ -39,7 +39,7 @@ class HelpSupportScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(
+            Icon(
               Icons.help_outline,
               size: 80,
               color: Theme.of(context).colorScheme.primary,
@@ -73,18 +73,22 @@ class HelpSupportScreen extends StatelessWidget {
                 title: const Text('Frequently Asked Questions'),
                 children: [
                   _buildFAQItem(
+                    context,
                     'How do I enroll in a course?',
                     'Browse courses from the Courses tab, select a course, and click the Enroll button. For paid courses, you\'ll need to complete payment first.',
                   ),
                   _buildFAQItem(
+                    context,
                     'Can I access courses offline?',
                     'Currently, courses require an internet connection. We\'re working on offline support for future updates.',
                   ),
                   _buildFAQItem(
+                    context,
                     'How do I reset my password?',
                     'On the login screen, click "Forgot Password?" and enter your email address. You\'ll receive a password reset link.',
                   ),
                   _buildFAQItem(
+                    context,
                     'How do I change my profile information?',
                     'Go to Profile > Edit Profile to update your name, phone, grade, and interests.',
                   ),
@@ -137,7 +141,7 @@ class HelpSupportScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFAQItem(String question, String answer) {
+  Widget _buildFAQItem(BuildContext context, String question, String answer) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(

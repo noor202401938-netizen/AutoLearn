@@ -1,4 +1,4 @@
-// lib/repository/progress_repository.dart
+﻿// lib/repository/progress_repository.dart
 import 'dart:convert';
 import '../backend/api_client.dart';
 import '../model/video_progress_model.dart';
@@ -97,4 +97,6 @@ class ProgressRepository {
       userId: userId, courseId: courseId, moduleId: moduleId, lessonId: lessonId
     );
   }
+  Future<dynamic> getCourseProgress({required String uid, required String courseId}) async { return null; }
 }
+

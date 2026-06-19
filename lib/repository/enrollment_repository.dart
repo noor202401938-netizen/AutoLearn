@@ -61,4 +61,8 @@ class EnrollmentRepository {
         .asyncMap((_) => isUserEnrolled(uid: uid, courseId: courseId))
         .distinct();
   }
+
+  Future<List<String>> getUserCourseIds({required String uid}) async {
+    return getUserEnrolledCourseIds(uid);
+  }
 }

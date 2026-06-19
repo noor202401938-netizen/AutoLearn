@@ -24,7 +24,7 @@ class AboutScreen extends StatelessWidget {
                 color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.school,
                 size: 80,
                 color: Theme.of(context).colorScheme.primary,
@@ -73,10 +73,10 @@ class AboutScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            _buildFeatureItem(Icons.auto_awesome, 'AI-Powered Tutoring'),
-            _buildFeatureItem(Icons.school, 'Comprehensive Courses'),
-            _buildFeatureItem(Icons.analytics, 'Progress Tracking'),
-            _buildFeatureItem(Icons.workspace_premium, 'Certificates'),
+            _buildFeatureItem(context, Icons.auto_awesome, 'AI-Powered Tutoring'),
+            _buildFeatureItem(context, Icons.school, 'Comprehensive Courses'),
+            _buildFeatureItem(context, Icons.analytics, 'Progress Tracking'),
+            _buildFeatureItem(context, Icons.workspace_premium, 'Certificates'),
             const SizedBox(height: 32),
             const Text(
               'Developed with ❤️',
@@ -99,7 +99,7 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFeatureItem(IconData icon, String text) {
+  Widget _buildFeatureItem(BuildContext context, IconData icon, String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
