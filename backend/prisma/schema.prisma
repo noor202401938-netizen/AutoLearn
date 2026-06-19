@@ -1,5 +1,5 @@
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
@@ -8,7 +8,7 @@ generator client {
 }
 
 model User {
-  id          String   @id @default(uuid())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   email       String   @unique
   password    String
   displayName String?
@@ -30,7 +30,7 @@ model User {
 }
 
 model Course {
-  id              String   @id @default(uuid())
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
   title           String
   description     String
   instructor      String   @default("Admin")
@@ -54,9 +54,9 @@ model Course {
 }
 
 model Module {
-  id          String   @id @default(uuid())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   title       String
-  courseId    String
+  courseId    String   @db.ObjectId
   course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   
   lessons     Lesson[]
@@ -64,20 +64,20 @@ model Module {
 }
 
 model Lesson {
-  id          String   @id @default(uuid())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   videoUrl    String?
   content     String?
-  moduleId    String
+  moduleId    String   @db.ObjectId
   module      Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   
   progress    Progress[]
 }
 
 model Enrollment {
-  id          String   @id @default(uuid())
-  userId      String
-  courseId    String
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  courseId    String   @db.ObjectId
   status      String   @default("active") // active, completed, dropped
   enrolledAt  DateTime @default(now())
   
@@ -88,9 +88,9 @@ model Enrollment {
 }
 
 model Progress {
-  id              String   @id @default(uuid())
-  userId          String
-  lessonId        String
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String   @db.ObjectId
+  lessonId        String   @db.ObjectId
   currentPosition Int      @default(0) // seconds
   totalDuration   Int      @default(0)
   isCompleted     Boolean  @default(false)
@@ -103,8 +103,8 @@ model Progress {
 }
 
 model ChatSession {
-  id        String   @id @default(uuid())
-  userId    String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
   title     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -114,8 +114,8 @@ model ChatSession {
 }
 
 model ChatMessage {
-  id          String      @id @default(uuid())
-  sessionId   String
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  sessionId   String      @db.ObjectId
   role        String      // "user" or "assistant"
   content     String
   timestamp   DateTime    @default(now())
@@ -124,8 +124,8 @@ model ChatMessage {
 }
 
 model Payment {
-  id          String   @id @default(uuid())
-  userId      String
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
   amount      Float
   currency    String   @default("USD")
   status      String   // "succeeded", "pending", "failed"
@@ -136,9 +136,9 @@ model Payment {
 }
 
 model Certificate {
-  id          String   @id @default(uuid())
-  userId      String
-  courseId    String
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  courseId    String   @db.ObjectId
   title       String
   issueDate   DateTime @default(now())
   certificateUrl String?
@@ -148,8 +148,8 @@ model Certificate {
 }
 
 model Notification {
-  id          String   @id @default(uuid())
-  userId      String
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
   title       String
   message     String
   isRead      Boolean  @default(false)
@@ -160,9 +160,9 @@ model Notification {
 }
 
 model QuizResult {
-  id          String   @id @default(uuid())
-  userId      String
-  moduleId    String
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  moduleId    String   @db.ObjectId
   score       Int
   totalQuestions Int
   passed      Boolean

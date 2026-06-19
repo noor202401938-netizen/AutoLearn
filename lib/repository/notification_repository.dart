@@ -1,4 +1,5 @@
 // lib/repository/notification_repository.dart
+import 'dart:async';
 import 'dart:convert';
 import '../backend/api_client.dart';
 import '../model/notification_model.dart';
@@ -6,7 +7,7 @@ import '../model/notification_model.dart';
 class NotificationRepository {
   final ApiClient _apiClient = ApiClient.instance;
 
-  Future<List<NotificationModel>> getUserNotifications(String uid) async {
+  Future<List<NotificationModel>> getUserNotifications(String userId) async {
     try {
       final response = await _apiClient.get('/user/notifications');
       if (response.statusCode == 200) {
@@ -32,15 +33,39 @@ class NotificationRepository {
   }
 
   Future<void> markAllAsRead(String uid) async {
-    // Backend would need an endpoint to mark all as read
+    await _apiClient.put('/user/notifications/read-all', {});
   }
 
-  Stream<int> watchUnreadCount(String uid) async* {
-    yield 0;
+  Future<int> getUnreadCount(String userId) async {
+    try {
+      final response = await _apiClient.get('/user/notifications/unread-count');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['count'] ?? 0;
+      }
+      return 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  Stream<int> watchUnreadCount(String uid) {
+    return Stream.periodic(const Duration(seconds: 15))
+        .asyncMap((_) => getUnreadCount(uid))
+        .distinct();
   }
   
-  Future<void> createNotification(dynamic notification) async {}
-  Future<int> getUnreadCount(String userId) async { return 0; }
-  Stream<List<NotificationModel>> watchUserNotifications(String userId) async* { yield []; }
-}
+  Stream<List<NotificationModel>> watchUserNotifications(String userId) {
+    return Stream.periodic(const Duration(seconds: 15))
+        .asyncMap((_) => getUserNotifications(userId))
+        .distinct();
+  }
 
+  Future<void> createNotification(dynamic notification) async {
+    try {
+      await _apiClient.post('/user/notifications', notification);
+    } catch (e) {
+      throw Exception('Failed to create notification: $e');
+    }
+  }
+}

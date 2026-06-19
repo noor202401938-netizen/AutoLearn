@@ -99,6 +99,29 @@ class ProgressRepository {
       userId: userId, courseId: courseId, moduleId: moduleId, lessonId: lessonId
     );
   }
-  Future<List<VideoProgressModel>> getCourseProgress({required String userId, required String courseId}) async { return []; }
+  Future<List<VideoProgressModel>> getCourseProgress({required String userId, required String courseId}) async {
+    try {
+      final response = await _apiClient.get('/user/courses/$courseId/progress');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => VideoProgressModel(
+          progressId: json['progressId'] ?? json['id'] ?? json['lessonId'],
+          userId: userId,
+          courseId: courseId,
+          moduleId: json['moduleId'] ?? 'unknown',
+          lessonId: json['lessonId'] ?? 'unknown',
+          videoURL: json['videoURL'] ?? '',
+          currentPosition: json['currentPosition'] ?? 0,
+          totalDuration: json['totalDuration'] ?? 0,
+          isCompleted: json['isCompleted'] ?? false,
+          lastWatchedAt: json['lastWatchedAt'] != null ? DateTime.parse(json['lastWatchedAt']) : null,
+          createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : DateTime.now(),
+        )).toList();
+      }
+      return [];
+    } catch (e) {
+      return [];
+    }
+  }
 }
 
