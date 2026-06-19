@@ -141,7 +141,7 @@ export const chat = async (req: AuthenticatedRequest, res: Response): Promise<vo
 
 export const getHistory = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { sessionId } = req.params;
+    const sessionId = req.params.sessionId as string;
     const userId = req.user?.uid;
 
     if (!userId) {
