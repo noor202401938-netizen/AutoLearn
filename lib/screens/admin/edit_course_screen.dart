@@ -85,7 +85,7 @@ class _EditCourseScreenState extends State<EditCourseScreen> {
       if (result == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Text('Course updated successfully!'),
               backgroundColor: Theme.of(context).colorScheme.primaryContainer,
             ),
@@ -371,7 +371,7 @@ class _EditCourseScreenState extends State<EditCourseScreen> {
 
             // Update Button
             _isLoading
-                ? const Center(
+                ? Center(
               child: CircularProgressIndicator(
                 color: Theme.of(context).colorScheme.primary,
               ),

@@ -1,4 +1,4 @@
-﻿import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 // lib/repository/quiz_repository.dart
 import 'dart:convert';
 import '../backend/api_client.dart';
@@ -8,7 +8,7 @@ class QuizRepository {
   final ApiClient _apiClient = ApiClient.instance;
 
   Future<void> saveQuizResult({
-    required String uid,
+    required String userId,
     required String moduleId,
     required int score,
     required int totalQuestions,
@@ -22,18 +22,20 @@ class QuizRepository {
     });
   }
 
-  Future<QuizResultModel?> getQuizResult({
-    required String uid,
+  Future<dynamic> getQuizResult({
+    required String userId,
     required String moduleId,
   }) async {
     // Implement fetching quiz result from backend if needed
     return null;
   }
-  Future<dynamic> getUserQuizSubmission({required String uid, required String quizId}) async { return null; }
+  Future<dynamic> getUserQuizSubmission({required String userId, required String quizId}) async { return null; }
   Future<void> submitQuiz(dynamic submission) async {}
   Future<dynamic> getAssignmentByLessonId(String lessonId) async { return null; }
-  Future<dynamic> getUserAssignmentSubmission({required String uid, required String assignmentId}) async { return null; }
+  Future<dynamic> getUserAssignmentSubmission({required String userId, required String assignmentId}) async { return null; }
   Future<void> submitAssignment(dynamic submission) async {}
+  Future<void> saveQuiz(dynamic quiz) async {}
+  Future<dynamic> getQuizByLessonId(String lessonId) async { return null; }
 }
 
 

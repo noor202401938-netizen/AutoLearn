@@ -114,7 +114,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Profile updated successfully'),
             backgroundColor: Theme.of(context).colorScheme.primaryContainer,
           ),

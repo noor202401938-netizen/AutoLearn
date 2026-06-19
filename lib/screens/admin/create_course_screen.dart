@@ -74,7 +74,7 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
       if (result == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Text('Course created successfully!'),
               backgroundColor: Theme.of(context).colorScheme.primaryContainer,
             ),
@@ -301,7 +301,7 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
 
             // Create Button
             _isLoading
-                ? const Center(
+                ? Center(
               child: CircularProgressIndicator(
                 color: Theme.of(context).colorScheme.primary,
               ),

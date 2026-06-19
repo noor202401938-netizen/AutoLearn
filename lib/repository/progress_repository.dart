@@ -25,7 +25,7 @@ class ProgressRepository {
           currentPosition: data['currentPosition'] ?? 0,
           totalDuration: data['totalDuration'] ?? 0,
           isCompleted: data['isCompleted'] ?? false,
-          lastUpdated: DateTime.now(),
+          lastWatchedAt: DateTime.now(),
         );
       }
       return null;

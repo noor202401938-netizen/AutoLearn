@@ -1,4 +1,4 @@
-﻿// lib/repository/notification_repository.dart
+// lib/repository/notification_repository.dart
 import 'dart:convert';
 import '../backend/api_client.dart';
 import '../model/notification_model.dart';
@@ -11,12 +11,12 @@ class NotificationRepository {
       final response = await _apiClient.get('/user/notifications');
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        return data.map((json) => NotificationModel(
+        return data.map<NotificationModel>((json) => NotificationModel(
           notificationId: json['id'],
           userId: json['userId'],
           title: json['title'],
           body: json['message'],
-          timestamp: DateTime.parse(json['createdAt']),
+          createdAt: DateTime.parse(json['createdAt']),
           isRead: json['isRead'],
           type: json['type'],
         )).toList();

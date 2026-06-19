@@ -143,7 +143,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Assignment submitted successfully!'),
             backgroundColor: Theme.of(context).colorScheme.primaryContainer,
           ),
@@ -314,7 +314,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
               child: _isSubmitting
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(
@@ -354,7 +354,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
               ),
               child: Column(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.assignment_turned_in,
                     size: 48,
                     color: Theme.of(context).colorScheme.onPrimary,
@@ -362,14 +362,14 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                   const SizedBox(height: 16),
                   Text(
                     '${_existingSubmission!.score} / ${_assignment!.maxPoints}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 36,
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.onPrimary,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Points Earned',
                     style: TextStyle(
                       fontSize: 18,

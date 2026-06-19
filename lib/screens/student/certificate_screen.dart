@@ -163,7 +163,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
                       color: Colors.white,
                       child: Text(
                         widget.certificate.userName,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).colorScheme.primary, // Primary color

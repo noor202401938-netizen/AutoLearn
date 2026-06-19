@@ -309,7 +309,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                                   ),
                                 ),
                                 child: isSelected
-                                    ? const Icon(
+                                    ? Icon(
                                         Icons.check,
                                         size: 16,
                                         color: Theme.of(context).colorScheme.onPrimary,
@@ -404,7 +404,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                     child: _isSubmitting
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
@@ -463,7 +463,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                 const SizedBox(height: 16),
                 Text(
                   '$score%',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 48,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.onPrimary,
@@ -472,7 +472,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                 const SizedBox(height: 8),
                 Text(
                   passed ? 'Passed!' : 'Not Passed',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.onPrimary,
@@ -481,7 +481,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                 const SizedBox(height: 16),
                 Text(
                   '${_submission!.earnedPoints} / ${_submission!.totalPoints} points',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     color: Theme.of(context).colorScheme.onPrimary,
                   ),

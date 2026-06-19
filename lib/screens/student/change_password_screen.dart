@@ -34,7 +34,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     final user = null /* was FirebaseAuth.instance.currentUser */;
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('User not found'),
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
@@ -59,7 +59,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Password changed successfully'),
             backgroundColor: Theme.of(context).colorScheme.primaryContainer,
           ),
@@ -114,7 +114,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 20),
-              const Icon(
+              Icon(
                 Icons.lock_outline,
                 size: 80,
                 color: Theme.of(context).colorScheme.primary,

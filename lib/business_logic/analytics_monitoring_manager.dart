@@ -1,4 +1,5 @@
-﻿// lib/business_logic/analytics_monitoring_manager.dart
+// lib/business_logic/analytics_monitoring_manager.dart
+import 'package:firebase_analytics/firebase_analytics.dart';
 import '../repository/progress_repository.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 

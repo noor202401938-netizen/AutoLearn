@@ -1,4 +1,5 @@
 // lib/business_logic/certificate_manager.dart
+import 'package:firebase_auth/firebase_auth.dart';
 import '../repository/certificate_repository.dart';
 import '../repository/user_repository.dart';
 import '../model/certificate_model.dart';

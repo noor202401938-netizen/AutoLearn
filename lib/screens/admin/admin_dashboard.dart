@@ -679,7 +679,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     ),
                     child: Text(
                       '${users.length} users',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
@@ -723,7 +723,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                   child: Text(
                     (userData['displayName'] ?? userData['email'] ?? 'U')[0].toUpperCase(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,
                     ),

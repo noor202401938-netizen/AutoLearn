@@ -1,4 +1,4 @@
-﻿// lib/repository/chat_repository.dart
+// lib/repository/chat_repository.dart
 import 'dart:convert';
 import '../backend/api_client.dart';
 import '../model/chat_message_model.dart';
@@ -6,8 +6,15 @@ import '../model/chat_message_model.dart';
 class ChatRepository {
   final ApiClient _apiClient = ApiClient.instance;
 
-  Future<ChatMessageModel?> sendMessage({required String sessionId, required dynamic message}) async {
-    return newMessage;
+  Future<ChatMessageModel?> sendMessage({
+    required String userId,
+    required String role,
+    required String content,
+    required String sessionId,
+    String? courseId,
+    String? lessonId,
+  }) async {
+    return null;
   }
 
   Future<List<ChatMessageModel>> getSessionHistory(String sessionId) async {
@@ -26,7 +33,7 @@ class ChatRepository {
     yield [];
   }
 
-  Future<List<dynamic>> getUserSessions(String userId) async {
+  Future<List<ChatSessionModel>> getUserSessions(String userId) async {
     return [];
   }
 

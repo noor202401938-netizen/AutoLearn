@@ -157,7 +157,7 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
       if (result == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Text('Course content saved successfully!'),
               backgroundColor: Theme.of(context).colorScheme.primaryContainer,
             ),
@@ -454,7 +454,7 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
         ),
         children: [
           if (module.lessons.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.all(16.0),
               child: Text(
                 'No lessons in this module',

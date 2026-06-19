@@ -141,7 +141,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const Text(
+                          Text(
                             "Tell Us About Yourself",
                             textAlign: TextAlign.center,
                             style: TextStyle(
@@ -345,7 +345,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                                 Navigator.pushReplacementNamed(context, '/signup');
                               }
                             },
-                            child: const Text(
+                            child: Text(
                               "Skip for now",
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.primary,
@@ -375,7 +375,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                                     Navigator.pushReplacementNamed(context, '/login');
                                   }
                                 },
-                                child: const Text(
+                                child: Text(
                                   "Login",
                                     style: TextStyle(
                                       color: Theme.of(context).colorScheme.primary,

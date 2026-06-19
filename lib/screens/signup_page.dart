@@ -159,7 +159,7 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            const Text(
+                            Text(
                               "Create Account",
                               textAlign: TextAlign.center,
                               style: TextStyle(
@@ -430,7 +430,7 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                                   onPressed: () {
                                     Navigator.pushReplacementNamed(context, '/login');
                                   },
-                                  child: const Text(
+                                  child: Text(
                                     "Login",
                                     style: TextStyle(
                                       color: Theme.of(context).colorScheme.primary,

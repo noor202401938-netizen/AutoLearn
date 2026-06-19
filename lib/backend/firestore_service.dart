@@ -1,4 +1,4 @@
-﻿import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -15,7 +15,9 @@ class FirestoreService {
 
   Future<void> updateUserRole(String uid, String role) async {}
   Future<void> deleteUserProfile(String uid) async {}
-  Stream<dynamic> streamUserProfile(String uid) async* {}
+  Stream<DocumentSnapshot<Object?>> streamUserProfile(String uid) {
+    return _firestore.collection('users').doc(uid).snapshots();
+  }
   Future<void> updateUserProfile({required String uid, String? displayName, String? phone, String? grade, String? interest}) async {}
 }
 

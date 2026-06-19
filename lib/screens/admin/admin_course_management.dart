@@ -104,7 +104,7 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
       final result = await _courseManager.deleteCourse(course.courseId);
       if (result == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Course deleted successfully'),
             backgroundColor: Theme.of(context).colorScheme.primaryContainer,
           ),
@@ -415,7 +415,7 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                     borderRadius: BorderRadius.circular(8),
                     color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.school,
                     color: Theme.of(context).colorScheme.primary,
                     size: 30,
