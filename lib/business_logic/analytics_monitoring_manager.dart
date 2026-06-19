@@ -2,6 +2,8 @@
 import '../repository/progress_repository.dart';
 import '../repository/enrollment_repository.dart';
 import '../repository/quiz_repository.dart';
+import '../backend/api_client.dart';
+import 'dart:convert';
 
 class AnalyticsMonitoringManager {
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
@@ -27,8 +29,10 @@ class AnalyticsMonitoringManager {
   // Get course completion statistics
   Future<Map<String, dynamic>> getCourseStats(String courseId) async {
     try {
-      // This would typically query Firestore for aggregated stats
-      // For now, return placeholder structure
+      final response = await ApiClient.instance.get('/courses/$courseId/stats');
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      }
       return {
         'totalEnrollments': 0,
         'completionRate': 0.0,
@@ -43,29 +47,15 @@ class AnalyticsMonitoringManager {
   // Get user learning statistics
   Future<Map<String, dynamic>> getUserLearningStats(String userId) async {
     try {
-      final enrolledCourses = await _enrollmentRepository.getUserCourseIds(
-        uid: userId,
-      );
-
-      int totalLessons = 0;
-      int completedLessons = 0;
-
-      for (final courseId in enrolledCourses) {
-        // Get course completion
-        final completion = await _progressRepository.getCourseCompletionPercentage(
-          userId: userId,
-          courseId: courseId,
-          totalLessons: 10, // This should be calculated properly
-        );
-        if (completion >= 80) completedLessons++;
-        totalLessons++;
+      final response = await ApiClient.instance.get('/user/stats');
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
       }
-
       return {
-        'enrolledCourses': enrolledCourses.length,
-        'completedCourses': completedLessons,
-        'totalLessonsWatched': 0, // Would need to calculate from progress
-        'totalQuizzesTaken': 0, // Would need to query quiz submissions
+        'enrolledCourses': 0,
+        'completedCourses': 0,
+        'totalLessonsWatched': 0,
+        'totalQuizzesTaken': 0,
       };
     } catch (e) {
       return {};

@@ -15,6 +15,7 @@ class ChatRepository {
       }).toList();
 
       final response = await _apiClient.post('/ai/chat', {
+        'sessionId': newMessage.sessionId,
         'messages': messages,
       });
 
@@ -35,10 +36,24 @@ class ChatRepository {
     }
   }
 
-  // To keep it simple, we might just store history locally or let the backend save it.
-  // The Firebase version likely fetched history. We can return an empty list or mock it if there's no backend table.
   Future<List<ChatMessageModel>> getSessionHistory(String sessionId) async {
-    // Return empty for now; the UI will maintain the active list
-    return [];
+    try {
+      final response = await _apiClient.get('/ai/chat/history/$sessionId');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final List messages = data['messages'] ?? [];
+        return messages.map((msg) => ChatMessageModel(
+          id: msg['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
+          sessionId: msg['sessionId'] ?? sessionId,
+          role: msg['role'] ?? 'user',
+          content: msg['content'] ?? '',
+          timestamp: msg['timestamp'] != null ? DateTime.parse(msg['timestamp']) : DateTime.now(),
+        )).toList();
+      }
+      return [];
+    } catch (e) {
+      print('Error fetching session history: $e');
+      return [];
+    }
   }
 }

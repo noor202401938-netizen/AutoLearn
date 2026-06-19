@@ -59,6 +59,65 @@ export const getVideoProgress = async (req: AuthenticatedRequest, res: Response)
   }
 };
 
+export const getCourseCompletion = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { courseId } = req.params;
+    const userId = req.user?.uid;
+
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    // Find all lessons for this course
+    const course = await prisma.course.findUnique({
+      where: { id: courseId },
+      include: { modules: { include: { lessons: true } } }
+    });
+
+    if (!course) return res.status(404).json({ error: 'Course not found' });
+
+    const lessonIds = course.modules.flatMap(m => m.lessons.map(l => l.id));
+    if (lessonIds.length === 0) {
+      res.status(200).json({ completionPercentage: 0 });
+      return;
+    }
+
+    const completedProgress = await prisma.progress.count({
+      where: {
+        userId,
+        lessonId: { in: lessonIds },
+        isCompleted: true
+      }
+    });
+
+    const completionPercentage = (completedProgress / lessonIds.length) * 100;
+    res.status(200).json({ completionPercentage });
+  } catch (error) {
+    console.error('Error fetching course completion:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getUserStats = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.uid;
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const enrolledCourses = await prisma.enrollment.count({ where: { userId } });
+    const completedCourses = await prisma.enrollment.count({ where: { userId, status: 'completed' } });
+    const totalLessonsWatched = await prisma.progress.count({ where: { userId, isCompleted: true } });
+    const totalQuizzesTaken = await prisma.quizResult.count({ where: { userId } });
+
+    res.status(200).json({
+      enrolledCourses,
+      completedCourses,
+      totalLessonsWatched,
+      totalQuizzesTaken,
+    });
+  } catch (error) {
+    console.error('Error fetching user stats:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 // NOTIFICATIONS
 export const getNotifications = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {

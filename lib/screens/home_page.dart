@@ -5,6 +5,8 @@ import '../../business_logic/course_manager.dart';
 import '../../repository/auth_repository.dart';
 import '../../model/course_model.dart';
 import '../../screens/student/course_list_screen.dart';
+import '../../screens/student/course_content_screen.dart';
+import '../../business_logic/analytics_monitoring_manager.dart';
 
 class StudentHome extends StatefulWidget {
   const StudentHome({super.key});
@@ -17,9 +19,15 @@ class _StudentHomeState extends State<StudentHome> {
   final AuthManager _authManager = AuthManager();
   final AuthRepository _authRepository = AuthRepository();
   final CourseManager _courseManager = CourseManager();
+  final AnalyticsMonitoringManager _analyticsManager = AnalyticsMonitoringManager();
 
   int _selectedIndex = 0;
   Map<String, dynamic>? _userProfile;
+  Map<String, dynamic> _stats = {
+    'enrolledCourses': 0,
+    'completedCourses': 0,
+    'totalLessonsWatched': 0,
+  };
   List<CourseModel> _featuredCourses = [];
   bool _isLoadingCourses = true;
 
@@ -34,8 +42,10 @@ class _StudentHomeState extends State<StudentHome> {
     final user = _authRepository.getCurrentUser();
     if (user != null) {
       final profile = await _authRepository.getUserProfile(user.uid);
+      final stats = await _analyticsManager.getUserLearningStats(user.uid);
       setState(() {
         _userProfile = profile;
+        _stats = stats;
       });
     }
   }
@@ -85,7 +95,9 @@ class _StudentHomeState extends State<StudentHome> {
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {
-              // TODO: Show notifications
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('No new notifications')),
+              );
             },
           ),
           const SizedBox(width: 8),
@@ -183,7 +195,7 @@ class _StudentHomeState extends State<StudentHome> {
                       Expanded(
                         child: _buildQuickStat(
                           'Courses',
-                          '0',
+                          _stats['enrolledCourses'].toString(),
                           Icons.book,
                           Colors.blue,
                         ),
@@ -196,7 +208,7 @@ class _StudentHomeState extends State<StudentHome> {
                       Expanded(
                         child: _buildQuickStat(
                           'Completed',
-                          '0',
+                          _stats['completedCourses'].toString(),
                           Icons.check_circle,
                           Colors.green,
                         ),
@@ -208,9 +220,9 @@ class _StudentHomeState extends State<StudentHome> {
                       ),
                       Expanded(
                         child: _buildQuickStat(
-                          'Hours',
-                          '0',
-                          Icons.access_time,
+                          'Lessons',
+                          _stats['totalLessonsWatched'].toString(),
+                          Icons.play_circle,
                           Colors.orange,
                         ),
                       ),
@@ -479,9 +491,14 @@ class _StudentHomeState extends State<StudentHome> {
       ),
       child: InkWell(
         onTap: () {
-          // TODO: Navigate to course details
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Opening: ${course.title}')),
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CourseContentScreen(
+                courseId: course.courseId,
+                title: course.title,
+              ),
+            ),
           );
         },
         borderRadius: BorderRadius.circular(12),

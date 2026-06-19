@@ -11,6 +11,7 @@ import courseRoutes from './routes/course.routes';
 import userDataRoutes from './routes/user_data.routes';
 import { authenticateToken } from './middleware/auth.middleware';
 import { getUserEnrollments } from './controllers/auth.controller';
+import paymentRoutes from './routes/payment.routes';
 
 dotenv.config();
 
@@ -66,6 +67,7 @@ app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/user', userDataRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // GET /api/user/enrollments — get current user's enrolled courses
 app.get('/api/user/enrollments', authenticateToken, getUserEnrollments);

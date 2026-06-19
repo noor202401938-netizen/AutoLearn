@@ -7,6 +7,7 @@ import {
   deleteCourse,
   enrollInCourse,
   rateCourse,
+  getCourseStats,
 } from '../controllers/course.controller';
 import { authenticateToken } from '../middleware/auth.middleware';
 
@@ -15,6 +16,7 @@ const router = Router();
 // Public routes
 router.get('/', getAllCourses);
 router.get('/:id', getCourseById);
+router.get('/:id/stats', getCourseStats);
 
 // Protected routes (require authentication)
 router.use(authenticateToken);

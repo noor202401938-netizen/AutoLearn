@@ -58,11 +58,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _loadPreferences() async {
-    // TODO: Fetch user id from secure storage when implemented
-    // final user = ...
-    // if (user != null) {
       try {
-        final prefs = await _preferencesRepository.getUserPreferences('placeholder_uid');
+        final prefs = await _preferencesRepository.getUserPreferences('local_preferences');
         _preferenceNotifier.loadPreferences(
           theme: prefs['theme'] as String? ?? 'system',
           fontSize: prefs['fontSize'] as String? ?? 'normal',

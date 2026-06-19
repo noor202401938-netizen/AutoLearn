@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { generateSummary, chat } from '../controllers/ai.controller';
+import { generateSummary, chat, getHistory } from '../controllers/ai.controller';
 import { authenticateToken } from '../middleware/auth.middleware';
 
 const router = Router();
@@ -9,5 +9,6 @@ router.use(authenticateToken);
 
 router.post('/summary', generateSummary);
 router.post('/chat', chat);
+router.get('/history/:sessionId', getHistory);
 
 export default router;

@@ -267,3 +267,32 @@ export const rateCourse = async (req: AuthenticatedRequest, res: Response): Prom
     res.status(500).json({ error: 'Failed to rate course' });
   }
 };
+
+// GET /api/courses/:id/stats — Get course statistics
+export const getCourseStats = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    
+    const course = await prisma.course.findUnique({ where: { id } });
+    if (!course) {
+      res.status(404).json({ error: 'Course not found' });
+      return;
+    }
+
+    // This is simplified. In a real app we'd aggregate completion states.
+    const averageTimeSpent = await prisma.progress.aggregate({
+      where: { lesson: { module: { courseId: id } } },
+      _avg: { totalDuration: true }
+    });
+
+    res.status(200).json({
+      totalEnrollments: course.enrollmentCount,
+      completionRate: 0.0, // placeholder since calculating aggregate completion is intensive
+      averageScore: course.rating,
+      averageTimeSpent: averageTimeSpent._avg.totalDuration || 0,
+    });
+  } catch (error) {
+    console.error('Error fetching course stats:', error);
+    res.status(500).json({ error: 'Failed to fetch course stats' });
+  }
+};

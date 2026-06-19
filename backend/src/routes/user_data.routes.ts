@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { 
-  updateVideoProgress, getVideoProgress,
+  updateVideoProgress, getVideoProgress, getCourseCompletion, getUserStats,
   getNotifications, markNotificationRead,
   saveQuizResult,
   getUserCertificates
@@ -14,6 +14,10 @@ router.use(authenticateToken);
 // Progress
 router.post('/progress', updateVideoProgress);
 router.get('/progress/:lessonId', getVideoProgress);
+router.get('/courses/:courseId/completion', getCourseCompletion);
+
+// User Stats
+router.get('/stats', getUserStats);
 
 // Notifications
 router.get('/notifications', getNotifications);

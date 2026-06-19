@@ -1,6 +1,8 @@
 // lib/screens/student/payment_screen.dart
 import 'package:flutter/material.dart';
 import '../../business_logic/payment_manager.dart';
+import '../../backend/payment_gateway_service.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 
 class PaymentScreen extends StatefulWidget {
   final String courseId;
@@ -31,10 +33,33 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Future<void> _simulatePayNow() async {
     if (!mounted) return;
     setState(() => _isProcessing = true);
-    await Future.delayed(const Duration(seconds: 1));
-    await _paymentManager.confirmPaidForCourse(widget.courseId);
-    if (!mounted) return;
-    Navigator.pop(context, true); // return success
+    
+    try {
+      final intent = await PaymentGatewayService().createPaymentIntent(
+        amountCents: widget.amountCents,
+        currency: widget.currency,
+      );
+
+      await Stripe.instance.initPaymentSheet(
+        paymentSheetParameters: SetupPaymentSheetParameters(
+          paymentIntentClientSecret: intent['client_secret'],
+          merchantDisplayName: 'AI Tutor App',
+        ),
+      );
+
+      await Stripe.instance.presentPaymentSheet();
+
+      await _paymentManager.confirmPaidForCourse(widget.courseId);
+      if (!mounted) return;
+      Navigator.pop(context, true); // return success
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Payment failed: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
+    }
   }
 
   @override

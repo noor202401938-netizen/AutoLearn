@@ -75,9 +75,16 @@ class ProgressRepository {
     required String courseId,
     required int totalLessons,
   }) async {
-    // A proper implementation would have an endpoint `/user/courses/:id/completion`
-    // Returning dummy 0 for now as it's complex to aggregate without backend support
-    return 0.0;
+    try {
+      final response = await _apiClient.get('/user/courses/$courseId/completion');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return (data['completionPercentage'] ?? 0).toDouble();
+      }
+      return 0.0;
+    } catch (e) {
+      return 0.0;
+    }
   }
 
   Stream<VideoProgressModel?> watchVideoProgress({

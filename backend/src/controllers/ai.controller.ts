@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/auth.middleware';
 import OpenAI from 'openai';
+import prisma from '../prisma/client';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -66,7 +67,8 @@ Format your response as JSON with the following structure:
 
 export const chat = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { messages } = req.body;
+    const { messages, sessionId, sessionTitle } = req.body;
+    const userId = req.user?.id;
 
     if (!messages || !Array.isArray(messages)) {
       res.status(400).json({ error: 'Valid messages array is required' });
@@ -93,10 +95,72 @@ export const chat = async (req: AuthenticatedRequest, res: Response): Promise<vo
       return;
     }
 
+    if (userId && sessionId) {
+      // Find or create session
+      let session = await prisma.chatSession.findUnique({ where: { id: sessionId } });
+      if (!session) {
+        session = await prisma.chatSession.create({
+          data: {
+            id: sessionId,
+            userId,
+            title: sessionTitle || 'New Chat',
+          }
+        });
+      }
+
+      // We assume the last message in `messages` is the user's new message
+      const lastUserMsg = messages[messages.length - 1];
+      if (lastUserMsg && lastUserMsg.role === 'user') {
+        await prisma.chatMessage.create({
+          data: {
+            sessionId: session.id,
+            role: 'user',
+            content: lastUserMsg.content,
+          }
+        });
+      }
+
+      // Save assistant reply
+      await prisma.chatMessage.create({
+        data: {
+          sessionId: session.id,
+          role: 'assistant',
+          content: reply.content || '',
+        }
+      });
+    }
+
     res.status(200).json(reply);
 
   } catch (error) {
     console.error('AI Chat Error:', error);
     res.status(500).json({ error: 'Failed to generate AI response' });
+  }
+};
+
+export const getHistory = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { sessionId } = req.params;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const session = await prisma.chatSession.findUnique({
+      where: { id: sessionId },
+      include: { messages: { orderBy: { timestamp: 'asc' } } }
+    });
+
+    if (!session || session.userId !== userId) {
+      res.status(200).json({ messages: [] });
+      return;
+    }
+
+    res.status(200).json({ messages: session.messages });
+  } catch (error) {
+    console.error('Get History Error:', error);
+    res.status(500).json({ error: 'Failed to get chat history' });
   }
 };
