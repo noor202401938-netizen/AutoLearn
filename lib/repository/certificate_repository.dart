@@ -12,12 +12,15 @@ class CertificateRepository {
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map<CertificateModel>((json) => CertificateModel(
-          certificateId: json['id'],
-          userId: json['userId'],
-          courseId: json['courseId'],
+          certificateId: json['id'] ?? 'unknown',
+          userId: json['userId'] ?? userId,
+          userName: json['userName'] ?? 'Student',
+          courseId: json['courseId'] ?? 'unknown_course',
           courseName: json['course'] != null ? json['course']['title'] : 'Course',
-          completionDate: DateTime.parse(json['issueDate']),
-          certificateURL: json['certificateUrl'] ?? '',
+          lessonId: json['lessonId'] ?? 'unknown_lesson',
+          lessonName: json['lessonName'] ?? 'Lesson',
+          completionDate: json['issueDate'] != null ? DateTime.tryParse(json['issueDate']) ?? DateTime.now() : DateTime.now(),
+          dayOfWeek: json['dayOfWeek'] ?? 'Monday',
         )).toList();
       }
       return [];

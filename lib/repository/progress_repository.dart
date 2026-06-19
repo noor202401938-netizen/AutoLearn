@@ -17,6 +17,7 @@ class ProgressRepository {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return VideoProgressModel(
+          progressId: data['progressId'] ?? data['id'] ?? lessonId,
           userId: userId,
           courseId: courseId,
           moduleId: moduleId,
@@ -26,6 +27,7 @@ class ProgressRepository {
           totalDuration: data['totalDuration'] ?? 0,
           isCompleted: data['isCompleted'] ?? false,
           lastWatchedAt: DateTime.now(),
+          createdAt: DateTime.now(),
         );
       }
       return null;
