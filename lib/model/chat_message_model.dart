@@ -1,4 +1,3 @@
-﻿import 'package:cloud_firestore/cloud_firestore.dart';
 // lib/model/chat_message_model.dart
 
 class ChatMessageModel {
@@ -20,10 +19,9 @@ class ChatMessageModel {
     this.lessonId,
   });
 
-  // Convert to Map for Firestore
   Map<String, dynamic> toMap() {
     return {
-      'messageId': messageId,
+      'id': messageId,
       'userId': userId,
       'role': role,
       'content': content,
@@ -33,20 +31,20 @@ class ChatMessageModel {
     };
   }
 
-  // Create from Firestore document
-  factory ChatMessageModel.fromMap(Map<String, dynamic> map) {
+  factory ChatMessageModel.fromJson(Map<String, dynamic> json) {
     return ChatMessageModel(
-      messageId: map['messageId'] ?? '',
-      userId: map['userId'] ?? '',
-      role: map['role'] ?? 'user',
-      content: map['content'] ?? '',
-      timestamp: (map['timestamp'] as Timestamp).toDate(),
-      courseId: map['courseId'],
-      lessonId: map['lessonId'],
+      messageId: json['id'] ?? json['messageId'] ?? '',
+      userId: json['userId'] ?? '',
+      role: json['role'] ?? 'user',
+      content: json['content'] ?? '',
+      timestamp: json['timestamp'] != null 
+          ? DateTime.parse(json['timestamp']) 
+          : DateTime.now(),
+      courseId: json['courseId'],
+      lessonId: json['lessonId'],
     );
   }
 
-  // Copy with method for updates
   ChatMessageModel copyWith({
     String? messageId,
     String? userId,
@@ -67,18 +65,14 @@ class ChatMessageModel {
     );
   }
 
-  // Check if message is from user
   bool get isUser => role == 'user';
-
-  // Check if message is from assistant
   bool get isAssistant => role == 'assistant';
 }
 
-// Model for chat conversation/session
 class ChatSessionModel {
   final String sessionId;
   final String userId;
-  final String? title; // First user message or custom title
+  final String? title;
   final DateTime createdAt;
   final DateTime? updatedAt;
   final List<ChatMessageModel> messages;
@@ -94,27 +88,29 @@ class ChatSessionModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'sessionId': sessionId,
+      'id': sessionId,
       'userId': userId,
       'title': title,
       'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt != null ? updatedAt!.toIso8601String() : null,
+      'updatedAt': updatedAt?.toIso8601String(),
     };
   }
 
-  factory ChatSessionModel.fromMap(Map<String, dynamic> map) {
+  factory ChatSessionModel.fromJson(Map<String, dynamic> json) {
     return ChatSessionModel(
-      sessionId: map['sessionId'] ?? '',
-      userId: map['userId'] ?? '',
-      title: map['title'],
-      createdAt: (map['createdAt'] as Timestamp).toDate(),
-      updatedAt: map['updatedAt'] != null
-          ? (map['updatedAt'] as Timestamp).toDate()
+      sessionId: json['id'] ?? json['sessionId'] ?? '',
+      userId: json['userId'] ?? '',
+      title: json['title'],
+      createdAt: json['createdAt'] != null 
+          ? DateTime.parse(json['createdAt']) 
+          : DateTime.now(),
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'])
           : null,
-      messages: [],
+      messages: (json['messages'] as List<dynamic>?)
+              ?.map((m) => ChatMessageModel.fromJson(m as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 }
-
-
-
