@@ -70,7 +70,6 @@ class _MyAppState extends State<MyApp> {
         print('Error loading preferences: $e');
       }
     }
-  }
 
   @override
   Widget build(BuildContext context) {

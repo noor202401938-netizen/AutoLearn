@@ -70,6 +70,7 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
       if (!mounted) return;
       setState(() => _isLoading = false);
 
+      if (result == null || result == "success") {
         // Navigate to home
         if (mounted) {
           Navigator.pushReplacementNamed(context, '/home');

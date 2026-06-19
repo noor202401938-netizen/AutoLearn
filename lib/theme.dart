@@ -52,7 +52,7 @@ class AppTheme {
       bodyLarge: TextStyle(fontFamily: 'Inter', color: darkTextPrimary),
       bodyMedium: TextStyle(fontFamily: 'Inter', color: textSecondary),
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: darkSurfaceColor,
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -116,7 +116,7 @@ class AppTheme {
       bodyLarge: TextStyle(fontFamily: 'Inter', color: lightTextPrimary),
       bodyMedium: TextStyle(fontFamily: 'Inter', color: textSecondary),
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: lightSurfaceColor,
       elevation: 0,
       shape: RoundedRectangleBorder(

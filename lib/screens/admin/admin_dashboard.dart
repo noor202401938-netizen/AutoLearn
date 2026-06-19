@@ -124,12 +124,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   ],
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'logout',
                 child: Row(
                   children: [
                     Icon(Icons.logout, color: Theme.of(context).colorScheme.error),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text('Logout', style: TextStyle(color: Theme.of(context).colorScheme.error)),
                   ],
                 ),
@@ -227,7 +227,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   // Header Section
                   Container(
                     width: double.infinity,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -618,7 +618,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
         if (snapshot.connectionState == ConnectionState.waiting &&
             !snapshot.hasData) {
-          return const Center(
+          return Center(
             child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
           );
         }
