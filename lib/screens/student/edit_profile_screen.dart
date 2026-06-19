@@ -162,7 +162,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   ? _nameController.text
                                   : null /* was FirebaseAuth.instance.currentUser */?.email ?? 'U')[0]
                               .toUpperCase(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 48,
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.primary,
@@ -273,7 +273,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                       ),
                       child: _isLoading
-                          ? const SizedBox(
+                          ? SizedBox(
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(

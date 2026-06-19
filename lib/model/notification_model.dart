@@ -1,4 +1,5 @@
-﻿// lib/model/notification_model.dart
+﻿import 'package:cloud_firestore/cloud_firestore.dart';
+// lib/model/notification_model.dart
 
 class NotificationModel {
   final String notificationId;
@@ -49,5 +50,6 @@ class NotificationModel {
     );
   }
 }
+
 
 

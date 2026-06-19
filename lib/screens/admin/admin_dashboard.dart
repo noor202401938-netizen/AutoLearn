@@ -1,36 +1,26 @@
-﻿// lib/screens/admin/admin_dashboard.dart
+﻿import 'package:cloud_firestore/cloud_firestore.dart';
+// lib/screens/admin/admin_dashboard.dart
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../backend/firestore_service.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../business_logic/auth_manager.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../business_logic/course_manager.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../business_logic/analytics_monitoring_manager.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../model/course_model.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:fl_chart/fl_chart.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../notifications_panel.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../theme_accessibility_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../user_info_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'admin_course_management.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 class AdminDashboard extends StatefulWidget {
@@ -1137,3 +1127,4 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 }
+

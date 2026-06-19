@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../business_logic/payment_manager.dart';
 import '../../backend/payment_gateway_service.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:flutter_stripe/flutter_stripe.dart' hide Card;
 
 class PaymentScreen extends StatefulWidget {
   final String courseId;

@@ -1,3 +1,4 @@
+﻿import 'package:cloud_firestore/cloud_firestore.dart';
 // lib/model/video_progress_model.dart
 
 class VideoProgressModel {
@@ -204,4 +205,5 @@ class CaptionItem {
     );
   }
 }
+
 

@@ -36,6 +36,7 @@ class CertificateRepository {
     return null;
   }
   Future<bool> certificateExists({required String uid, required String courseId}) async { return false; }
-  Future<void> createCertificate(dynamic certificate) async {}
+  Future<dynamic> createCertificate(dynamic certificate) async {}
 }
+
 

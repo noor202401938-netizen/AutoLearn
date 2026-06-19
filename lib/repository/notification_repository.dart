@@ -1,4 +1,4 @@
-// lib/repository/notification_repository.dart
+﻿// lib/repository/notification_repository.dart
 import 'dart:convert';
 import '../backend/api_client.dart';
 import '../model/notification_model.dart';
@@ -41,5 +41,6 @@ class NotificationRepository {
   
   Future<void> createNotification(dynamic notification) async {}
   Future<int> getUnreadCount(String userId) async { return 0; }
-  Stream<List<dynamic>> watchUserNotifications(String userId) async* { yield []; }
+  Stream<List<NotificationModel>> watchUserNotifications(String userId) async* { yield []; }
 }
+

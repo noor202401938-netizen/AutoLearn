@@ -1,4 +1,5 @@
-﻿// lib/model/certificate_model.dart
+﻿import 'package:cloud_firestore/cloud_firestore.dart';
+// lib/model/certificate_model.dart
 
 class CertificateModel {
   final String certificateId;
@@ -68,4 +69,5 @@ class CertificateModel {
     return days[date.weekday - 1];
   }
 }
+
 

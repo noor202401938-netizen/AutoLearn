@@ -1,4 +1,5 @@
-﻿// lib/repository/quiz_repository.dart
+﻿import 'package:firebase_auth/firebase_auth.dart';
+// lib/repository/quiz_repository.dart
 import 'dart:convert';
 import '../backend/api_client.dart';
 import '../model/quiz_model.dart';
@@ -34,4 +35,6 @@ class QuizRepository {
   Future<dynamic> getUserAssignmentSubmission({required String uid, required String assignmentId}) async { return null; }
   Future<void> submitAssignment(dynamic submission) async {}
 }
+
+
 

@@ -1,4 +1,4 @@
-// lib/repository/user_preferences_repository.dart
+﻿// lib/repository/user_preferences_repository.dart
 import 'dart:convert';
 import '../backend/api_client.dart';
 
@@ -17,5 +17,7 @@ class UserPreferencesRepository {
     return {};
   }
 
-  Future<void> saveUserPreferences(String id, Map<String, dynamic> data) async {}
+  Future<void> saveUserPreferences({required String userId, String? theme, String? fontSize, bool? highContrast, bool? reduceMotion}) async {}
 }
+
+

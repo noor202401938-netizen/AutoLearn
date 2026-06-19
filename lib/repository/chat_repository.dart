@@ -1,4 +1,4 @@
-// lib/repository/chat_repository.dart
+﻿// lib/repository/chat_repository.dart
 import 'dart:convert';
 import '../backend/api_client.dart';
 import '../model/chat_message_model.dart';
@@ -6,7 +6,7 @@ import '../model/chat_message_model.dart';
 class ChatRepository {
   final ApiClient _apiClient = ApiClient.instance;
 
-  Future<ChatMessageModel?> sendMessage(String sessionId, ChatMessageModel newMessage) async {
+  Future<ChatMessageModel?> sendMessage({required String sessionId, required dynamic message}) async {
     return newMessage;
   }
 
@@ -32,3 +32,4 @@ class ChatRepository {
 
   Future<void> deleteSession(String sessionId) async {}
 }
+

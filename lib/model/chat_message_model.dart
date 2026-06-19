@@ -1,4 +1,5 @@
-﻿// lib/model/chat_message_model.dart
+﻿import 'package:cloud_firestore/cloud_firestore.dart';
+// lib/model/chat_message_model.dart
 
 class ChatMessageModel {
   final String messageId;
@@ -114,5 +115,6 @@ class ChatSessionModel {
     );
   }
 }
+
 
 
