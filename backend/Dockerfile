@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-RUN npm ci --only=production || npm install
+RUN npm install
 
 # Generate Prisma client
 RUN npx prisma generate
