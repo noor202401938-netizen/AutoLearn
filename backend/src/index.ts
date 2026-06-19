@@ -2,8 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import { createClient } from 'redis';
-import { RedisStore } from 'rate-limit-redis';
+
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 import aiRoutes from './routes/ai.routes';
@@ -18,12 +17,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// ─── Redis Setup ───────────────────────────────────────────────────────────────
-const redisClient = createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379'
-});
-redisClient.on('error', (err) => console.error('Redis Client Error', err));
-redisClient.connect().catch(console.error);
 
 // ─── Security Middleware ───────────────────────────────────────────────────────
 app.use(helmet());
@@ -35,9 +28,6 @@ const globalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests, please try again later.' },
-  store: new RedisStore({
-    sendCommand: (...args: string[]) => redisClient.sendCommand(args),
-  }),
 });
 
 // Stricter rate limiter for auth endpoints — 20 attempts per 15 minutes
@@ -47,9 +37,6 @@ const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many authentication attempts. Please try again later.' },
-  store: new RedisStore({
-    sendCommand: (...args: string[]) => redisClient.sendCommand(args),
-  }),
 });
 
 app.use(globalLimiter);
