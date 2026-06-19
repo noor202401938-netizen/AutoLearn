@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<course>
+  <!-- Module 1: Introduction -->
+  <module id="module_1" title="Introduction to Economics">
+    <lesson id="lesson_1" type="video" duration="15" title="Welcome to Economics" videoURL="https://www.youtube.com/watch?v=3ez10ADR_gM"/>
+    <lesson id="lesson_2" type="reading" duration="20" title="What is Economics?">
+      <content>
+        Economics is the social science that studies how people make choices about allocating limited resources to satisfy unlimited wants. It examines how individuals, businesses, and governments make decisions about production, distribution, and consumption of goods and services.
+      </content>
+    </lesson>
+    <lesson id="lesson_3" type="quiz" duration="10" title="Introduction Quiz"/>
+  </module>
+
+  <!-- Module 2: Supply and Demand -->
+  <module id="module_2" title="Supply and Demand">
+    <lesson id="lesson_4" type="video" duration="20" title="Understanding Supply and Demand" videoURL="https://www.youtube.com/watch?v=RP0j3Lnlazs"/>
+    <lesson id="lesson_5" type="reading" duration="25" title="Market Forces">
+      <content>
+        Supply and demand are fundamental concepts in economics. Supply refers to the quantity of a good or service that producers are willing and able to sell at various prices. Demand refers to the quantity of a good or service that consumers are willing and able to buy at various prices.
+      </content>
+    </lesson>
+    <lesson id="lesson_6" type="assignment" duration="30" title="Supply and Demand Analysis"/>
+    <lesson id="lesson_7" type="quiz" duration="15" title="Supply and Demand Quiz"/>
+  </module>
+
+  <!-- Module 3: Market Structures -->
+  <module id="module_3" title="Market Structures">
+    <lesson id="lesson_8" type="video" duration="18" title="Perfect Competition" videoURL="https://www.youtube.com/watch?v=UPYp_j0i4XQ"/>
+    <lesson id="lesson_9" type="video" duration="18" title="Monopoly" videoURL="https://www.youtube.com/watch?v=77CApfQlTuE"/>
+    <lesson id="lesson_10" type="reading" duration="20" title="Market Structure Comparison">
+      <content>
+        Different market structures have different characteristics:
+        - Perfect Competition: Many buyers and sellers, identical products
+        - Monopoly: Single seller, no close substitutes
+        - Oligopoly: Few sellers, interdependent decisions
+        - Monopolistic Competition: Many sellers, differentiated products
+      </content>
+    </lesson>
+    <lesson id="lesson_11" type="quiz" duration="15" title="Market Structures Quiz"/>
+  </module>
+</course>
+

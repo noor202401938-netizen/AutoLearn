@@ -1,0 +1,54 @@
+{
+  "name": "autolearn-backend",
+  "version": "1.0.0",
+  "description": "AutoLearn API backend — Node.js/Express/Prisma",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npx tsc",
+    "start": "node dist/index.js",
+    "dev": "nodemon src/index.ts",
+    "seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed.ts",
+    "db:push": "npx prisma db push",
+    "db:migrate": "npx prisma migrate deploy",
+    "db:studio": "npx prisma studio",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": [
+    "autolearn",
+    "edtech",
+    "api"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@prisma/client": "^5.14.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.3",
+    "jwt-simple": "^0.5.6",
+    "minio": "^8.0.7",
+    "multer": "^2.2.0",
+    "openai": "^6.44.0",
+    "pg": "^8.21.0",
+    "prisma": "^5.14.0",
+    "rate-limit-redis": "^5.0.0",
+    "redis": "^6.0.0",
+    "stripe": "^22.2.1"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/jwt-simple": "^0.5.36",
+    "@types/node": "^25.9.3",
+    "nodemon": "^3.1.14",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3"
+  }
+}

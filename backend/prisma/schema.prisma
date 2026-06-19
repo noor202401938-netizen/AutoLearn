@@ -1,0 +1,173 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  password    String
+  displayName String?
+  role        String   @default("student") // "student" or "admin"
+  phone       String?
+  grade       String?
+  interest    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  enrollments Enrollment[]
+  progress    Progress[]
+  chatSessions ChatSession[]
+  payments    Payment[]
+  certificates Certificate[]
+  notifications Notification[]
+  quizResults   QuizResult[]
+}
+
+model Course {
+  id              String   @id @default(uuid())
+  title           String
+  description     String
+  instructor      String   @default("Admin")
+  category        String   @default("General")
+  level           String   @default("beginner")
+  duration        Int      @default(0) // in hours
+  thumbnailURL    String?
+  price           Float    @default(0.0)
+  currency        String   @default("USD")
+  enrollmentCount Int      @default(0)
+  rating          Float    @default(0.0)
+  ratingCount     Int      @default(0)
+  isPublished     Boolean  @default(false)
+  createdBy       String   @default("system")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  modules     Module[]
+  enrollments Enrollment[]
+  certificates Certificate[]
+}
+
+model Module {
+  id          String   @id @default(uuid())
+  title       String
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  lessons     Lesson[]
+  quizResults QuizResult[]
+}
+
+model Lesson {
+  id          String   @id @default(uuid())
+  title       String
+  videoUrl    String?
+  content     String?
+  moduleId    String
+  module      Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  
+  progress    Progress[]
+}
+
+model Enrollment {
+  id          String   @id @default(uuid())
+  userId      String
+  courseId    String
+  status      String   @default("active") // active, completed, dropped
+  enrolledAt  DateTime @default(now())
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+}
+
+model Progress {
+  id              String   @id @default(uuid())
+  userId          String
+  lessonId        String
+  currentPosition Int      @default(0) // seconds
+  totalDuration   Int      @default(0)
+  isCompleted     Boolean  @default(false)
+  updatedAt       DateTime @updatedAt
+  
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson          Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+}
+
+model ChatSession {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  ChatMessage[]
+}
+
+model ChatMessage {
+  id          String      @id @default(uuid())
+  sessionId   String
+  role        String      // "user" or "assistant"
+  content     String
+  timestamp   DateTime    @default(now())
+  
+  session     ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id          String   @id @default(uuid())
+  userId      String
+  amount      Float
+  currency    String   @default("USD")
+  status      String   // "succeeded", "pending", "failed"
+  stripePiId  String   @unique
+  createdAt   DateTime @default(now())
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Certificate {
+  id          String   @id @default(uuid())
+  userId      String
+  courseId    String
+  title       String
+  issueDate   DateTime @default(now())
+  certificateUrl String?
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  userId      String
+  title       String
+  message     String
+  isRead      Boolean  @default(false)
+  type        String   @default("system") // system, course, payment
+  createdAt   DateTime @default(now())
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model QuizResult {
+  id          String   @id @default(uuid())
+  userId      String
+  moduleId    String
+  score       Int
+  totalQuestions Int
+  passed      Boolean
+  takenAt     DateTime @default(now())
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module      Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+}

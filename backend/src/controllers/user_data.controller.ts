@@ -1,0 +1,117 @@
+// @ts-nocheck
+import { Response } from 'express';
+import { PrismaClient } from '@prisma/client';
+import { AuthenticatedRequest } from '../middleware/auth.middleware';
+
+const prisma = new PrismaClient();
+
+// PROGRESS
+export const updateVideoProgress = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { lessonId, currentPosition, totalDuration, isCompleted } = req.body;
+    const userId = req.user?.uid;
+
+    if (!userId || !lessonId) {
+      res.status(400).json({ error: 'Missing userId or lessonId' });
+      return;
+    }
+
+    const progress = await prisma.progress.upsert({
+      where: {
+        userId_lessonId: { userId, lessonId }
+      },
+      update: {
+        currentPosition,
+        totalDuration,
+        isCompleted
+      },
+      create: {
+        userId,
+        lessonId,
+        currentPosition,
+        totalDuration,
+        isCompleted
+      }
+    });
+
+    res.status(200).json(progress);
+  } catch (error) {
+    console.error('Error updating progress:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getVideoProgress = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { lessonId } = req.params;
+    const userId = req.user?.uid;
+
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const progress = await prisma.progress.findUnique({
+      where: { userId_lessonId: { userId, lessonId } }
+    });
+
+    res.status(200).json(progress || { currentPosition: 0, isCompleted: false });
+  } catch (error) {
+    console.error('Error fetching progress:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// NOTIFICATIONS
+export const getNotifications = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.uid;
+    const notifications = await prisma.notification.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' }
+    });
+    res.status(200).json(notifications);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const markNotificationRead = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const notification = await prisma.notification.update({
+      where: { id },
+      data: { isRead: true }
+    });
+    res.status(200).json(notification);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// QUIZZES
+export const saveQuizResult = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { moduleId, score, totalQuestions, passed } = req.body;
+    const userId = req.user?.uid;
+
+    const result = await prisma.quizResult.create({
+      data: { userId, moduleId, score, totalQuestions, passed }
+    });
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// CERTIFICATES
+export const getUserCertificates = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.uid;
+    const certificates = await prisma.certificate.findMany({
+      where: { userId },
+      include: { course: true },
+      orderBy: { issueDate: 'desc' }
+    });
+    res.status(200).json(certificates);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

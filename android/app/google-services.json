@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "182869968469",
+    "firebase_url": "https://economics-learner-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "economics-learner",
+    "storage_bucket": "economics-learner.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:182869968469:android:c300f67d2af93099da36dc",
+        "android_client_info": {
+          "package_name": "com.example.economics_learner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "182869968469-1h5pn53tjpot0n2i9e0n1smsrf28kvae.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.economics_learner",
+            "certificate_hash": "a668dae09318fc473072e8ec8caa7e5c52c6e9c0"
+          }
+        },
+        {
+          "client_id": "182869968469-skgeei3f5rqkkkl7hsh9naji18a2e34h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_eHWMcFSU1mFFGsnBklRK0e5e3-ddfGg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "182869968469-skgeei3f5rqkkkl7hsh9naji18a2e34h.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "182869968469-e8gpkm7fau5v5ujr8fearhqr7u75tff0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.economicsLearner"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
