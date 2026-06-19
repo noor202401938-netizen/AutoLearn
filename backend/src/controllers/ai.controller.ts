@@ -1,7 +1,8 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/auth.middleware';
 import OpenAI from 'openai';
-import prisma from '../prisma/client';
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -68,7 +69,7 @@ Format your response as JSON with the following structure:
 export const chat = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { messages, sessionId, sessionTitle } = req.body;
-    const userId = req.user?.id;
+    const userId = req.user?.uid;
 
     if (!messages || !Array.isArray(messages)) {
       res.status(400).json({ error: 'Valid messages array is required' });
@@ -141,7 +142,7 @@ export const chat = async (req: AuthenticatedRequest, res: Response): Promise<vo
 export const getHistory = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { sessionId } = req.params;
-    const userId = req.user?.id;
+    const userId = req.user?.uid;
 
     if (!userId) {
       res.status(401).json({ error: 'Unauthorized' });

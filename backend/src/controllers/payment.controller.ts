@@ -1,16 +1,18 @@
 import { Response } from 'express';
 import Stripe from 'stripe';
 import { AuthenticatedRequest } from '../middleware/auth.middleware';
-import prisma from '../prisma/client';
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
+  // @ts-ignore
   apiVersion: '2024-04-10',
 });
 
 export const createPaymentIntent = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { amount, currency = 'USD', courseId } = req.body;
-    const userId = req.user?.id;
+    const userId = req.user?.uid;
 
     if (!userId) {
       res.status(401).json({ error: 'Unauthorized' });
