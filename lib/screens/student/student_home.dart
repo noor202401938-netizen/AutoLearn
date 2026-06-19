@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import '../../business_logic/auth_manager.dart';
 import '../../repository/auth_repository.dart';
-import '../../backend/firestore_service.dart';
+import '../../repository/user_repository.dart';
 import 'my_courses_screen.dart';
 import 'ai_tutor_chat_screen.dart';
 import '../notifications_panel.dart';
@@ -31,7 +31,7 @@ class StudentHome extends StatefulWidget {
 class _StudentHomeState extends State<StudentHome> {
   final AuthManager _authManager = AuthManager();
   final AuthRepository _authRepository = AuthRepository();
-  final FirestoreService _firestoreService = FirestoreService();
+  final UserRepository _userRepository = UserRepository();
   final RecommendationEngine _recommendationEngine = RecommendationEngine();
   final EnrollmentRepository _enrollmentRepository = EnrollmentRepository();
   final CourseRepository _courseRepository = CourseRepository();
@@ -112,15 +112,15 @@ class _StudentHomeState extends State<StudentHome> {
       );
     }
 
-    return StreamBuilder<DocumentSnapshot>(
-      stream: _firestoreService.streamUserProfile(user.uid),
+    return StreamBuilder<Map<String, dynamic>?>(
+      stream: _userRepository.streamUserProfile(user.uid),
       builder: (context, snapshot) {
         String name = _userProfile?['displayName'] ??
             user.displayName ??
             user.email?.split('@')[0] ??
             'Student';
-        if (snapshot.hasData && snapshot.data!.exists) {
-          final data = snapshot.data!.data() as Map<String, dynamic>?;
+        if (snapshot.hasData && snapshot.data != null) {
+          final data = snapshot.data!;
           if (data != null &&
               (data['displayName'] as String?) != null &&
               (data['displayName'] as String).isNotEmpty) {
@@ -788,13 +788,13 @@ class _StudentHomeState extends State<StudentHome> {
       child: Column(
         children: [
           const SizedBox(height: 20),
-          StreamBuilder<DocumentSnapshot>(
-            stream: _firestoreService.streamUserProfile(user?.uid ?? ''),
+          StreamBuilder<Map<String, dynamic>?>(
+            stream: _userRepository.streamUserProfile(user?.uid ?? ''),
             builder: (context, snapshot) {
               String displayName = user?.displayName ?? 'Student';
-              if (snapshot.hasData && snapshot.data!.exists) {
-                final data = snapshot.data!.data() as Map<String, dynamic>?;
-                if (data != null &&
+              if (snapshot.hasData && snapshot.data != null) {
+          final data = snapshot.data!;
+          if (data != null &&
                     (data['displayName'] as String?) != null &&
                     (data['displayName'] as String).isNotEmpty) {
                   displayName = data['displayName'];

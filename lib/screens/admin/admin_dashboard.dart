@@ -1,8 +1,8 @@
-﻿import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 // lib/screens/admin/admin_dashboard.dart
 import 'package:flutter/material.dart';
 
-import '../../backend/firestore_service.dart';
+import '../../repository/user_repository.dart';
 
 import '../../business_logic/auth_manager.dart';
 
@@ -31,7 +31,7 @@ class AdminDashboard extends StatefulWidget {
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
-  final FirestoreService _firestoreService = FirestoreService();
+  final UserRepository _userRepository = UserRepository();
   final AuthManager _authManager = AuthManager();
   final CourseManager _courseManager = CourseManager();
   final AnalyticsMonitoringManager _analyticsManager = AnalyticsMonitoringManager();
@@ -52,7 +52,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     try {
       // Get overall statistics
       final courses = await _courseManager.getAllCourses();
-      final users = await _firestoreService.getAllUsers();
+      final users = await _userRepository.getAllUsers();
       
       setState(() {
         _analyticsCourses = courses;
@@ -866,7 +866,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               foregroundColor: Theme.of(context).colorScheme.onPrimary,
             ),
             onPressed: () async {
-              await _firestoreService.updateUserRole(
+              await _userRepository.updateUserRole(
                 userData['uid'],
                 selectedRole,
               );
@@ -906,7 +906,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               foregroundColor: Theme.of(context).colorScheme.onError,
             ),
             onPressed: () async {
-              await _firestoreService.deleteUserProfile(userData['uid']);
+              await _userRepository.deleteUserProfile(userData['uid']);
               if (mounted) {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(

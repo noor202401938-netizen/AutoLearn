@@ -1,6 +1,6 @@
-// lib/screens/student/edit_profile_screen.dart
+﻿// lib/screens/student/edit_profile_screen.dart
 import 'package:flutter/material.dart';
-import '../../backend/firestore_service.dart';
+import '../../repository/user_repository.dart';
 import '../../repository/auth_repository.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -12,7 +12,7 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  final FirestoreService _firestoreService = FirestoreService();
+  final UserRepository _userRepository = UserRepository();
   final AuthRepository _authRepository = AuthRepository();
   
   final TextEditingController _nameController = TextEditingController();
@@ -96,7 +96,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final displayName = _nameController.text.trim();
       
       // Update Firestore profile
-      await _firestoreService.updateUserProfile(
+      await _userRepository.updateUserProfile(
         uid: user.uid,
         displayName: displayName,
         phone: _phoneController.text.trim(),
