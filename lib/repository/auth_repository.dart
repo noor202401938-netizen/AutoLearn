@@ -16,7 +16,7 @@ class AuthRepository {
         'displayName': displayName,
       });
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
         final data = jsonDecode(response.body);
         await _apiClient.setToken(data['token']);
         
@@ -25,8 +25,10 @@ class AuthRepository {
         await _storage.write(key: 'user_role', value: data['user']['role']);
         
         return data['user'];
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw Exception(errorData['error'] ?? 'Registration failed with status code ${response.statusCode}');
       }
-      return null;
     } catch (e) {
       throw Exception('Registration error: $e');
     }
@@ -47,8 +49,10 @@ class AuthRepository {
         await _storage.write(key: 'user_role', value: data['user']['role']);
         
         return data['user'];
+      } else {
+        final errorData = jsonDecode(response.body);
+        throw Exception(errorData['error'] ?? 'Login failed with status code ${response.statusCode}');
       }
-      return null;
     } catch (e) {
       throw Exception('Login error: $e');
     }
