@@ -180,7 +180,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   ),
                 );
               } else if (value == 'logout') {
-                await _authManager.logout();
+                await _authRepository.logoutUser();
                 if (mounted) {
                   Navigator.pushReplacementNamed(context, '/login');
                 }

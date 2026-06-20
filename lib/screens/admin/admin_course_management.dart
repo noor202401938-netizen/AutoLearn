@@ -310,6 +310,7 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
           ],
         ),
       ),
+      ),
     );
   }
 

@@ -316,6 +316,7 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
         ),
         ),
       ),
+      ),
     );
   }
 

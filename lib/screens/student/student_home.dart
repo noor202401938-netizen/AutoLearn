@@ -53,15 +53,16 @@ class _StudentHomeState extends State<StudentHome> {
   Future<void> _loadEnrolledCourses() async {
     setState(() => _loadingEnrolled = true);
     try {
-      final user = _authRepository.getCurrentUser();
-      if (user == null) {
+      final user = await _authRepository.getCurrentUser();
+      final uid = user?['uid'] as String?;
+      if (uid == null) {
         setState(() {
           _enrolledCourses = [];
           _loadingEnrolled = false;
         });
         return;
       }
-      final ids = await _enrollmentRepository.getUserCourseIds(uid: user.uid);
+      final ids = await _enrollmentRepository.getUserCourseIds(uid: uid);
       final List<CourseModel> result = [];
       for (final id in ids) {
         final course = await _courseRepository.getCourseById(id);
@@ -90,9 +91,10 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Future<void> _loadUserProfile() async {
-    final user = _authRepository.getCurrentUser();
-    if (user != null) {
-      final profile = await _authRepository.getUserProfile(user.uid);
+    final user = await _authRepository.getCurrentUser();
+    final uid = user?['uid'] as String?;
+    if (uid != null) {
+      final profile = await _authRepository.getUserProfile(uid);
       setState(() {
         _userProfile = profile;
       });
@@ -100,40 +102,46 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Widget _buildGreetingName() {
-    final user = _authRepository.getCurrentUser();
-    if (user == null) {
-      return const Text(
-        'Student',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 28,
-          fontWeight: FontWeight.bold,
-        ),
-      );
-    }
+    return FutureBuilder<Map<String, dynamic>?>(
+      future: _authRepository.getCurrentUser(),
+      builder: (context, userSnapshot) {
+        final user = userSnapshot.data;
+        final uid = user?['uid'] as String?;
 
-    return StreamBuilder<Map<String, dynamic>?>(
-      stream: _userRepository.streamUserProfile(user.uid),
-      builder: (context, snapshot) {
-        String name = _userProfile?['displayName'] ??
-            user.displayName ??
-            user.email?.split('@')[0] ??
-            'Student';
-        if (snapshot.hasData && snapshot.data != null) {
-          final data = snapshot.data!;
-          if (data != null &&
-              (data['displayName'] as String?) != null &&
-              (data['displayName'] as String).isNotEmpty) {
-            name = data['displayName'];
-          }
+        if (uid == null) {
+          return const Text(
+            'Student',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+            ),
+          );
         }
-        return Text(
-          name,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-          ),
+
+        return StreamBuilder<Map<String, dynamic>?>(
+          stream: _userRepository.streamUserProfile(uid),
+          builder: (context, snapshot) {
+            String name = _userProfile?['displayName'] ??
+                user?['displayName'] ??
+                (user?['email'] as String?)?.split('@')[0] ??
+                'Student';
+            if (snapshot.hasData && snapshot.data != null) {
+              final data = snapshot.data!;
+              if (data['displayName'] != null &&
+                  (data['displayName'] as String).isNotEmpty) {
+                name = data['displayName'];
+              }
+            }
+            return Text(
+              name,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+              ),
+            );
+          },
         );
       },
     );

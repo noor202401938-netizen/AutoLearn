@@ -484,6 +484,8 @@ class _CourseListScreenState extends State<CourseListScreen> {
           ],
         ),
       ),
+      ),
+      ),
     );
   }
 

@@ -42,7 +42,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
       if (course != null) {
         // Load progress for all lessons
         final progressList = await _progressRepository.getCourseProgress(
-          userId: _getUserId(),
+          userId: await _getUserId(),
           courseId: widget.courseId,
         );
 
