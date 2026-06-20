@@ -68,4 +68,28 @@ class NotificationRepository {
       throw Exception('Failed to create notification: $e');
     }
   }
+
+  Future<void> broadcastNotification(String title, String message, String type) async {
+    try {
+      await _apiClient.post('/user/notifications/broadcast', {
+        'title': title,
+        'message': message,
+        'type': type,
+      });
+    } catch (e) {
+      throw Exception('Failed to broadcast notification: $e');
+    }
+  }
+
+  Future<List<dynamic>> getBroadcastHistory() async {
+    try {
+      final response = await _apiClient.get('/user/notifications/broadcast-history');
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      }
+      return [];
+    } catch (e) {
+      return [];
+    }
+  }
 }

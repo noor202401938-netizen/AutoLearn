@@ -171,3 +171,12 @@ model QuizResult {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   module      Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 }
+
+model AdminBroadcast {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  message   String
+  type      String   @default("info")
+  sentAt    DateTime @default(now())
+}
+

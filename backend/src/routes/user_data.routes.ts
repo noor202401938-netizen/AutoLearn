@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { 
   updateVideoProgress, getVideoProgress, getCourseCompletion, getUserStats,
-  getNotifications, markNotificationRead,
+  getNotifications, markNotificationRead, createNotification, broadcastNotification, getBroadcastHistory,
   saveQuizResult,
   getUserCertificates,
   getUserProfile, updateUserProfile
@@ -27,6 +27,9 @@ router.get('/stats', getUserStats);
 // Notifications
 router.get('/notifications', getNotifications);
 router.put('/notifications/:id/read', markNotificationRead);
+router.post('/notifications', createNotification);
+router.post('/notifications/broadcast', broadcastNotification);
+router.get('/notifications/broadcast-history', getBroadcastHistory);
 
 // Quiz
 router.post('/quiz', saveQuizResult);

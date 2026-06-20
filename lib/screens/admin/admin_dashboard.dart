@@ -10,6 +10,7 @@ import '../../business_logic/course_manager.dart';
 import '../../business_logic/analytics_monitoring_manager.dart';
 
 import '../../model/course_model.dart';
+import '../../backend/api_client.dart';
 
 import 'package:fl_chart/fl_chart.dart';
 
@@ -17,11 +18,12 @@ import '../notifications_panel.dart';
 
 import '../theme_accessibility_screen.dart';
 
-import '../user_info_screen.dart';
+import 'admin_profile_screen.dart';
 
 import 'admin_course_management.dart';
-
-
+import 'admin_user_management.dart';
+import 'admin_payment_management.dart';
+import 'admin_notification_management.dart';
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
 
@@ -39,6 +41,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Map<String, dynamic> _analyticsData = {};
   bool _isLoadingAnalytics = false;
   List<CourseModel> _analyticsCourses = [];
+  List<dynamic> _analyticsPayments = [];
   String _adminName = 'Admin';
 
   @override
@@ -70,18 +73,35 @@ class _AdminDashboardState extends State<AdminDashboard> {
       final courses = await _courseManager.getAllCourses();
       final users = await _userRepository.getAllUsers();
       
-      setState(() {
-        _analyticsCourses = courses;
-        _analyticsData = {
-          'totalCourses': courses.length,
-          'publishedCourses': courses.where((c) => c.isPublished).length,
-          'totalUsers': users.length,
-          'totalEnrollments': courses.fold<int>(0, (sum, c) => sum + c.enrollmentCount),
-        };
-        _isLoadingAnalytics = false;
-      });
+      // Fetch payments
+      List<dynamic> payments = [];
+      try {
+        final response = await ApiClient.instance.get('/payments');
+        if (response.statusCode == 200) {
+          payments = response.data as List<dynamic>;
+        }
+      } catch (e) {
+        // Ignore payment fetch errors for analytics
+      }
+      
+      if (mounted) {
+        setState(() {
+          _analyticsCourses = courses;
+          _analyticsPayments = payments;
+          _analyticsData = {
+            'totalCourses': courses.length,
+            'publishedCourses': courses.where((c) => c.isPublished).length,
+            'totalUsers': users.length,
+            'totalEnrollments': courses.fold<int>(0, (sum, c) => sum + c.enrollmentCount),
+            'totalRevenue': payments.where((p) => p['status'] == 'succeeded').fold<double>(0, (sum, p) => sum + (p['amount'] as num).toDouble()),
+          };
+          _isLoadingAnalytics = false;
+        });
+      }
     } catch (e) {
-      setState(() => _isLoadingAnalytics = false);
+      if (mounted) {
+        setState(() => _isLoadingAnalytics = false);
+      }
     }
   }
 
@@ -94,11 +114,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
       case 2:
         return _buildCoursesScreen();
       case 3:
+        return const AdminNotificationManagement();
+      case 4:
+        return const AdminPaymentManagement();
+      case 5:
         return _buildAnalyticsScreen();
       default:
         return _buildOverviewScreen();
     }
   }
+
+  String _analyticsSortBy = 'popular'; // 'popular', 'unpopular', 'highest_rated', 'lowest_rated'
 
   void _onItemTapped(int index) {
     setState(() {
@@ -109,11 +135,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      extendBodyBehindAppBar: false,
       appBar: AppBar(
-        title: const Text(
-          'Admin Dashboard',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: const Padding(
+          padding: EdgeInsets.only(left: 16.0),
+          child: Text(
+            'Admin Dashboard',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -169,7 +198,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const UserInfoPage(),
+                    builder: (context) => const AdminProfileScreen(),
                   ),
                 );
               } else if (value == 'settings') {
@@ -216,6 +245,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 icon: Icon(Icons.school_outlined),
                 selectedIcon: Icon(Icons.school),
                 label: Text('Courses'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.campaign_outlined),
+                selectedIcon: Icon(Icons.campaign),
+                label: Text('Notifications'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.payment_outlined),
+                selectedIcon: Icon(Icons.payment),
+                label: Text('Payments'),
               ),
               NavigationRailDestination(
                 icon: Icon(Icons.analytics_outlined),
@@ -991,23 +1030,70 @@ class _AdminDashboardState extends State<AdminDashboard> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    // Prepare chart data from real courses (top by enrollments)
-    final List<CourseModel> topCourses = List<CourseModel>.from(_analyticsCourses)
-      ..sort((a, b) => b.enrollmentCount.compareTo(a.enrollmentCount));
-    final limitedCourses = topCourses.take(5).toList();
+    List<CourseModel> sortedCourses = List<CourseModel>.from(_analyticsCourses);
+    switch (_analyticsSortBy) {
+      case 'popular':
+        sortedCourses.sort((a, b) => b.enrollmentCount.compareTo(a.enrollmentCount));
+        break;
+      case 'unpopular':
+        sortedCourses.sort((a, b) => a.enrollmentCount.compareTo(b.enrollmentCount));
+        break;
+      case 'highest_rated':
+        sortedCourses.sort((a, b) => b.rating.compareTo(a.rating));
+        break;
+      case 'lowest_rated':
+        sortedCourses.sort((a, b) => a.rating.compareTo(b.rating));
+        break;
+    }
+    
+    final limitedCourses = sortedCourses.take(5).toList();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Analytics Overview',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Analytics Overview',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white.withOpacity(0.2)),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _analyticsSortBy,
+                    dropdownColor: Theme.of(context).colorScheme.surface,
+                    style: const TextStyle(color: Colors.white),
+                    icon: const Icon(Icons.sort, color: Colors.white),
+                    items: const [
+                      DropdownMenuItem(value: 'popular', child: Text('Most Popular')),
+                      DropdownMenuItem(value: 'unpopular', child: Text('Least Popular')),
+                      DropdownMenuItem(value: 'highest_rated', child: Text('Highest Rated')),
+                      DropdownMenuItem(value: 'lowest_rated', child: Text('Lowest Rated')),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          _analyticsSortBy = value;
+                        });
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 24),
 
@@ -1058,7 +1144,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
           const SizedBox(height: 32),
 
-          // Course Performance Chart (based on real enrollments)
+          // Enrollments Chart
           Container(
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.05),
@@ -1071,7 +1157,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Course Performance',
+                    'Enrollments by Course',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -1096,8 +1182,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                           (prev, e) => e > prev ? e : prev)
                                       .toDouble() *
                                   1.2)
-                              .clamp(10.0, double.infinity),
-                          barTouchData: BarTouchData(enabled: false),
+                              .clamp(5.0, double.infinity),
+                          barTouchData: BarTouchData(enabled: true),
                           titlesData: FlTitlesData(
                             show: true,
                             bottomTitles: AxisTitles(
@@ -1134,6 +1220,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             ),
                           ),
                           borderData: FlBorderData(show: false),
+                          gridData: FlGridData(
+                            show: true,
+                            drawVerticalLine: false,
+                            getDrawingHorizontalLine: (value) => FlLine(
+                              color: Colors.white.withOpacity(0.1),
+                              strokeWidth: 1,
+                            ),
+                          ),
                           barGroups: List.generate(limitedCourses.length,
                               (index) {
                             final course = limitedCourses[index];
@@ -1142,13 +1236,256 @@ class _AdminDashboardState extends State<AdminDashboard> {
                               barRods: [
                                 BarChartRodData(
                                   toY: course.enrollmentCount.toDouble(),
-                                  color: Theme.of(context).colorScheme.secondary,
+                                  color: Theme.of(context).colorScheme.primary,
                                   width: 18,
+                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
                                 ),
                               ],
                             );
                           }),
                         ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 24),
+          
+          // Ratings Chart
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Average Ratings by Course',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  if (limitedCourses.isEmpty)
+                    Text(
+                      'Not enough data yet.',
+                      style: TextStyle(color: Colors.white.withOpacity(0.5)),
+                    )
+                  else
+                    SizedBox(
+                      height: 240,
+                      child: BarChart(
+                        BarChartData(
+                          alignment: BarChartAlignment.spaceAround,
+                          maxY: 5.0, // Max rating is 5
+                          barTouchData: BarTouchData(enabled: true),
+                          titlesData: FlTitlesData(
+                            show: true,
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 32,
+                                getTitlesWidget: (value, meta) {
+                                  final index = value.toInt();
+                                  if (index < 0 ||
+                                      index >= limitedCourses.length) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  final title =
+                                      limitedCourses[index].title;
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Text(
+                                      title,
+                                      style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.7)),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 28,
+                                getTitlesWidget: (value, meta) {
+                                  if (value % 1 != 0) return const SizedBox.shrink();
+                                  return Text(
+                                    value.toInt().toString(),
+                                    style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.5)),
+                                  );
+                                },
+                              ),
+                            ),
+                            topTitles: AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            rightTitles: AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                          ),
+                          borderData: FlBorderData(show: false),
+                          gridData: FlGridData(
+                            show: true,
+                            drawVerticalLine: false,
+                            getDrawingHorizontalLine: (value) => FlLine(
+                              color: Colors.white.withOpacity(0.1),
+                              strokeWidth: 1,
+                            ),
+                          ),
+                          barGroups: List.generate(limitedCourses.length,
+                              (index) {
+                            final course = limitedCourses[index];
+                            return BarChartGroupData(
+                              x: index,
+                              barRods: [
+                                BarChartRodData(
+                                  toY: course.rating,
+                                  color: Colors.orangeAccent,
+                                  width: 18,
+                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                                ),
+                              ],
+                            );
+                          }),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 24),
+
+          // Payments Chart
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Total Payments Received (Succeeded)',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  if (_analyticsPayments.isEmpty)
+                    Text(
+                      'No payment data available.',
+                      style: TextStyle(color: Colors.white.withOpacity(0.5)),
+                    )
+                  else
+                    SizedBox(
+                      height: 240,
+                      child: Builder(
+                        builder: (context) {
+                          // Group payments by date (last 7 days)
+                          final Map<String, double> revenueByDate = {};
+                          final now = DateTime.now();
+                          for (int i = 6; i >= 0; i--) {
+                            final date = now.subtract(Duration(days: i));
+                            final dateStr = DateFormat('MM/dd').format(date);
+                            revenueByDate[dateStr] = 0;
+                          }
+                          
+                          for (var p in _analyticsPayments) {
+                            if (p['status'] == 'succeeded' && p['createdAt'] != null) {
+                              final date = DateTime.parse(p['createdAt']).toLocal();
+                              final diff = now.difference(date).inDays;
+                              if (diff <= 6 && diff >= 0) {
+                                final dateStr = DateFormat('MM/dd').format(date);
+                                revenueByDate[dateStr] = (revenueByDate[dateStr] ?? 0) + (p['amount'] as num).toDouble();
+                              }
+                            }
+                          }
+                          
+                          final dates = revenueByDate.keys.toList();
+                          final maxRevenue = revenueByDate.values.isEmpty ? 10.0 : revenueByDate.values.reduce((a, b) => a > b ? a : b);
+                          
+                          return BarChart(
+                            BarChartData(
+                              alignment: BarChartAlignment.spaceAround,
+                              maxY: (maxRevenue * 1.2).clamp(10.0, double.infinity),
+                              barTouchData: BarTouchData(enabled: true),
+                              titlesData: FlTitlesData(
+                                show: true,
+                                bottomTitles: AxisTitles(
+                                  sideTitles: SideTitles(
+                                    showTitles: true,
+                                    reservedSize: 32,
+                                    getTitlesWidget: (value, meta) {
+                                      final index = value.toInt();
+                                      if (index < 0 || index >= dates.length) return const SizedBox.shrink();
+                                      return Padding(
+                                        padding: const EdgeInsets.only(top: 8.0),
+                                        child: Text(
+                                          dates[index],
+                                          style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.7)),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                leftTitles: AxisTitles(
+                                  sideTitles: SideTitles(
+                                    showTitles: true,
+                                    reservedSize: 36,
+                                    getTitlesWidget: (value, meta) {
+                                      if (value % (maxRevenue / 4).ceil() != 0) return const SizedBox.shrink();
+                                      return Text(
+                                        '\$${value.toInt()}',
+                                        style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.5)),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                              ),
+                              borderData: FlBorderData(show: false),
+                              gridData: FlGridData(
+                                show: true,
+                                drawVerticalLine: false,
+                                getDrawingHorizontalLine: (value) => FlLine(
+                                  color: Colors.white.withOpacity(0.1),
+                                  strokeWidth: 1,
+                                ),
+                              ),
+                              barGroups: List.generate(dates.length, (index) {
+                                final revenue = revenueByDate[dates[index]] ?? 0;
+                                return BarChartGroupData(
+                                  x: index,
+                                  barRods: [
+                                    BarChartRodData(
+                                      toY: revenue,
+                                      color: Colors.greenAccent,
+                                      width: 18,
+                                      borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                                    ),
+                                  ],
+                                );
+                              }),
+                            ),
+                          );
+                        }
                       ),
                     ),
                 ],

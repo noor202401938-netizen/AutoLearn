@@ -212,6 +212,85 @@ export const markNotificationRead = async (req: AuthenticatedRequest, res: Respo
   }
 };
 
+export const createNotification = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { userId, title, message, type } = req.body;
+    const targetUserId = userId || req.user?.uid;
+    if (!targetUserId) {
+      res.status(400).json({ error: 'Missing userId' });
+      return;
+    }
+
+    const notification = await prisma.notification.create({
+      data: {
+        userId: targetUserId,
+        title,
+        message,
+        type: type || 'system',
+      }
+    });
+    res.status(200).json(notification);
+  } catch (error) {
+    console.error('Broadcast notification error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getBroadcastHistory = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    if (req.user?.role !== 'admin') {
+      res.status(403).json({ error: 'Forbidden: Admin access required' });
+      return;
+    }
+
+    const broadcasts = await prisma.adminBroadcast.findMany({
+      orderBy: { sentAt: 'desc' },
+      take: 50,
+    });
+
+    res.status(200).json(broadcasts);
+  } catch (error) {
+    console.error('Get broadcast history error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const broadcastNotification = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { title, message, type } = req.body;
+    
+    const students = await prisma.user.findMany({
+      where: { role: 'student' }
+    });
+
+    const notificationsData = students.map(student => ({
+      userId: student.id,
+      title,
+      message,
+      type: type || 'system',
+    }));
+
+    if (notificationsData.length > 0) {
+      await prisma.notification.createMany({
+        data: notificationsData
+      });
+    }
+
+    await prisma.adminBroadcast.create({
+      data: {
+        title,
+        message,
+        type,
+      },
+    });
+
+    res.status(200).json({ message: `Broadcast sent to ${students.length} students` });
+  } catch (error) {
+    console.error('Error broadcasting notification:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 // QUIZZES
 export const saveQuizResult = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
