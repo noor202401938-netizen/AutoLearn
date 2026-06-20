@@ -2,20 +2,17 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiClient {
-  // Load from .env, falling back to localhost for development
-  static String get baseUrl {
-    try {
-      if (dotenv.isInitialized) {
-        return dotenv.env['API_BASE_URL'] ?? 'http://localhost:3001/api';
-      }
-    } catch (e) {
-      // Ignore
-    }
-    return 'http://localhost:3001/api';
-  }
+  // The API base URL — set via Vercel's API_BASE_URL environment variable
+  // On web, environment variables from Vercel are NOT accessible at runtime
+  // unless baked in at build time. We use const String.fromEnvironment instead.
+  static const String _defaultBaseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'https://autolearn-api.vercel.app/api',
+  );
+
+  static String get baseUrl => _defaultBaseUrl;
 
   static const _storage = FlutterSecureStorage();
 

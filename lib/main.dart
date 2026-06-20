@@ -2,7 +2,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/welcome_screen.dart';
 import 'screens/user_info_screen.dart';
 import 'screens/login_page.dart';
@@ -15,13 +14,6 @@ import 'backend/api_client.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Load environment variables
-  try {
-    await dotenv.load(fileName: '.env');
-  } catch (e) {
-    print('No .env file found. Proceeding with system environment variables.');
-  }
-
   runApp(const MyApp(
     initialRoute: '',
   ));

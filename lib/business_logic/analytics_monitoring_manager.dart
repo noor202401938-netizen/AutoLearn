@@ -1,40 +1,23 @@
 // lib/business_logic/analytics_monitoring_manager.dart
-import 'package:firebase_analytics/firebase_analytics.dart';
 import '../repository/progress_repository.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-
 import '../repository/enrollment_repository.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-
 import '../repository/quiz_repository.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-
 import '../backend/api_client.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-
 import 'dart:convert';
-import 'package:firebase_analytics/firebase_analytics.dart';
-
 
 class AnalyticsMonitoringManager {
-  final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
   final ProgressRepository _progressRepository = ProgressRepository();
   final EnrollmentRepository _enrollmentRepository = EnrollmentRepository();
   final QuizRepository _quizRepository = QuizRepository();
 
-  // Log event
+  // Log event (no-op stub replacing Firebase Analytics)
   Future<void> logEvent(String eventName, Map<String, dynamic>? parameters) async {
-    await _analytics.logEvent(
-      name: eventName,
-      parameters: parameters != null 
-          ? parameters.map((key, value) => MapEntry(key, value as Object))
-          : null,
-    );
+    // Analytics logging disabled — Firebase removed
   }
 
   // Log screen view
   Future<void> logScreenView(String screenName) async {
-    await _analytics.logScreenView(screenName: screenName);
+    // Analytics logging disabled — Firebase removed
   }
 
   // Get course completion statistics
@@ -91,5 +74,3 @@ class AnalyticsMonitoringManager {
     });
   }
 }
-
-

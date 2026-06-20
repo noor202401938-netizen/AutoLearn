@@ -1,5 +1,5 @@
 // lib/business_logic/certificate_manager.dart
-import 'package:firebase_auth/firebase_auth.dart';
+import '../repository/auth_repository.dart';
 import '../repository/certificate_repository.dart';
 import '../repository/user_repository.dart';
 import '../model/certificate_model.dart';
@@ -7,7 +7,7 @@ import '../model/certificate_model.dart';
 class CertificateManager {
   final CertificateRepository _certificateRepository = CertificateRepository();
   final UserRepository _userRepository = UserRepository();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final AuthRepository _authRepository = AuthRepository();
 
   // Generate and save certificate for lesson completion
   Future<CertificateModel?> generateCertificate({
@@ -17,21 +17,21 @@ class CertificateManager {
     required String lessonName,
   }) async {
     try {
-      final user = _auth.currentUser;
-      if (user == null) {
+      final uid = await _authRepository.getCurrentUserUid();
+      if (uid == null) {
         throw Exception('User not authenticated');
       }
 
       // Check if certificate already exists
       final exists = await _certificateRepository.certificateExists(
-        userId: user.uid,
+        userId: uid,
         courseId: courseId,
         lessonId: lessonId,
       );
 
       if (exists) {
         // Return existing certificate
-        final certificates = await _certificateRepository.getUserCertificates(user.uid);
+        final certificates = await _certificateRepository.getUserCertificates(uid);
         return certificates.firstWhere(
           (cert) => cert.courseId == courseId && cert.lessonId == lessonId,
           orElse: () => throw Exception('Certificate not found'),
@@ -39,15 +39,14 @@ class CertificateManager {
       }
 
       // Get user name
-      final userProfile = await _userRepository.getUserProfile(user.uid);
+      final userProfile = await _userRepository.getUserProfile(uid);
       final userName = userProfile?['displayName'] as String? ??
-          user.displayName ??
-          user.email?.split('@')[0] ??
+          userProfile?['email']?.toString().split('@')[0] ??
           'Student';
 
       // Create new certificate
       final certificate = await _certificateRepository.createCertificate(
-        userId: user.uid,
+        userId: uid,
         userName: userName,
         courseId: courseId,
         courseName: courseName,
@@ -65,12 +64,12 @@ class CertificateManager {
   // Get all certificates for current user
   Future<List<CertificateModel>> getUserCertificates() async {
     try {
-      final user = _auth.currentUser;
-      if (user == null) {
+      final uid = await _authRepository.getCurrentUserUid();
+      if (uid == null) {
         return [];
       }
 
-      return await _certificateRepository.getUserCertificates(user.uid);
+      return await _certificateRepository.getUserCertificates(uid);
     } catch (e) {
       print('Error getting user certificates: $e');
       return [];
