@@ -401,6 +401,128 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       ],
                     ),
                   ),
+
+                  // Analytics Chart Section (Added to Overview)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Course Performance',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Builder(
+                          builder: (context) {
+                            final List<CourseModel> topCourses = List<CourseModel>.from(_analyticsCourses)
+                              ..sort((a, b) => b.enrollmentCount.compareTo(a.enrollmentCount));
+                            final limitedCourses = topCourses.take(5).toList();
+                            
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.05),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.white.withOpacity(0.1)),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(24),
+                                child: limitedCourses.isEmpty
+                                  ? Text(
+                                      'Not enough data yet. Create and publish courses to see performance.',
+                                      style: TextStyle(color: Colors.white.withOpacity(0.5)),
+                                    )
+                                  : SizedBox(
+                                      height: 240,
+                                      child: BarChart(
+                                        BarChartData(
+                                          alignment: BarChartAlignment.spaceAround,
+                                          maxY: (limitedCourses
+                                                      .map((c) => c.enrollmentCount)
+                                                      .fold<int>(0,
+                                                          (prev, e) => e > prev ? e : prev)
+                                                      .toDouble() *
+                                                  1.2)
+                                              .clamp(10.0, double.infinity),
+                                          barTouchData: BarTouchData(enabled: false),
+                                          titlesData: FlTitlesData(
+                                            show: true,
+                                            bottomTitles: AxisTitles(
+                                              sideTitles: SideTitles(
+                                                showTitles: true,
+                                                reservedSize: 32,
+                                                getTitlesWidget: (value, meta) {
+                                                  final index = value.toInt();
+                                                  if (index < 0 ||
+                                                      index >= limitedCourses.length) {
+                                                    return const SizedBox.shrink();
+                                                  }
+                                                  final title =
+                                                      limitedCourses[index].title;
+                                                  return Padding(
+                                                    padding: const EdgeInsets.only(top: 8.0),
+                                                    child: Text(
+                                                      title,
+                                                      style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.7)),
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                            leftTitles: AxisTitles(
+                                              sideTitles: SideTitles(
+                                                showTitles: true,
+                                                reservedSize: 28,
+                                                getTitlesWidget: (value, meta) {
+                                                  if (value % 1 != 0) return const SizedBox.shrink();
+                                                  return Text(
+                                                    value.toInt().toString(),
+                                                    style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.5)),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                          ),
+                                          gridData: FlGridData(
+                                            show: true,
+                                            drawVerticalLine: false,
+                                            getDrawingHorizontalLine: (value) => FlLine(
+                                              color: Colors.white.withOpacity(0.1),
+                                              strokeWidth: 1,
+                                            ),
+                                          ),
+                                          borderData: FlBorderData(show: false),
+                                          barGroups: limitedCourses.asMap().entries.map((entry) {
+                                            return BarChartGroupData(
+                                              x: entry.key,
+                                              barRods: [
+                                                BarChartRodData(
+                                                  toY: entry.value.enrollmentCount.toDouble(),
+                                                  color: Theme.of(context).colorScheme.primary,
+                                                  width: 16,
+                                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                                                ),
+                                              ],
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ),
+                                    ),
+                              ),
+                            );
+                          }
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             );
