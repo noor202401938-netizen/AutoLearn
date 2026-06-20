@@ -94,7 +94,7 @@ class UserRepository {
 
   Future<List<Map<String, dynamic>>> getAllUsers() async {
     try {
-      final response = await _apiClient.get('/users');
+      final response = await _apiClient.get('/auth/users');
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         return data.cast<Map<String, dynamic>>();

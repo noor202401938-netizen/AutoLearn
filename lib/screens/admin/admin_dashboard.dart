@@ -173,16 +173,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   ],
                 ),
               ),
-              PopupMenuItem(
-                value: 'settings',
-                child: Row(
-                  children: [
-                    Icon(Icons.settings, color: Theme.of(context).colorScheme.onSurface),
-                    const SizedBox(width: 8),
-                    Text('Settings', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                  ],
-                ),
-              ),
+
               PopupMenuItem(
                 value: 'logout',
                 child: Row(
@@ -202,13 +193,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     builder: (context) => const AdminProfileScreen(),
                   ),
                 );
-              } else if (value == 'settings') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ThemeAccessibilityScreen(),
-                  ),
-                );
+
               } else if (value == 'logout') {
                 await _authRepository.logoutUser();
                 if (mounted) {
@@ -421,20 +406,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                               Colors.orangeAccent,
                               () => setState(() => _selectedIndex = 3),
                             ),
-                            _buildActionCard(
-                              'Settings',
-                              Icons.settings,
-                              Colors.purpleAccent,
-                              () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const ThemeAccessibilityScreen(),
-                                  ),
-                                );
-                              },
-                            ),
+
                           ],
                         ),
                       ],

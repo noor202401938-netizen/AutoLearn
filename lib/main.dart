@@ -83,7 +83,7 @@ class _MyAppState extends State<MyApp> {
         textScaleFactor: fontSizeMultiplier,
       ),
       child: MaterialApp(
-        title: 'AI Tutor',
+        title: 'AutoLearn',
         debugShowCheckedModeBanner: false,
         themeMode: ThemeMode.dark, // Force dark theme for Luminous Professional
         theme: AppTheme.darkTheme,
@@ -220,8 +220,8 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
               const SizedBox(height: 30),
               const Text(
-                'AI Tutor',
-                style: GoogleFonts.outfit(
+                'AutoLearn',
+                style: TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,

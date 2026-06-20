@@ -942,18 +942,7 @@ class _StudentHomeState extends State<StudentHome> {
               );
             },
           ),
-          _buildProfileOption(
-            'Theme & Accessibility',
-            Icons.palette,
-            () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ThemeAccessibilityScreen(),
-                ),
-              );
-            },
-          ),
+
           _buildProfileOption(
             'Help & Support',
             Icons.help_outline,
