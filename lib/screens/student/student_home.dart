@@ -826,68 +826,69 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Widget _buildProfileScreen() {
-    final user = null /* was FirebaseAuth.instance.currentUser */;
+    return FutureBuilder<Map<String, dynamic>?>(
+      future: _authRepository.getCurrentUser(),
+      builder: (context, userSnapshot) {
+        final user = userSnapshot.data;
+        final uid = user?['uid'] as String?;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          const SizedBox(height: 20),
-          StreamBuilder<Map<String, dynamic>?>(
-            stream: _userRepository.streamUserProfile(user?.uid ?? ''),
-            builder: (context, snapshot) {
-              String displayName = user?.displayName ?? 'Student';
-              if (snapshot.hasData && snapshot.data != null) {
-          final data = snapshot.data!;
-          if (data != null &&
-                    (data['displayName'] as String?) != null &&
-                    (data['displayName'] as String).isNotEmpty) {
-                  displayName = data['displayName'];
-                }
-              } else if (_userProfile != null &&
-                  (_userProfile!['displayName'] as String?) != null &&
-                  (_userProfile!['displayName'] as String).isNotEmpty) {
-                displayName = _userProfile!['displayName'];
-              }
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              StreamBuilder<Map<String, dynamic>?>(
+                stream: uid != null ? _userRepository.streamUserProfile(uid) : const Stream.empty(),
+                builder: (context, snapshot) {
+                  String displayName = 'Student';
+                  if (snapshot.hasData && snapshot.data != null) {
+                    final data = snapshot.data!;
+                    if ((data['displayName'] as String?)?.isNotEmpty == true) {
+                      displayName = data['displayName'];
+                    }
+                  } else if (_userProfile != null &&
+                      (_userProfile!['displayName'] as String?)?.isNotEmpty == true) {
+                    displayName = _userProfile!['displayName'];
+                  } else if (user?['displayName']?.isNotEmpty == true) {
+                    displayName = user!['displayName'];
+                  } else if (user?['email']?.isNotEmpty == true) {
+                    displayName = (user!['email'] as String).split('@')[0];
+                  }
 
-              return Column(
-                children: [
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundColor:
-                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                    child: Text(
-                      (displayName.isNotEmpty
-                              ? displayName
-                              : user?.email ?? 'U')[0]
-                          .toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 48,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.primary,
+                  return Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 60,
+                        backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                        child: Text(
+                          (displayName.isNotEmpty ? displayName : user?['email'] ?? 'U')[0].toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 48,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    displayName,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-          const SizedBox(height: 8),
-          Text(
-            user?.email ?? '',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey.shade600,
-            ),
-          ),
+                      const SizedBox(height: 20),
+                      Text(
+                        displayName,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
+              Text(
+                user?['email'] ?? '',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey.shade600,
+                ),
+              ),
           const SizedBox(height: 32),
           _buildProfileOption(
             'Edit Profile',
@@ -1020,7 +1021,8 @@ class _StudentHomeState extends State<StudentHome> {
         ],
       ),
     );
-  }
+  });
+}
 
   Widget _buildProfileOption(String title, IconData icon, VoidCallback onTap) {
     return Card(
