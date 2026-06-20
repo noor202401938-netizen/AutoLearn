@@ -6,8 +6,16 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiClient {
   // Load from .env, falling back to localhost for development
-  static String get baseUrl =>
-      dotenv.env['API_BASE_URL'] ?? 'http://localhost:3001/api';
+  static String get baseUrl {
+    try {
+      if (dotenv.isInitialized) {
+        return dotenv.env['API_BASE_URL'] ?? 'http://localhost:3001/api';
+      }
+    } catch (e) {
+      // Ignore
+    }
+    return 'http://localhost:3001/api';
+  }
 
   static const _storage = FlutterSecureStorage();
 
