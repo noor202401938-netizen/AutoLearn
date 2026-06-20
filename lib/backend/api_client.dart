@@ -9,7 +9,7 @@ class ApiClient {
   // unless baked in at build time. We use const String.fromEnvironment instead.
   static const String _defaultBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://autolearn-api.vercel.app/api',
+    defaultValue: 'https://autolearn-production.up.railway.app/api',
   );
 
   static String get baseUrl => _defaultBaseUrl;
