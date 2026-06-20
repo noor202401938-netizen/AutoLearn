@@ -190,59 +190,58 @@ class _AdminDashboardState extends State<AdminDashboard> {
           const SizedBox(width: 8),
         ],
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
-              Theme.of(context).colorScheme.background,
+      body: Row(
+        children: [
+          NavigationRail(
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            selectedIndex: _selectedIndex,
+            onDestinationSelected: _onItemTapped,
+            selectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.secondary),
+            unselectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            selectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            unselectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            labelType: NavigationRailLabelType.all,
+            destinations: const [
+              NavigationRailDestination(
+                icon: Icon(Icons.dashboard_outlined),
+                selectedIcon: Icon(Icons.dashboard),
+                label: Text('Overview'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.people_outline),
+                selectedIcon: Icon(Icons.people),
+                label: Text('Users'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.school_outlined),
+                selectedIcon: Icon(Icons.school),
+                label: Text('Courses'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.analytics_outlined),
+                selectedIcon: Icon(Icons.analytics),
+                label: Text('Analytics'),
+              ),
             ],
-            stops: const [0.0, 0.3],
           ),
-        ),
-        child: SafeArea(child: _getSelectedScreen()),
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(
-              color: Colors.white.withOpacity(0.1),
-              width: 1,
+          VerticalDivider(thickness: 1, width: 1, color: Colors.white.withOpacity(0.1)),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
+                    Theme.of(context).colorScheme.background,
+                  ],
+                  stops: const [0.0, 0.3],
+                ),
+              ),
+              child: SafeArea(child: _getSelectedScreen()),
             ),
           ),
-        ),
-        child: BottomNavigationBar(
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          selectedItemColor: Theme.of(context).colorScheme.secondary,
-          unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.dashboard_outlined),
-              activeIcon: Icon(Icons.dashboard),
-              label: 'Overview',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.people_outline),
-              activeIcon: Icon(Icons.people),
-              label: 'Users',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.school_outlined),
-              activeIcon: Icon(Icons.school),
-              label: 'Courses',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.analytics_outlined),
-              activeIcon: Icon(Icons.analytics),
-              label: 'Analytics',
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          type: BottomNavigationBarType.fixed,
-        ),
+        ],
       ),
     );
   }

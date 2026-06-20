@@ -18,7 +18,7 @@ class UserRepository {
     String? interest,
   }) async {
     try {
-      final response = await _apiClient.put('/users/$uid', {
+      final response = await _apiClient.put('/user/profile', {
         'displayName': displayName,
         'phone': phone,
         'grade': grade,
@@ -62,7 +62,7 @@ class UserRepository {
         return _userCache[uid];
       }
       
-      final response = await _apiClient.get('/users/$uid');
+      final response = await _apiClient.get('/user/profile');
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         _userCache[uid] = data;

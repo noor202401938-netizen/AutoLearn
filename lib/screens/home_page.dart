@@ -103,58 +103,60 @@ class _StudentHomeState extends State<StudentHome> {
           const SizedBox(width: 8),
         ],
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
-              Theme.of(context).colorScheme.background,
+      body: Row(
+        children: [
+          NavigationRail(
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            selectedIndex: _selectedIndex,
+            onDestinationSelected: _onItemTapped,
+            selectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.secondary),
+            unselectedIconTheme: IconThemeData(color: Colors.white.withOpacity(0.5)),
+            selectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            unselectedLabelTextStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+            labelType: NavigationRailLabelType.all,
+            destinations: const [
+              NavigationRailDestination(
+                icon: Icon(Icons.home_outlined),
+                selectedIcon: Icon(Icons.home),
+                label: Text('Home'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.school_outlined),
+                selectedIcon: Icon(Icons.school),
+                label: Text('Courses'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.show_chart_outlined),
+                selectedIcon: Icon(Icons.show_chart),
+                label: Text('Progress'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.person_outline),
+                selectedIcon: Icon(Icons.person),
+                label: Text('Profile'),
+              ),
             ],
-            stops: const [0.0, 0.4],
           ),
-        ),
-        child: SafeArea(
-          child: _getSelectedScreen(),
-        ),
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          border: Border(top: BorderSide(color: Colors.white.withOpacity(0.1))),
-        ),
-        child: BottomNavigationBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Home',
+          VerticalDivider(thickness: 1, width: 1, color: Colors.white.withOpacity(0.1)),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
+                    Theme.of(context).colorScheme.background,
+                  ],
+                  stops: const [0.0, 0.4],
+                ),
+              ),
+              child: SafeArea(
+                child: _getSelectedScreen(),
+              ),
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.school_outlined),
-              activeIcon: Icon(Icons.school),
-              label: 'Courses',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.show_chart_outlined),
-              activeIcon: Icon(Icons.show_chart),
-              label: 'Progress',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: 'Profile',
-            ),
-          ],
-          currentIndex: _selectedIndex,
-          selectedItemColor: Theme.of(context).colorScheme.secondary,
-          unselectedItemColor: Colors.white.withOpacity(0.5),
-          onTap: _onItemTapped,
-          type: BottomNavigationBarType.fixed,
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -3,13 +3,18 @@ import {
   updateVideoProgress, getVideoProgress, getCourseCompletion, getUserStats,
   getNotifications, markNotificationRead,
   saveQuizResult,
-  getUserCertificates
+  getUserCertificates,
+  getUserProfile, updateUserProfile
 } from '../controllers/user_data.controller';
 import { authenticateToken } from '../middleware/auth.middleware';
 
 const router = Router();
 
 router.use(authenticateToken);
+
+// Profile
+router.get('/profile', getUserProfile);
+router.put('/profile', updateUserProfile);
 
 // Progress
 router.post('/progress', updateVideoProgress);

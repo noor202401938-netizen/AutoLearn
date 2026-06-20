@@ -5,6 +5,73 @@ import { AuthenticatedRequest } from '../middleware/auth.middleware';
 
 const prisma = new PrismaClient();
 
+// PROFILE
+export const getUserProfile = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.uid;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        displayName: true,
+        role: true,
+        phone: true,
+        grade: true,
+        interest: true,
+        isActive: true,
+      }
+    });
+
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const updateUserProfile = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.uid;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const { displayName, phone, grade, interest } = req.body;
+
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { displayName, phone, grade, interest },
+      select: {
+        id: true,
+        email: true,
+        displayName: true,
+        role: true,
+        phone: true,
+        grade: true,
+        interest: true,
+        isActive: true,
+      }
+    });
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 // PROGRESS
 export const updateVideoProgress = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
