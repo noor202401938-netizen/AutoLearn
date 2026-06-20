@@ -2,30 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Luminous Professional Color Palette
-  static const Color primary = Color(0xFF1E1B4B); // Deep Indigo
-  static const Color secondary = Color(0xFF7C3AED); // Electric Violet
-  static const Color surface = Color(0xFF031427); // Slate Surface
-  static const Color surfaceBright = Color(0xFF2A3A4F);
-  static const Color surfaceContainerLow = Color(0xFF0B1C30);
-  static const Color surfaceContainer = Color(0xFF102034);
-  static const Color surfaceContainerHigh = Color(0xFF1B2B3F);
+  // Premium Modern Glass Palette (Slate & Electric Blue/Cyan)
+  static const Color primary = Color(0xFF3B82F6); // Electric Blue
+  static const Color secondary = Color(0xFF06B6D4); // Neon Cyan
+  static const Color surface = Color(0xFF1E293B); // Slate 800
+  static const Color surfaceBright = Color(0xFF334155); // Slate 700
+  static const Color surfaceContainerLow = Color(0xFF0F172A); // Slate 900
+  static const Color surfaceContainer = Color(0xFF1E293B);
+  static const Color surfaceContainerHigh = Color(0xFF334155);
   
-  static const Color onSurface = Color(0xFFD3E4FE);
-  static const Color onSurfaceVariant = Color(0xFFC8C5D0);
-  static const Color onPrimary = Color(0xFF2D2A5B);
-  static const Color primaryContainer = Color(0xFF1E1B4B);
+  static const Color onSurface = Color(0xFFF8FAFC); // Slate 50
+  static const Color onSurfaceVariant = Color(0xFF94A3B8); // Slate 400
+  static const Color onPrimary = Colors.white;
+  static const Color primaryContainer = Color(0xFF1E3A8A); // Blue 900
   
-  static const Color background = Color(0xFF031427);
-  static const Color onBackground = Color(0xFFD3E4FE);
+  static const Color background = Color(0xFF0F172A); // Slate 900
+  static const Color onBackground = Color(0xFFF8FAFC);
 
-  static const Color error = Color(0xFFFFB4AB);
-  static const Color success = Color(0xFF34D399); // Bright emerald for success
+  static const Color error = Color(0xFFEF4444); // Red 500
+  static const Color success = Color(0xFF10B981); // Emerald 500
 
   // Glassmorphism Card Style
   static BoxDecoration glassDecoration({double radius = 16}) {
     return BoxDecoration(
-      color: surface.withOpacity(0.08),
+      color: Colors.white.withOpacity(0.03),
       borderRadius: BorderRadius.circular(radius),
       border: Border.all(
         color: Colors.white.withOpacity(0.1),
@@ -33,9 +33,9 @@ class AppTheme {
       ),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.2),
-          blurRadius: 20,
-          offset: const Offset(0, 10),
+          color: Colors.black.withOpacity(0.3),
+          blurRadius: 24,
+          offset: const Offset(0, 8),
         )
       ],
     );
@@ -46,8 +46,8 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       colorScheme: const ColorScheme.dark(
-        primary: secondary,
-        onPrimary: Colors.white,
+        primary: primary,
+        onPrimary: onPrimary,
         secondary: secondary,
         onSecondary: Colors.white,
         surface: surface,
@@ -57,31 +57,31 @@ class AppTheme {
         error: error,
       ),
       scaffoldBackgroundColor: background,
-      textTheme: GoogleFonts.interTextTheme(
+      textTheme: GoogleFonts.outfitTextTheme(
         ThemeData.dark().textTheme,
       ).copyWith(
-        displayLarge: GoogleFonts.inter(
+        displayLarge: GoogleFonts.outfit(
           fontSize: 48,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.02,
           color: onSurface,
         ),
-        headlineMedium: GoogleFonts.inter(
+        headlineMedium: GoogleFonts.outfit(
           fontSize: 24,
           fontWeight: FontWeight.w600,
           color: onSurface,
         ),
-        bodyLarge: GoogleFonts.inter(
+        bodyLarge: GoogleFonts.outfit(
           fontSize: 18,
           fontWeight: FontWeight.w400,
           color: onSurface,
         ),
-        bodyMedium: GoogleFonts.inter(
+        bodyMedium: GoogleFonts.outfit(
           fontSize: 16,
           fontWeight: FontWeight.w400,
           color: onSurfaceVariant,
         ),
-        labelLarge: GoogleFonts.inter(
+        labelLarge: GoogleFonts.outfit(
           fontSize: 14,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.01,
@@ -90,33 +90,33 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: secondary,
+          backgroundColor: primary,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
           elevation: 8,
-          shadowColor: secondary.withOpacity(0.5),
+          shadowColor: primary.withOpacity(0.5),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: surfaceContainerHigh.withOpacity(0.5),
+        fillColor: surfaceContainerHigh.withOpacity(0.4),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.05)),
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: secondary, width: 2),
         ),
-        labelStyle: GoogleFonts.inter(color: onSurfaceVariant),
-        floatingLabelStyle: GoogleFonts.inter(color: secondary, fontWeight: FontWeight.w600),
+        labelStyle: GoogleFonts.outfit(color: onSurfaceVariant),
+        floatingLabelStyle: GoogleFonts.outfit(color: secondary, fontWeight: FontWeight.w600),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       ),
       cardTheme: CardThemeData(
@@ -124,7 +124,7 @@ class AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: Colors.white.withOpacity(0.05)),
+          side: BorderSide(color: Colors.white.withOpacity(0.08)),
         ),
       ),
     );

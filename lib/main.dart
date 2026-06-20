@@ -1,6 +1,7 @@
 // lib/main.dart
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/welcome_screen.dart';
 import 'screens/user_info_screen.dart';
@@ -187,9 +188,9 @@ class _SplashScreenState extends State<SplashScreen> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFF4169E1), // Royal Blue
-              Color(0xFF1E3A8A), // Darker Blue
-              Color(0xFF0F172A), // Very Dark Blue
+              Color(0xFF1E293B), // Slate 800
+              Color(0xFF0F172A), // Slate 900
+              Color(0xFF020617), // Slate 950
             ],
           ),
         ),
@@ -214,13 +215,13 @@ class _SplashScreenState extends State<SplashScreen> {
                 child: const Icon(
                   Icons.school_rounded,
                   size: 80,
-                  color: Color(0xFF4169E1),
+                  color: Color(0xFF3B82F6), // Electric Blue
                 ),
               ),
               const SizedBox(height: 30),
               const Text(
                 'AI Tutor',
-                style: TextStyle(
+                style: GoogleFonts.outfit(
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -230,7 +231,7 @@ class _SplashScreenState extends State<SplashScreen> {
               const SizedBox(height: 10),
               Text(
                 'Your Personal Learning Assistant',
-                style: TextStyle(
+                style: GoogleFonts.outfit(
                   fontSize: 16,
                   color: Colors.white.withValues(alpha: 0.9),
                 ),
