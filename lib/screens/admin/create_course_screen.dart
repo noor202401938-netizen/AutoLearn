@@ -45,8 +45,8 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final currentUser = AuthRepository.getCurrentUser();
-      if (currentUser == null) {
+      final currentUser = await AuthRepository().getCurrentUser();
+      if (currentUser == null || currentUser['uid'] == null) {
         throw Exception('Not authenticated');
       }
 
@@ -65,7 +65,7 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
         price: double.parse(_priceController.text.trim()),
         isPublished: _isPublished,
         createdAt: DateTime.now(),
-        createdBy: currentUser.uid,
+        createdBy: currentUser['uid'],
       );
 
       final result = await _courseManager.createCourse(course);

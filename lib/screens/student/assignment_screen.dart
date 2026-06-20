@@ -55,10 +55,11 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
 
       // Check for existing submission
       if (_assignment != null) {
-        final user = AuthRepository.getCurrentUser();
-        if (user != null) {
+        final user = await AuthRepository().getCurrentUser();
+        final uid = user?['uid'] as String?;
+        if (uid != null) {
           _existingSubmission = await _quizRepository.getUserAssignmentSubmission(
-            userId: user.uid,
+            userId: uid,
             assignmentId: _assignment!.assignmentId,
           );
 
@@ -91,8 +92,9 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
       return;
     }
 
-    final user = AuthRepository.getCurrentUser();
-    if (user == null || _assignment == null) return;
+    final user = await AuthRepository().getCurrentUser();
+    final uid = user?['uid'] as String?;
+    if (uid == null || _assignment == null) return;
 
     setState(() => _isSubmitting = true);
 
@@ -114,7 +116,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
       // Create submission
       final submission = AssignmentSubmissionModel(
         submissionId: 'sub_${DateTime.now().millisecondsSinceEpoch}',
-        userId: user.uid,
+        userId: uid,
         assignmentId: _assignment!.assignmentId,
         courseId: widget.courseId,
         moduleId: widget.moduleId,

@@ -57,7 +57,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
           (sum, module) => sum + module.lessons.length,
         );
         final completion = await _progressRepository.getCourseCompletionPercentage(
-          userId: _getUserId(),
+          userId: await _getUserId(),
           courseId: widget.courseId,
           totalLessons: totalLessons,
         );
@@ -76,9 +76,9 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
     }
   }
 
-  String _getUserId() {
-    final user = AuthRepository.getCurrentUser();
-    return user?.uid ?? '';
+  Future<String> _getUserId() async {
+    final user = await AuthRepository().getCurrentUser();
+    return user?['uid'] as String? ?? '';
   }
 
   @override

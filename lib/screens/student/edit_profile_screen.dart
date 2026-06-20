@@ -61,17 +61,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _loadUserProfile() async {
     setState(() => _isLoading = true);
-    final user = _authRepository.getCurrentUser();
+    final user = await _authRepository.getCurrentUser();
     if (user != null) {
-      final profile = await _authRepository.getUserProfile(user.uid);
-      if (profile != null) {
-        setState(() {
-          _userProfile = profile;
-          _nameController.text = profile['displayName'] ?? '';
-          _phoneController.text = profile['phone'] ?? '';
-          _gradeController.text = profile['grade'] ?? '';
-          _interestController.text = profile['interest'] ?? '';
-        });
+      final uid = user['uid'] as String?;
+      if (uid != null) {
+        final profile = await _authRepository.getUserProfile(uid);
+        if (profile != null) {
+          setState(() {
+            _userProfile = profile;
+            _nameController.text = profile['displayName'] ?? '';
+            _phoneController.text = profile['phone'] ?? '';
+            _gradeController.text = profile['grade'] ?? '';
+            _interestController.text = profile['interest'] ?? '';
+          });
+        }
       }
     }
     setState(() => _isLoading = false);
@@ -81,8 +84,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
-    final user = _authRepository.getCurrentUser();
-    if (user == null) {
+    final user = await _authRepository.getCurrentUser();
+    final uid = user?['uid'] as String?;
+    if (uid == null) {
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -95,20 +99,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     try {
       final displayName = _nameController.text.trim();
       
-      // Update Firestore profile
+      // Update profile via API
       await _userRepository.updateUserProfile(
-        uid: user.uid,
+        uid: uid,
         displayName: displayName,
         phone: _phoneController.text.trim(),
         grade: _gradeController.text.trim(),
         interest: _interestController.text.trim(),
       );
-
-      // Update Firebase Auth displayName
-      if (displayName.isNotEmpty) {
-        await user.updateDisplayName(displayName);
-        await user.reload();
-      }
 
       setState(() => _isLoading = false);
       
@@ -119,7 +117,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             backgroundColor: Theme.of(context).colorScheme.primaryContainer,
           ),
         );
-        Navigator.pop(context, true); // Return true to indicate profile was updated
+        Navigator.pop(context, true);
       }
     } catch (e) {
       setState(() => _isLoading = false);
@@ -187,7 +185,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           child: Text(
                             (_nameController.text.isNotEmpty
                                     ? _nameController.text
-                                    : AuthRepository.getCurrentUser()?.email ?? 'U')[0]
+                                    : (_userProfile?['email'] ?? 'U'))[0]
                                 .toUpperCase(),
                             style: const TextStyle(
                               fontSize: 48,
@@ -218,7 +216,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     
                     // Email (read-only)
                     _buildTextField(
-                      controller: TextEditingController(text: AuthRepository.getCurrentUser()?.email ?? ''),
+                      controller: TextEditingController(text: _userProfile?['email'] ?? ''),
                       label: 'Email',
                       hint: '',
                       icon: Icons.email_outlined,

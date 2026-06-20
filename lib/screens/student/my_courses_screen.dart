@@ -16,6 +16,7 @@ class MyCoursesScreen extends StatefulWidget {
 class _MyCoursesScreenState extends State<MyCoursesScreen> {
   final EnrollmentRepository _enrollmentRepository = EnrollmentRepository();
   final CourseRepository _courseRepository = CourseRepository();
+  final AuthRepository _authRepository = AuthRepository();
 
   bool _loading = true;
   List<CourseModel> _courses = [];
@@ -28,12 +29,13 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
 
   Future<void> _load() async {
     setState(() => _loading = true);
-    final user = AuthRepository.getCurrentUser();
-    if (user == null) {
+    final user = await _authRepository.getCurrentUser();
+    final uid = user?['uid'] as String?;
+    if (uid == null) {
       setState(() { _courses = []; _loading = false; });
       return;
     }
-    final ids = await _enrollmentRepository.getUserCourseIds(uid: user.uid);
+    final ids = await _enrollmentRepository.getUserCourseIds(uid: uid);
     final List<CourseModel> result = [];
     for (final id in ids) {
       final course = await _courseRepository.getCourseById(id);

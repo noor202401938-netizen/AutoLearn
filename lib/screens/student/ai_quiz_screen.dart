@@ -66,10 +66,11 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
       );
 
       // Check for existing submission
-      final user = AuthRepository.getCurrentUser();
-      if (user != null) {
+      final user = await AuthRepository().getCurrentUser();
+      final uid = user?['uid'] as String?;
+      if (uid != null) {
         final existingSubmission = await _quizRepository.getUserQuizSubmission(
-          userId: user.uid,
+          userId: uid,
           quizId: _quiz!.quizId,
         );
         if (existingSubmission != null) {
@@ -115,8 +116,9 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
   Future<void> _submitQuiz({bool autoSubmit = false}) async {
     if (_isSubmitting) return;
 
-    final user = AuthRepository.getCurrentUser();
-    if (user == null || _quiz == null) return;
+    final user = await AuthRepository().getCurrentUser();
+    final uid = user?['uid'] as String?;
+    if (uid == null || _quiz == null) return;
 
     setState(() => _isSubmitting = true);
     _timer?.cancel();
@@ -128,7 +130,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
 
       // Grade the quiz
       final submission = _quizEngine.gradeQuiz(
-        userId: user.uid,
+        userId: uid,
         quiz: _quiz!,
         answers: _answers,
         timeSpent: timeSpent,

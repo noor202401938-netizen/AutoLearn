@@ -119,7 +119,7 @@ class AppTheme {
         floatingLabelStyle: GoogleFonts.inter(color: secondary, fontWeight: FontWeight.w600),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: surfaceContainer,
         elevation: 0,
         shape: RoundedRectangleBorder(

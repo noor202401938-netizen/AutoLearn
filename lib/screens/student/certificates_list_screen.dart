@@ -26,9 +26,10 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
   Future<void> _loadCertificates() async {
     setState(() => _isLoading = true);
     try {
-      final user = AuthRepository.getCurrentUser();
-      if (user != null) {
-        final certificates = await _certificateRepository.getUserCertificates(user.uid);
+      final user = await AuthRepository().getCurrentUser();
+      final uid = user?['uid'] as String?;
+      if (uid != null) {
+        final certificates = await _certificateRepository.getUserCertificates(uid);
         setState(() {
           _certificates = certificates;
           _isLoading = false;

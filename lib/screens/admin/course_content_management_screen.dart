@@ -468,7 +468,7 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
               color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(Icons.folder, color: Theme.of(context).colorScheme.primaryAccent),
+            child: Icon(Icons.folder, color: Theme.of(context).colorScheme.secondary),
           ),
           title: TextField(
             controller: TextEditingController(text: module.title),

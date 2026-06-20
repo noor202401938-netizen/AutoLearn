@@ -3,8 +3,7 @@
 import 'package:flutter/material.dart';
 
 import '../../repository/user_repository.dart';
-
-import '../../business_logic/auth_manager.dart';
+import '../../repository/auth_repository.dart';
 
 import '../../business_logic/course_manager.dart';
 
@@ -32,7 +31,7 @@ class AdminDashboard extends StatefulWidget {
 
 class _AdminDashboardState extends State<AdminDashboard> {
   final UserRepository _userRepository = UserRepository();
-  final AuthManager _authManager = AuthManager();
+  final AuthRepository _authRepository = AuthRepository();
   final CourseManager _courseManager = CourseManager();
   final AnalyticsMonitoringManager _analyticsManager = AnalyticsMonitoringManager();
 
@@ -40,11 +39,28 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Map<String, dynamic> _analyticsData = {};
   bool _isLoadingAnalytics = false;
   List<CourseModel> _analyticsCourses = [];
+  String _adminName = 'Admin';
 
   @override
   void initState() {
     super.initState();
     _loadAnalytics();
+    _loadAdminName();
+  }
+
+  Future<void> _loadAdminName() async {
+    final user = await _authRepository.getCurrentUser();
+    if (user != null) {
+      final uid = user['uid'] as String?;
+      if (uid != null) {
+        final profile = await _authRepository.getUserProfile(uid);
+        if (mounted) {
+          setState(() {
+            _adminName = profile?['displayName'] ?? profile?['email']?.split('@')[0] ?? 'Admin';
+          });
+        }
+      }
+    }
   }
 
   Future<void> _loadAnalytics() async {
@@ -260,8 +276,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  _authManager.getCurrentUser()?.displayName ??
-                      (_authManager.getCurrentUser()?.email?.split('@')[0] ?? 'Admin'),
+                  _adminName,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 28,
@@ -526,52 +541,42 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   // Users Management Screen with Real-time Data
   Widget _buildUsersScreen() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('users').snapshots(),
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: _userRepository.getAllUsers(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.error_outline,
-                    size: 80, color: Colors.red.shade300),
+                Icon(Icons.error_outline, size: 80, color: Colors.red.shade300),
                 const SizedBox(height: 16),
-                Text(
-                  'Error loading users',
-                  style: TextStyle(fontSize: 18, color: Colors.red.shade400),
-                ),
+                Text('Error loading users', style: TextStyle(fontSize: 18, color: Colors.red.shade400)),
               ],
             ),
           );
         }
 
-        if (snapshot.connectionState == ConnectionState.waiting &&
-            !snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
             child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
           );
         }
 
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+        final users = snapshot.data ?? [];
+
+        if (users.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.people_outline,
-                    size: 80, color: Colors.grey.shade300),
+                Icon(Icons.people_outline, size: 80, color: Colors.grey.shade300),
                 const SizedBox(height: 16),
-                Text(
-                  'No users found',
-                  style:
-                      TextStyle(fontSize: 18, color: Colors.grey.shade600),
-                ),
+                Text('No users found', style: TextStyle(fontSize: 18, color: Colors.grey.shade600)),
               ],
             ),
           );
         }
-
-        final users = snapshot.data!.docs;
 
         return Column(
           children: [
@@ -582,11 +587,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 children: [
                   const Text(
                     'User Management',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                   const Spacer(),
                   Container(
@@ -614,8 +615,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 padding: const EdgeInsets.all(16),
                 itemCount: users.length,
                 itemBuilder: (context, index) {
-                  final userData = users[index].data() as Map<String, dynamic>;
-                  return _buildUserCard(userData);
+                  return _buildUserCard(users[index]);
                 },
               ),
             ),

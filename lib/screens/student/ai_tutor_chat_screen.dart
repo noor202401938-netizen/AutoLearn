@@ -37,13 +37,14 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
   Future<void> _initializeChat() async {
     setState(() => _isLoading = true);
     try {
-      final user = AuthRepository.getCurrentUser();
-      if (user == null) {
+      final user = await AuthRepository().getCurrentUser();
+      final uid = user?['uid'] as String?;
+      if (uid == null) {
         setState(() => _isLoading = false);
         return;
       }
 
-      _currentSessionId = await _aiTutorEngine.getOrCreateSession(user.uid);
+      _currentSessionId = await _aiTutorEngine.getOrCreateSession(uid);
       
       // Load existing messages
       if (_currentSessionId != null) {
@@ -75,8 +76,9 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
     final message = _messageController.text.trim();
     if (message.isEmpty || _isSending) return;
 
-    final user = AuthRepository.getCurrentUser();
-    if (user == null) return;
+    final user = await AuthRepository().getCurrentUser();
+    final uid = user?['uid'] as String?;
+    if (uid == null) return;
 
     setState(() {
       _isSending = true;
@@ -86,7 +88,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
 
     try {
       await _aiTutorEngine.sendMessage(
-        userId: user.uid,
+        userId: uid,
         userMessage: message,
         sessionId: _currentSessionId,
         courseId: widget.courseId,
@@ -124,11 +126,12 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
   }
 
   Future<void> _startNewConversation() async {
-    final user = AuthRepository.getCurrentUser();
-    if (user == null) return;
+    final user = await AuthRepository().getCurrentUser();
+    final uid = user?['uid'] as String?;
+    if (uid == null) return;
 
     try {
-      final newSessionId = await _aiTutorEngine.startNewConversation(user.uid);
+      final newSessionId = await _aiTutorEngine.startNewConversation(uid);
       setState(() {
         _currentSessionId = newSessionId;
         _messages = [];
