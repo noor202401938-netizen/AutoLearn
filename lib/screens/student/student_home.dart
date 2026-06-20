@@ -171,13 +171,13 @@ class _StudentHomeState extends State<StudentHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      extendBodyBehindAppBar: false,
       appBar: AppBar(
         title: const Text(
           'AutoLearn',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.transparent,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         actions: [
           IconButton(
@@ -206,46 +206,45 @@ class _StudentHomeState extends State<StudentHome> {
             stops: const [0.0, 0.3],
           ),
         ),
-        child: SafeArea(child: _getSelectedScreen()),
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(
-              color: Colors.white.withOpacity(0.1),
-              width: 1,
+        child: Row(
+          children: [
+            NavigationRail(
+              selectedIndex: _selectedIndex,
+              onDestinationSelected: _onItemTapped,
+              backgroundColor: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+              selectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.secondary),
+              unselectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              selectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
+              unselectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              extended: MediaQuery.of(context).size.width >= 800,
+              destinations: const [
+                NavigationRailDestination(
+                  icon: Icon(Icons.home_outlined),
+                  selectedIcon: Icon(Icons.home),
+                  label: Text('Home'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.school_outlined),
+                  selectedIcon: Icon(Icons.school),
+                  label: Text('Courses'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.show_chart_outlined),
+                  selectedIcon: Icon(Icons.show_chart),
+                  label: Text('Progress'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.person_outline),
+                  selectedIcon: Icon(Icons.person),
+                  label: Text('Profile'),
+                ),
+              ],
             ),
-          ),
-        ),
-        child: BottomNavigationBar(
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          selectedItemColor: Theme.of(context).colorScheme.secondary,
-          unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.school_outlined),
-              activeIcon: Icon(Icons.school),
-              label: 'Courses',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.show_chart_outlined),
-              activeIcon: Icon(Icons.show_chart),
-              label: 'Progress',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: 'Profile',
+            VerticalDivider(thickness: 1, width: 1, color: Colors.white.withOpacity(0.1)),
+            Expanded(
+              child: _getSelectedScreen(),
             ),
           ],
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          type: BottomNavigationBarType.fixed,
         ),
       ),
     );
