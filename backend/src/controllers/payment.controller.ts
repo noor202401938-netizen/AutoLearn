@@ -86,7 +86,7 @@ export const refundPayment = async (req: AuthenticatedRequest, res: Response): P
       return;
     }
 
-    const { id } = req.params;
+    const id = String(req.params.id);
     const payment = await prisma.payment.findUnique({ where: { id } });
 
     if (!payment) {
