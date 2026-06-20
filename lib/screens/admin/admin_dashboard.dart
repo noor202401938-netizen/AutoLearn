@@ -357,12 +357,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         ),
                         const SizedBox(height: 16),
                         GridView.count(
-                          crossAxisCount: 2,
+                          crossAxisCount: MediaQuery.of(context).size.width > 800 ? 4 : 2,
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
-                          childAspectRatio: 1.2,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16,
+                          childAspectRatio: MediaQuery.of(context).size.width > 800 ? 1.5 : 1.2,
                           children: [
                             _buildActionCard(
                               'Manage Users',
