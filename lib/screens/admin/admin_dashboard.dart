@@ -13,6 +13,7 @@ import '../../model/course_model.dart';
 import '../../backend/api_client.dart';
 
 import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
 
 import '../notifications_panel.dart';
 
