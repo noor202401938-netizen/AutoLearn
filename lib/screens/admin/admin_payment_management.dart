@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../backend/api_client.dart';
@@ -30,7 +31,7 @@ class _AdminPaymentManagementState extends State<AdminPaymentManagement> {
       final response = await _apiClient.get('/payments');
       if (response.statusCode == 200) {
         setState(() {
-          _payments = response.data as List<dynamic>;
+          _payments = jsonDecode(response.body) as List<dynamic>;
           _isLoading = false;
         });
       } else {
@@ -78,8 +79,13 @@ class _AdminPaymentManagementState extends State<AdminPaymentManagement> {
         );
         _fetchPayments();
       } else {
+        String errorMsg = '${response.statusCode}';
+        try {
+          final body = jsonDecode(response.body);
+          if (body['error'] != null) errorMsg = body['error'];
+        } catch (_) {}
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to refund: ${response.data['error'] ?? response.statusCode}'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Failed to refund: $errorMsg'), backgroundColor: Colors.red),
         );
       }
     } catch (e) {

@@ -12,6 +12,7 @@ import '../../business_logic/analytics_monitoring_manager.dart';
 import '../../model/course_model.dart';
 import '../../backend/api_client.dart';
 
+import 'dart:convert';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 
@@ -22,7 +23,6 @@ import '../theme_accessibility_screen.dart';
 import 'admin_profile_screen.dart';
 
 import 'admin_course_management.dart';
-import 'admin_user_management.dart';
 import 'admin_payment_management.dart';
 import 'admin_notification_management.dart';
 class AdminDashboard extends StatefulWidget {
@@ -79,7 +79,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       try {
         final response = await ApiClient.instance.get('/payments');
         if (response.statusCode == 200) {
-          payments = response.data as List<dynamic>;
+          payments = jsonDecode(response.body) as List<dynamic>;
         }
       } catch (e) {
         // Ignore payment fetch errors for analytics
