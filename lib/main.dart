@@ -16,7 +16,11 @@ import 'backend/api_client.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Load environment variables
-  await dotenv.load(fileName: '.env');
+  try {
+    await dotenv.load(fileName: '.env');
+  } catch (e) {
+    print('No .env file found. Proceeding with system environment variables.');
+  }
 
   runApp(const MyApp(
     initialRoute: '',
