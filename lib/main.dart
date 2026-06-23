@@ -12,9 +12,11 @@ import 'screens/role_based_wrapper.dart';
 import 'repository/user_preferences_repository.dart';
 import 'utils/preference_notifier.dart';
 import 'backend/api_client.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  usePathUrlStrategy();
   runApp(const MyApp(
     initialRoute: '',
   ));
@@ -88,13 +90,37 @@ class _MyAppState extends State<MyApp> {
         themeMode: themeMode,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
-        home: const SplashScreen(), // Start with splash screen
+        home: const Title(
+          title: 'AutoLearn',
+          color: Colors.blue,
+          child: SplashScreen(),
+        ), // Start with splash screen
         routes: {
-          '/welcome': (context) => const WelcomePage(),
-          '/userinfo': (context) => const UserInfoPage(),
-          '/login': (context) => const LoginPage(),
-          '/signup': (context) => const SignupPage(),
-          '/home': (context) => const RoleBasedWrapper(),
+          '/welcome': (context) => const Title(
+                title: 'Welcome - AutoLearn',
+                color: Colors.blue,
+                child: WelcomePage(),
+              ),
+          '/userinfo': (context) => const Title(
+                title: 'Setup - AutoLearn',
+                color: Colors.blue,
+                child: UserInfoPage(),
+              ),
+          '/login': (context) => const Title(
+                title: 'Login - AutoLearn',
+                color: Colors.blue,
+                child: LoginPage(),
+              ),
+          '/signup': (context) => const Title(
+                title: 'Sign Up - AutoLearn',
+                color: Colors.blue,
+                child: SignupPage(),
+              ),
+          '/home': (context) => const Title(
+                title: 'Dashboard - AutoLearn',
+                color: Colors.blue,
+                child: RoleBasedWrapper(),
+              ),
         },
       ),
     );
