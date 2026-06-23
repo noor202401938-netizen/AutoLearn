@@ -648,7 +648,7 @@ class _StudentHomeState extends State<StudentHome> {
           ),
           const SizedBox(height: 16),
           Text(
-            user?.displayName ?? 'Annette Black',
+            user?.displayName ?? user?.email?.split('@').first ?? 'Student',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -656,7 +656,7 @@ class _StudentHomeState extends State<StudentHome> {
             ),
           ),
           const SizedBox(height: 32),
-          const ActivityChart(),
+          ActivityChart(stats: _stats),
           const SizedBox(height: 32),
           Row(
             children: [

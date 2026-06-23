@@ -25,6 +25,8 @@ import 'admin_profile_screen.dart';
 import 'admin_course_management.dart';
 import 'admin_payment_management.dart';
 import 'admin_notification_management.dart';
+import '../../widgets/admin_dashboard_components.dart';
+
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
 
@@ -136,475 +138,341 @@ class _AdminDashboardState extends State<AdminDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: false,
-      appBar: AppBar(
-        title: const Padding(
-          padding: EdgeInsets.only(left: 16.0),
-          child: Text(
-            'Admin Dashboard',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const NotificationsPanel(),
-                ),
-              );
-            },
-          ),
-          PopupMenuButton(
-            icon: const Icon(Icons.account_circle),
-            color: Theme.of(context).colorScheme.surface,
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'profile',
-                child: Row(
-                  children: [
-                    Icon(Icons.person, color: Theme.of(context).colorScheme.onSurface),
-                    const SizedBox(width: 8),
-                    Text('Profile', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                  ],
-                ),
-              ),
-
-              PopupMenuItem(
-                value: 'logout',
-                child: Row(
-                  children: [
-                    Icon(Icons.logout, color: Theme.of(context).colorScheme.error),
-                    const SizedBox(width: 8),
-                    Text('Logout', style: TextStyle(color: Theme.of(context).colorScheme.error)),
-                  ],
-                ),
-              ),
-            ],
-            onSelected: (value) async {
-              if (value == 'profile') {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AdminProfileScreen(),
-                  ),
-                );
-
-              } else if (value == 'logout') {
-                await _authRepository.logoutUser();
-                if (mounted) {
-                  Navigator.pushReplacementNamed(context, '/login');
-                }
-              }
-            },
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
+      backgroundColor: const Color(0xFFF5F7FA), // Light grey background for the main area
       body: Row(
         children: [
-          NavigationRail(
-            backgroundColor: Theme.of(context).colorScheme.surface,
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: _onItemTapped,
-            selectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.secondary),
-            unselectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurfaceVariant),
-            selectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            unselectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-            labelType: NavigationRailLabelType.all,
-            destinations: const [
-              NavigationRailDestination(
-                icon: Icon(Icons.dashboard_outlined),
-                selectedIcon: Icon(Icons.dashboard),
-                label: Text('Overview'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.people_outline),
-                selectedIcon: Icon(Icons.people),
-                label: Text('Users'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.school_outlined),
-                selectedIcon: Icon(Icons.school),
-                label: Text('Courses'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.campaign_outlined),
-                selectedIcon: Icon(Icons.campaign),
-                label: Text('Notifications'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.payment_outlined),
-                selectedIcon: Icon(Icons.payment),
-                label: Text('Payments'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.analytics_outlined),
-                selectedIcon: Icon(Icons.analytics),
-                label: Text('Analytics'),
-              ),
-            ],
-          ),
-          VerticalDivider(thickness: 1, width: 1, color: Colors.white.withOpacity(0.1)),
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
-                    Theme.of(context).colorScheme.background,
+          // FULL HEIGHT SIDEBAR (DARK THEME)
+          Container(
+            color: const Color(0xFF222E3C), // Dark blue/black sidebar
+            child: NavigationRail(
+              backgroundColor: Colors.transparent,
+              selectedIndex: _selectedIndex,
+              onDestinationSelected: _onItemTapped,
+              selectedIconTheme: const IconThemeData(color: Colors.blueAccent),
+              unselectedIconTheme: IconThemeData(color: Colors.white.withOpacity(0.5)),
+              selectedLabelTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              unselectedLabelTextStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+              labelType: NavigationRailLabelType.all,
+              leading: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.admin_panel_settings, color: Colors.blueAccent, size: 28),
+                    const SizedBox(width: 8),
+                    if (MediaQuery.of(context).size.width > 800)
+                      const Text(
+                        'AdminKit',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                   ],
-                  stops: const [0.0, 0.3],
                 ),
               ),
-              child: SafeArea(child: _getSelectedScreen()),
+              trailing: Expanded(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 24.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const CircleAvatar(
+                          radius: 20,
+                          backgroundColor: Colors.blueAccent,
+                          child: Icon(Icons.person, color: Colors.white),
+                        ),
+                        const SizedBox(height: 8),
+                        if (MediaQuery.of(context).size.width > 800)
+                          Text(
+                            _adminName,
+                            style: const TextStyle(color: Colors.white, fontSize: 12),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              destinations: const [
+                NavigationRailDestination(
+                  icon: Icon(Icons.dashboard_outlined),
+                  selectedIcon: Icon(Icons.dashboard),
+                  label: Text('Dashboard'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.people_outline),
+                  selectedIcon: Icon(Icons.people),
+                  label: Text('Users'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.school_outlined),
+                  selectedIcon: Icon(Icons.school),
+                  label: Text('Courses'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.campaign_outlined),
+                  selectedIcon: Icon(Icons.campaign),
+                  label: Text('Notifications'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.payment_outlined),
+                  selectedIcon: Icon(Icons.payment),
+                  label: Text('Payments'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.analytics_outlined),
+                  selectedIcon: Icon(Icons.analytics),
+                  label: Text('Analytics'),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  // Overview Screen with Real-time Data
-  Widget _buildOverviewScreen() {
-    if (_isLoadingAnalytics) {
-      return const Center(child: CircularProgressIndicator(color: Colors.white));
-    }
-
-    int totalUsers = _analyticsData['totalUsers'] ?? 0;
-    int totalStudents = totalUsers; // Simplified for now since role might not be easily accessible
-    int activeCourses = _analyticsData['publishedCourses'] ?? 0;
-
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header Section
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          
+          // MAIN CONTENT AREA (LIGHT THEME)
+          Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Welcome back,',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _adminName,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 24),
+                // TOP BAR
                 Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                    color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),
                   child: Row(
                     children: [
-                      Expanded(
-                        child: _buildQuickStat(
-                          'Users',
-                          totalUsers.toString(),
-                          Icons.people,
-                          Theme.of(context).colorScheme.secondary,
+                      const Text(
+                        'Dashboard',
+                        style: TextStyle(
+                          color: Colors.black87,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Welcome back, $_adminName 👋',
+                        style: const TextStyle(color: Colors.black54, fontSize: 14),
+                      ),
+                      const Spacer(),
+                      // Search bar
                       Container(
-                        width: 1,
+                        width: 250,
                         height: 40,
-                        color: Colors.white.withOpacity(0.1),
-                      ),
-                      Expanded(
-                        child: _buildQuickStat(
-                          'Students',
-                          totalStudents.toString(),
-                          Icons.school,
-                          Theme.of(context).colorScheme.primary,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF5F7FA),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const TextField(
+                          decoration: InputDecoration(
+                            hintText: 'Search...',
+                            hintStyle: TextStyle(color: Colors.black38, fontSize: 14),
+                            prefixIcon: Icon(Icons.search, color: Colors.black38, size: 20),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(vertical: 10),
+                          ),
                         ),
                       ),
-                      Container(
-                        width: 1,
-                        height: 40,
-                        color: Colors.white.withOpacity(0.1),
+                      const SizedBox(width: 24),
+                      // Notification Icon
+                      Stack(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.notifications_none, color: Colors.black54),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const NotificationsPanel(),
+                                ),
+                              );
+                            },
+                          ),
+                          Positioned(
+                            right: 10,
+                            top: 10,
+                            child: Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                color: Colors.blueAccent,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          )
+                        ],
                       ),
-                      Expanded(
-                        child: _buildQuickStat(
-                          'Courses',
-                          activeCourses.toString(),
-                          Icons.book,
-                          Colors.purpleAccent,
+                      const SizedBox(width: 16),
+                      // Profile Menu
+                      PopupMenuButton(
+                        icon: const CircleAvatar(
+                          radius: 16,
+                          backgroundColor: Colors.blueAccent,
+                          child: Text('A', style: TextStyle(color: Colors.white, fontSize: 14)),
                         ),
+                        color: Colors.white,
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                            value: 'profile',
+                            child: Row(
+                              children: [
+                                Icon(Icons.person, color: Colors.black87),
+                                SizedBox(width: 8),
+                                Text('Profile', style: TextStyle(color: Colors.black87)),
+                              ],
+                            ),
+                          ),
+                          const PopupMenuItem(
+                            value: 'logout',
+                            child: Row(
+                              children: [
+                                Icon(Icons.logout, color: Colors.red),
+                                SizedBox(width: 8),
+                                Text('Logout', style: TextStyle(color: Colors.red)),
+                              ],
+                            ),
+                          ),
+                        ],
+                        onSelected: (value) async {
+                          if (value == 'profile') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const AdminProfileScreen(),
+                              ),
+                            );
+                          } else if (value == 'logout') {
+                            await _authRepository.logoutUser();
+                            if (mounted) {
+                              Navigator.pushReplacementNamed(context, '/login');
+                            }
+                          }
+                        },
                       ),
                     ],
                   ),
                 ),
+                
+                // WORKSPACE
+                Expanded(
+                  child: _getSelectedScreen(),
+                ),
               ],
             ),
           ),
-
-                  // Quick Actions Section
-                  Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Quick Actions',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        GridView.count(
-                          crossAxisCount: MediaQuery.of(context).size.width > 800 ? 4 : 2,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          mainAxisSpacing: 16,
-                          crossAxisSpacing: 16,
-                          childAspectRatio: MediaQuery.of(context).size.width > 800 ? 1.5 : 1.2,
-                          children: [
-                            _buildActionCard(
-                              'Manage Users',
-                              Icons.people,
-                              Theme.of(context).colorScheme.secondary,
-                              () => setState(() => _selectedIndex = 1),
-                            ),
-                            _buildActionCard(
-                              'Manage Courses',
-                              Icons.school,
-                              Theme.of(context).colorScheme.primary,
-                              () => setState(() => _selectedIndex = 2),
-                            ),
-                            _buildActionCard(
-                              'View Analytics',
-                              Icons.analytics,
-                              Colors.orangeAccent,
-                              () => setState(() => _selectedIndex = 3),
-                            ),
-
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Analytics Chart Section (Added to Overview)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Course Performance',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Builder(
-                          builder: (context) {
-                            final List<CourseModel> topCourses = List<CourseModel>.from(_analyticsCourses)
-                              ..sort((a, b) => b.enrollmentCount.compareTo(a.enrollmentCount));
-                            final limitedCourses = topCourses.take(5).toList();
-                            
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.05),
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: Colors.white.withOpacity(0.1)),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(24),
-                                child: limitedCourses.isEmpty
-                                  ? Text(
-                                      'Not enough data yet. Create and publish courses to see performance.',
-                                      style: TextStyle(color: Colors.white.withOpacity(0.5)),
-                                    )
-                                  : SizedBox(
-                                      height: 240,
-                                      child: BarChart(
-                                        BarChartData(
-                                          alignment: BarChartAlignment.spaceAround,
-                                          maxY: (limitedCourses
-                                                      .map((c) => c.enrollmentCount)
-                                                      .fold<int>(0,
-                                                          (prev, e) => e > prev ? e : prev)
-                                                      .toDouble() *
-                                                  1.2)
-                                              .clamp(10.0, double.infinity),
-                                          barTouchData: BarTouchData(enabled: false),
-                                          titlesData: FlTitlesData(
-                                            show: true,
-                                            bottomTitles: AxisTitles(
-                                              sideTitles: SideTitles(
-                                                showTitles: true,
-                                                reservedSize: 32,
-                                                getTitlesWidget: (value, meta) {
-                                                  final index = value.toInt();
-                                                  if (index < 0 ||
-                                                      index >= limitedCourses.length) {
-                                                    return const SizedBox.shrink();
-                                                  }
-                                                  final title =
-                                                      limitedCourses[index].title;
-                                                  return Padding(
-                                                    padding: const EdgeInsets.only(top: 8.0),
-                                                    child: Text(
-                                                      title,
-                                                      style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.7)),
-                                                      overflow: TextOverflow.ellipsis,
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                            leftTitles: AxisTitles(
-                                              sideTitles: SideTitles(
-                                                showTitles: true,
-                                                reservedSize: 28,
-                                                getTitlesWidget: (value, meta) {
-                                                  if (value % 1 != 0) return const SizedBox.shrink();
-                                                  return Text(
-                                                    value.toInt().toString(),
-                                                    style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.5)),
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                                            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                                          ),
-                                          gridData: FlGridData(
-                                            show: true,
-                                            drawVerticalLine: false,
-                                            getDrawingHorizontalLine: (value) => FlLine(
-                                              color: Colors.white.withOpacity(0.1),
-                                              strokeWidth: 1,
-                                            ),
-                                          ),
-                                          borderData: FlBorderData(show: false),
-                                          barGroups: limitedCourses.asMap().entries.map((entry) {
-                                            return BarChartGroupData(
-                                              x: entry.key,
-                                              barRods: [
-                                                BarChartRodData(
-                                                  toY: entry.value.enrollmentCount.toDouble(),
-                                                  color: Theme.of(context).colorScheme.primary,
-                                                  width: 16,
-                                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-                                                ),
-                                              ],
-                                            );
-                                          }).toList(),
-                                        ),
-                                      ),
-                                    ),
-                              ),
-                            );
-                          }
-                        ),
-                        const SizedBox(height: 24),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-  }
-
-  Widget _buildQuickStat(String label, String value, IconData icon, Color color) {
-    return Column(
-      children: [
-        Icon(icon, color: color, size: 28),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.white.withOpacity(0.5),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildActionCard(String title, IconData icon, Color color, VoidCallback onTap) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: color, size: 28),
-              ),
-              const SizedBox(height: 6),
-              Flexible(
-                child: Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+  // Overview Screen with AdminKit Data
+  Widget _buildOverviewScreen() {
+    if (_isLoadingAnalytics) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    int totalUsers = _analyticsData['totalUsers'] ?? 0;
+    int activeCourses = _analyticsData['publishedCourses'] ?? 0;
+    double totalRevenue = _analyticsData['totalRevenue'] ?? 0.0;
+    int totalEnrollments = _analyticsData['totalEnrollments'] ?? 0;
+
+    // Pass real analytics orders/payments here when connected to backend
+    final List<Map<String, dynamic>> realOrders = [];
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 4 Metric Cards
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final crossAxisCount = constraints.maxWidth > 1200 ? 4 : constraints.maxWidth > 800 ? 2 : 1;
+              return GridView.count(
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: 24,
+                mainAxisSpacing: 24,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                childAspectRatio: 2.2,
+                children: [
+                  MetricCard(
+                    title: 'Total Revenue',
+                    value: '\$${totalRevenue.toStringAsFixed(0)}',
+                    percentage: '12.5%',
+                    isPositive: true,
+                    icon: Icons.attach_money,
+                    iconBgColor: Colors.blue.withOpacity(0.1),
+                    iconColor: Colors.blue,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
+                  MetricCard(
+                    title: 'Total Enrollments',
+                    value: totalEnrollments.toString(),
+                    percentage: '8.2%',
+                    isPositive: true,
+                    icon: Icons.school,
+                    iconBgColor: Colors.green.withOpacity(0.1),
+                    iconColor: Colors.green,
+                  ),
+                  MetricCard(
+                    title: 'Total Users',
+                    value: totalUsers.toString(),
+                    percentage: '5.1%',
+                    isPositive: true,
+                    icon: Icons.people,
+                    iconBgColor: Colors.purple.withOpacity(0.1),
+                    iconColor: Colors.purple,
+                  ),
+                  MetricCard(
+                    title: 'Active Courses',
+                    value: activeCourses.toString(),
+                    percentage: '3.4%',
+                    isPositive: false,
+                    icon: Icons.book,
+                    iconBgColor: Colors.orange.withOpacity(0.1),
+                    iconColor: Colors.orange,
+                  ),
+                ],
+              );
+            }
           ),
-        ),
+          const SizedBox(height: 24),
+          
+          // Charts Row
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 1000;
+              return isWide 
+                ? const Row(
+                    children: [
+                      Expanded(flex: 3, child: RevenueLineChart()),
+                      SizedBox(width: 24),
+                      Expanded(flex: 2, child: CategoryBarChart()),
+                    ],
+                  )
+                : const Column(
+                    children: [
+                      RevenueLineChart(),
+                      SizedBox(height: 24),
+                      CategoryBarChart(),
+                    ],
+                  );
+            }
+          ),
+          const SizedBox(height: 24),
+
+          // Recent Orders Table
+          RecentOrdersTable(orders: realOrders),
+        ],
       ),
     );
   }

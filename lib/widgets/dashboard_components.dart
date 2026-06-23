@@ -100,7 +100,7 @@ class DashboardCourseCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${course.duration * 10} students', // Mock students count
+                  '${course.enrollmentCount} students',
                   style: TextStyle(
                     fontSize: 12,
                     color: textColor.withOpacity(0.7),
@@ -164,7 +164,14 @@ class FilterChips extends StatelessWidget {
 }
 
 class ActivityChart extends StatelessWidget {
-  const ActivityChart({super.key});
+  final Map<String, dynamic> stats;
+  final List<double> monthlyData; // Array of 7 values for the months
+
+  const ActivityChart({
+    super.key,
+    required this.stats,
+    this.monthlyData = const [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -172,6 +179,10 @@ class ActivityChart extends StatelessWidget {
     final textColor = isDark ? Colors.white : Colors.black87;
     final cardBgColor = isDark ? Colors.grey[900] : Colors.white;
     final months = ['Jan', 'Jun', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    // Calculate total hours based on totalLessonsWatched (assuming 0.5h per lesson as an estimate if no exact time is available, but let's use actual data or 0)
+    final lessonsWatched = stats['totalLessonsWatched'] as int? ?? 0;
+    final totalHours = (lessonsWatched * 0.5).toStringAsFixed(1);
     
     return Container(
       padding: const EdgeInsets.all(16),
@@ -220,7 +231,7 @@ class ActivityChart extends StatelessWidget {
           Row(
             children: [
               Text(
-                '3.5h',
+                '${totalHours}h',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -249,7 +260,9 @@ class ActivityChart extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: List.generate(months.length, (index) {
-                final height = 40.0 + (Random().nextDouble() * 60);
+                // Ensure we don't go out of bounds and provide a minimum height of 4.0 for visibility of 0
+                final dataValue = (index < monthlyData.length) ? monthlyData[index] : 0.0;
+                final height = 4.0 + (dataValue * 20); // Scale data for display
                 final isCurrent = index == months.length - 1;
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.end,
