@@ -7,6 +7,7 @@ import '../../model/course_model.dart';
 import '../../screens/student/course_list_screen.dart';
 import '../../screens/student/course_content_screen.dart';
 import '../../business_logic/analytics_monitoring_manager.dart';
+import '../../widgets/gradient_menu.dart';
 
 class StudentHome extends StatefulWidget {
   const StudentHome({super.key});
@@ -82,6 +83,8 @@ class _StudentHomeState extends State<StudentHome> {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -103,43 +106,8 @@ class _StudentHomeState extends State<StudentHome> {
           const SizedBox(width: 8),
         ],
       ),
-      body: Row(
-        children: [
-          NavigationRail(
-            backgroundColor: Theme.of(context).colorScheme.surface,
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: _onItemTapped,
-            selectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.secondary),
-            unselectedIconTheme: IconThemeData(color: Colors.white.withOpacity(0.5)),
-            selectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
-            unselectedLabelTextStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
-            labelType: NavigationRailLabelType.all,
-            destinations: const [
-              NavigationRailDestination(
-                icon: Icon(Icons.home_outlined),
-                selectedIcon: Icon(Icons.home),
-                label: Text('Home'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.school_outlined),
-                selectedIcon: Icon(Icons.school),
-                label: Text('Courses'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.show_chart_outlined),
-                selectedIcon: Icon(Icons.show_chart),
-                label: Text('Progress'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.person_outline),
-                selectedIcon: Icon(Icons.person),
-                label: Text('Profile'),
-              ),
-            ],
-          ),
-          VerticalDivider(thickness: 1, width: 1, color: Colors.white.withOpacity(0.1)),
-          Expanded(
-            child: Container(
+      body: isMobile
+          ? Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
@@ -154,10 +122,68 @@ class _StudentHomeState extends State<StudentHome> {
               child: SafeArea(
                 child: _getSelectedScreen(),
               ),
+            )
+          : Row(
+              children: [
+                NavigationRail(
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                  selectedIndex: _selectedIndex,
+                  onDestinationSelected: _onItemTapped,
+                  selectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.secondary),
+                  unselectedIconTheme: IconThemeData(color: Colors.white.withOpacity(0.5)),
+                  selectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
+                  unselectedLabelTextStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+                  labelType: NavigationRailLabelType.all,
+                  destinations: const [
+                    NavigationRailDestination(
+                      icon: Icon(Icons.home_outlined),
+                      selectedIcon: Icon(Icons.home),
+                      label: Text('Home'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.school_outlined),
+                      selectedIcon: Icon(Icons.school),
+                      label: Text('Courses'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.show_chart_outlined),
+                      selectedIcon: Icon(Icons.show_chart),
+                      label: Text('Progress'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.person_outline),
+                      selectedIcon: Icon(Icons.person),
+                      label: Text('Profile'),
+                    ),
+                  ],
+                ),
+                VerticalDivider(thickness: 1, width: 1, color: Colors.white.withOpacity(0.1)),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
+                          Theme.of(context).colorScheme.background,
+                        ],
+                        stops: const [0.0, 0.4],
+                      ),
+                    ),
+                    child: SafeArea(
+                      child: _getSelectedScreen(),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
+      bottomNavigationBar: isMobile
+          ? GradientMenu(
+              selectedIndex: _selectedIndex,
+              onItemSelected: _onItemTapped,
+            )
+          : null,
     );
   }
 
