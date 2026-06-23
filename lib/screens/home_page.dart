@@ -130,39 +130,7 @@ class _StudentHomeState extends State<StudentHome> {
             )
           : Row(
               children: [
-                NavigationRail(
-                  backgroundColor: Theme.of(context).colorScheme.surface,
-                  selectedIndex: _selectedIndex,
-                  onDestinationSelected: _onItemTapped,
-                  selectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.secondary),
-                  unselectedIconTheme: IconThemeData(color: Theme.of(context).iconTheme.color?.withOpacity(0.5) ?? Colors.grey),
-                  selectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
-                  unselectedLabelTextStyle: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5) ?? Colors.grey),
-                  labelType: NavigationRailLabelType.all,
-                  destinations: const [
-                    NavigationRailDestination(
-                      icon: Icon(Icons.home_outlined),
-                      selectedIcon: Icon(Icons.home),
-                      label: Text('Home'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.school_outlined),
-                      selectedIcon: Icon(Icons.school),
-                      label: Text('Courses'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.show_chart_outlined),
-                      selectedIcon: Icon(Icons.show_chart),
-                      label: Text('Progress'),
-                    ),
-                    NavigationRailDestination(
-                      icon: Icon(Icons.person_outline),
-                      selectedIcon: Icon(Icons.person),
-                      label: Text('Profile'),
-                    ),
-                  ],
-                ),
-                VerticalDivider(thickness: 1, width: 1, color: Theme.of(context).dividerColor.withOpacity(0.1)),
+                _buildCustomSidebar(),
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
@@ -176,7 +144,10 @@ class _StudentHomeState extends State<StudentHome> {
                   ),
                 ),
                 if (_selectedIndex == 0) ...[
-                  VerticalDivider(thickness: 1, width: 1, color: Theme.of(context).dividerColor.withOpacity(0.1)),
+                  Container(
+                    width: 1,
+                    color: Theme.of(context).dividerColor.withOpacity(0.05),
+                  ),
                   SizedBox(
                     width: 320,
                     child: Container(
@@ -611,49 +582,99 @@ class _StudentHomeState extends State<StudentHome> {
   Widget _buildRightSidebar() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
+    final cardBg = isDark ? const Color(0xFF222E3C) : const Color(0xFFF9FAFC);
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(32),
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Icon(Icons.notifications_outlined, color: textColor),
-              Icon(Icons.settings_outlined, color: textColor),
+              IconButton(
+                icon: Icon(Icons.notifications_outlined, color: textColor),
+                onPressed: () {},
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: Icon(Icons.settings_outlined, color: textColor),
+                onPressed: () {},
+              ),
             ],
           ),
           const SizedBox(height: 32),
-          CircleAvatar(
-            radius: 40,
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            child: Text(
-              (_userProfile?['displayName'] ?? _userProfile?['email'] ?? 'U')[0].toUpperCase(),
-              style: const TextStyle(
-                fontSize: 32,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: cardBg,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.05)),
             ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            _userProfile?['displayName'] ?? _userProfile?['email']?.split('@').first ?? 'Student',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: textColor,
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 48,
+                  backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  child: Text(
+                    (_userProfile?['displayName'] ?? _userProfile?['email'] ?? 'U')[0].toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 36,
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  _userProfile?['displayName'] ?? _userProfile?['email']?.split('@').first ?? 'Student',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Student',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 32),
-          ActivityChart(stats: _stats),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: cardBg,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.05)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Activity',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ActivityChart(stats: _stats),
+              ],
+            ),
+          ),
           const SizedBox(height: 32),
           Row(
             children: [
               Text(
                 'My courses',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: textColor,
                 ),
@@ -671,7 +692,7 @@ class _StudentHomeState extends State<StudentHome> {
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: DashboardCourseCard(
                     course: _featuredCourses[index],
-                    index: index + 2,
+                    index: index + 2, // Different color indices
                     onTap: () {},
                   ),
                 );
@@ -682,4 +703,98 @@ class _StudentHomeState extends State<StudentHome> {
     );
   }
 
+  Widget _buildCustomSidebar() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    // We can use a sleek dark aesthetic for the sidebar even on light mode (like the admin dashboard),
+    // or keep it matching the surface color but elevated. 
+    // Given Dribbble aesthetics, a clean white or dark sidebar with soft rounding is best.
+    final bgColor = isDark ? const Color(0xFF1E2433) : Colors.white;
+    final activeBgColor = isDark ? const Color(0xFF3B445B) : const Color(0xFFF0F4FF);
+    final activeTextColor = isDark ? Colors.white : Theme.of(context).colorScheme.primary;
+    final inactiveTextColor = isDark ? Colors.grey[400]! : Colors.grey[600]!;
+
+    return Container(
+      width: 100,
+      decoration: BoxDecoration(
+        color: bgColor,
+        border: Border(
+          right: BorderSide(
+            color: Theme.of(context).dividerColor.withOpacity(0.05),
+            width: 1,
+          ),
+        ),
+      ),
+      child: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 32),
+            // Logo / App Icon
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(
+                Icons.auto_awesome,
+                color: Theme.of(context).colorScheme.primary,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 64),
+            _buildSidebarItem(0, Icons.home_outlined, Icons.home, 'Home', activeBgColor, activeTextColor, inactiveTextColor),
+            const SizedBox(height: 24),
+            _buildSidebarItem(1, Icons.school_outlined, Icons.school, 'Courses', activeBgColor, activeTextColor, inactiveTextColor),
+            const SizedBox(height: 24),
+            _buildSidebarItem(2, Icons.show_chart_outlined, Icons.show_chart, 'Progress', activeBgColor, activeTextColor, inactiveTextColor),
+            const SizedBox(height: 24),
+            _buildSidebarItem(3, Icons.person_outline, Icons.person, 'Profile', activeBgColor, activeTextColor, inactiveTextColor),
+            const Spacer(),
+            IconButton(
+              icon: Icon(Icons.logout, color: inactiveTextColor),
+              onPressed: () async {
+                await _authManager.logout();
+                if (mounted) Navigator.pushReplacementNamed(context, '/login');
+              },
+            ),
+            const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSidebarItem(int index, IconData outlineIcon, IconData filledIcon, String label, Color activeBgColor, Color activeTextColor, Color inactiveTextColor) {
+    final isSelected = _selectedIndex == index;
+    
+    return GestureDetector(
+      onTap: () => _onItemTapped(index),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        decoration: BoxDecoration(
+          color: isSelected ? activeBgColor : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              isSelected ? filledIcon : outlineIcon,
+              color: isSelected ? activeTextColor : inactiveTextColor,
+              size: 28,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? activeTextColor : inactiveTextColor,
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
