@@ -52,12 +52,15 @@ class ChatRepository {
       final response = await _apiClient.post('/chat/session', {'userId': userId});
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        return data['sessionId'] ?? 'mock_session';
+        if (data['sessionId'] != null) {
+          return data['sessionId'];
+        }
+        throw Exception('API returned success but no sessionId was provided');
       }
-      return 'mock_session';
+      throw Exception('Failed to create session with status: ${response.statusCode}');
     } catch (e) {
       print('Error creating session: $e');
-      return 'mock_session';
+      throw Exception('Network error creating session: $e');
     }
   }
 

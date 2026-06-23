@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../model/course_model.dart';
 
 // --- METRIC CARD ---
 class MetricCard extends StatelessWidget {
@@ -230,7 +231,8 @@ class RevenueLineChart extends StatelessWidget {
 
 // --- BAR CHART (CATEGORY) ---
 class CategoryBarChart extends StatelessWidget {
-  const CategoryBarChart({super.key});
+  final List<CourseModel> courses;
+  const CategoryBarChart({super.key, required this.courses});
 
   @override
   Widget build(BuildContext context) {
@@ -268,7 +270,9 @@ class CategoryBarChart extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Expanded(
-            child: BarChart(
+            child: courses.isEmpty 
+              ? const Center(child: Text('No data yet'))
+              : BarChart(
               BarChartData(
                 alignment: BarChartAlignment.spaceAround,
                 maxY: 100,
@@ -280,13 +284,15 @@ class CategoryBarChart extends StatelessWidget {
                       showTitles: true,
                       getTitlesWidget: (double value, TitleMeta meta) {
                         const style = TextStyle(color: Colors.black54, fontSize: 10);
-                        Widget text;
-                        switch (value.toInt()) {
-                          case 0: text = const Text('Ecommerce', style: style); break;
-                          case 1: text = const Text('Clothing', style: style); break;
-                          case 2: text = const Text('Groceries', style: style); break;
-                          case 3: text = const Text('Sports', style: style); break;
-                          default: text = const Text('', style: style); break;
+                        Widget text = const Text('', style: style);
+                        
+                        // We will show top 4 courses or categories
+                        final int index = value.toInt();
+                        if (index >= 0 && index < courses.length && index < 4) {
+                          final title = courses[index].title;
+                          // truncate title if too long
+                          final shortTitle = title.length > 10 ? '${title.substring(0, 8)}..' : title;
+                          text = Text(shortTitle, style: style);
                         }
                         return SideTitleWidget(axisSide: meta.axisSide, child: text);
                       },
@@ -298,7 +304,26 @@ class CategoryBarChart extends StatelessWidget {
                 ),
                 gridData: const FlGridData(show: false),
                 borderData: FlBorderData(show: false),
-                barGroups: const [],
+                barGroups: List.generate(
+                  courses.length > 4 ? 4 : courses.length,
+                  (index) {
+                    final course = courses[index];
+                    return BarChartGroupData(
+                      x: index,
+                      barRods: [
+                        BarChartRodData(
+                          toY: (course.enrollmentCount ?? 0).toDouble(),
+                          color: Colors.blue,
+                          width: 16,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(4),
+                            topRight: Radius.circular(4),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ),

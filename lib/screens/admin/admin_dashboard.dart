@@ -452,18 +452,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
             builder: (context, constraints) {
               final isWide = constraints.maxWidth > 1000;
               return isWide 
-                ? const Row(
+                ? Row(
                     children: [
-                      Expanded(flex: 3, child: RevenueLineChart()),
-                      SizedBox(width: 24),
-                      Expanded(flex: 2, child: CategoryBarChart()),
+                      const Expanded(flex: 3, child: RevenueLineChart()),
+                      const SizedBox(width: 24),
+                      Expanded(flex: 2, child: CategoryBarChart(courses: _analyticsCourses)),
                     ],
                   )
-                : const Column(
+                : Column(
                     children: [
-                      RevenueLineChart(),
-                      SizedBox(height: 24),
-                      CategoryBarChart(),
+                      const RevenueLineChart(),
+                      const SizedBox(height: 24),
+                      CategoryBarChart(courses: _analyticsCourses),
                     ],
                   );
             }

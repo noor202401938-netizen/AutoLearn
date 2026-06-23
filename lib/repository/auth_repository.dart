@@ -96,10 +96,21 @@ class AuthRepository {
     return "Not implemented in backend yet";
   }
 
-  // Returns a mock user object with a uid
+  // Returns the real user object
   Future<Map<String, dynamic>?> getCurrentUser() async {
     final uid = await getCurrentUserUid();
     if (uid == null) return null;
-    return {'uid': uid};
+    
+    try {
+      final profile = await getUserProfile(uid);
+      if (profile != null) {
+        profile['uid'] = uid; // ensure uid is accessible
+        return profile;
+      }
+    } catch (e) {
+      print('Error fetching current user profile: $e');
+    }
+    
+    return {'uid': uid}; // Fallback if API fails but we are locally logged in
   }
 }

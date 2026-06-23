@@ -41,13 +41,17 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Future<void> _loadUserProfile() async {
-    final user = _authRepository.getCurrentUser();
+    final user = await _authRepository.getCurrentUser();
     if (user != null) {
-      final profile = await _authRepository.getUserProfile(user.uid);
-      final stats = await _analyticsManager.getUserLearningStats(user.uid);
+      final uid = user['uid'] as String;
+      // The profile might already be fully fetched by getCurrentUser, but we can assign it
+      final stats = await _analyticsManager.getUserLearningStats(uid);
       setState(() {
-        _userProfile = profile;
+        _userProfile = user;
         _stats = stats;
+      });
+    }
+  }
       });
     }
   }
@@ -206,24 +210,7 @@ class _StudentHomeState extends State<StudentHome> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Welcome back,',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _userProfile?['displayName'] ??
-                      _authRepository.getCurrentUser()?.email?.split('@')[0] ??
-                      'Student',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                _buildTopBar(),
                 const SizedBox(height: 20),
                 Container(
                   padding: const EdgeInsets.all(20),
@@ -425,7 +412,7 @@ class _StudentHomeState extends State<StudentHome> {
               radius: 56,
               backgroundColor: Theme.of(context).colorScheme.surface,
               child: Text(
-                (user?.displayName ?? user?.email ?? 'U')[0].toUpperCase(),
+                (_userProfile?['displayName'] ?? _userProfile?['email'] ?? 'U')[0].toUpperCase(),
                 style: TextStyle(
                   fontSize: 48,
                   fontWeight: FontWeight.bold,
@@ -436,7 +423,7 @@ class _StudentHomeState extends State<StudentHome> {
           ),
           const SizedBox(height: 20),
           Text(
-            user?.displayName ?? 'Student',
+            _userProfile?['displayName'] ?? 'Student',
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -445,7 +432,7 @@ class _StudentHomeState extends State<StudentHome> {
           ),
           const SizedBox(height: 8),
           Text(
-            user?.email ?? '',
+            _userProfile?['email'] ?? '',
             style: TextStyle(
               fontSize: 16,
               color: Colors.white.withOpacity(0.7),
@@ -622,7 +609,6 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Widget _buildRightSidebar() {
-    final user = _authRepository.getCurrentUser();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
 
@@ -642,13 +628,17 @@ class _StudentHomeState extends State<StudentHome> {
             radius: 40,
             backgroundColor: Theme.of(context).colorScheme.primary,
             child: Text(
-              (user?.displayName ?? user?.email ?? 'U')[0].toUpperCase(),
-              style: const TextStyle(fontSize: 32, color: Colors.white),
+              (_userProfile?['displayName'] ?? _userProfile?['email'] ?? 'U')[0].toUpperCase(),
+              style: const TextStyle(
+                fontSize: 32,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           const SizedBox(height: 16),
           Text(
-            user?.displayName ?? user?.email?.split('@').first ?? 'Student',
+            _userProfile?['displayName'] ?? _userProfile?['email']?.split('@').first ?? 'Student',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
