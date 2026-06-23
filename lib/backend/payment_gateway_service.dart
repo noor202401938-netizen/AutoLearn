@@ -1,5 +1,6 @@
 // lib/backend/payment_gateway_service.dart
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'api_client.dart';
 
@@ -60,7 +61,7 @@ class PaymentGatewayService {
       );
       return true;
     } catch (e) {
-      print('Payment error: $e');
+      debugPrint('Payment error: $e');
       return false;
     }
   }
@@ -96,7 +97,7 @@ class PaymentGatewayService {
       );
       return true;
     } catch (e) {
-      print('Payment processing error: $e');
+      debugPrint('Payment processing error: $e');
       return false;
     }
   }

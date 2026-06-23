@@ -1,6 +1,7 @@
 // lib/repository/course_repository.dart
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import '../backend/api_client.dart';
 import '../model/course_model.dart';
 
@@ -16,7 +17,7 @@ class CourseRepository {
       }
       return [];
     } catch (e) {
-      print('Error fetching all courses: $e');
+      debugPrint('Error fetching all courses: $e');
       return [];
     }
   }
@@ -30,7 +31,7 @@ class CourseRepository {
       }
       return [];
     } catch (e) {
-      print('Error fetching published courses: $e');
+      debugPrint('Error fetching published courses: $e');
       return [];
     }
   }
@@ -43,7 +44,7 @@ class CourseRepository {
       }
       return null;
     } catch (e) {
-      print('Error fetching course by id: $e');
+      debugPrint('Error fetching course by id: $e');
       return null;
     }
   }
@@ -56,7 +57,7 @@ class CourseRepository {
       }
       return null;
     } catch (e) {
-      print('Error creating course: $e');
+      debugPrint('Error creating course: $e');
       return null;
     }
   }
@@ -69,7 +70,7 @@ class CourseRepository {
       }
       return null;
     } catch (e) {
-      print('Error updating course: $e');
+      debugPrint('Error updating course: $e');
       return null;
     }
   }
@@ -79,7 +80,7 @@ class CourseRepository {
       final response = await _apiClient.delete('/courses/$id');
       return response.statusCode == 200 || response.statusCode == 204;
     } catch (e) {
-      print('Error deleting course: $e');
+      debugPrint('Error deleting course: $e');
       return false;
     }
   }
@@ -94,7 +95,7 @@ class CourseRepository {
       }
       return [];
     } catch (e) {
-      print('Error searching courses: $e');
+      debugPrint('Error searching courses: $e');
       return [];
     }
   }
@@ -109,7 +110,7 @@ class CourseRepository {
       }
       return [];
     } catch (e) {
-      print('Error fetching courses by category: $e');
+      debugPrint('Error fetching courses by category: $e');
       return [];
     }
   }
@@ -124,7 +125,7 @@ class CourseRepository {
       }
       return [];
     } catch (e) {
-      print('Error fetching courses by level: $e');
+      debugPrint('Error fetching courses by level: $e');
       return [];
     }
   }
@@ -139,7 +140,7 @@ class CourseRepository {
       }
       return 0;
     } catch (e) {
-      print('Error getting course count: $e');
+      debugPrint('Error getting course count: $e');
       return 0;
     }
   }
@@ -153,7 +154,7 @@ class CourseRepository {
     try {
       await _apiClient.post('/courses/$courseId/rate', {'rating': rating});
     } catch (e) {
-      print('Error updating course rating: $e');
+      debugPrint('Error updating course rating: $e');
     }
   }
 

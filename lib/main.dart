@@ -64,7 +64,7 @@ class _MyAppState extends State<MyApp> {
           reduceMotion: prefs['reduceMotion'] as bool? ?? false,
         );
       } catch (e) {
-        print('Error loading preferences: $e');
+        debugPrint('Error loading preferences: $e');
       }
     }
 

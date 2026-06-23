@@ -12,7 +12,16 @@ class ApiClient {
     defaultValue: '',
   );
 
-  static String get baseUrl => _defaultBaseUrl;
+  static String get baseUrl {
+    // If not local development and URL is HTTP, warn or upgrade to HTTPS
+    if (!_defaultBaseUrl.contains('localhost') && 
+        !_defaultBaseUrl.contains('127.0.0.1') && 
+        _defaultBaseUrl.startsWith('http://')) {
+      // Security enforcement: upgrading to https
+      return _defaultBaseUrl.replaceFirst('http://', 'https://');
+    }
+    return _defaultBaseUrl;
+  }
 
   static const _storage = FlutterSecureStorage();
 

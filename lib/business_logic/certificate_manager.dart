@@ -1,4 +1,5 @@
 // lib/business_logic/certificate_manager.dart
+import 'package:flutter/foundation.dart';
 import '../repository/auth_repository.dart';
 import '../repository/certificate_repository.dart';
 import '../repository/user_repository.dart';
@@ -56,7 +57,7 @@ class CertificateManager {
 
       return certificate;
     } catch (e) {
-      print('Error generating certificate: $e');
+      debugPrint('Error generating certificate: $e');
       return null;
     }
   }
@@ -71,7 +72,7 @@ class CertificateManager {
 
       return await _certificateRepository.getUserCertificates(uid);
     } catch (e) {
-      print('Error getting user certificates: $e');
+      debugPrint('Error getting user certificates: $e');
       return [];
     }
   }

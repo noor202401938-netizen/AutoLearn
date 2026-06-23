@@ -1,5 +1,5 @@
-// lib/repository/auth_repository.dart
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../backend/api_client.dart';
@@ -108,7 +108,7 @@ class AuthRepository {
         return profile;
       }
     } catch (e) {
-      print('Error fetching current user profile: $e');
+      debugPrint('Error fetching current user profile: $e');
     }
     
     return {'uid': uid}; // Fallback if API fails but we are locally logged in

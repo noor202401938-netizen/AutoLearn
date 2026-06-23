@@ -1,5 +1,6 @@
-// lib/repository/chat_repository.dart
 import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import '../backend/api_client.dart';
 import '../model/chat_message_model.dart';
@@ -28,7 +29,7 @@ class ChatRepository {
       }
       throw Exception('Failed to send message: ${response.body}');
     } catch (e) {
-      print('Error sending message: $e');
+      debugPrint('Error sending message: $e');
       throw Exception('Network error sending message');
     }
   }
@@ -42,7 +43,7 @@ class ChatRepository {
       }
       return [];
     } catch (e) {
-      print('Error getting session history: $e');
+      debugPrint('Error getting session history: $e');
       return [];
     }
   }
@@ -59,7 +60,7 @@ class ChatRepository {
       }
       throw Exception('Failed to create session with status: ${response.statusCode}');
     } catch (e) {
-      print('Error creating session: $e');
+      debugPrint('Error creating session: $e');
       throw Exception('Network error creating session: $e');
     }
   }
@@ -83,7 +84,7 @@ class ChatRepository {
       }
       return [];
     } catch (e) {
-      print('Error getting user sessions: $e');
+      debugPrint('Error getting user sessions: $e');
       return [];
     }
   }
@@ -92,7 +93,7 @@ class ChatRepository {
     try {
       await _apiClient.delete('/chat/$sessionId');
     } catch (e) {
-      print('Error deleting session: $e');
+      debugPrint('Error deleting session: $e');
       throw Exception('Failed to delete session');
     }
   }

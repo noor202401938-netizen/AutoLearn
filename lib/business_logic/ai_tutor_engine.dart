@@ -8,10 +8,9 @@ class AITutorEngine {
   final ChatRepository _chatRepository = ChatRepository();
 
   // OpenAI API Configuration
-  static const String _openAIApiKey =
-      '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';
-  static const String _openAIApiUrl =
-      'https://api.openai.com/v1/chat/completions';
+  // Key is injected via compile-time flag: --dart-define=OPENAI_API_KEY=your_key
+  static const String _openAIApiKey = String.fromEnvironment('OPENAI_API_KEY', defaultValue: '');
+  static const String _openAIApiUrl = 'https://api.openai.com/v1/chat/completions';
 
   // System prompt for AI tutor
   static const String _systemPrompt = '''

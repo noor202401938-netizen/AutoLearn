@@ -1,5 +1,5 @@
-// lib/repository/user_repository.dart
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'dart:async';
 import '../backend/api_client.dart';
 
@@ -111,7 +111,7 @@ class UserRepository {
       // Force refresh user profile so stream updates if it's the current user
       await getUserProfile(uid, forceRefresh: true);
     } catch (e) {
-      print('Error updating user role: $e');
+      debugPrint('Error updating user role: $e');
     }
   }
 
@@ -121,7 +121,7 @@ class UserRepository {
       _userCache.remove(uid);
       _userStreams[uid]?.add(null);
     } catch (e) {
-      print('Error deleting user profile: $e');
+      debugPrint('Error deleting user profile: $e');
     }
   }
 }
