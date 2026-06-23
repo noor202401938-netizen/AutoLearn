@@ -8,6 +8,7 @@ import '../../screens/student/course_list_screen.dart';
 import '../../screens/student/course_content_screen.dart';
 import '../../business_logic/analytics_monitoring_manager.dart';
 import '../../widgets/gradient_menu.dart';
+import '../../widgets/dashboard_components.dart';
 
 class StudentHome extends StatefulWidget {
   const StudentHome({super.key});
@@ -130,9 +131,9 @@ class _StudentHomeState extends State<StudentHome> {
                   selectedIndex: _selectedIndex,
                   onDestinationSelected: _onItemTapped,
                   selectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.secondary),
-                  unselectedIconTheme: IconThemeData(color: Colors.white.withOpacity(0.5)),
+                  unselectedIconTheme: IconThemeData(color: Theme.of(context).iconTheme.color?.withOpacity(0.5) ?? Colors.grey),
                   selectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
-                  unselectedLabelTextStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+                  unselectedLabelTextStyle: TextStyle(color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.5) ?? Colors.grey),
                   labelType: NavigationRailLabelType.all,
                   destinations: const [
                     NavigationRailDestination(
@@ -157,25 +158,31 @@ class _StudentHomeState extends State<StudentHome> {
                     ),
                   ],
                 ),
-                VerticalDivider(thickness: 1, width: 1, color: Colors.white.withOpacity(0.1)),
+                VerticalDivider(thickness: 1, width: 1, color: Theme.of(context).dividerColor.withOpacity(0.1)),
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
-                          Theme.of(context).colorScheme.background,
-                        ],
-                        stops: const [0.0, 0.4],
-                      ),
+                      color: Theme.of(context).colorScheme.background,
                     ),
                     child: SafeArea(
-                      child: _getSelectedScreen(),
+                      child: _selectedIndex == 0 
+                          ? _buildDribbbleDashboard()
+                          : _getSelectedScreen(),
                     ),
                   ),
                 ),
+                if (_selectedIndex == 0) ...[
+                  VerticalDivider(thickness: 1, width: 1, color: Theme.of(context).dividerColor.withOpacity(0.1)),
+                  SizedBox(
+                    width: 320,
+                    child: Container(
+                      color: Theme.of(context).colorScheme.surface,
+                      child: SafeArea(
+                        child: _buildRightSidebar(),
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
       bottomNavigationBar: isMobile
@@ -532,151 +539,157 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Widget _buildCourseCard(CourseModel course) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
-      ),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CourseContentScreen(
-                courseId: course.courseId,
-                title: course.title,
-              ),
+    return DashboardCourseCard(
+      course: course,
+      index: _featuredCourses.indexOf(course),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CourseContentScreen(
+              courseId: course.courseId,
+              title: course.title,
             ),
-          );
-        },
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Course Thumbnail
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                ),
-                child: course.thumbnailURL.isNotEmpty
-                    ? ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    course.thumbnailURL,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Icon(
-                        Icons.school,
-                        size: 40,
-                        color: Theme.of(context).colorScheme.primary,
-                      );
-                    },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDribbbleDashboard() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black87;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Invest in your\neducation',
+            style: TextStyle(
+              fontSize: 36,
+              fontWeight: FontWeight.bold,
+              color: textColor,
+              height: 1.2,
+            ),
+          ),
+          const SizedBox(height: 32),
+          FilterChips(),
+          const SizedBox(height: 32),
+          Text(
+            'Most popular',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _isLoadingCourses
+              ? const Center(child: CircularProgressIndicator())
+              : GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 1.5,
                   ),
-                )
-                    : Icon(
-                  Icons.school,
-                  size: 40,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              const SizedBox(width: 12),
-              // Course Info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      course.title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      course.instructor,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white.withOpacity(0.7),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.star,
-                          size: 16,
-                          color: Colors.amber,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          course.rating.toStringAsFixed(1),
-                          style: const TextStyle(fontSize: 12, color: Colors.white),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            course.level.toUpperCase(),
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: Colors.greenAccent,
-                              fontWeight: FontWeight.bold,
+                  itemCount: _featuredCourses.length,
+                  itemBuilder: (context, index) {
+                    return DashboardCourseCard(
+                      course: _featuredCourses[index],
+                      index: index,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CourseContentScreen(
+                              courseId: _featuredCourses[index].courseId,
+                              title: _featuredCourses[index].title,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        );
+                      },
+                    );
+                  },
                 ),
-              ),
-              // Price
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    course.price == 0
-                        ? 'FREE'
-                        : '\$${course.price.toStringAsFixed(0)}',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: course.price == 0
-                          ? Colors.greenAccent
-                          : Theme.of(context).colorScheme.secondary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${course.duration}h',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white.withOpacity(0.5),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+        ],
       ),
     );
   }
+
+  Widget _buildRightSidebar() {
+    final user = _authRepository.getCurrentUser();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : Colors.black87;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Icon(Icons.notifications_outlined, color: textColor),
+              Icon(Icons.settings_outlined, color: textColor),
+            ],
+          ),
+          const SizedBox(height: 32),
+          CircleAvatar(
+            radius: 40,
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            child: Text(
+              (user?.displayName ?? user?.email ?? 'U')[0].toUpperCase(),
+              style: const TextStyle(fontSize: 32, color: Colors.white),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            user?.displayName ?? 'Annette Black',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(height: 32),
+          const ActivityChart(),
+          const SizedBox(height: 32),
+          Row(
+            children: [
+              Text(
+                'My courses',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: textColor,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (_featuredCourses.isNotEmpty)
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _featuredCourses.length > 2 ? 2 : _featuredCourses.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: DashboardCourseCard(
+                    course: _featuredCourses[index],
+                    index: index + 2,
+                    onTap: () {},
+                  ),
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
 }

@@ -85,8 +85,8 @@ class _MyAppState extends State<MyApp> {
       child: MaterialApp(
         title: 'AutoLearn',
         debugShowCheckedModeBanner: false,
-        themeMode: ThemeMode.dark, // Force dark theme for Luminous Professional
-        theme: AppTheme.darkTheme,
+        themeMode: themeMode,
+        theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
         home: const SplashScreen(), // Start with splash screen
         routes: {
