@@ -128,5 +128,92 @@ class AppTheme {
         ),
       ),
     );
+  static ThemeData get lightTheme {
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.light,
+      colorScheme: ColorScheme.light(
+        primary: primary,
+        onPrimary: Colors.white,
+        secondary: secondary,
+        onSecondary: Colors.white,
+        surface: Colors.white,
+        onSurface: Colors.black87,
+        background: const Color(0xFFF8FAFC),
+        onBackground: Colors.black87,
+        error: error,
+      ),
+      scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+      textTheme: GoogleFonts.outfitTextTheme(
+        ThemeData.light().textTheme,
+      ).copyWith(
+        displayLarge: GoogleFonts.outfit(
+          fontSize: 48,
+          fontWeight: FontWeight.w700,
+          letterSpacing: -0.02,
+          color: Colors.black87,
+        ),
+        headlineMedium: GoogleFonts.outfit(
+          fontSize: 24,
+          fontWeight: FontWeight.w600,
+          color: Colors.black87,
+        ),
+        bodyLarge: GoogleFonts.outfit(
+          fontSize: 18,
+          fontWeight: FontWeight.w400,
+          color: Colors.black87,
+        ),
+        bodyMedium: GoogleFonts.outfit(
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+          color: Colors.black54,
+        ),
+        labelLarge: GoogleFonts.outfit(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.01,
+          color: primary,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primary,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+          elevation: 4,
+          shadowColor: primary.withOpacity(0.3),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.grey.withOpacity(0.2)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.grey.withOpacity(0.2)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: primary, width: 2),
+        ),
+        labelStyle: GoogleFonts.outfit(color: Colors.black54),
+        floatingLabelStyle: GoogleFonts.outfit(color: primary, fontWeight: FontWeight.w600),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      ),
+      cardTheme: CardThemeData(
+        color: Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: Colors.grey.withOpacity(0.1)),
+        ),
+      ),
+    );
   }
 }
