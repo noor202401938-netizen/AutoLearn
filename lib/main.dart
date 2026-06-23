@@ -90,36 +90,36 @@ class _MyAppState extends State<MyApp> {
         themeMode: themeMode,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
-        home: const Title(
+        home: Title(
           title: 'AutoLearn',
           color: Colors.blue,
-          child: SplashScreen(),
+          child: const SplashScreen(),
         ), // Start with splash screen
         routes: {
-          '/welcome': (context) => const Title(
+          '/welcome': (context) => Title(
                 title: 'Welcome - AutoLearn',
                 color: Colors.blue,
-                child: WelcomePage(),
+                child: const WelcomePage(),
               ),
-          '/userinfo': (context) => const Title(
+          '/userinfo': (context) => Title(
                 title: 'Setup - AutoLearn',
                 color: Colors.blue,
-                child: UserInfoPage(),
+                child: const UserInfoPage(),
               ),
-          '/login': (context) => const Title(
+          '/login': (context) => Title(
                 title: 'Login - AutoLearn',
                 color: Colors.blue,
-                child: LoginPage(),
+                child: const LoginPage(),
               ),
-          '/signup': (context) => const Title(
+          '/signup': (context) => Title(
                 title: 'Sign Up - AutoLearn',
                 color: Colors.blue,
-                child: SignupPage(),
+                child: const SignupPage(),
               ),
-          '/home': (context) => const Title(
+          '/home': (context) => Title(
                 title: 'Dashboard - AutoLearn',
                 color: Colors.blue,
-                child: RoleBasedWrapper(),
+                child: const RoleBasedWrapper(),
               ),
         },
       ),
