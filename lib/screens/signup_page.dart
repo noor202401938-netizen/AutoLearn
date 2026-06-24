@@ -1,5 +1,5 @@
-// lib/screens/signup_page.dart
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../business_logic/auth_manager.dart';
 import '../repository/user_repository.dart';
@@ -32,7 +32,7 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1000),
     );
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
@@ -92,7 +92,7 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
           children: [
             const Icon(Icons.error_outline, color: Colors.white),
             const SizedBox(width: 10),
-            Expanded(child: Text(message)),
+            Expanded(child: Text(message, style: GoogleFonts.inter())),
           ],
         ),
         backgroundColor: Theme.of(context).colorScheme.error,
@@ -106,9 +106,11 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
     
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: colorScheme.surface,
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isDesktop = constraints.maxWidth > 800;
@@ -119,16 +121,16 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
               child: FadeTransition(
                 opacity: _fadeAnimation,
                 child: Container(
-                  padding: const EdgeInsets.all(32),
+                  padding: const EdgeInsets.all(40),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surface,
+                    color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: theme.dividerColor),
+                    border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
                     boxShadow: [
                       BoxShadow(
-                        color: theme.shadowColor.withOpacity(0.05),
-                        blurRadius: 24,
-                        offset: const Offset(0, 8),
+                        color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                        blurRadius: 40,
+                        offset: const Offset(0, 20),
                       ),
                     ],
                   ),
@@ -145,10 +147,10 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                               child: Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: theme.colorScheme.primary.withOpacity(0.1),
+                                  color: colorScheme.primary.withOpacity(0.1),
                                   shape: BoxShape.circle,
                                 ),
-                                child: Icon(Icons.school_rounded, size: 48, color: theme.colorScheme.primary),
+                                child: Icon(Icons.school_rounded, size: 48, color: colorScheme.primary),
                               ),
                             ),
                           ),
@@ -157,26 +159,36 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                         Text(
                           "Create Account",
                           textAlign: TextAlign.center,
-                          style: theme.textTheme.headlineMedium?.copyWith(
-                            color: theme.colorScheme.primary,
+                          style: GoogleFonts.geist(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -1.0,
+                            color: colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           "Start your learning journey today",
                           textAlign: TextAlign.center,
-                          style: theme.textTheme.bodyMedium,
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
                         ),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 40),
 
                         // Name Field
                         TextFormField(
                           controller: _nameController,
-                          style: TextStyle(color: theme.colorScheme.onSurface),
-                          decoration: const InputDecoration(
+                          style: GoogleFonts.inter(color: colorScheme.onSurface),
+                          decoration: InputDecoration(
                             labelText: "Full Name",
                             hintText: "Enter your full name",
-                            prefixIcon: Icon(Icons.person_outline),
+                            labelStyle: GoogleFonts.inter(),
+                            prefixIcon: const Icon(Icons.person_outline),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) return 'Please enter your name';
@@ -189,11 +201,15 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
-                          style: TextStyle(color: theme.colorScheme.onSurface),
-                          decoration: const InputDecoration(
+                          style: GoogleFonts.inter(color: colorScheme.onSurface),
+                          decoration: InputDecoration(
                             labelText: "Email",
                             hintText: "Enter your email",
-                            prefixIcon: Icon(Icons.email_outlined),
+                            labelStyle: GoogleFonts.inter(),
+                            prefixIcon: const Icon(Icons.email_outlined),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) return 'Please enter your email';
@@ -207,11 +223,15 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
-                          style: TextStyle(color: theme.colorScheme.onSurface),
+                          style: GoogleFonts.inter(color: colorScheme.onSurface),
                           decoration: InputDecoration(
                             labelText: "Password",
                             hintText: "Create a password",
+                            labelStyle: GoogleFonts.inter(),
                             prefixIcon: const Icon(Icons.lock_outline),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             suffixIcon: IconButton(
                               icon: Icon(
                                 _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
@@ -234,11 +254,15 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                         TextFormField(
                           controller: _confirmPasswordController,
                           obscureText: _obscureConfirmPassword,
-                          style: TextStyle(color: theme.colorScheme.onSurface),
+                          style: GoogleFonts.inter(color: colorScheme.onSurface),
                           decoration: InputDecoration(
                             labelText: "Confirm Password",
                             hintText: "Re-enter your password",
+                            labelStyle: GoogleFonts.inter(),
                             prefixIcon: const Icon(Icons.lock_outline),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             suffixIcon: IconButton(
                               icon: Icon(
                                 _obscureConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
@@ -260,20 +284,20 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                             Checkbox(
                               value: _agreeToTerms,
                               onChanged: (v) => setState(() => _agreeToTerms = v ?? false),
-                              activeColor: theme.colorScheme.primary,
+                              activeColor: colorScheme.primary,
                             ),
                             Expanded(
                               child: GestureDetector(
                                 onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
                                 child: RichText(
                                   text: TextSpan(
-                                    style: theme.textTheme.bodyMedium,
+                                    style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant),
                                     children: [
                                       const TextSpan(text: 'I agree to the '),
                                       TextSpan(
                                         text: 'Terms & Conditions',
                                         style: TextStyle(
-                                          color: theme.colorScheme.primary,
+                                          color: colorScheme.primary,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -289,9 +313,20 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                         // Sign Up Button
                         _isLoading
                             ? const Center(child: CircularProgressIndicator())
-                            : ElevatedButton(
-                                onPressed: _registerUser,
-                                child: const Text("Sign Up", style: TextStyle(fontSize: 16)),
+                            : SizedBox(
+                                height: 56,
+                                child: ElevatedButton(
+                                  onPressed: _registerUser,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: colorScheme.primary,
+                                    foregroundColor: colorScheme.onPrimary,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  child: Text("Sign Up", style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700)),
+                                ),
                               ),
                         const SizedBox(height: 20),
 
@@ -299,10 +334,10 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text("Already have an account? ", style: theme.textTheme.bodyMedium),
+                            Text("Already have an account? ", style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant)),
                             TextButton(
                               onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
-                              child: const Text("Login"),
+                              child: Text("Login", style: GoogleFonts.inter(fontWeight: FontWeight.w700)),
                             ),
                           ],
                         ),
@@ -320,7 +355,7 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                 // Left Side - Form
                 Expanded(
                   child: Container(
-                    color: theme.colorScheme.background,
+                    color: colorScheme.surface,
                     child: formContent,
                   ),
                 ),
@@ -328,7 +363,11 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.primary,
+                      gradient: LinearGradient(
+                        colors: [colorScheme.primary, colorScheme.tertiary],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                     ),
                     child: Stack(
                       children: [
@@ -355,15 +394,19 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                               const SizedBox(height: 40),
                               Text(
                                 "AutoLearn",
-                                style: theme.textTheme.displayLarge?.copyWith(
+                                style: GoogleFonts.geist(
+                                  fontSize: 64,
+                                  fontWeight: FontWeight.w800,
                                   color: Colors.white,
+                                  letterSpacing: -2.0,
                                 ),
                               ),
                               const SizedBox(height: 16),
                               Text(
                                 "Create an account and start\nunlocking your potential today.",
                                 textAlign: TextAlign.center,
-                                style: theme.textTheme.bodyLarge?.copyWith(
+                                style: GoogleFonts.inter(
+                                  fontSize: 20,
                                   color: Colors.white.withOpacity(0.9),
                                 ),
                               ),
@@ -381,13 +424,13 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
           // Mobile View
           return Container(
             decoration: BoxDecoration(
-              color: theme.colorScheme.background,
+              color: colorScheme.surface,
             ),
             child: Stack(
               children: [
                 Positioned.fill(
                   child: CustomPaint(
-                    painter: _GridPainter(color: theme.colorScheme.primary.withOpacity(0.05)),
+                    painter: _GridPainter(color: colorScheme.primary.withOpacity(0.05)),
                   ),
                 ),
                 SafeArea(child: formContent),

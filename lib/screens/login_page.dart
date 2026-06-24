@@ -1,5 +1,5 @@
-// lib/screens/login_page.dart
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../business_logic/auth_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../repository/user_repository.dart';
@@ -29,7 +29,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1000),
     );
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
@@ -80,7 +80,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           children: [
             const Icon(Icons.error_outline, color: Colors.white),
             const SizedBox(width: 10),
-            Expanded(child: Text(message)),
+            Expanded(child: Text(message, style: GoogleFonts.inter())),
           ],
         ),
         backgroundColor: Theme.of(context).colorScheme.error,
@@ -93,35 +93,37 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
   void _showForgotPasswordDialog() {
     final emailController = TextEditingController();
+    final colorScheme = Theme.of(context).colorScheme;
     
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Reset Password'),
+        title: Text('Reset Password', style: GoogleFonts.geist(fontWeight: FontWeight.w700)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+            Text(
               'Enter your email address and we\'ll send you a link to reset your password.',
-              style: TextStyle(fontSize: 14),
+              style: GoogleFonts.inter(fontSize: 14),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Email',
                 hintText: 'Enter your email',
-                prefixIcon: Icon(Icons.email_outlined),
-                border: OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.email_outlined),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ],
         ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('Cancel', style: GoogleFonts.inter()),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -129,8 +131,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
               if (email.isEmpty || !email.contains('@')) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: const Text('Please enter a valid email address'),
-                    backgroundColor: Theme.of(context).colorScheme.error,
+                    content: Text('Please enter a valid email address', style: GoogleFonts.inter()),
+                    backgroundColor: colorScheme.error,
                   ),
                 );
                 return;
@@ -144,8 +146,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
               if (result == null) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: const Text('Password reset email sent! Check your inbox.'),
-                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                    content: Text('Password reset email sent! Check your inbox.', style: GoogleFonts.inter(color: colorScheme.onPrimaryContainer)),
+                    backgroundColor: colorScheme.primaryContainer,
                   ),
                 );
               } else {
@@ -153,10 +155,11 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Send'),
+            child: Text('Send', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -166,9 +169,11 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
     
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: colorScheme.surface,
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isDesktop = constraints.maxWidth > 800;
@@ -179,16 +184,16 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
               child: FadeTransition(
                 opacity: _fadeAnimation,
                 child: Container(
-                  padding: const EdgeInsets.all(32),
+                  padding: const EdgeInsets.all(40),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surface,
+                    color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: theme.dividerColor),
+                    border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
                     boxShadow: [
                       BoxShadow(
-                        color: theme.shadowColor.withOpacity(0.05),
-                        blurRadius: 24,
-                        offset: const Offset(0, 8),
+                        color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                        blurRadius: 40,
+                        offset: const Offset(0, 20),
                       ),
                     ],
                   ),
@@ -205,10 +210,10 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                               child: Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: theme.colorScheme.primary.withOpacity(0.1),
+                                  color: colorScheme.primary.withOpacity(0.1),
                                   shape: BoxShape.circle,
                                 ),
-                                child: Icon(Icons.school_rounded, size: 48, color: theme.colorScheme.primary),
+                                child: Icon(Icons.school_rounded, size: 48, color: colorScheme.primary),
                               ),
                             ),
                           ),
@@ -217,27 +222,37 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                         Text(
                           "Welcome Back!",
                           textAlign: TextAlign.center,
-                          style: theme.textTheme.headlineMedium?.copyWith(
-                            color: theme.colorScheme.primary,
+                          style: GoogleFonts.geist(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -1.0,
+                            color: colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           "Sign in to continue learning",
                           textAlign: TextAlign.center,
-                          style: theme.textTheme.bodyMedium,
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
                         ),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 40),
 
                         // Email Field
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
-                          style: TextStyle(color: theme.colorScheme.onSurface),
-                          decoration: const InputDecoration(
+                          style: GoogleFonts.inter(color: colorScheme.onSurface),
+                          decoration: InputDecoration(
                             labelText: "Email",
                             hintText: "Enter your email",
-                            prefixIcon: Icon(Icons.email_outlined),
+                            labelStyle: GoogleFonts.inter(),
+                            prefixIcon: const Icon(Icons.email_outlined),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) return 'Please enter your email';
@@ -251,11 +266,15 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
-                          style: TextStyle(color: theme.colorScheme.onSurface),
+                          style: GoogleFonts.inter(color: colorScheme.onSurface),
                           decoration: InputDecoration(
                             labelText: "Password",
                             hintText: "Enter your password",
+                            labelStyle: GoogleFonts.inter(),
                             prefixIcon: const Icon(Icons.lock_outline),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             suffixIcon: IconButton(
                               icon: Icon(
                                 _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
@@ -277,24 +296,35 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                             Checkbox(
                               value: _rememberMe,
                               onChanged: (v) => setState(() => _rememberMe = v ?? false),
-                              activeColor: theme.colorScheme.primary,
+                              activeColor: colorScheme.primary,
                             ),
-                            Text("Remember me", style: theme.textTheme.bodyMedium),
+                            Text("Remember me", style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant)),
                             const Spacer(),
                             TextButton(
                               onPressed: _showForgotPasswordDialog,
-                              child: const Text("Forgot Password?"),
+                              child: Text("Forgot Password?", style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 32),
 
                         // Login Button
                         _isLoading
                             ? const Center(child: CircularProgressIndicator())
-                            : ElevatedButton(
-                                onPressed: _loginUser,
-                                child: const Text("Login", style: TextStyle(fontSize: 16)),
+                            : SizedBox(
+                                height: 56,
+                                child: ElevatedButton(
+                                  onPressed: _loginUser,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: colorScheme.primary,
+                                    foregroundColor: colorScheme.onPrimary,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  child: Text("Login", style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700)),
+                                ),
                               ),
                         const SizedBox(height: 24),
 
@@ -302,10 +332,10 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text("Don't have an account? ", style: theme.textTheme.bodyMedium),
+                            Text("Don't have an account? ", style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant)),
                             TextButton(
                               onPressed: () => Navigator.pushReplacementNamed(context, '/signup'),
-                              child: const Text("Sign Up"),
+                              child: Text("Sign Up", style: GoogleFonts.inter(fontWeight: FontWeight.w700)),
                             ),
                           ],
                         ),
@@ -324,7 +354,11 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.primary,
+                      gradient: LinearGradient(
+                        colors: [colorScheme.primary, colorScheme.tertiary],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                     ),
                     child: Stack(
                       children: [
@@ -351,15 +385,19 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                               const SizedBox(height: 40),
                               Text(
                                 "AutoLearn",
-                                style: theme.textTheme.displayLarge?.copyWith(
+                                style: GoogleFonts.geist(
+                                  fontSize: 64,
+                                  fontWeight: FontWeight.w800,
                                   color: Colors.white,
+                                  letterSpacing: -2.0,
                                 ),
                               ),
                               const SizedBox(height: 16),
                               Text(
                                 "Master the future with AI-driven\npersonalized learning paths.",
                                 textAlign: TextAlign.center,
-                                style: theme.textTheme.bodyLarge?.copyWith(
+                                style: GoogleFonts.inter(
+                                  fontSize: 20,
                                   color: Colors.white.withOpacity(0.9),
                                 ),
                               ),
@@ -373,7 +411,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                 // Right Side - Form
                 Expanded(
                   child: Container(
-                    color: theme.colorScheme.background,
+                    color: colorScheme.surface,
                     child: formContent,
                   ),
                 ),
@@ -384,13 +422,13 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           // Mobile View
           return Container(
             decoration: BoxDecoration(
-              color: theme.colorScheme.background,
+              color: colorScheme.surface,
             ),
             child: Stack(
               children: [
                 Positioned.fill(
                   child: CustomPaint(
-                    painter: _GridPainter(color: theme.colorScheme.primary.withOpacity(0.05)),
+                    painter: _GridPainter(color: colorScheme.primary.withOpacity(0.05)),
                   ),
                 ),
                 SafeArea(child: formContent),
