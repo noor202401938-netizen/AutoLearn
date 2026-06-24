@@ -496,7 +496,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               SizedBox(
                 width: 60,
                 child: Text(
-                  _formatDuration(Duration(seconds: caption.startTime)),
+                  _formatDuration(Duration(seconds: caption.startTime.toInt())),
                   style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: const Color(0xFF4231C0)),
                 ),
               ),

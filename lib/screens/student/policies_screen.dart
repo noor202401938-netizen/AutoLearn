@@ -8,6 +8,7 @@ class PoliciesScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
 
+    return Scaffold(
       backgroundColor: const Color(0xFFF8F9FF),
       appBar: AppBar(
         title: Text('Policies & Terms', 
