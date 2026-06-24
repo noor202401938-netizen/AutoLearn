@@ -1,5 +1,5 @@
-// lib/screens/notifications_panel.dart
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../business_logic/notification_manager.dart';
 import '../model/notification_model.dart';
 
@@ -67,54 +67,73 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('Notifications', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
-        backgroundColor: Colors.transparent,
+        title: Text('Notifications', style: GoogleFonts.geist(fontWeight: FontWeight.w700, color: colorScheme.onSurface)),
+        backgroundColor: colorScheme.surface.withOpacity(0.8),
         elevation: 0,
-        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.primary),
+        iconTheme: IconThemeData(color: colorScheme.onSurface),
         actions: [
           if (_notifications.any((n) => !n.isRead))
-            TextButton(
-              onPressed: _markAllAsRead,
-              child: Text(
-                'Mark all read',
-                style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontWeight: FontWeight.bold),
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: TextButton(
+                onPressed: _markAllAsRead,
+                child: Text(
+                  'Mark all read',
+                  style: GoogleFonts.inter(color: colorScheme.primary, fontWeight: FontWeight.w600),
+                ),
               ),
             ),
         ],
       ),
       body: Container(
-        color: Theme.of(context).colorScheme.background,
+        color: colorScheme.surface,
         child: SafeArea(
           child: _isLoading
-              ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary))
+              ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
               : _notifications.isEmpty
-                  ? _buildEmptyState()
-                  : _buildNotificationsList(),
+                  ? _buildEmptyState(colorScheme)
+                  : _buildNotificationsList(colorScheme, isDark),
         ),
       ),
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(ColorScheme colorScheme) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.notifications_none_rounded, size: 80, color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5)),
-          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: colorScheme.onSurfaceVariant.withOpacity(0.05),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.notifications_none_rounded, size: 64, color: colorScheme.onSurfaceVariant.withOpacity(0.5)),
+          ),
+          const SizedBox(height: 24),
           Text(
             'No Notifications',
-            style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            style: GoogleFonts.geist(fontSize: 24, fontWeight: FontWeight.w700, color: colorScheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'You\'re all caught up!',
+            style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant.withOpacity(0.8)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildNotificationsList() {
+  Widget _buildNotificationsList(ColorScheme colorScheme, bool isDark) {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: _notifications.length,
@@ -123,41 +142,69 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: notification.isRead ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.primary.withOpacity(0.05),
+            color: notification.isRead 
+                ? (isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.3) : Colors.white)
+                : colorScheme.primary.withOpacity(0.05),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: notification.isRead ? Theme.of(context).dividerColor : Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+              color: notification.isRead 
+                  ? colorScheme.outlineVariant.withOpacity(0.3)
+                  : colorScheme.primary.withOpacity(0.3),
             ),
+            boxShadow: notification.isRead ? null : [
+              BoxShadow(
+                color: colorScheme.primary.withOpacity(0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: ListTile(
-            leading: Icon(
-              _getNotificationIcon(notification.type),
-              color: notification.isRead ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.secondary,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            leading: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: notification.isRead ? colorScheme.onSurfaceVariant.withOpacity(0.1) : colorScheme.primary.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                _getNotificationIcon(notification.type),
+                color: notification.isRead ? colorScheme.onSurfaceVariant : colorScheme.primary,
+              ),
             ),
             title: Text(
               notification.title,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
+              style: GoogleFonts.inter(
+                color: colorScheme.onSurface,
+                fontWeight: notification.isRead ? FontWeight.w500 : FontWeight.bold,
               ),
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(notification.body, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 const SizedBox(height: 4),
+                Text(notification.body, style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant)),
+                const SizedBox(height: 8),
                 Text(
                   _formatTime(notification.createdAt),
-                  style: TextStyle(
+                  style: GoogleFonts.inter(
                     fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.8),
+                    fontWeight: FontWeight.w500,
+                    color: colorScheme.onSurfaceVariant.withOpacity(0.8),
                   ),
                 ),
               ],
             ),
             trailing: notification.isRead
                 ? null
-                : Icon(Icons.circle, size: 8, color: Theme.of(context).colorScheme.secondary),
+                : Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
             onTap: () => _markAsRead(notification),
           ),
         );
@@ -168,13 +215,15 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
   IconData _getNotificationIcon(String type) {
     switch (type) {
       case 'course':
-        return Icons.school;
+        return Icons.school_rounded;
       case 'achievement':
-        return Icons.workspace_premium;
+        return Icons.workspace_premium_rounded;
       case 'quiz':
-        return Icons.quiz;
+        return Icons.quiz_rounded;
+      case 'announcement':
+        return Icons.campaign_rounded;
       default:
-        return Icons.notifications;
+        return Icons.notifications_rounded;
     }
   }
 
@@ -195,4 +244,3 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
     }
   }
 }
-

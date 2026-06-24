@@ -1,5 +1,5 @@
-// lib/screens/theme_accessibility_screen.dart
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../business_logic/accessibility_manager.dart';
 import '../repository/user_preferences_repository.dart';
 import '../utils/preference_notifier.dart';
@@ -102,16 +102,29 @@ class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
 
       if (mounted && showSnackBar) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Preferences saved'),
-            duration: Duration(seconds: 1),
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle_outline, color: Colors.white),
+                const SizedBox(width: 10),
+                Expanded(child: Text('Preferences saved', style: GoogleFonts.inter())),
+              ],
+            ),
+            backgroundColor: const Color(0xFF00724e),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            margin: const EdgeInsets.all(16),
+            duration: const Duration(seconds: 1),
           ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving preferences: $e')),
+          SnackBar(
+            content: Text('Error saving preferences: $e', style: GoogleFonts.inter()),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
         );
       }
     }
@@ -119,101 +132,91 @@ class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('Theme & Accessibility', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
-        backgroundColor: Colors.transparent,
+        title: Text('Theme & Accessibility', style: GoogleFonts.geist(fontWeight: FontWeight.w700, color: colorScheme.onSurface)),
+        backgroundColor: colorScheme.surface.withOpacity(0.8),
         elevation: 0,
-        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.primary),
+        iconTheme: IconThemeData(color: colorScheme.onSurface),
       ),
       body: Container(
-        color: Theme.of(context).colorScheme.background,
+        color: colorScheme.surface,
         child: SafeArea(
           child: _isLoading
-              ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary))
+              ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
               : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                   // Theme Section
-                  _buildSectionTitle('Theme'),
+                  _buildSectionTitle('Theme', colorScheme),
                   Container(
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
+                      color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Theme.of(context).dividerColor),
+                      border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: Column(
                       children: [
-                        Theme(
-                          data: Theme.of(context).copyWith(unselectedWidgetColor: Theme.of(context).colorScheme.onSurfaceVariant),
-                          child: RadioListTile<String>(
-                            title: Text('System Default', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                            value: 'system',
-                            groupValue: _selectedTheme,
-                            activeColor: Theme.of(context).colorScheme.primary,
-                            onChanged: (value) {
-                              setState(() => _selectedTheme = value!);
-                              _savePreferences(showSnackBar: false);
-                            },
-                          ),
-                        ),
-                        Theme(
-                          data: Theme.of(context).copyWith(unselectedWidgetColor: Theme.of(context).colorScheme.onSurfaceVariant),
-                          child: RadioListTile<String>(
-                            title: Text('Light', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                            value: 'light',
-                            groupValue: _selectedTheme,
-                            activeColor: Theme.of(context).colorScheme.primary,
-                            onChanged: (value) {
-                              setState(() => _selectedTheme = value!);
-                              _savePreferences(showSnackBar: false);
-                            },
-                          ),
-                        ),
-                        Theme(
-                          data: Theme.of(context).copyWith(unselectedWidgetColor: Theme.of(context).colorScheme.onSurfaceVariant),
-                          child: RadioListTile<String>(
-                            title: Text('Dark', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                            value: 'dark',
-                            groupValue: _selectedTheme,
-                            activeColor: Theme.of(context).colorScheme.primary,
-                            onChanged: (value) {
-                              setState(() => _selectedTheme = value!);
-                              _savePreferences(showSnackBar: false);
-                            },
-                          ),
-                        ),
+                        _buildThemeRadioTile('System Default', 'system', colorScheme),
+                        const Divider(height: 1, indent: 16, endIndent: 16),
+                        _buildThemeRadioTile('Light', 'light', colorScheme),
+                        const Divider(height: 1, indent: 16, endIndent: 16),
+                        _buildThemeRadioTile('Dark', 'dark', colorScheme),
                       ],
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
 
                   // Font Size Section
-                  _buildSectionTitle('Font Size'),
+                  _buildSectionTitle('Font Size', colorScheme),
                   Container(
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
+                      color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Theme.of(context).dividerColor),
+                      border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(24.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Current: ${(_fontSizeMultiplier * 100).round()}%', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Current Size', style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500)),
+                              Text('${(_fontSizeMultiplier * 100).round()}%', style: GoogleFonts.inter(color: colorScheme.primary, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
                           Slider(
                             value: _fontSizeMultiplier,
                             min: AccessibilityManager.smallFontSize,
                             max: AccessibilityManager.extraLargeFontSize,
                             divisions: 3,
-                            activeColor: Theme.of(context).colorScheme.primary,
-                            inactiveColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-                            label: '${(_fontSizeMultiplier * 100).round()}%',
+                            activeColor: colorScheme.primary,
+                            inactiveColor: colorScheme.primary.withOpacity(0.2),
                             onChanged: (value) {
                               setState(() => _fontSizeMultiplier = value);
                               _savePreferences(showSnackBar: false);
@@ -224,33 +227,43 @@ class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
 
                   // Accessibility Options
-                  _buildSectionTitle('Accessibility'),
+                  _buildSectionTitle('Accessibility', colorScheme),
                   Container(
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
+                      color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Theme.of(context).dividerColor),
+                      border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: Column(
                       children: [
                         SwitchListTile(
-                          title: Text('High Contrast', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                          subtitle: Text('Increase contrast for better visibility', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                          title: Text('High Contrast', style: GoogleFonts.inter(color: colorScheme.onSurface, fontWeight: FontWeight.w600)),
+                          subtitle: Text('Increase contrast for better visibility', style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant)),
                           value: _highContrast,
-                          activeColor: Theme.of(context).colorScheme.primary,
+                          activeColor: colorScheme.primary,
                           onChanged: (value) {
                             setState(() => _highContrast = value);
                             _savePreferences(showSnackBar: false);
                           },
                         ),
+                        const Divider(height: 1, indent: 24, endIndent: 24),
                         SwitchListTile(
-                          title: Text('Reduce Motion', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                          subtitle: Text('Minimize animations and transitions', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                          title: Text('Reduce Motion', style: GoogleFonts.inter(color: colorScheme.onSurface, fontWeight: FontWeight.w600)),
+                          subtitle: Text('Minimize animations and transitions', style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant)),
                           value: _reduceMotion,
-                          activeColor: Theme.of(context).colorScheme.primary,
+                          activeColor: colorScheme.primary,
                           onChanged: (value) {
                             setState(() => _reduceMotion = value);
                             _savePreferences(showSnackBar: false);
@@ -267,18 +280,34 @@ class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildThemeRadioTile(String title, String value, ColorScheme colorScheme) {
+    return Theme(
+      data: Theme.of(context).copyWith(unselectedWidgetColor: colorScheme.onSurfaceVariant),
+      child: RadioListTile<String>(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        title: Text(title, style: GoogleFonts.inter(color: colorScheme.onSurface, fontWeight: FontWeight.w500)),
+        value: value,
+        groupValue: _selectedTheme,
+        activeColor: colorScheme.primary,
+        onChanged: (val) {
+          setState(() => _selectedTheme = val!);
+          _savePreferences(showSnackBar: false);
+        },
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title, ColorScheme colorScheme) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
+      padding: const EdgeInsets.only(bottom: 16.0, left: 8.0),
       child: Text(
         title,
-        style: TextStyle(
+        style: GoogleFonts.geist(
           fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Theme.of(context).colorScheme.primary,
+          fontWeight: FontWeight.w800,
+          color: colorScheme.primary,
         ),
       ),
     );
   }
 }
-

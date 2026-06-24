@@ -1,5 +1,5 @@
-// lib/screens/user_info_page.dart
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserInfoPage extends StatefulWidget {
@@ -9,7 +9,7 @@ class UserInfoPage extends StatefulWidget {
   State<UserInfoPage> createState() => _UserInfoPageState();
 }
 
-class _UserInfoPageState extends State<UserInfoPage> {
+class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   
   final TextEditingController _nameController = TextEditingController();
@@ -18,6 +18,8 @@ class _UserInfoPageState extends State<UserInfoPage> {
   String _selectedGrade = 'High School';
   String _selectedInterest = 'Technology';
   bool _isLoading = false;
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
 
   final List<String> _grades = [
     'Elementary School',
@@ -41,9 +43,23 @@ class _UserInfoPageState extends State<UserInfoPage> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    );
+    _animationController.forward();
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -53,11 +69,9 @@ class _UserInfoPageState extends State<UserInfoPage> {
     setState(() => _isLoading = true);
 
     try {
-      // Just save the preferences, don't need Firebase user yet
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('hasCompletedUserInfo', true);
 
-      // Store user info for later use
       await prefs.setString('userName', _nameController.text.trim());
       await prefs.setString('userPhone', _phoneController.text.trim());
       await prefs.setString('userGrade', _selectedGrade);
@@ -65,20 +79,27 @@ class _UserInfoPageState extends State<UserInfoPage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Information saved! Please sign up to continue.'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle_outline, color: Colors.white),
+                const SizedBox(width: 10),
+                Expanded(child: Text('Information saved! Please sign up to continue.', style: GoogleFonts.inter())),
+              ],
+            ),
+            backgroundColor: const Color(0xFF00724e),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            margin: const EdgeInsets.all(16),
           ),
         );
-        // Navigate to signup page
         Navigator.pushReplacementNamed(context, '/signup');
       }
     } catch (e) {
-      print('Error saving user info: $e'); // Debug print
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: Text('Error: ${e.toString()}', style: GoogleFonts.inter()),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -98,30 +119,31 @@ class _UserInfoPageState extends State<UserInfoPage> {
     TextInputType keyboardType = TextInputType.text,
     String? Function(String?)? validator,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
-      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+      style: GoogleFonts.inter(color: colorScheme.onSurface),
       decoration: InputDecoration(
         labelText: labelText,
-        labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        labelStyle: GoogleFonts.inter(color: colorScheme.onSurfaceVariant),
         hintText: hintText,
-        hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5)),
-        prefixIcon: Icon(prefixIcon, color: Theme.of(context).colorScheme.primary),
+        hintStyle: GoogleFonts.inter(color: colorScheme.onSurfaceVariant.withOpacity(0.5)),
+        prefixIcon: Icon(prefixIcon, color: colorScheme.primary),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Theme.of(context).dividerColor),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Theme.of(context).dividerColor),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
         filled: true,
-        fillColor: Theme.of(context).colorScheme.surface,
+        fillColor: colorScheme.surface,
       ),
       validator: validator,
     );
@@ -134,28 +156,29 @@ class _UserInfoPageState extends State<UserInfoPage> {
     required List<String> items,
     required void Function(String?) onChanged,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     return DropdownButtonFormField<String>(
       value: value,
-      dropdownColor: Theme.of(context).colorScheme.surface,
-      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+      dropdownColor: colorScheme.surface,
+      style: GoogleFonts.inter(color: colorScheme.onSurface),
       decoration: InputDecoration(
         labelText: labelText,
-        labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-        prefixIcon: Icon(prefixIcon, color: Theme.of(context).colorScheme.primary),
+        labelStyle: GoogleFonts.inter(color: colorScheme.onSurfaceVariant),
+        prefixIcon: Icon(prefixIcon, color: colorScheme.primary),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Theme.of(context).dividerColor),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Theme.of(context).dividerColor),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
         filled: true,
-        fillColor: Theme.of(context).colorScheme.surface,
+        fillColor: colorScheme.surface,
       ),
       items: items.map((item) {
         return DropdownMenuItem(value: item, child: Text(item));
@@ -166,198 +189,203 @@ class _UserInfoPageState extends State<UserInfoPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      body: Container(
-        child: SafeArea(
-          child: Center(
+      backgroundColor: colorScheme.surface,
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  // Logo
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.person_add_rounded,
-                      size: 60,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-
-                  // Glassmorphic Card Container
-                  Container(
-                    padding: const EdgeInsets.all(32),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Theme.of(context).dividerColor),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(context).shadowColor.withOpacity(0.05),
-                          blurRadius: 24,
-                          offset: const Offset(0, 8),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: Column(
+                  children: [
+                    // Logo
+                    Hero(
+                      tag: 'app_logo',
+                      child: Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary.withOpacity(0.1),
+                          shape: BoxShape.circle,
                         ),
-                      ],
+                        child: Icon(
+                          Icons.person_add_rounded,
+                          size: 60,
+                          color: colorScheme.primary,
+                        ),
+                      ),
                     ),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            "Tell Us About Yourself",
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "Help us personalize your learning experience",
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                          const SizedBox(height: 28),
+                    const SizedBox(height: 30),
 
-                          // Full Name
-                          _buildTextField(
-                            controller: _nameController,
-                            labelText: "Full Name",
-                            hintText: "Enter your full name",
-                            prefixIcon: Icons.person_outline,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your name';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 16),
-
-                          // Phone Number (Optional)
-                          _buildTextField(
-                            controller: _phoneController,
-                            keyboardType: TextInputType.phone,
-                            labelText: "Phone Number (Optional)",
-                            hintText: "Enter your phone number",
-                            prefixIcon: Icons.phone_outlined,
-                          ),
-                          const SizedBox(height: 16),
-
-                          // Education Level Dropdown
-                          _buildDropdown(
-                            value: _selectedGrade,
-                            labelText: "Education Level",
-                            prefixIcon: Icons.school_outlined,
-                            items: _grades,
-                            onChanged: (value) {
-                              setState(() => _selectedGrade = value!);
-                            },
-                          ),
-                          const SizedBox(height: 16),
-
-                          // Interest Dropdown
-                          _buildDropdown(
-                            value: _selectedInterest,
-                            labelText: "Primary Interest",
-                            prefixIcon: Icons.interests_outlined,
-                            items: _interests,
-                            onChanged: (value) {
-                              setState(() => _selectedInterest = value!);
-                            },
-                          ),
-                          const SizedBox(height: 28),
-
-                          // Continue Button
-                          _isLoading
-                              ? Center(
-                            child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
-                          )
-                              : Container(
-                            decoration: BoxDecoration(
-                              
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(context).colorScheme.primary,
-                                foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                                minimumSize: const Size(double.infinity, 56),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                              ),
-                              onPressed: _saveUserInfo,
-                              child: const Text(
-                                "Continue",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-
-                           // Skip Button
-                          TextButton(
-                            onPressed: () async {
-                              final prefs = await SharedPreferences.getInstance();
-                              await prefs.setBool('hasCompletedUserInfo', true);
-                              if (mounted) {
-                                Navigator.pushReplacementNamed(context, '/signup');
-                              }
-                            },
-                            child: Text(
-                              "Skip for now",
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 16),
-
-                          // Already have account link
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Already have an account? ",
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                              TextButton(
-                                onPressed: () async {
-                                  final prefs = await SharedPreferences.getInstance();
-                                  await prefs.setBool('hasCompletedUserInfo', true);
-                                  if (mounted) {
-                                    Navigator.pushReplacementNamed(context, '/login');
-                                  }
-                                },
-                                child: const Text("Login"),
-                              ),
-                            ],
+                    // Glassmorphic Card Container
+                    Container(
+                      padding: const EdgeInsets.all(40),
+                      decoration: BoxDecoration(
+                        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                            blurRadius: 40,
+                            offset: const Offset(0, 20),
                           ),
                         ],
                       ),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              "Tell Us About Yourself",
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.geist(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -1.0,
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              "Help us personalize your learning experience",
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.inter(
+                                fontSize: 16,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+
+                            // Full Name
+                            _buildTextField(
+                              controller: _nameController,
+                              labelText: "Full Name",
+                              hintText: "Enter your full name",
+                              prefixIcon: Icons.person_outline,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your name';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Phone Number (Optional)
+                            _buildTextField(
+                              controller: _phoneController,
+                              keyboardType: TextInputType.phone,
+                              labelText: "Phone Number (Optional)",
+                              hintText: "Enter your phone number",
+                              prefixIcon: Icons.phone_outlined,
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Education Level Dropdown
+                            _buildDropdown(
+                              value: _selectedGrade,
+                              labelText: "Education Level",
+                              prefixIcon: Icons.school_outlined,
+                              items: _grades,
+                              onChanged: (value) {
+                                setState(() => _selectedGrade = value!);
+                              },
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Interest Dropdown
+                            _buildDropdown(
+                              value: _selectedInterest,
+                              labelText: "Primary Interest",
+                              prefixIcon: Icons.interests_outlined,
+                              items: _interests,
+                              onChanged: (value) {
+                                setState(() => _selectedInterest = value!);
+                              },
+                            ),
+                            const SizedBox(height: 32),
+
+                            // Continue Button
+                            _isLoading
+                                ? Center(
+                                    child: CircularProgressIndicator(color: colorScheme.primary),
+                                  )
+                                : SizedBox(
+                                    height: 56,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: colorScheme.primary,
+                                        foregroundColor: colorScheme.onPrimary,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                        ),
+                                        elevation: 0,
+                                      ),
+                                      onPressed: _saveUserInfo,
+                                      child: Text(
+                                        "Continue",
+                                        style: GoogleFonts.inter(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                            const SizedBox(height: 16),
+
+                            // Skip Button
+                            TextButton(
+                              onPressed: () async {
+                                final prefs = await SharedPreferences.getInstance();
+                                await prefs.setBool('hasCompletedUserInfo', true);
+                                if (mounted) {
+                                  Navigator.pushReplacementNamed(context, '/signup');
+                                }
+                              },
+                              child: Text(
+                                "Skip for now",
+                                style: GoogleFonts.inter(
+                                  color: colorScheme.onSurfaceVariant,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Already have account link
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Already have an account? ",
+                                  style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant),
+                                ),
+                                TextButton(
+                                  onPressed: () async {
+                                    final prefs = await SharedPreferences.getInstance();
+                                    await prefs.setBool('hasCompletedUserInfo', true);
+                                    if (mounted) {
+                                      Navigator.pushReplacementNamed(context, '/login');
+                                    }
+                                  },
+                                  child: Text("Login", style: GoogleFonts.inter(fontWeight: FontWeight.w700)),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

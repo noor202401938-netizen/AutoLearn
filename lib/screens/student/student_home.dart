@@ -256,7 +256,7 @@ class _StudentHomeState extends State<StudentHome> {
             )
           : null,
       body: Container(
-        color: Theme.of(context).colorScheme.background,
+        color: Theme.of(context).colorScheme.surface,
         child: Row(
           children: [
             if (!isMobile) ...[
