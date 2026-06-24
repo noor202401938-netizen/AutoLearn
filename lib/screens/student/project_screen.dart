@@ -38,7 +38,10 @@ class ProjectScreen extends StatelessWidget {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1200),
+            child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: LayoutBuilder(
             builder: (context, constraints) {

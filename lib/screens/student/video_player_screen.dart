@@ -223,14 +223,19 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             ? const Center(child: CircularProgressIndicator(color: Color(0xFF4231C0)))
             : _errorMessage != null
                 ? _buildErrorView()
-                : SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildVideoPlayer(),
-                        _buildContentArea(),
-                        _buildUpNext(),
-                      ],
+                : Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1200),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _buildVideoPlayer(),
+                            _buildContentArea(),
+                            _buildUpNext(),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
       ),

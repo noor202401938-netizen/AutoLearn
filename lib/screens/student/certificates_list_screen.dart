@@ -76,9 +76,12 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
         top: false,
         child: _isLoading
             ? const Center(child: CircularProgressIndicator(color: Color(0xFF4231C0)))
-            : RefreshIndicator(
-                onRefresh: _loadCertificates,
-                child: CustomScrollView(
+            : Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1200),
+                  child: RefreshIndicator(
+                    onRefresh: _loadCertificates,
+                    child: CustomScrollView(
                   slivers: [
                     _buildHeader(),
                     if (_certificates.isEmpty)
@@ -109,6 +112,8 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
                   ],
                 ),
               ),
+            ),
+          ),
       ),
     );
   }

@@ -295,7 +295,12 @@ class _StudentHomeState extends State<StudentHome> {
               VerticalDivider(thickness: 1, width: 1, color: Theme.of(context).dividerColor),
             ],
             Expanded(
-              child: _getSelectedScreen(),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1200),
+                  child: _getSelectedScreen(),
+                ),
+              ),
             ),
           ],
         ),

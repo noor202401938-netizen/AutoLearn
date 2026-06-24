@@ -90,8 +90,11 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
           ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary))
           : _course == null
               ? _buildErrorView()
-              : Stack(
-                  children: [
+              : Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1200),
+                    child: Stack(
+                      children: [
                     // Main Content
                     RefreshIndicator(
                       onRefresh: _loadCourseContent,
@@ -158,7 +161,9 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                           ),
                         ),
                       ),
-                  ],
+                      ],
+                    ),
+                  ),
                 ),
     );
   }

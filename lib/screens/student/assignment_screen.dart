@@ -239,8 +239,11 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
             ? const Center(child: CircularProgressIndicator(color: Color(0xFF4231C0)))
             : _assignment == null
                 ? Center(child: Text('Assignment not found', style: GoogleFonts.inter(color: Colors.black)))
-                : SingleChildScrollView(
-                    padding: const EdgeInsets.all(20),
+                : Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1200),
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(20),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         final isDesktop = constraints.maxWidth > 800;
@@ -267,11 +270,39 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                               flex: isDesktop ? 4 : 0,
                               child: _showFeedback && _existingSubmission != null
                                   ? _buildFeedbackView()
-                                  : _buildSubmissionArea(),
-                            ),
-                          ],
-                        );
-                      }
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final isDesktop = constraints.maxWidth > 800;
+                            return Flex(
+                              direction: isDesktop ? Axis.horizontal : Axis.vertical,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  flex: isDesktop ? 8 : 0,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      _buildAssignmentHeader(),
+                                      const SizedBox(height: 24),
+                                      _buildInstructions(),
+                                      const SizedBox(height: 24),
+                                      _buildResources(),
+                                    ],
+                                  ),
+                                ),
+                                if (isDesktop) const SizedBox(width: 24),
+                                if (!isDesktop) const SizedBox(height: 24),
+                                Expanded(
+                                  flex: isDesktop ? 4 : 0,
+                                  child: _showFeedback && _existingSubmission != null
+                                      ? _buildFeedbackView()
+                                      : _buildSubmissionArea(),
+                                ),
+                              ],
+                            );
+                          }
+                        ),
+                      ),
                     ),
                   ),
       ),

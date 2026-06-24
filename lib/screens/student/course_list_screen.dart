@@ -107,7 +107,10 @@ class _CourseListScreenState extends State<CourseListScreen> {
         iconTheme: const IconThemeData(color: Color(0xFF121c2a)),
       ),
       body: SafeArea(
-        child: RefreshIndicator(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1200),
+            child: RefreshIndicator(
           onRefresh: _loadCourses,
           child: Column(
             children: [
