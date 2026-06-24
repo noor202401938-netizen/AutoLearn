@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import '../backend/api_client.dart';
 import '../repository/auth_repository.dart';
-import 'admin/admin_dashboard.dart';
+import 'admin/admin_home.dart';
 import 'student/student_home.dart';
 
 class RoleBasedWrapper extends StatefulWidget {
@@ -69,7 +69,7 @@ class _RoleBasedWrapperState extends State<RoleBasedWrapper> {
     }
 
     if (_role == 'admin') {
-      return const AdminDashboard();
+      return const AdminHome();
     } else {
       return const StudentHome();
     }
