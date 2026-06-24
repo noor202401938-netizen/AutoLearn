@@ -11,6 +11,9 @@ import userDataRoutes from './routes/user_data.routes';
 import { authenticateToken } from './middleware/auth.middleware';
 import { getUserEnrollments } from './controllers/auth.controller';
 import paymentRoutes from './routes/payment.routes';
+import analyticsRoutes from './routes/analytics.routes';
+import uploadRoutes from './routes/upload.routes';
+import path from 'path';
 
 dotenv.config();
 
@@ -56,6 +59,11 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/user', userDataRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/admin/analytics', analyticsRoutes);
+app.use('/api/upload', uploadRoutes);
+
+// Serve uploads statically
+app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
 
 // GET /api/user/enrollments — get current user's enrolled courses
 app.get('/api/user/enrollments', authenticateToken, getUserEnrollments);

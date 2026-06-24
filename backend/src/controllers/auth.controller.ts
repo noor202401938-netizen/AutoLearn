@@ -168,26 +168,45 @@ export const getUserEnrollments = async (req: AuthenticatedRequest, res: Respons
         course: {
           include: { modules: { include: { lessons: true } } },
         },
+        user: {
+          include: { progress: true },
+        }
       },
       orderBy: { enrolledAt: 'desc' },
     });
 
     res.status(200).json(
-      enrollments.map((e) => ({
-        enrollmentId: e.id,
-        courseId: e.courseId,
-        status: e.status,
-        enrolledAt: e.enrolledAt,
-        course: {
-          courseId: e.course.id,
-          title: e.course.title,
-          description: e.course.description,
-          instructor: e.course.instructor,
-          thumbnailURL: e.course.thumbnailURL,
-          level: e.course.level,
-          duration: e.course.duration,
-        },
-      }))
+      enrollments.map((e) => {
+        // Calculate progress
+        let completedLessons = 0;
+        let totalLessons = 0;
+        e.course.modules.forEach(m => {
+          totalLessons += m.lessons.length;
+          m.lessons.forEach(l => {
+            if (e.user.progress.some(p => p.lessonId === l.id && p.isCompleted)) {
+              completedLessons++;
+            }
+          });
+        });
+        const progressPercent = totalLessons === 0 ? 0 : completedLessons / totalLessons;
+        
+        return {
+          enrollmentId: e.id,
+          courseId: e.courseId,
+          status: e.status,
+          enrolledAt: e.enrolledAt,
+          progressPercent: progressPercent,
+          course: {
+            courseId: e.course.id,
+            title: e.course.title,
+            description: e.course.description,
+            instructor: e.course.instructor,
+            thumbnailURL: e.course.thumbnailURL,
+            level: e.course.level,
+            duration: e.course.duration,
+          },
+        };
+      })
     );
   } catch (error) {
     console.error('Get enrollments error:', error);

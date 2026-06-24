@@ -48,12 +48,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         _filteredUsers = List.from(_allUsers);
       } else if (tab == 'Instructor') {
         _filteredUsers = _allUsers.where((u) => (u['role'] ?? '').toString().toLowerCase() == 'instructor').toList();
-      } else if (tab == 'Premium') {
-        // Mock premium filtering, since we don't have a premium flag yet
-        _filteredUsers = _allUsers.where((u) => (u['role'] ?? '').toString().toLowerCase() == 'premium').toList();
       } else if (tab == 'Inactive') {
-        // Mock inactive filtering
-        _filteredUsers = [];
+        _filteredUsers = _allUsers.where((u) => u['isActive'] == false).toList();
       }
     });
   }
@@ -123,7 +119,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                 child: Row(
                   children: [
                     _buildTab(context, 'All'),
-                    _buildTab(context, 'Premium'),
                     _buildTab(context, 'Instructor'),
                     _buildTab(context, 'Inactive'),
                   ],

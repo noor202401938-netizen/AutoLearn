@@ -47,7 +47,7 @@ class _StudentHomeState extends State<StudentHome> {
   int _selectedIndex = 0;
   Map<String, dynamic>? _userProfile;
   List<CourseModel> _recommendedCourses = [];
-  List<CourseModel> _enrolledCourses = [];
+  List<Map<String, dynamic>> _enrolledCourses = [];
   bool _loadingEnrolled = false;
   bool _isLoadingRecommendations = false;
 
@@ -71,14 +71,9 @@ class _StudentHomeState extends State<StudentHome> {
         });
         return;
       }
-      final ids = await _enrollmentRepository.getUserCourseIds(uid: uid);
-      final List<CourseModel> result = [];
-      for (final id in ids) {
-        final course = await _courseRepository.getCourseById(id);
-        if (course != null) result.add(course);
-      }
+      final enrollments = await _enrollmentRepository.getUserEnrollments(uid);
       setState(() {
-        _enrolledCourses = result;
+        _enrolledCourses = enrollments;
         _loadingEnrolled = false;
       });
     } catch (e) {
@@ -462,19 +457,21 @@ class _StudentHomeState extends State<StudentHome> {
                             itemCount: _enrolledCourses.length > 3 ? 3 : _enrolledCourses.length,
                             separatorBuilder: (context, index) => const SizedBox(height: 16),
                             itemBuilder: (context, index) {
-                              final course = _enrolledCourses[index];
+                              final enrollment = _enrolledCourses[index];
+                              final course = enrollment['course'] ?? {};
+                              final progress = enrollment['progressPercent'] ?? 0.0;
                               return ProgressCourseCard(
-                                title: course.title,
-                                moduleName: 'Continue learning', // Mocked or adjusted
-                                thumbnailUrl: course.thumbnailURL,
-                                progressPercent: 0.65, // Mocked progress
+                                title: course['title'] ?? 'Course',
+                                moduleName: 'Continue learning',
+                                thumbnailUrl: course['thumbnailURL'],
+                                progressPercent: progress.toDouble(),
                                 onTap: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => CourseContentScreen(
-                                        courseId: course.courseId,
-                                        title: course.title,
+                                        courseId: course['courseId'] ?? '',
+                                        title: course['title'] ?? '',
                                       ),
                                     ),
                                   );

@@ -42,6 +42,19 @@ class EnrollmentRepository {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getUserEnrollments(String uid) async {
+    try {
+      final response = await _apiClient.get('/user/enrollments');
+      if (response.statusCode == 200) {
+        final List<dynamic> enrollments = jsonDecode(response.body);
+        return enrollments.cast<Map<String, dynamic>>();
+      }
+      return [];
+    } catch (_) {
+      return [];
+    }
+  }
+
   Future<List<String>> getUserEnrolledCourseIds(String uid) async {
     try {
       final response = await _apiClient.get('/user/enrollments');

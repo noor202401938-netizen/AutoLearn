@@ -73,34 +73,37 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Future<void> _loadAnalytics() async {
     setState(() => _isLoadingAnalytics = true);
     try {
-      // Get overall statistics
-      final courses = await _courseManager.getAllCourses();
-      final users = await _userRepository.getAllUsers();
-      
-      // Fetch payments
-      List<dynamic> payments = [];
-      try {
-        final response = await ApiClient.instance.get('/payments');
-        if (response.statusCode == 200) {
-          payments = jsonDecode(response.body) as List<dynamic>;
+      final response = await ApiClient.instance.get('/admin/analytics');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (mounted) {
+          setState(() {
+            _analyticsData = {
+              'totalCourses': data['totalCourses'] ?? 0,
+              'publishedCourses': data['publishedCourses'] ?? 0,
+              'totalUsers': data['totalUsers'] ?? 0,
+              'totalEnrollments': data['totalEnrollments'] ?? 0,
+              'totalRevenue': (data['totalRevenue'] ?? 0).toDouble(),
+            };
+            
+            // Map course data to a format compatible with our UI
+            if (data['courses'] != null) {
+              _analyticsCourses = (data['courses'] as List).map((c) => CourseModel(
+                id: c['id'] ?? '',
+                title: c['title'] ?? '',
+                description: '',
+                thumbnailUrl: '',
+                price: 0,
+                enrollmentCount: c['enrollmentCount'] ?? 0,
+              )).toList();
+            }
+            _isLoadingAnalytics = false;
+          });
         }
-      } catch (e) {
-        // Ignore payment fetch errors for analytics
-      }
-      
-      if (mounted) {
-        setState(() {
-          _analyticsCourses = courses;
-          _analyticsPayments = payments;
-          _analyticsData = {
-            'totalCourses': courses.length,
-            'publishedCourses': courses.where((c) => c.isPublished).length,
-            'totalUsers': users.length,
-            'totalEnrollments': courses.fold<int>(0, (sum, c) => sum + c.enrollmentCount),
-            'totalRevenue': payments.where((p) => p['status'] == 'succeeded').fold<double>(0, (sum, p) => sum + (p['amount'] as num).toDouble()),
-          };
-          _isLoadingAnalytics = false;
-        });
+      } else {
+        if (mounted) {
+          setState(() => _isLoadingAnalytics = false);
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -229,10 +232,51 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const CircleAvatar(
-                          radius: 20,
-                          backgroundColor: Colors.blueAccent,
-                          child: Icon(Icons.person, color: Colors.white),
+                        PopupMenuButton(
+                          color: Colors.white,
+                          offset: const Offset(50, 0),
+                          itemBuilder: (context) => [
+                            const PopupMenuItem(
+                              value: 'profile',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.person, color: Colors.black54),
+                                  SizedBox(width: 8),
+                                  Text('Profile', style: TextStyle(color: Colors.black87)),
+                                ],
+                              ),
+                            ),
+                            const PopupMenuItem(
+                              value: 'logout',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.logout, color: Colors.red),
+                                  SizedBox(width: 8),
+                                  Text('Logout', style: TextStyle(color: Colors.red)),
+                                ],
+                              ),
+                            ),
+                          ],
+                          onSelected: (value) async {
+                            if (value == 'profile') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AdminProfileScreen(),
+                                ),
+                              );
+                            } else if (value == 'logout') {
+                              await _authRepository.logoutUser();
+                              if (mounted) {
+                                Navigator.pushReplacementNamed(context, '/login');
+                              }
+                            }
+                          },
+                          child: const CircleAvatar(
+                            radius: 20,
+                            backgroundColor: Colors.blueAccent,
+                            child: Icon(Icons.person, color: Colors.white),
+                          ),
                         ),
                         const SizedBox(height: 8),
                         if (MediaQuery.of(context).size.width > 800)

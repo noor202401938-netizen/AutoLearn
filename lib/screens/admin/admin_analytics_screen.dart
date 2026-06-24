@@ -118,7 +118,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                         badgeIcon: Icons.trending_up,
                         badgeColor: const Color(0xFF00724e),
                         badgeBg: const Color(0xFF6ffbbe),
-                        bottomWidget: _buildMockLineChart(context),
+                        bottomWidget: Text('Total platform revenue', style: GoogleFonts.inter(fontSize: 14, color: colorScheme.onSurfaceVariant)),
                       ),
                       _buildMetricCard(
                         context: context,
@@ -564,7 +564,6 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                       style: GoogleFonts.inter(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF00724e),
                         letterSpacing: -0.5,
                       ),
                     ),

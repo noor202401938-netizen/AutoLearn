@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart' show kIsWeb;
+import '../../backend/api_client.dart';
 import '../../business_logic/ai_feedback_engine.dart';
 import '../../business_logic/certificate_manager.dart';
 import '../../repository/auth_repository.dart';
@@ -167,14 +171,55 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
     }
   }
   
-  void _mockFileUpload() {
-     setState(() {
-         _isFileUploaded = true;
-         _uploadedFileName = 'submission_document.pdf';
-     });
-     ScaffoldMessenger.of(context).showSnackBar(
-       const SnackBar(content: Text('File uploaded successfully')),
-     );
+  Future<void> _mockFileUpload() async {
+    try {
+      final result = await FilePicker.platform.pickFiles();
+      if (result != null && result.files.isNotEmpty) {
+        final file = result.files.first;
+        
+        final request = http.MultipartRequest(
+          'POST',
+          Uri.parse('${ApiClient.baseUrl}/upload'),
+        );
+        
+        final token = await ApiClient.instance.getToken();
+        if (token != null) {
+          request.headers['Authorization'] = 'Bearer $token';
+        }
+        
+        if (kIsWeb) {
+          request.files.add(http.MultipartFile.fromBytes(
+            'file',
+            file.bytes!,
+            filename: file.name,
+          ));
+        } else {
+          request.files.add(await http.MultipartFile.fromPath(
+            'file',
+            file.path!,
+          ));
+        }
+        
+        final streamedResponse = await request.send();
+        final response = await http.Response.fromStream(streamedResponse);
+        
+        if (response.statusCode == 200) {
+          setState(() {
+            _isFileUploaded = true;
+            _uploadedFileName = file.name;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('File uploaded successfully')),
+          );
+        } else {
+          throw Exception('Failed to upload file');
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Upload failed: $e')),
+      );
+    }
   }
 
   Future<void> _showCertificate() async {

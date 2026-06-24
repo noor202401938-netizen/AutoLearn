@@ -81,14 +81,8 @@ class AnalyticsMonitoringManager {
         return jsonDecode(response.body);
       }
     } catch (e) {
-      // Ignore and fallback to manual aggregation if endpoint doesn't exist
+      print('Failed to get platform analytics: $e');
     }
-    
-    return {
-      'totalRevenue': 2482900.0, // Mock fallback
-      'activeEnrollments': 45120,
-      'completionRate': 0.784,
-      'nps': 72,
-    };
+    return {};
   }
 }
