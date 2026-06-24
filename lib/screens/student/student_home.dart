@@ -28,6 +28,8 @@ import '../../widgets/student_home/ai_tutor_banner.dart';
 import '../../widgets/student_home/progress_course_card.dart';
 import '../../widgets/student_home/recommended_course_card.dart';
 
+import '../../widgets/student_home/profile_tab.dart';
+import '../../widgets/student_home/analytics_tab.dart';
 class StudentHome extends StatefulWidget {
   const StudentHome({super.key});
 
@@ -535,39 +537,9 @@ class _StudentHomeState extends State<StudentHome> {
     return const CourseListScreen();
   }
 
+
   Widget _buildProgressScreen() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.analytics_outlined,
-              size: 100,
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'No progress data',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Start learning to track your progress',
-              style: TextStyle(
-                fontSize: 16,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    return const AnalyticsTab();
   }
 
   Widget _buildProfileScreen() {
@@ -575,210 +547,12 @@ class _StudentHomeState extends State<StudentHome> {
       future: _authRepository.getCurrentUser(),
       builder: (context, userSnapshot) {
         final user = userSnapshot.data;
-        final uid = user?['uid'] as String?;
-
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              StreamBuilder<Map<String, dynamic>?>(
-                stream: uid != null ? _userRepository.streamUserProfile(uid) : const Stream.empty(),
-                builder: (context, snapshot) {
-                  String displayName = 'Student';
-                  if (snapshot.hasData && snapshot.data != null) {
-                    final data = snapshot.data!;
-                    if ((data['displayName'] as String?)?.isNotEmpty == true) {
-                      displayName = data['displayName'];
-                    }
-                  } else if (_userProfile != null &&
-                      (_userProfile!['displayName'] as String?)?.isNotEmpty == true) {
-                    displayName = _userProfile!['displayName'];
-                  } else if (user?['displayName']?.isNotEmpty == true) {
-                    displayName = user!['displayName'];
-                  } else if (user?['email']?.isNotEmpty == true) {
-                    displayName = (user!['email'] as String).split('@')[0];
-                  }
-
-                  return Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 60,
-                        backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                        child: Text(
-                          (displayName.isNotEmpty ? displayName : user?['email'] ?? 'U')[0].toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 48,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        displayName,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-              const SizedBox(height: 8),
-              Text(
-                user?['email'] ?? '',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                ),
-              ),
-          const SizedBox(height: 32),
-          _buildProfileOption(
-            'Edit Profile',
-            Icons.edit,
-            () async {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const EditProfileScreen(),
-                ),
-              );
-              if (result == true) {
-                // Profile was updated, reload it
-                _loadUserProfile();
-              }
-            },
-          ),
-          _buildProfileOption(
-            'Change Password',
-            Icons.lock_outline,
-            () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ChangePasswordScreen(),
-                ),
-              );
-            },
-          ),
-          _buildProfileOption(
-            'Notifications',
-            Icons.notifications_outlined,
-            () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const NotificationsPanel(),
-                ),
-              );
-            },
-          ),
-          _buildProfileOption(
-            'Certificates',
-            Icons.workspace_premium,
-            () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CertificatesListScreen(),
-                ),
-              );
-            },
-          ),
-
-          _buildProfileOption(
-            'Help & Support',
-            Icons.help_outline,
-            () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const HelpSupportScreen(),
-                ),
-              );
-            },
-          ),
-          _buildProfileOption(
-            'About',
-            Icons.info_outline,
-            () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AboutScreen(),
-                ),
-              );
-            },
-          ),
-          _buildProfileOption(
-            'Policies & Terms',
-            Icons.policy_outlined,
-            () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PoliciesScreen(),
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              icon: const Icon(Icons.logout),
-              label: const Text(
-                'Logout',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              onPressed: () async {
-                await _authManager.logout();
-                if (mounted) {
-                  Navigator.pushReplacementNamed(context, '/login');
-                }
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  });
-}
-
-  Widget _buildProfileOption(String title, IconData icon, VoidCallback onTap) {
-    return Card(
-      elevation: 0,
-      color: Theme.of(context).colorScheme.surface,
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
-        title: Text(
-          title,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
-        trailing: Icon(Icons.chevron_right, color: Theme.of(context).iconTheme.color),
-        onTap: onTap,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
+        
+        return ProfileTab(
+          userProfile: _userProfile ?? user,
+          onProfileUpdated: _loadUserProfile,
+        );
+      },
     );
   }
 }

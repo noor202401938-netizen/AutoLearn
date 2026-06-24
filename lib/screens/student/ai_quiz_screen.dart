@@ -1,3 +1,4 @@
+import 'package:google_fonts/google_fonts.dart';
 // lib/screens/student/ai_quiz_screen.dart
 import 'package:flutter/material.dart';
 import '../../business_logic/ai_quiz_engine.dart';
@@ -175,54 +176,91 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      backgroundColor: const Color(0xFFF8F9FF),
       appBar: AppBar(
-        title: Text(_quiz?.title ?? 'Quiz', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          if (_quiz != null && _quiz!.timeLimit > 0 && !_showResults)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Center(
-                child: Container(
+        backgroundColor: Colors.white,
+        elevation: 1,
+        shadowColor: Colors.black12,
+        scrolledUnderElevation: 1,
+        centerTitle: false,
+        automaticallyImplyLeading: false,
+        titleSpacing: 0,
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.close, color: Color(0xFF474554)),
+                onPressed: () => Navigator.pop(context),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.courseTitle,
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF4231C0),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      'Unit: ${widget.moduleTitle}'.toUpperCase(),
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                        color: const Color(0xFF787586),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              if (_quiz != null && _quiz!.timeLimit > 0 && !_showResults)
+                Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(20),
+                    color: const Color(0xFFDEE9FC),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.3)),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.timer, size: 16, color: Colors.white),
+                      const Icon(Icons.timer, size: 16, color: Color(0xFF4231C0)),
                       const SizedBox(width: 6),
                       Text(
                         _formatTime(_timeRemaining),
-                        style: const TextStyle(
+                        style: GoogleFonts.inter(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: const Color(0xFF121C2A),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-            ),
-        ],
-      ),
-      body: Container(
-        
-        child: SafeArea(
-          child: _isLoading
-              ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary))
-              : _quiz == null
-                  ? const Center(child: Text('Quiz not found', style: TextStyle(color: Colors.white)))
-                  : _showResults
-                      ? _buildResultsView()
-                      : _buildQuizView(),
+            ],
+          ),
         ),
       ),
+      body: SafeArea(
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator(color: const Color(0xFF4231C0)))
+            : _quiz == null
+                ? const Center(child: Text('Quiz not found', style: TextStyle(color: Colors.black)))
+                : _showResults
+                    ? _buildResultsView()
+                    : _buildQuizView(),
+      ),
+      bottomNavigationBar: !_isLoading && _quiz != null && !_showResults
+          ? _buildBottomNavigation()
+          : null,
     );
   }
 
@@ -232,70 +270,99 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
     }
 
     final question = _quiz!.questions[_currentQuestionIndex];
-    final isLastQuestion = _currentQuestionIndex == _quiz!.questions.length - 1;
+    final progressPercent = (_currentQuestionIndex + 1) / _quiz!.questions.length;
 
     return Column(
       children: [
-        // Progress indicator
-        LinearProgressIndicator(
-          value: (_currentQuestionIndex + 1) / _quiz!.questions.length,
-          backgroundColor: Colors.white.withOpacity(0.1),
-          valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.secondary),
-        ),
-
-        // Question counter
         Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          padding: const EdgeInsets.only(left: 20, right: 20, top: 24, bottom: 24),
+          child: Column(
             children: [
-              Text(
-                'Question ${_currentQuestionIndex + 1} of ${_quiz!.questions.length}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      text: 'Question ${_currentQuestionIndex + 1} ',
+                      style: GoogleFonts.geist(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF121C2A),
+                      ),
+                      children: [
+                        TextSpan(
+                          text: 'of ${_quiz!.questions.length}',
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                            color: const Color(0xFF787586),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    '${(progressPercent * 100).toInt()}%',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF4231C0),
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                '${_quiz!.questions.length - _currentQuestionIndex - 1} remaining',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.white.withOpacity(0.6),
+              const SizedBox(height: 12),
+              Container(
+                height: 8,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD9E3F6),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Align(
+                      alignment: Alignment.centerLeft,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.easeOut,
+                        height: 8,
+                        width: constraints.maxWidth * progressPercent,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF00724E), Color(0xFF4EDEA3)],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
           ),
         ),
 
-        // Question content
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Question text
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface.withOpacity(0.6),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white.withOpacity(0.1)),
-                  ),
-                  child: Text(
-                    question.questionText,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      height: 1.4,
-                    ),
+                Text(
+                  question.questionText,
+                  style: GoogleFonts.geist(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF121C2A),
+                    height: 1.2,
                   ),
                 ),
                 const SizedBox(height: 32),
 
-                // Answer options
                 if (question.type == QuestionType.multipleChoice ||
                     question.type == QuestionType.trueFalse)
                   ...question.options.asMap().entries.map((entry) {
@@ -314,61 +381,69 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                         borderRadius: BorderRadius.circular(16),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
-                            color: isSelected
-                                ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
-                                : Theme.of(context).colorScheme.surface.withOpacity(0.4),
+                            color: isSelected ? const Color(0xFFE6EEFF) : Colors.white,
+                            borderRadius: BorderRadius.circular(16),
                             border: Border.all(
                               color: isSelected
-                                  ? Theme.of(context).colorScheme.secondary
-                                  : Colors.white.withOpacity(0.1),
-                              width: isSelected ? 2 : 1,
+                                  ? const Color(0xFF4231C0)
+                                  : const Color(0xFFC8C4D7).withOpacity(0.5),
                             ),
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: isSelected
-                                ? [
-                                    BoxShadow(
-                                      color: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
-                                      blurRadius: 10,
-                                    )
-                                  ]
-                                : [],
+                            boxShadow: [
+                              if (isSelected)
+                                BoxShadow(
+                                  color: const Color(0xFF4231C0).withOpacity(0.15),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 10),
+                                ),
+                            ],
                           ),
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                width: 28,
-                                height: 28,
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                width: 24,
+                                height: 24,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: isSelected
-                                      ? Theme.of(context).colorScheme.secondary
-                                      : Colors.transparent,
                                   border: Border.all(
                                     color: isSelected
-                                        ? Theme.of(context).colorScheme.secondary
-                                        : Colors.white.withOpacity(0.3),
+                                        ? const Color(0xFF4231C0)
+                                        : const Color(0xFFC8C4D7),
                                     width: 2,
                                   ),
                                 ),
-                                child: isSelected
-                                    ? const Icon(
-                                        Icons.check,
-                                        size: 18,
-                                        color: Colors.white,
-                                      )
-                                    : null,
+                                child: Center(
+                                  child: AnimatedOpacity(
+                                    duration: const Duration(milliseconds: 200),
+                                    opacity: isSelected ? 1.0 : 0.0,
+                                    child: Container(
+                                      width: 10,
+                                      height: 10,
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFF4231C0),
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
-                                child: Text(
-                                  option.text,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: isSelected ? Colors.white : Colors.white.withOpacity(0.8),
-                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                  ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      option.text,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: const Color(0xFF121C2A),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -381,111 +456,143 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                 if (question.type == QuestionType.shortAnswer)
                   Container(
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface.withOpacity(0.4),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withOpacity(0.1)),
+                      border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
                     ),
                     child: TextField(
                       onChanged: (value) {
                         _answers[question.questionId] = value;
                       },
                       maxLines: 5,
-                      style: const TextStyle(color: Colors.white),
+                      style: GoogleFonts.inter(color: const Color(0xFF121C2A)),
                       decoration: InputDecoration(
                         hintText: 'Type your answer here...',
-                        hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
+                        hintStyle: GoogleFonts.inter(color: const Color(0xFF787586)),
                         border: InputBorder.none,
-                        contentPadding: const EdgeInsets.all(16),
+                        contentPadding: const EdgeInsets.all(24),
                       ),
                     ),
                   ),
-              ],
-            ),
-          ),
-        ),
-
-        // Navigation buttons
-        Container(
-          padding: const EdgeInsets.all(24.0),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface.withOpacity(0.8),
-            border: Border(top: BorderSide(color: Colors.white.withOpacity(0.05))),
-          ),
-          child: SafeArea(
-            child: Row(
-              children: [
-                if (_currentQuestionIndex > 0)
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        setState(() {
-                          _currentQuestionIndex--;
-                        });
-                      },
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: BorderSide(color: Colors.white.withOpacity(0.3)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: const Text('Previous', style: TextStyle(color: Colors.white)),
-                    ),
-                  ),
-                if (_currentQuestionIndex > 0) const SizedBox(width: 16),
-                Expanded(
-                  flex: 2,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: ElevatedButton(
-                      onPressed: _isSubmitting
-                          ? null
-                          : () {
-                              if (isLastQuestion) {
-                                _submitQuiz();
-                              } else {
-                                setState(() {
-                                  _currentQuestionIndex++;
-                                });
-                              }
-                            },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: _isSubmitting
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
-                          : Text(
-                              isLastQuestion ? 'Submit Quiz' : 'Next',
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildBottomNavigation() {
+    final isLastQuestion = _currentQuestionIndex == _quiz!.questions.length - 1;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: const Color(0xFFC8C4D7).withOpacity(0.2))),
+      ),
+      padding: const EdgeInsets.all(20),
+      child: SafeArea(
+        child: Row(
+          children: [
+            Expanded(
+              flex: 1,
+              child: OutlinedButton(
+                onPressed: _currentQuestionIndex > 0
+                    ? () {
+                        setState(() {
+                          _currentQuestionIndex--;
+                        });
+                      }
+                    : () { Navigator.pop(context); },
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  side: const BorderSide(color: Color(0xFF4231C0)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  foregroundColor: const Color(0xFF4231C0),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.arrow_back, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Back',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              flex: 2,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF4231C0), Color(0xFF6B38D4)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF4231C0).withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton(
+                  onPressed: _isSubmitting
+                      ? null
+                      : () {
+                          if (isLastQuestion) {
+                            _submitQuiz();
+                          } else {
+                            setState(() {
+                              _currentQuestionIndex++;
+                            });
+                          }
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: _isSubmitting
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              isLastQuestion ? 'Submit Quiz' : 'Next',
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(isLastQuestion ? Icons.check : Icons.arrow_forward, size: 18),
+                          ],
+                        ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -499,16 +606,15 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
       padding: const EdgeInsets.all(24.0),
       child: Column(
         children: [
-          // Score card
           Container(
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              
+              color: Colors.white,
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
               boxShadow: [
                 BoxShadow(
-                  color: (passed ? Colors.green : Colors.orange)
-                      .withValues(alpha: 0.3),
+                  color: (passed ? Colors.green : Colors.orange).withOpacity(0.2),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -519,32 +625,32 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                 Icon(
                   passed ? Icons.check_circle : Icons.error_outline,
                   size: 64,
-                  color: Theme.of(context).colorScheme.onPrimary,
+                  color: passed ? Colors.green : Colors.orange,
                 ),
                 const SizedBox(height: 16),
                 Text(
                   '$score%',
-                  style: TextStyle(
+                  style: GoogleFonts.geist(
                     fontSize: 48,
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onPrimary,
+                    color: const Color(0xFF121C2A),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   passed ? 'Passed!' : 'Not Passed',
-                  style: TextStyle(
+                  style: GoogleFonts.inter(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onPrimary,
+                    color: const Color(0xFF121C2A),
                   ),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   '${_submission!.earnedPoints} / ${_submission!.totalPoints} points',
-                  style: TextStyle(
+                  style: GoogleFonts.inter(
                     fontSize: 18,
-                    color: Theme.of(context).colorScheme.onPrimary,
+                    color: const Color(0xFF474554),
                   ),
                 ),
               ],
@@ -553,7 +659,6 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
 
           const SizedBox(height: 24),
 
-          // Question review
           ..._quiz!.questions.asMap().entries.map((entry) {
             final index = entry.key;
             final question = entry.value;
@@ -561,17 +666,17 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
             final isCorrect = question.type == QuestionType.multipleChoice ||
                     question.type == QuestionType.trueFalse
                 ? userAnswer == question.correctOptionIndex
-                : true; // Short answer grading handled separately
+                : true;
 
             return Container(
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface.withOpacity(0.6),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withOpacity(0.1)),
+                border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -579,15 +684,15 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                       children: [
                         Icon(
                           isCorrect ? Icons.check_circle : Icons.cancel,
-                          color: isCorrect ? Colors.greenAccent : Colors.redAccent,
+                          color: isCorrect ? Colors.green : Colors.red,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           'Question ${index + 1}',
-                          style: const TextStyle(
+                          style: GoogleFonts.inter(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: const Color(0xFF121C2A),
                           ),
                         ),
                       ],
@@ -595,20 +700,20 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                     const SizedBox(height: 12),
                     Text(
                       question.questionText,
-                      style: const TextStyle(fontSize: 16, color: Colors.white),
+                      style: GoogleFonts.inter(fontSize: 16, color: const Color(0xFF121C2A)),
                     ),
                     const SizedBox(height: 16),
                     if (question.explanation != null)
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                          color: const Color(0xFFEFF4FF),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.5)),
+                          border: Border.all(color: const Color(0xFF4231C0).withOpacity(0.2)),
                         ),
                         child: Text(
                           question.explanation!,
-                          style: const TextStyle(fontSize: 14, color: Colors.white),
+                          style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF4231C0)),
                         ),
                       ),
                   ],
@@ -619,15 +724,18 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
 
           const SizedBox(height: 24),
 
-          // Action buttons
           Container(
             width: double.infinity,
             decoration: BoxDecoration(
-              
+              gradient: const LinearGradient(
+                colors: [Color(0xFF4231C0), Color(0xFF6B38D4)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                  color: const Color(0xFF4231C0).withOpacity(0.3),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -641,7 +749,14 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Text('Done', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              child: Text(
+                'Done', 
+                style: GoogleFonts.inter(
+                  color: Colors.white, 
+                  fontSize: 18, 
+                  fontWeight: FontWeight.bold
+                )
+              ),
             ),
           ),
         ],
@@ -652,7 +767,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
   String _formatTime(int seconds) {
     final minutes = seconds ~/ 60;
     final secs = seconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+    return '${minutes.toString().padLeft(2, \'0\')}:${secs.toString().padLeft(2, \'0\')}';
   }
 
   Future<void> _showCertificate() async {
@@ -665,7 +780,6 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
       );
 
       if (certificate != null && mounted) {
-        // Show certificate after a short delay
         Future.delayed(const Duration(seconds: 1), () {
           if (mounted) {
             Navigator.push(
@@ -682,4 +796,3 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
     }
   }
 }
-

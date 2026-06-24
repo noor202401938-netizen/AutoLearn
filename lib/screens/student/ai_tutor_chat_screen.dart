@@ -1,3 +1,5 @@
+import 'package:google_fonts/google_fonts.dart';
+import 'dart:ui';
 // lib/screens/student/ai_tutor_chat_screen.dart
 import 'package:flutter/material.dart';
 import '../../business_logic/ai_tutor_engine.dart';
@@ -46,11 +48,9 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
 
       _currentSessionId = await _aiTutorEngine.getOrCreateSession(uid);
       
-      // Load existing messages
       if (_currentSessionId != null) {
         _messages = await _aiTutorEngine.getConversationHistory(_currentSessionId!);
         
-        // Listen for new messages in real-time
         _aiTutorEngine.watchConversation(_currentSessionId!).listen((messages) {
           if (mounted) {
             setState(() {
@@ -66,7 +66,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading chat: $e')),
+          SnackBar(content: Text('Error loading chat: ')),
         );
       }
     }
@@ -94,14 +94,12 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
         courseId: widget.courseId,
         lessonId: widget.lessonId,
       );
-
-      // Scroll to bottom after sending
       _scrollToBottom();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error sending message: $e'),
+            content: Text('Error sending message: '),
             backgroundColor: Colors.red,
           ),
         );
@@ -139,7 +137,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error starting new conversation: $e')),
+          SnackBar(content: Text('Error starting new conversation: ')),
         );
       }
     }
@@ -155,144 +153,175 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      backgroundColor: const Color(0xFFF8F9FF),
       appBar: AppBar(
-        title: const Row(
-          children: [
-            Icon(Icons.auto_awesome, color: Colors.white),
-            SizedBox(width: 8),
-            Text('AI Tutor', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-          ],
+        backgroundColor: Colors.white.withOpacity(0.9),
+        elevation: 1,
+        shadowColor: Colors.black12,
+        scrolledUnderElevation: 1,
+        centerTitle: false,
+        title: Text(
+          'AI Tutor',
+          style: GoogleFonts.geist(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: const Color(0xFF4231C0),
+          ),
         ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
+            icon: const Icon(Icons.refresh, color: Color(0xFF474554)),
             tooltip: 'New Conversation',
             onPressed: _startNewConversation,
           ),
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: const Color(0xFFDEE9FC),
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFC8C4D7)),
+              ),
+              child: const ClipOval(
+                child: Icon(Icons.person, color: Color(0xFF5548D3)),
+              ),
+            ),
+          ),
         ],
       ),
-      body: Container(
-        
-        child: SafeArea(
-          child: _isLoading
-              ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary))
-              : Column(
-                  children: [
-                    // Messages List
-                    Expanded(
-                      child: _messages.isEmpty
-                          ? _buildEmptyState()
-                          : ListView.builder(
-                              controller: _scrollController,
-                              padding: const EdgeInsets.all(16),
-                              itemCount: _messages.length,
-                              itemBuilder: (context, index) {
-                                return _buildMessageBubble(_messages[index]);
-                              },
-                            ),
-                    ),
-
-                    // Input Area
-                    _buildInputArea(),
-                  ],
-                ),
-        ),
+      body: SafeArea(
+        child: _isLoading
+            ? Center(
+                child: CircularProgressIndicator(color: const Color(0xFF4231C0)))
+            : Stack(
+                children: [
+                  Column(
+                    children: [
+                      Expanded(
+                        child: _messages.isEmpty
+                            ? _buildEmptyState()
+                            : ListView.builder(
+                                controller: _scrollController,
+                                padding: const EdgeInsets.only(
+                                  left: 20,
+                                  right: 20,
+                                  top: 24,
+                                  bottom: 160,
+                                ),
+                                itemCount: _messages.length,
+                                itemBuilder: (context, index) {
+                                  if (index == 0) {
+                                    return Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        _buildContextHeader(),
+                                        const SizedBox(height: 24),
+                                        _buildMessageBubble(_messages[index]),
+                                      ],
+                                    );
+                                  }
+                                  return _buildMessageBubble(_messages[index]);
+                                },
+                              ),
+                      ),
+                    ],
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: _buildFloatingInputArea(),
+                  ),
+                ],
+              ),
       ),
+    );
+  }
+
+  Widget _buildContextHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'LEARNING MODULE',
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.6,
+            color: const Color(0xFF4231C0),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          widget.lessonId ?? 'Advanced Prototyping',
+          style: GoogleFonts.geist(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: const Color(0xFF121C2A),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildEmptyState() {
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
-                shape: BoxShape.circle,
-                border: Border.all(color: Theme.of(context).colorScheme.secondary.withOpacity(0.3)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
-                    blurRadius: 20,
-                    spreadRadius: 5,
-                  ),
-                ],
-              ),
-              child: Icon(
-                Icons.auto_awesome,
-                size: 64,
-                color: Theme.of(context).colorScheme.secondary,
+            _buildContextHeader(),
+            const SizedBox(height: 48),
+            Center(
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE9DDFF),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFFD0BCFF)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF8455EF).withOpacity(0.2),
+                      blurRadius: 20,
+                      spreadRadius: 5,
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.auto_awesome,
+                  size: 64,
+                  color: Color(0xFF6B38D4),
+                ),
               ),
             ),
             const SizedBox(height: 24),
-            Text(
-              'AI Tutor',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+            Center(
+              child: Text(
+                'AI Tutor',
+                style: GoogleFonts.geist(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF121C2A),
+                ),
               ),
             ),
             const SizedBox(height: 12),
-            Text(
-              'Ask me anything about your subjects!\nI\'m here to help you learn.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.white.withOpacity(0.7),
-                height: 1.5,
+            Center(
+              child: Text(
+                'Ask me anything about your subjects!\nI\'m here to help you learn.',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  color: const Color(0xFF474554),
+                  height: 1.5,
+                ),
               ),
             ),
-            const SizedBox(height: 32),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              alignment: WrapAlignment.center,
-              children: [
-                _buildSuggestionChip('What is supply and demand?'),
-                _buildSuggestionChip('Explain inflation'),
-                _buildSuggestionChip('What is GDP?'),
-                _buildSuggestionChip('Help with my homework'),
-              ],
-            ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSuggestionChip(String text) {
-    return InkWell(
-      onTap: () {
-        _messageController.text = text;
-        _sendMessage();
-      },
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface.withOpacity(0.6),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withOpacity(0.1)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 4,
-            ),
-          ],
-        ),
-        child: Text(
-          text,
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
       ),
     );
@@ -302,171 +331,301 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
     final isUser = message.isUser;
     
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        mainAxisAlignment:
-            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (!isUser) ...[
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
-                shape: BoxShape.circle,
-                border: Border.all(color: Theme.of(context).colorScheme.secondary.withOpacity(0.5)),
-              ),
-              child: Icon(
-                Icons.auto_awesome,
-                size: 20,
-                color: Theme.of(context).colorScheme.secondary,
+      padding: const EdgeInsets.only(bottom: 24),
+      child: isUser ? _buildUserMessage(message) : _buildAIMessage(message),
+    );
+  }
+
+  Widget _buildUserMessage(ChatMessageModel message) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Flexible(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF5B4ED9),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(4),
+                    bottomLeft: Radius.circular(16),
+                    bottomRight: Radius.circular(16),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  message.content,
+                  style: GoogleFonts.inter(
+                    color: const Color(0xFFE2DEFF),
+                    fontSize: 16,
+                    height: 1.5,
+                  ),
+                ),
               ),
             ),
-            const SizedBox(width: 12),
           ],
-          Flexible(
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
-              decoration: BoxDecoration(
-                color: isUser
-                    ? Theme.of(context).colorScheme.primary.withOpacity(0.8)
-                    : Theme.of(context).colorScheme.surface.withOpacity(0.6),
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(20),
-                  topRight: const Radius.circular(20),
-                  bottomLeft: Radius.circular(isUser ? 20 : 0),
-                  bottomRight: Radius.circular(isUser ? 0 : 20),
-                ),
-                border: Border.all(
-                  color: isUser
-                      ? Theme.of(context).colorScheme.primary
-                      : Colors.white.withOpacity(0.1),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    message.content,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
-                      height: 1.4,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    _formatTime(message.timestamp),
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.5),
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          _formatTime(message.timestamp),
+          style: GoogleFonts.inter(
+            color: const Color(0xFF787586),
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.5,
           ),
-          if (isUser) ...[
-            const SizedBox(width: 12),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAIMessage(ChatMessageModel message) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
             Container(
-              width: 36,
-              height: 36,
+              width: 32,
+              height: 32,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
-                    blurRadius: 8,
-                  ),
-                ],
+                color: const Color(0xFF8455EF),
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(
-                Icons.person,
+              child: const Icon(
+                Icons.auto_awesome,
                 size: 20,
                 color: Colors.white,
               ),
             ),
+            const SizedBox(width: 8),
+            Text(
+              'AI Tutor',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF121C2A),
+              ),
+            ),
           ],
-        ],
+        ),
+        const SizedBox(height: 8),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(4),
+              topRight: Radius.circular(16),
+              bottomLeft: Radius.circular(16),
+              bottomRight: Radius.circular(16),
+            ),
+            border: Border.all(color: const Color(0xFFC8C4D7)),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                message.content,
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  color: const Color(0xFF474554),
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Divider(color: Color(0xFFC8C4D7)),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.thumb_up_outlined, size: 18),
+                    color: const Color(0xFF4231C0),
+                    onPressed: () {},
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.thumb_down_outlined, size: 18),
+                    color: const Color(0xFF474554),
+                    onPressed: () {},
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.share_outlined, size: 18),
+                    color: const Color(0xFF474554),
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          _formatTime(message.timestamp),
+          style: GoogleFonts.inter(
+            color: const Color(0xFF787586),
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFloatingInputArea() {
+    return ClipRRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+        child: Container(
+          color: Colors.white.withOpacity(0.8),
+          padding: const EdgeInsets.only(top: 12, left: 20, right: 20, bottom: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSuggestedPrompts(),
+              const SizedBox(height: 12),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE6EEFF),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.3)),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 4,
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  children: [
+                    const Icon(Icons.auto_awesome, color: Color(0xFF4231C0)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextField(
+                        controller: _messageController,
+                        style: GoogleFonts.inter(color: const Color(0xFF121C2A)),
+                        decoration: InputDecoration(
+                          hintText: 'Ask AI Tutor anything...',
+                          hintStyle: GoogleFonts.inter(
+                              color: const Color(0xFF474554).withOpacity(0.5)),
+                          border: InputBorder.none,
+                          isDense: true,
+                        ),
+                        maxLines: null,
+                        textCapitalization: TextCapitalization.sentences,
+                        onSubmitted: (_) => _sendMessage(),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF4231C0), Color(0xFF6B38D4)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: IconButton(
+                        icon: _isSending
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor:
+                                      AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                            : const Icon(Icons.arrow_upward, color: Colors.white),
+                        onPressed: _isSending ? null : _sendMessage,
+                        padding: const EdgeInsets.all(8),
+                        constraints: const BoxConstraints(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildInputArea() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface.withOpacity(0.8),
-        border: Border(top: BorderSide(color: Colors.white.withOpacity(0.1))),
-      ),
-      child: SafeArea(
-        child: Row(
-          children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: Colors.white.withOpacity(0.1)),
-                ),
-                child: TextField(
-                  controller: _messageController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: 'Ask a question...',
-                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 14,
-                    ),
-                  ),
-                  maxLines: null,
-                  textCapitalization: TextCapitalization.sentences,
-                  onSubmitted: (_) => _sendMessage(),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Container(
-              decoration: BoxDecoration(
-                
-                shape: BoxShape.circle,
-                boxShadow: [
-                  if (!_isSending)
-                    BoxShadow(
-                      color: Theme.of(context).colorScheme.secondary.withOpacity(0.4),
-                      blurRadius: 8,
-                    ),
-                ],
-              ),
-              child: IconButton(
-                icon: _isSending
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                    : const Icon(Icons.send, color: Colors.white),
-                onPressed: _isSending ? null : _sendMessage,
-              ),
-            ),
-          ],
+  Widget _buildSuggestedPrompts() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          'CONTINUE LEARNING',
+          style: GoogleFonts.inter(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.5,
+            color: const Color(0xFF787586),
+          ),
+        ),
+        const SizedBox(height: 8),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              _buildSuggestionChip('Smart Animate Tips'),
+              const SizedBox(width: 12),
+              _buildSuggestionChip('Variables in Prototypes'),
+              const SizedBox(width: 12),
+              _buildSuggestionChip('Overlay Logic'),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSuggestionChip(String text) {
+    return InkWell(
+      onTap: () {
+        _messageController.text = text;
+        _sendMessage();
+      },
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFEFF4FF),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFF4231C0).withOpacity(0.2)),
+        ),
+        child: Text(
+          text,
+          style: GoogleFonts.inter(
+            color: const Color(0xFF4231C0),
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+          ),
         ),
       ),
     );
@@ -479,12 +638,11 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
     if (difference.inMinutes < 1) {
       return 'Just now';
     } else if (difference.inHours < 1) {
-      return '${difference.inMinutes}m ago';
+      return 'm ago';
     } else if (difference.inDays < 1) {
-      return '${difference.inHours}h ago';
+      return 'h ago';
     } else {
-      return '${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')}';
+      return ':';
     }
   }
 }
-
