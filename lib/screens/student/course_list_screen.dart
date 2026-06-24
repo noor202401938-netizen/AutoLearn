@@ -1,5 +1,6 @@
 // lib/screens/student/course_list_screen.dart
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../business_logic/course_manager.dart';
 import '../../business_logic/search_filter_engine.dart';
 import '../../model/course_model.dart';
@@ -98,58 +99,57 @@ class _CourseListScreenState extends State<CourseListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      backgroundColor: const Color(0xFFf8f9ff),
       appBar: AppBar(
-        title: const Text('Browse Courses', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.transparent,
+        title: Text('Browse Courses', style: GoogleFonts.geist(fontWeight: FontWeight.bold, color: const Color(0xFF121c2a))),
+        backgroundColor: const Color(0xFFf8f9ff),
         elevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xFF121c2a)),
       ),
-      body: Container(
-        
-        child: SafeArea(
-          child: RefreshIndicator(
-            onRefresh: _loadCourses,
-            child: Column(
-              children: [
-                // Search Bar
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface.withOpacity(0.6),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withOpacity(0.1)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: TextField(
-                      controller: _searchController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        hintText: 'Search courses...',
-                        hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
-                        prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.secondary),
-                        suffixIcon: _searchController.text.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.clear, color: Colors.white),
-                                onPressed: () {
-                                  _searchController.clear();
-                                  _filterCourses();
-                                },
-                              )
-                            : null,
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: _loadCourses,
+          child: Column(
+            children: [
+              // Search Bar
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFc8c4d7)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
                       ),
-                      onChanged: (value) => _filterCourses(),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    style: GoogleFonts.inter(color: const Color(0xFF121c2a)),
+                    decoration: InputDecoration(
+                      hintText: 'Search courses...',
+                      hintStyle: GoogleFonts.inter(color: const Color(0xFF787586)),
+                      prefixIcon: const Icon(Icons.search, color: Color(0xFF4231c0)),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, color: Color(0xFF474554)),
+                              onPressed: () {
+                                _searchController.clear();
+                                _filterCourses();
+                              },
+                            )
+                          : null,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                     ),
+                    onChanged: (value) => _filterCourses(),
                   ),
                 ),
+              ),
 
             // Filter Chips
             SingleChildScrollView(
@@ -414,9 +414,9 @@ class _CourseListScreenState extends State<CourseListScreen> {
                 children: [
                   Text(
                     '${_filteredCourses.length} course${_filteredCourses.length != 1 ? 's' : ''} found',
-                    style: TextStyle(
+                    style: GoogleFonts.inter(
                       fontSize: 14,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      color: const Color(0xFF474554),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -489,19 +489,19 @@ class _CourseListScreenState extends State<CourseListScreen> {
     return Container(
       margin: EdgeInsets.zero,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFc8c4d7).withOpacity(0.5)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
@@ -530,28 +530,28 @@ class _CourseListScreenState extends State<CourseListScreen> {
                 Expanded(
                   child: Container(
                     width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFe6eeff),
                   ),
                   child: course.thumbnailURL.isNotEmpty
                       ? Image.network(
                           course.thumbnailURL,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
-                            return Center(
+                            return const Center(
                               child: Icon(
                                 Icons.school,
                                 size: 60,
-                                color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                                color: Color(0xFFc5c0ff),
                               ),
                             );
                           },
                         )
-                      : Center(
+                      : const Center(
                           child: Icon(
                             Icons.school,
                             size: 60,
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                            color: Color(0xFFc5c0ff),
                           ),
                         ),
                   ),
@@ -574,14 +574,14 @@ class _CourseListScreenState extends State<CourseListScreen> {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+                              color: const Color(0xFFe9ddff),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
                               course.category,
-                              style: TextStyle(
+                              style: GoogleFonts.inter(
                                 fontSize: 10,
-                                color: Theme.of(context).colorScheme.secondary,
+                                color: const Color(0xFF6b38d4),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -592,14 +592,14 @@ class _CourseListScreenState extends State<CourseListScreen> {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.greenAccent.withOpacity(0.2),
+                              color: const Color(0xFF00724e).withOpacity(0.1),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
                               course.level.toUpperCase(),
-                              style: const TextStyle(
+                              style: GoogleFonts.inter(
                                 fontSize: 10,
-                                color: Colors.greenAccent,
+                                color: const Color(0xFF00573a),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -611,10 +611,11 @@ class _CourseListScreenState extends State<CourseListScreen> {
                       // Title
                       Text(
                         course.title,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
+                        style: GoogleFonts.geist(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF121c2a),
+                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -623,9 +624,9 @@ class _CourseListScreenState extends State<CourseListScreen> {
                       // Instructor
                       Text(
                         'by ${course.instructor}',
-                        style: TextStyle(
+                        style: GoogleFonts.inter(
                           fontSize: 12,
-                          color: Colors.white.withOpacity(0.7),
+                          color: const Color(0xFF474554),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -635,37 +636,37 @@ class _CourseListScreenState extends State<CourseListScreen> {
                         children: [
                           const Icon(
                             Icons.star,
-                            size: 18,
+                            size: 16,
                             color: Colors.amber,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             course.rating.toStringAsFixed(1),
-                            style: const TextStyle(
+                            style: GoogleFonts.inter(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: const Color(0xFF121c2a),
                             ),
                           ),
                           Text(
                             ' (${course.ratingCount})',
-                            style: TextStyle(
+                            style: GoogleFonts.inter(
                               fontSize: 12,
-                              color: Colors.white.withOpacity(0.5),
+                              color: const Color(0xFF787586),
                             ),
                           ),
-                          const SizedBox(width: 16),
-                          Icon(
+                          const SizedBox(width: 12),
+                          const Icon(
                             Icons.access_time,
-                            size: 16,
-                            color: Colors.white.withOpacity(0.7),
+                            size: 14,
+                            color: Color(0xFF787586),
                           ),
                           const SizedBox(width: 4),
                           Text(
                             '${course.duration}h',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white.withOpacity(0.7),
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: const Color(0xFF787586),
                             ),
                           ),
                           const Spacer(),
@@ -673,12 +674,12 @@ class _CourseListScreenState extends State<CourseListScreen> {
                             course.price == 0
                                 ? 'FREE'
                                 : '\$${course.price.toStringAsFixed(0)}',
-                            style: TextStyle(
-                              fontSize: 20,
+                            style: GoogleFonts.geist(
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: course.price == 0
-                                  ? Colors.greenAccent
-                                  : Theme.of(context).colorScheme.primary,
+                                  ? const Color(0xFF00573a)
+                                  : const Color(0xFF4231c0),
                             ),
                           ),
                         ],
@@ -707,10 +708,11 @@ class _CourseListScreenState extends State<CourseListScreen> {
             child: ElevatedButton(
               onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                backgroundColor: const Color(0xFF4231c0),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
-              child: const Text('Login to Enroll'),
+              child: Text('Login to Enroll', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
             ),
           );
         }
@@ -778,10 +780,11 @@ class _CourseListScreenState extends State<CourseListScreen> {
                         }
                       },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: enrolled ? Theme.of(context).colorScheme.surfaceContainerHighest : Theme.of(context).colorScheme.primary,
-                  foregroundColor: enrolled ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.onPrimary,
+                  backgroundColor: enrolled ? const Color(0xFFe6eeff) : const Color(0xFF4231c0),
+                  foregroundColor: enrolled ? const Color(0xFF474554) : Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: Text(enrolled ? 'Open' : 'Enroll'),
+                child: Text(enrolled ? 'Open' : 'Enroll', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
               ),
             );
           },

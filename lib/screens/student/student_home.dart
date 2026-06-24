@@ -22,6 +22,11 @@ import 'about_screen.dart';
 import 'policies_screen.dart';
 import '../../utils/preference_notifier.dart';
 import '../../widgets/gradient_bottom_nav.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../../widgets/student_home/stat_card.dart';
+import '../../widgets/student_home/ai_tutor_banner.dart';
+import '../../widgets/student_home/progress_course_card.dart';
+import '../../widgets/student_home/recommended_course_card.dart';
 
 class StudentHome extends StatefulWidget {
   const StudentHome({super.key});
@@ -113,7 +118,10 @@ class _StudentHomeState extends State<StudentHome> {
         if (uid == null) {
           return Text(
             'Student',
-            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+            style: GoogleFonts.geist(
+              fontSize: 36,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.03 * 36,
               color: Theme.of(context).colorScheme.primary,
             ),
           );
@@ -135,9 +143,14 @@ class _StudentHomeState extends State<StudentHome> {
             }
             return Text(
               name,
-              style: Theme.of(context).textTheme.displaySmall?.copyWith(
+              style: GoogleFonts.geist(
+                fontSize: 36,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.03 * 36,
                 color: Theme.of(context).colorScheme.primary,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             );
           },
         );
@@ -289,6 +302,11 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Widget _buildHomeScreen() {
+    int streak = _userProfile?['learningStreak'] ?? 12;
+    int completedCoursesCount = _userProfile?['completedCoursesCount'] ?? 8;
+    int certsCount = _userProfile?['certificationsCount'] ?? 3;
+    int hoursLearned = _userProfile?['hoursLearned'] ?? 45;
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,76 +318,68 @@ class _StudentHomeState extends State<StudentHome> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  children: [
+                    Text(
+                      'Welcome back, ',
+                      style: GoogleFonts.geist(
+                        fontSize: 36,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.03 * 36,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    Expanded(child: _buildGreetingName()),
+                  ],
+                ),
+                const SizedBox(height: 8),
                 Text(
-                  'Welcome back,',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  'You\'re on a $streak-day learning streak! Keep it up.',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(height: 4),
-                _buildGreetingName(),
                 const SizedBox(height: 24),
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: Theme.of(context).dividerColor),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(context).shadowColor.withOpacity(0.05),
-                        blurRadius: 24,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _buildQuickStat(
-                          'Courses',
-                          '0',
-                          Icons.book_rounded,
-                          Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                      Container(
-                        width: 1,
-                        height: 40,
-                        color: Theme.of(context).dividerColor,
-                      ),
-                      Expanded(
-                        child: _buildQuickStat(
-                          'Completed',
-                          '0',
-                          Icons.check_circle_rounded,
-                          Theme.of(context).colorScheme.secondary,
-                        ),
-                      ),
-                      Container(
-                        width: 1,
-                        height: 40,
-                        color: Theme.of(context).dividerColor,
-                      ),
-                      Expanded(
-                        child: _buildQuickStat(
-                          'Hours',
-                          '0',
-                          Icons.access_time_rounded,
-                          Colors.amber,
-                        ),
-                      ),
-                    ],
-                  ),
+                // Signature Stats Section
+                GridView.count(
+                  crossAxisCount: MediaQuery.of(context).size.width < 600 ? 2 : 4,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  childAspectRatio: 1.2,
+                  children: [
+                    StatCard(
+                      icon: Icons.school_outlined,
+                      value: '${_enrolledCourses.length + completedCoursesCount}',
+                      label: 'Courses',
+                    ),
+                    StatCard(
+                      icon: Icons.schedule_rounded,
+                      value: '${hoursLearned}h',
+                      label: 'Learning',
+                    ),
+                    StatCard(
+                      icon: Icons.task_alt_rounded,
+                      value: '$completedCoursesCount',
+                      label: 'Completed',
+                    ),
+                    StatCard(
+                      icon: Icons.verified_outlined,
+                      value: '$certsCount',
+                      label: 'Certs',
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
 
-          // AI Tutor Chat Card
+          // AI Tutor Banner
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            child: InkWell(
+            child: AITutorBanner(
               onTap: () {
                 Navigator.push(
                   context,
@@ -378,191 +388,8 @@ class _StudentHomeState extends State<StudentHome> {
                   ),
                 );
               },
-              borderRadius: BorderRadius.circular(20),
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Theme.of(context).colorScheme.primary,
-                      Theme.of(context).colorScheme.primary.withBlue(255),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                      blurRadius: 24,
-                      offset: const Offset(0, 8),
-                    )
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Icon(
-                        Icons.auto_awesome_rounded,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        size: 32,
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'AI Tutor',
-                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.onPrimary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Get instant help with your questions',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.9),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      size: 20,
-                    ),
-                  ],
-                ),
-              ),
             ),
           ),
-
-          // Recommended Courses Section
-          if (_recommendedCourses.isNotEmpty) ...[
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Recommended for You',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      setState(() => _selectedIndex = 1);
-                    },
-                    child: const Text('See All'),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 200,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                itemCount: _recommendedCourses.length,
-                itemBuilder: (context, index) {
-                  final course = _recommendedCourses[index];
-                  return Container(
-                    width: 280,
-                    margin: const EdgeInsets.only(right: 16),
-                    child: Card(
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CourseContentScreen(
-                                courseId: course.courseId,
-                                title: course.title,
-                              ),
-                            ),
-                          );
-                        },
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: Container(
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                                          borderRadius: const BorderRadius.vertical(
-                                            top: Radius.circular(20),
-                                          ),
-                                        ),
-                                        child: course.thumbnailURL.isNotEmpty
-                                            ? ClipRRect(
-                                                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                                                child: Image.network(
-                                                  course.thumbnailURL,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              )
-                                            : Icon(
-                                                Icons.school_rounded,
-                                                size: 48,
-                                                color: Theme.of(context).colorScheme.primary,
-                                              ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(16),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            course.title,
-                                            style: Theme.of(context).textTheme.titleMedium,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Row(
-                                            children: [
-                                              const Icon(Icons.star_rounded, size: 16, color: Colors.amber),
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                course.rating.toStringAsFixed(1),
-                                                style: Theme.of(context).textTheme.labelLarge,
-                                              ),
-                                              const Spacer(),
-                                              Text(
-                                                course.price == 0 ? 'FREE' : '\$${course.price.toStringAsFixed(0)}',
-                                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                                  color: course.price == 0 ? Colors.green : Theme.of(context).colorScheme.primary,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
 
           // Continue Learning Section
           Padding(
@@ -570,19 +397,33 @@ class _StudentHomeState extends State<StudentHome> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Continue Learning',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Continue Learning',
+                      style: GoogleFonts.geist(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() => _selectedIndex = 1);
+                      },
+                      child: Text(
+                        'View All',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
-                // Show enrolled courses if available
                 _loadingEnrolled
-                    ? const Center(
-                        child:
-                            CircularProgressIndicator(color: Color(0xFF4169E1)))
+                    ? const Center(child: CircularProgressIndicator())
                     : _enrolledCourses.isEmpty
                         ? Center(
                             child: Column(
@@ -595,170 +436,98 @@ class _StudentHomeState extends State<StudentHome> {
                                 const SizedBox(height: 16),
                                 Text(
                                   'No courses in progress',
-                                  style: TextStyle(
+                                  style: GoogleFonts.inter(
                                     fontSize: 16,
-                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Start learning by enrolling in a course',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                                 const SizedBox(height: 20),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        setState(() => _selectedIndex = 1);
-                                      },
-                                      child: const Text('Browse Courses'),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    OutlinedButton(
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => const MyCoursesScreen(),
-                                          ),
-                                        );
-                                      },
-                                      child: const Text('My Courses'),
-                                    ),
-                                  ],
+                                ElevatedButton(
+                                  onPressed: () => setState(() => _selectedIndex = 1),
+                                  child: const Text('Browse Courses'),
                                 ),
                               ],
                             ),
                           )
-                        : SizedBox(
-                            height: 180,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 24),
-                              itemCount: _enrolledCourses.length,
-                              itemBuilder: (context, index) {
-                                final course = _enrolledCourses[index];
-                                return Container(
-                                  width: 300,
-                                  margin: const EdgeInsets.only(right: 16),
-                                  child: Card(
-                                    child: InkWell(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                CourseContentScreen(
-                                              courseId: course.courseId,
-                                              title: course.title,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Expanded(
-                                            child: Container(
-                                              width: double.infinity,
-                                              decoration: BoxDecoration(
-                                                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                                                borderRadius: const BorderRadius.vertical(
-                                                  top: Radius.circular(20),
-                                                ),
-                                              ),
-                                              child: course.thumbnailURL.isNotEmpty
-                                                  ? ClipRRect(
-                                                      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                                                      child: Image.network(
-                                                        course.thumbnailURL,
-                                                        fit: BoxFit.cover,
-                                                      ),
-                                                    )
-                                                  : Icon(
-                                                      Icons.school_rounded,
-                                                      size: 48,
-                                                      color: Theme.of(context).colorScheme.primary,
-                                                    ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(16),
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  course.title,
-                                                  style: Theme.of(context).textTheme.titleMedium,
-                                                  maxLines: 2,
-                                                  overflow: TextOverflow.ellipsis,
-                                                ),
-                                                const SizedBox(height: 8),
-                                                Row(
-                                                  children: [
-                                                    const Icon(Icons.star_rounded, size: 16, color: Colors.amber),
-                                                    const SizedBox(width: 4),
-                                                    Text(
-                                                      course.rating.toStringAsFixed(1),
-                                                      style: Theme.of(context).textTheme.labelLarge,
-                                                    ),
-                                                    const Spacer(),
-                                                    Text(
-                                                      course.price == 0 ? 'FREE' : '\$${course.price.toStringAsFixed(0)}',
-                                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                                        color: course.price == 0 ? Colors.green : Theme.of(context).colorScheme.primary,
-                                                        fontWeight: FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
+                        : ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: _enrolledCourses.length > 3 ? 3 : _enrolledCourses.length,
+                            separatorBuilder: (context, index) => const SizedBox(height: 16),
+                            itemBuilder: (context, index) {
+                              final course = _enrolledCourses[index];
+                              return ProgressCourseCard(
+                                title: course.title,
+                                moduleName: 'Continue learning', // Mocked or adjusted
+                                thumbnailUrl: course.thumbnailURL,
+                                progressPercent: 0.65, // Mocked progress
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => CourseContentScreen(
+                                        courseId: course.courseId,
+                                        title: course.title,
                                       ),
                                     ),
-                                  ),
-                                );
-                              },
-                            ),
+                                  );
+                                },
+                              );
+                            },
                           ),
               ],
             ),
           ),
+
+          // Recommended Courses Section
+          if (_recommendedCourses.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                'For You',
+                style: GoogleFonts.geist(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 280,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                itemCount: _recommendedCourses.length,
+                itemBuilder: (context, index) {
+                  final course = _recommendedCourses[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 16),
+                    child: RecommendedCourseCard(
+                      title: course.title,
+                      description: 'Master the subject with this interactive course.',
+                      thumbnailUrl: course.thumbnailURL,
+                      tag: 'RECOMMENDED',
+                      rating: course.rating,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CourseContentScreen(
+                              courseId: course.courseId,
+                              title: course.title,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 32),
+          ],
         ],
       ),
-    );
-  }
-
-  Widget _buildQuickStat(
-      String label, String value, IconData icon, Color color) {
-    return Column(
-      children: [
-        Icon(icon, color: color, size: 28),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-          ),
-        ),
-      ],
     );
   }
 
