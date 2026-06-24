@@ -20,6 +20,7 @@ import 'change_password_screen.dart';
 import 'help_support_screen.dart';
 import 'about_screen.dart';
 import 'policies_screen.dart';
+import '../../utils/preference_notifier.dart';
 
 class StudentHome extends StatefulWidget {
   const StudentHome({super.key});
@@ -176,6 +177,19 @@ class _StudentHomeState extends State<StudentHome> {
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         actions: [
+          IconButton(
+            icon: Icon(
+              Theme.of(context).brightness == Brightness.light
+                  ? Icons.dark_mode_outlined
+                  : Icons.light_mode_outlined,
+            ),
+            onPressed: () {
+              final newTheme = Theme.of(context).brightness == Brightness.light
+                  ? 'dark'
+                  : 'light';
+              PreferenceNotifier.instance.updateTheme(newTheme);
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {
@@ -538,14 +552,14 @@ class _StudentHomeState extends State<StudentHome> {
                                 Icon(
                                   Icons.auto_stories_outlined,
                                   size: 80,
-                                  color: Colors.grey.shade300,
+                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
                                   'No courses in progress',
                                   style: TextStyle(
                                     fontSize: 16,
-                                    color: Colors.grey.shade600,
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                                   ),
                                 ),
                                 const SizedBox(height: 8),
@@ -553,7 +567,7 @@ class _StudentHomeState extends State<StudentHome> {
                                   'Start learning by enrolling in a course',
                                   style: TextStyle(
                                     fontSize: 14,
-                                    color: Colors.grey.shade500,
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
                                   ),
                                 ),
                                 const SizedBox(height: 20),
@@ -703,7 +717,7 @@ class _StudentHomeState extends State<StudentHome> {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey.shade600,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
           ),
         ),
       ],
@@ -724,7 +738,7 @@ class _StudentHomeState extends State<StudentHome> {
             Icon(
               Icons.analytics_outlined,
               size: 100,
-              color: Colors.grey.shade300,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
             ),
             const SizedBox(height: 24),
             Text(
@@ -732,7 +746,7 @@ class _StudentHomeState extends State<StudentHome> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey.shade700,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
               ),
             ),
             const SizedBox(height: 8),
@@ -740,7 +754,7 @@ class _StudentHomeState extends State<StudentHome> {
               'Start learning to track your progress',
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.grey.shade500,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
               ),
             ),
           ],
@@ -810,7 +824,7 @@ class _StudentHomeState extends State<StudentHome> {
                 user?['email'] ?? '',
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.grey.shade600,
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                 ),
               ),
           const SizedBox(height: 32),
