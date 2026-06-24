@@ -405,7 +405,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
 
             // Results Count
             Padding(
@@ -423,7 +423,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
 
             // Course List
             Expanded(
@@ -464,12 +464,12 @@ class _CourseListScreenState extends State<CourseListScreen> {
                 ),
               )
                   : GridView.builder(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 100),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: MediaQuery.of(context).size.width > 1200 ? 4 : MediaQuery.of(context).size.width > 800 ? 3 : MediaQuery.of(context).size.width > 600 ? 2 : 1,
                   childAspectRatio: 0.8,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
                 ),
                 itemCount: _filteredCourses.length,
                 itemBuilder: (context, index) {
