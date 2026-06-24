@@ -75,7 +75,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               // Welcome Section
               Text(
                 'Admin Dashboard',
-                style: GoogleFonts.geist(
+                style: GoogleFonts.outfit(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                   color: colorScheme.onSurface,
@@ -218,7 +218,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   const SizedBox(height: 4),
                   Text(
                     '\$${_totalRevenue.toStringAsFixed(2)}',
-                    style: GoogleFonts.geist(
+                    style: GoogleFonts.outfit(
                       fontSize: 32,
                       fontWeight: FontWeight.w700,
                       color: colorScheme.primary,
@@ -292,7 +292,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             children: [
               Text(
                 '$_activeUsers',
-                style: GoogleFonts.geist(
+                style: GoogleFonts.outfit(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                   color: colorScheme.onSurface,
@@ -355,7 +355,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             children: [
               Text(
                 '${(_completionRate * 100).toStringAsFixed(1)}%',
-                style: GoogleFonts.geist(
+                style: GoogleFonts.outfit(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                   color: colorScheme.onSurface,

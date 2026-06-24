@@ -101,7 +101,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFf8f9ff),
       appBar: AppBar(
-        title: Text('Browse Courses', style: GoogleFonts.geist(fontWeight: FontWeight.bold, color: const Color(0xFF121c2a))),
+        title: Text('Browse Courses', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: const Color(0xFF121c2a))),
         backgroundColor: const Color(0xFFf8f9ff),
         elevation: 0,
         iconTheme: const IconThemeData(color: Color(0xFF121c2a)),
@@ -170,7 +170,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
                                 children: [
                                   Text(
                                     'Select Category',
-                                    style: GoogleFonts.geist(
+                                    style: GoogleFonts.outfit(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                       color: const Color(0xFF121c2a),
@@ -233,7 +233,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
                             children: [
                               Text(
                                 'Select Level',
-                                style: GoogleFonts.geist(
+                                style: GoogleFonts.outfit(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: const Color(0xFF121c2a),
@@ -311,7 +311,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
                             children: [
                               Text(
                                 'Sort By',
-                                style: GoogleFonts.geist(
+                                style: GoogleFonts.outfit(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: const Color(0xFF121c2a),
@@ -620,7 +620,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
                       // Title
                       Text(
                         course.title,
-                        style: GoogleFonts.geist(
+                        style: GoogleFonts.outfit(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: const Color(0xFF121c2a),
@@ -683,7 +683,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
                             course.price == 0
                                 ? 'FREE'
                                 : '\$${course.price.toStringAsFixed(0)}',
-                            style: GoogleFonts.geist(
+                            style: GoogleFonts.outfit(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: course.price == 0

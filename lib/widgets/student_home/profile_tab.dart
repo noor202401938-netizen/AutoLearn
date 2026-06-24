@@ -162,7 +162,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   child: Center(
                     child: Text(
                       displayName.isNotEmpty ? displayName[0].toUpperCase() : 'U',
-                      style: GoogleFonts.geist(
+                      style: GoogleFonts.outfit(
                         fontSize: 48,
                         fontWeight: FontWeight.w800,
                         color: const Color(0xFF4231c0),
@@ -215,7 +215,7 @@ class _ProfileTabState extends State<ProfileTab> {
         const SizedBox(height: 24),
         Text(
           displayName,
-          style: GoogleFonts.geist(
+          style: GoogleFonts.outfit(
             fontSize: 32,
             fontWeight: FontWeight.w700,
             letterSpacing: -0.02,
@@ -274,7 +274,7 @@ class _ProfileTabState extends State<ProfileTab> {
               const SizedBox(height: 12),
               Text(
                 '${_userStats.points}',
-                style: GoogleFonts.geist(
+                style: GoogleFonts.outfit(
                   fontSize: 32,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF4231c0),
@@ -342,7 +342,7 @@ class _ProfileTabState extends State<ProfileTab> {
                     const SizedBox(height: 8),
                     Text(
                       '${_userStats.certificates}',
-                      style: GoogleFonts.geist(
+                      style: GoogleFonts.outfit(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
                       ),
@@ -382,7 +382,7 @@ class _ProfileTabState extends State<ProfileTab> {
                     const SizedBox(height: 8),
                     Text(
                       _userStats.globalRank,
-                      style: GoogleFonts.geist(
+                      style: GoogleFonts.outfit(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
                       ),
@@ -413,7 +413,7 @@ class _ProfileTabState extends State<ProfileTab> {
           children: [
             Text(
               'Recent Achievements',
-              style: GoogleFonts.geist(
+              style: GoogleFonts.outfit(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
               ),
@@ -508,7 +508,7 @@ class _ProfileTabState extends State<ProfileTab> {
           padding: const EdgeInsets.only(left: 4, bottom: 24),
           child: Text(
             'Settings',
-            style: GoogleFonts.geist(
+            style: GoogleFonts.outfit(
               fontSize: 24,
               fontWeight: FontWeight.w700,
             ),

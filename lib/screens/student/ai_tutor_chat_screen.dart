@@ -162,7 +162,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
         centerTitle: false,
         title: Text(
           'AI Tutor',
-          style: GoogleFonts.geist(
+          style: GoogleFonts.outfit(
             fontSize: 24,
             fontWeight: FontWeight.bold,
             color: const Color(0xFF4231C0),
@@ -256,7 +256,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
         const SizedBox(height: 4),
         Text(
           widget.lessonId ?? 'Advanced Prototyping',
-          style: GoogleFonts.geist(
+          style: GoogleFonts.outfit(
             fontSize: 24,
             fontWeight: FontWeight.bold,
             color: const Color(0xFF121C2A),
@@ -302,7 +302,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
             Center(
               child: Text(
                 'AI Tutor',
-                style: GoogleFonts.geist(
+                style: GoogleFonts.outfit(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
                   color: const Color(0xFF121C2A),
@@ -347,9 +347,9 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
             Flexible(
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                decoration: const BoxDecoration(
-                  color: Color(0xFF5B4ED9),
-                  borderRadius: BorderRadius.only(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF5B4ED9),
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(16),
                     topRight: Radius.circular(4),
                     bottomLeft: Radius.circular(16),

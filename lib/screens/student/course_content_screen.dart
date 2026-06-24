@@ -178,7 +178,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
       iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
       title: Text(
         'AutoLearn',
-        style: GoogleFonts.geist(
+        style: GoogleFonts.outfit(
           color: const Color(0xFF4231C0),
           fontWeight: FontWeight.bold,
           fontSize: 24,
@@ -263,9 +263,10 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
           // Video Player Placeholder
           GestureDetector(
             onTap: _handleContinueLearning,
-            child: Container(
-              width: double.infinity,
+            child: AspectRatio(
               aspectRatio: 16 / 9,
+              child: Container(
+                width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 color: const Color(0xFFd9e3f6),
@@ -340,12 +341,13 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                   ),
                 ],
               ),
+              ),
             ),
           ),
           const SizedBox(height: 24),
           Text(
             widget.title,
-            style: GoogleFonts.geist(
+            style: GoogleFonts.outfit(
               fontSize: 32,
               fontWeight: FontWeight.bold,
               color: const Color(0xFF121c2a),
@@ -426,7 +428,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                 children: [
                   Text(
                     '${_courseCompletion.toStringAsFixed(0)}%',
-                    style: GoogleFonts.geist(
+                    style: GoogleFonts.outfit(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
                       color: const Color(0xFF121c2a),
@@ -485,7 +487,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
             children: [
               Text(
                 'Course Modules',
-                style: GoogleFonts.geist(
+                style: GoogleFonts.outfit(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF121c2a),

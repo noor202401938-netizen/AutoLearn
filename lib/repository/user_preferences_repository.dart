@@ -1,4 +1,4 @@
-﻿// lib/repository/user_preferences_repository.dart
+// lib/repository/user_preferences_repository.dart
 import 'dart:convert';
 import '../backend/api_client.dart';
 

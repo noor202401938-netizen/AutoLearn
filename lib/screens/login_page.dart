@@ -98,7 +98,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Reset Password', style: GoogleFonts.geist(fontWeight: FontWeight.w700)),
+        title: Text('Reset Password', style: GoogleFonts.outfit(fontWeight: FontWeight.w700)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -222,7 +222,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                         Text(
                           "Welcome Back!",
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.geist(
+                          style: GoogleFonts.outfit(
                             fontSize: 32,
                             fontWeight: FontWeight.w800,
                             letterSpacing: -1.0,
@@ -385,7 +385,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                               const SizedBox(height: 40),
                               Text(
                                 "AutoLearn",
-                                style: GoogleFonts.geist(
+                                style: GoogleFonts.outfit(
                                   fontSize: 64,
                                   fontWeight: FontWeight.w800,
                                   color: Colors.white,

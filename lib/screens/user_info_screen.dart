@@ -246,7 +246,7 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
                             Text(
                               "Tell Us About Yourself",
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.geist(
+                              style: GoogleFonts.outfit(
                                 fontSize: 32,
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: -1.0,

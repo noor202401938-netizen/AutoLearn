@@ -97,7 +97,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
                             const SizedBox(height: 4),
                             Text(
                               '\$${_totalRevenue.toStringAsFixed(2)}',
-                              style: GoogleFonts.geist(
+                              style: GoogleFonts.outfit(
                                 fontSize: 36,
                                 fontWeight: FontWeight.w800,
                                 color: Colors.white,
@@ -187,7 +187,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
                       children: [
                         Text(
                           'Revenue Trends',
-                          style: GoogleFonts.geist(
+                          style: GoogleFonts.outfit(
                             fontSize: 24,
                             fontWeight: FontWeight.w700,
                             color: colorScheme.onSurface,
@@ -232,7 +232,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
                 children: [
                   Text(
                     'Recent Transactions',
-                    style: GoogleFonts.geist(
+                    style: GoogleFonts.outfit(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
                       color: colorScheme.onSurface,
@@ -317,7 +317,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
           const SizedBox(height: 8),
           Text(
             value,
-            style: GoogleFonts.geist(
+            style: GoogleFonts.outfit(
               fontSize: 24,
               fontWeight: FontWeight.w700,
               color: colorScheme.primary,

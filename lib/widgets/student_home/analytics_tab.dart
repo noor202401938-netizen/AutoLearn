@@ -107,7 +107,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
       children: [
         Text(
           'Your Learning Journey',
-          style: GoogleFonts.geist(
+          style: GoogleFonts.outfit(
             fontSize: 32,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF121c2a),
@@ -179,7 +179,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                     children: [
                       Text(
                         '${(progressPercent * 100).toInt()}%',
-                        style: GoogleFonts.geist(
+                        style: GoogleFonts.outfit(
                           fontSize: 36,
                           fontWeight: FontWeight.w800,
                           color: const Color(0xFF4231c0),

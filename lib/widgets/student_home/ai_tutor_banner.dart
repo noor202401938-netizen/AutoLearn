@@ -48,7 +48,7 @@ class AITutorBanner extends StatelessWidget {
                 children: [
                   Text(
                     'Ask AI Tutor',
-                    style: GoogleFonts.geist(
+                    style: GoogleFonts.outfit(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,

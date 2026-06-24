@@ -74,7 +74,7 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('Notifications', style: GoogleFonts.geist(fontWeight: FontWeight.w700, color: colorScheme.onSurface)),
+        title: Text('Notifications', style: GoogleFonts.outfit(fontWeight: FontWeight.w700, color: colorScheme.onSurface)),
         backgroundColor: colorScheme.surface.withOpacity(0.8),
         elevation: 0,
         iconTheme: IconThemeData(color: colorScheme.onSurface),
@@ -121,7 +121,7 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
           const SizedBox(height: 24),
           Text(
             'No Notifications',
-            style: GoogleFonts.geist(fontSize: 24, fontWeight: FontWeight.w700, color: colorScheme.onSurfaceVariant),
+            style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w700, color: colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 8),
           Text(

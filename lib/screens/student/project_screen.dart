@@ -29,7 +29,7 @@ class ProjectScreen extends StatelessWidget {
         ),
         title: Text(
           'AutoLearn',
-          style: GoogleFonts.geist(
+          style: GoogleFonts.outfit(
             fontSize: 24,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF4231C0),
@@ -84,7 +84,7 @@ class ProjectScreen extends StatelessWidget {
                               const SizedBox(height: 16),
                               Text(
                                 'Autonomous Drone Navigation System',
-                                style: GoogleFonts.geist(
+                                style: GoogleFonts.outfit(
                                   fontSize: 32,
                                   fontWeight: FontWeight.w700,
                                   color: const Color(0xFF121C2A),
@@ -193,8 +193,8 @@ class ProjectScreen extends StatelessWidget {
                               Row(
                                 justifyAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('Overall Completion', style: GoogleFonts.geist(fontSize: 24, fontWeight: FontWeight.w700, color: const Color(0xFF121C2A))),
-                                  Text('65%', style: GoogleFonts.geist(fontSize: 24, fontWeight: FontWeight.w700, color: const Color(0xFF00573A))),
+                                  Text('Overall Completion', style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w700, color: const Color(0xFF121C2A))),
+                                  Text('65%', style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w700, color: const Color(0xFF00573A))),
                                 ],
                               ),
                               const SizedBox(height: 16),
@@ -381,7 +381,7 @@ class ProjectScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-          Text('Core Navigation Logic', style: GoogleFonts.geist(fontSize: 24, fontWeight: FontWeight.w700, color: const Color(0xFF121C2A))),
+          Text('Core Navigation Logic', style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w700, color: const Color(0xFF121C2A))),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -64,7 +64,7 @@ class _AdminHomeState extends State<AdminHome> {
             const SizedBox(width: 12),
             Text(
               'AutoLearn Admin',
-              style: GoogleFonts.geist(
+              style: GoogleFonts.outfit(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
                 color: colorScheme.primary,

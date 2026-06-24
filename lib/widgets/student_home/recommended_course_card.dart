@@ -94,7 +94,7 @@ class RecommendedCourseCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.geist(
+                    style: GoogleFonts.outfit(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.onSurface,

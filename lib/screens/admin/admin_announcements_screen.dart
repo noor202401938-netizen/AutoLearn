@@ -62,7 +62,7 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
               // Section Header
               Text(
                 'Announcements',
-                style: GoogleFonts.geist(
+                style: GoogleFonts.outfit(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                   color: colorScheme.onSurface,
@@ -186,7 +186,7 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
           const SizedBox(height: 8),
           Text(
             value,
-            style: GoogleFonts.geist(
+            style: GoogleFonts.outfit(
               fontSize: 24,
               fontWeight: FontWeight.w700,
               color: valueColor,

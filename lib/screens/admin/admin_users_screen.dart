@@ -228,7 +228,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           const SizedBox(height: 12),
           Text(
             value,
-            style: GoogleFonts.geist(
+            style: GoogleFonts.outfit(
               fontSize: 32,
               fontWeight: FontWeight.w700,
               color: colorScheme.onSurface,

@@ -70,7 +70,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                     children: [
                       Text(
                         'Platform Analytics',
-                        style: GoogleFonts.geist(
+                        style: GoogleFonts.outfit(
                           fontSize: 32,
                           fontWeight: FontWeight.w700,
                           color: colorScheme.onSurface,
@@ -285,7 +285,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
             alignment: Alignment.centerLeft,
             child: Text(
               value,
-              style: GoogleFonts.geist(
+              style: GoogleFonts.outfit(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
                 color: colorScheme.onSurface,
@@ -354,7 +354,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                 children: [
                   Text(
                     'User Growth vs Engagement',
-                    style: GoogleFonts.geist(
+                    style: GoogleFonts.outfit(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
                       color: colorScheme.onSurface,
@@ -488,7 +488,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
         children: [
           Text(
             'Top Performing Courses',
-            style: GoogleFonts.geist(
+            style: GoogleFonts.outfit(
               fontSize: 24,
               fontWeight: FontWeight.w700,
               color: colorScheme.onSurface,
@@ -515,7 +515,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                 const SizedBox(height: 16),
                 _buildCourseItem(context, 'Advanced UI Design Systems', '11.5%', '3.1k Students', Icons.design_services, const Color(0xFF4edea3), const Color(0xFF00573a)),
                 const SizedBox(height: 16),
-                _buildCourseItem(context, 'Data Science Foundations', '9.8%', '1.2k Students', Icons.monitoring, const Color(0xFFd9e3f6), const Color(0xFF474554)),
+                _buildCourseItem(context, 'Data Science Foundations', '9.8%', '1.2k Students', Icons.bar_chart, const Color(0xFFd9e3f6), const Color(0xFF474554)),
               ],
             ),
           )
@@ -610,7 +610,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
               children: [
                 Text(
                   'Recent Conversions',
-                  style: GoogleFonts.geist(
+                  style: GoogleFonts.outfit(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
                     color: colorScheme.onSurface,

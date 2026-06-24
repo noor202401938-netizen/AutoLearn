@@ -30,7 +30,7 @@ class FinalTestScreen extends StatelessWidget {
         ),
         title: Text(
           'AutoLearn',
-          style: GoogleFonts.geist(
+          style: GoogleFonts.outfit(
             fontSize: 24,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF4231C0),
@@ -114,7 +114,7 @@ class FinalTestScreen extends StatelessWidget {
                               const SizedBox(height: 16),
                               Text(
                                 'Machine Learning\nMastery Exam',
-                                style: GoogleFonts.geist(
+                                style: GoogleFonts.outfit(
                                   fontSize: 36,
                                   fontWeight: FontWeight.w800,
                                   color: const Color(0xFF121C2A),
@@ -152,7 +152,7 @@ class FinalTestScreen extends StatelessWidget {
                                   const SizedBox(width: 8),
                                   Text(
                                     'Before You Begin',
-                                    style: GoogleFonts.geist(
+                                    style: GoogleFonts.outfit(
                                       fontSize: 24,
                                       fontWeight: FontWeight.w700,
                                       color: const Color(0xFF121C2A),

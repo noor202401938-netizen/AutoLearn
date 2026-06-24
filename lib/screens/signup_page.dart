@@ -159,7 +159,7 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                         Text(
                           "Create Account",
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.geist(
+                          style: GoogleFonts.outfit(
                             fontSize: 32,
                             fontWeight: FontWeight.w800,
                             letterSpacing: -1.0,
@@ -394,7 +394,7 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                               const SizedBox(height: 40),
                               Text(
                                 "AutoLearn",
-                                style: GoogleFonts.geist(
+                                style: GoogleFonts.outfit(
                                   fontSize: 64,
                                   fontWeight: FontWeight.w800,
                                   color: Colors.white,

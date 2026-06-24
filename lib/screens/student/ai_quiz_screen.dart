@@ -285,7 +285,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                   RichText(
                     text: TextSpan(
                       text: 'Question ${_currentQuestionIndex + 1} ',
-                      style: GoogleFonts.geist(
+                      style: GoogleFonts.outfit(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF121C2A),
@@ -354,7 +354,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
               children: [
                 Text(
                   question.questionText,
-                  style: GoogleFonts.geist(
+                  style: GoogleFonts.outfit(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFF121C2A),
@@ -630,7 +630,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                 const SizedBox(height: 16),
                 Text(
                   '$score%',
-                  style: GoogleFonts.geist(
+                  style: GoogleFonts.outfit(
                     fontSize: 48,
                     fontWeight: FontWeight.bold,
                     color: const Color(0xFF121C2A),
@@ -767,7 +767,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
   String _formatTime(int seconds) {
     final minutes = seconds ~/ 60;
     final secs = seconds % 60;
-    return '${minutes.toString().padLeft(2, \'0\')}:${secs.toString().padLeft(2, \'0\')}';
+    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 
   Future<void> _showCertificate() async {

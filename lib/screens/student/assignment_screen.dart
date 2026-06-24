@@ -226,7 +226,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
         ),
         title: Text(
           'AutoLearn',
-          style: GoogleFonts.geist(
+          style: GoogleFonts.outfit(
             fontSize: 24,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF4231C0),
@@ -270,41 +270,15 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                               flex: isDesktop ? 4 : 0,
                               child: _showFeedback && _existingSubmission != null
                                   ? _buildFeedbackView()
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            final isDesktop = constraints.maxWidth > 800;
-                            return Flex(
-                              direction: isDesktop ? Axis.horizontal : Axis.vertical,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  flex: isDesktop ? 8 : 0,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      _buildAssignmentHeader(),
-                                      const SizedBox(height: 24),
-                                      _buildInstructions(),
-                                      const SizedBox(height: 24),
-                                      _buildResources(),
-                                    ],
-                                  ),
-                                ),
-                                if (isDesktop) const SizedBox(width: 24),
-                                if (!isDesktop) const SizedBox(height: 24),
-                                Expanded(
-                                  flex: isDesktop ? 4 : 0,
-                                  child: _showFeedback && _existingSubmission != null
-                                      ? _buildFeedbackView()
-                                      : _buildSubmissionArea(),
-                                ),
-                              ],
-                            );
-                          }
-                        ),
-                      ),
+                                  : _buildSubmissionArea(),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ),
+                ),
+              ),
       ),
     );
   }
@@ -357,7 +331,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                     const SizedBox(height: 12),
                     Text(
                       _assignment!.title,
-                      style: GoogleFonts.geist(
+                      style: GoogleFonts.outfit(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF121C2A),
@@ -387,7 +361,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                     const SizedBox(height: 4),
                     Text(
                       isOverdue ? '0 Days' : ' Days',
-                      style: GoogleFonts.geist(
+                      style: GoogleFonts.outfit(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                         color: isOverdue ? const Color(0xFFBA1A1A) : const Color(0xFF00724E),
@@ -431,7 +405,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
               const SizedBox(width: 8),
               Text(
                 'Instructions',
-                style: GoogleFonts.geist(
+                style: GoogleFonts.outfit(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF121C2A),
@@ -460,7 +434,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
       children: [
         Text(
           'Required Resources',
-          style: GoogleFonts.geist(
+          style: GoogleFonts.outfit(
             fontSize: 20,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF121C2A),
@@ -559,7 +533,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
           
           Text(
             'Upload Work',
-            style: GoogleFonts.geist(
+            style: GoogleFonts.outfit(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF121C2A),
@@ -710,7 +684,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Final Score', style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12, color: const Color(0xFF474554))),
-                      Text(' / ', style: GoogleFonts.geist(fontSize: 24, fontWeight: FontWeight.w700, color: const Color(0xFF121C2A))),
+                      Text(' / ', style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w700, color: const Color(0xFF121C2A))),
                     ],
                   ),
                 )
@@ -720,7 +694,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
           const SizedBox(height: 24),
           Text(
             'Feedback',
-            style: GoogleFonts.geist(
+            style: GoogleFonts.outfit(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF121C2A),
@@ -742,7 +716,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
           const SizedBox(height: 24),
           Text(
             'Your Submission',
-            style: GoogleFonts.geist(
+            style: GoogleFonts.outfit(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF121C2A),

@@ -139,7 +139,7 @@ class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('Theme & Accessibility', style: GoogleFonts.geist(fontWeight: FontWeight.w700, color: colorScheme.onSurface)),
+        title: Text('Theme & Accessibility', style: GoogleFonts.outfit(fontWeight: FontWeight.w700, color: colorScheme.onSurface)),
         backgroundColor: colorScheme.surface.withOpacity(0.8),
         elevation: 0,
         iconTheme: IconThemeData(color: colorScheme.onSurface),
@@ -302,7 +302,7 @@ class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
       padding: const EdgeInsets.only(bottom: 16.0, left: 8.0),
       child: Text(
         title,
-        style: GoogleFonts.geist(
+        style: GoogleFonts.outfit(
           fontSize: 20,
           fontWeight: FontWeight.w800,
           color: colorScheme.primary,

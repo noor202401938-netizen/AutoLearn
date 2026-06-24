@@ -110,7 +110,7 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
                         Text(
                           'Welcome to\nAutoLearn',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.geist(
+                          style: GoogleFonts.outfit(
                             fontSize: 48,
                             fontWeight: FontWeight.w800,
                             height: 1.1,

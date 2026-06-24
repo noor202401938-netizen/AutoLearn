@@ -74,7 +74,7 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
               // Dashboard Header
               Text(
                 'Course Management',
-                style: GoogleFonts.geist(
+                style: GoogleFonts.outfit(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                   color: colorScheme.onSurface,
@@ -156,12 +156,14 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
                     final isDesktop = constraints.maxWidth > 800;
                     return GridView.builder(
                       itemCount: _filteredCourses.length,
-                      crossAxisCount: isDesktop ? 2 : 1,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: isDesktop ? 2 : 1,
+                        mainAxisSpacing: 16,
+                        crossAxisSpacing: 16,
+                        childAspectRatio: isDesktop ? 3 : 2.5,
+                      ),
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
-                      childAspectRatio: isDesktop ? 3 : 2.5,
                       itemBuilder: (context, index) {
                         final course = _filteredCourses[index];
                         final isPublished = course.isPublished;
@@ -276,7 +278,7 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
                     children: [
                       Text(
                         title,
-                        style: GoogleFonts.geist(
+                        style: GoogleFonts.outfit(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
                           color: colorScheme.onSurface,

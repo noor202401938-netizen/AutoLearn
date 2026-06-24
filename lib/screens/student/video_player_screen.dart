@@ -189,7 +189,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         ),
         title: Text(
           'AutoLearn',
-          style: GoogleFonts.geist(
+          style: GoogleFonts.outfit(
             fontSize: 24,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF4231C0),
@@ -336,11 +336,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           const SizedBox(height: 8),
           Text(
             widget.lesson.title,
-            style: GoogleFonts.geist(fontSize: 32, fontWeight: FontWeight.w700, color: const Color(0xFF121C2A)),
+            style: GoogleFonts.outfit(fontSize: 32, fontWeight: FontWeight.w700, color: const Color(0xFF121C2A)),
           ),
           const SizedBox(height: 8),
           Text(
-            widget.lesson.description,
+            widget.lesson.content ?? '',
             style: GoogleFonts.inter(fontSize: 16, color: const Color(0xFF474554), height: 1.5),
           ),
           const SizedBox(height: 24),
@@ -573,7 +573,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Up Next', style: GoogleFonts.geist(fontSize: 24, fontWeight: FontWeight.w700, color: const Color(0xFF121C2A))),
+              Text('Up Next', style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w700, color: const Color(0xFF121C2A))),
               Text('View Syllabus', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: const Color(0xFF4231C0), fontSize: 14)),
             ],
           ),

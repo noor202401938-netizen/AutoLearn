@@ -120,7 +120,7 @@ class _StudentHomeState extends State<StudentHome> {
         if (uid == null) {
           return Text(
             'Student',
-            style: GoogleFonts.geist(
+            style: GoogleFonts.outfit(
               fontSize: 36,
               fontWeight: FontWeight.w800,
               letterSpacing: -0.03 * 36,
@@ -145,7 +145,7 @@ class _StudentHomeState extends State<StudentHome> {
             }
             return Text(
               name,
-              style: GoogleFonts.geist(
+              style: GoogleFonts.outfit(
                 fontSize: 36,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.03 * 36,
@@ -329,7 +329,7 @@ class _StudentHomeState extends State<StudentHome> {
                   children: [
                     Text(
                       'Welcome back, ',
-                      style: GoogleFonts.geist(
+                      style: GoogleFonts.outfit(
                         fontSize: 36,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.03 * 36,
@@ -409,7 +409,7 @@ class _StudentHomeState extends State<StudentHome> {
                   children: [
                     Text(
                       'Continue Learning',
-                      style: GoogleFonts.geist(
+                      style: GoogleFonts.outfit(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
@@ -492,7 +492,7 @@ class _StudentHomeState extends State<StudentHome> {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Text(
                 'For You',
-                style: GoogleFonts.geist(
+                style: GoogleFonts.outfit(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),

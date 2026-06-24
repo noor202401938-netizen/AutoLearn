@@ -92,7 +92,7 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
                             children: [
                               Icon(Icons.workspace_premium_outlined, size: 80, color: Colors.grey.withOpacity(0.5)),
                               const SizedBox(height: 16),
-                              Text('No Certificates Yet', style: GoogleFonts.geist(fontSize: 20, fontWeight: FontWeight.bold, color: const Color(0xFF121C2A))),
+                              Text('No Certificates Yet', style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: const Color(0xFF121C2A))),
                               const SizedBox(height: 8),
                               Text('Complete lessons to earn certificates', style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF474554))),
                             ],
@@ -151,7 +151,7 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
             const SizedBox(height: 16),
             Text(
               'My Achievements',
-              style: GoogleFonts.geist(fontSize: 28, fontWeight: FontWeight.w800, color: Colors.white),
+              style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.w800, color: Colors.white),
             ),
             const SizedBox(height: 8),
             Text(
@@ -232,7 +232,7 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
                     children: [
                       Text(
                         certificate.courseName,
-                        style: GoogleFonts.geist(fontSize: 18, fontWeight: FontWeight.w700, color: const Color(0xFF121C2A)),
+                        style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w700, color: const Color(0xFF121C2A)),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -247,7 +247,7 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          'Credential ID: ${certificate.id.substring(0, 8)}...',
+                          'Credential ID: ${certificate.certificateId.length >= 8 ? certificate.certificateId.substring(0, 8) : certificate.certificateId}...',
                           style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF4231C0)),
                         ),
                       ),

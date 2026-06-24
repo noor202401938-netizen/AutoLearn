@@ -250,7 +250,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 const SizedBox(height: 30),
                 Text(
                   'AutoLearn',
-                  style: GoogleFonts.geist(
+                  style: GoogleFonts.outfit(
                     fontSize: 36,
                     fontWeight: FontWeight.w800,
                     color: theme.colorScheme.onSurface,
