@@ -109,12 +109,10 @@ class _StudentHomeState extends State<StudentHome> {
         final uid = user?['uid'] as String?;
 
         if (uid == null) {
-          return const Text(
+          return Text(
             'Student',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
+            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
             ),
           );
         }
@@ -135,10 +133,8 @@ class _StudentHomeState extends State<StudentHome> {
             }
             return Text(
               name,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
+              style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
               ),
             );
           },
@@ -195,27 +191,17 @@ class _StudentHomeState extends State<StudentHome> {
         ],
       ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
-              Theme.of(context).colorScheme.background,
-            ],
-            stops: const [0.0, 0.3],
-          ),
-        ),
+        color: Theme.of(context).colorScheme.background,
         child: Row(
           children: [
             NavigationRail(
               selectedIndex: _selectedIndex,
               onDestinationSelected: _onItemTapped,
-              backgroundColor: Theme.of(context).colorScheme.surface.withOpacity(0.5),
-              selectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.secondary),
-              unselectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurfaceVariant),
-              selectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
-              unselectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              selectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.primary),
+              unselectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+              selectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
+              unselectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
               extended: MediaQuery.of(context).size.width >= 800,
               destinations: const [
                 NavigationRailDestination(
@@ -240,7 +226,7 @@ class _StudentHomeState extends State<StudentHome> {
                 ),
               ],
             ),
-            VerticalDivider(thickness: 1, width: 1, color: Colors.white.withOpacity(0.1)),
+            VerticalDivider(thickness: 1, width: 1, color: Theme.of(context).dividerColor),
             Expanded(
               child: _getSelectedScreen(),
             ),
@@ -274,14 +260,14 @@ class _StudentHomeState extends State<StudentHome> {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: Theme.of(context).dividerColor),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
+                        color: Theme.of(context).shadowColor.withOpacity(0.05),
+                        blurRadius: 24,
+                        offset: const Offset(0, 8),
                       ),
                     ],
                   ),
@@ -291,34 +277,34 @@ class _StudentHomeState extends State<StudentHome> {
                         child: _buildQuickStat(
                           'Courses',
                           '0',
-                          Icons.book,
-                          Theme.of(context).colorScheme.secondary,
-                        ),
-                      ),
-                      Container(
-                        width: 1,
-                        height: 40,
-                        color: Colors.white.withOpacity(0.1),
-                      ),
-                      Expanded(
-                        child: _buildQuickStat(
-                          'Completed',
-                          '0',
-                          Icons.check_circle,
+                          Icons.book_rounded,
                           Theme.of(context).colorScheme.primary,
                         ),
                       ),
                       Container(
                         width: 1,
                         height: 40,
-                        color: Colors.white.withOpacity(0.1),
+                        color: Theme.of(context).dividerColor,
+                      ),
+                      Expanded(
+                        child: _buildQuickStat(
+                          'Completed',
+                          '0',
+                          Icons.check_circle_rounded,
+                          Theme.of(context).colorScheme.secondary,
+                        ),
+                      ),
+                      Container(
+                        width: 1,
+                        height: 40,
+                        color: Theme.of(context).dividerColor,
                       ),
                       Expanded(
                         child: _buildQuickStat(
                           'Hours',
                           '0',
-                          Icons.access_time,
-                          Colors.orangeAccent,
+                          Icons.access_time_rounded,
+                          Colors.amber,
                         ),
                       ),
                     ],
@@ -346,18 +332,17 @@ class _StudentHomeState extends State<StudentHome> {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Theme.of(context).colorScheme.secondary.withOpacity(0.8),
-                      Theme.of(context).colorScheme.primaryContainer,
+                      Theme.of(context).colorScheme.primary,
+                      Theme.of(context).colorScheme.primary.withBlue(255),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white.withOpacity(0.2)),
+                  borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
-                      blurRadius: 20,
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                      blurRadius: 24,
                       offset: const Offset(0, 8),
                     )
                   ],
@@ -367,12 +352,12 @@ class _StudentHomeState extends State<StudentHome> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: const Icon(
-                        Icons.auto_awesome,
-                        color: Colors.white,
+                      child: Icon(
+                        Icons.auto_awesome_rounded,
+                        color: Theme.of(context).colorScheme.onPrimary,
                         size: 32,
                       ),
                     ),
@@ -384,7 +369,7 @@ class _StudentHomeState extends State<StudentHome> {
                           Text(
                             'AI Tutor',
                             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onPrimary,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -392,15 +377,15 @@ class _StudentHomeState extends State<StudentHome> {
                           Text(
                             'Get instant help with your questions',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.white.withOpacity(0.9),
+                              color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.9),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const Icon(
-                      Icons.arrow_forward_ios,
-                      color: Colors.white,
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: Theme.of(context).colorScheme.onPrimary,
                       size: 20,
                     ),
                   ],
@@ -456,80 +441,68 @@ class _StudentHomeState extends State<StudentHome> {
                             ),
                           );
                         },
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Container(
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: Colors.blue[50],
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(12),
-                                  ),
-                                ),
-                                child: course.thumbnailURL.isNotEmpty
-                                    ? Image.network(
-                                        course.thumbnailURL,
-                                        fit: BoxFit.cover,
-                                      )
-                                    : const Icon(
-                                        Icons.school,
-                                        size: 40,
-                                        color: Color(0xFF4169E1),
-                                      ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    course.title,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.star,
-                                          size: 14, color: Colors.amber),
-                                      const SizedBox(width: 4),
-                                      Flexible(
-                                        child: Text(
-                                          course.rating.toStringAsFixed(1),
-                                          style: const TextStyle(fontSize: 12),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      const Spacer(),
-                                      Flexible(
-                                        child: Text(
-                                          course.price == 0
-                                              ? 'FREE'
-                                              : '\$${course.price.toStringAsFixed(0)}',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: course.price == 0
-                                                ? Colors.green
-                                                : const Color(0xFF4169E1),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Container(
+                                        width: double.infinity,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                                          borderRadius: const BorderRadius.vertical(
+                                            top: Radius.circular(20),
                                           ),
-                                          overflow: TextOverflow.ellipsis,
                                         ),
+                                        child: course.thumbnailURL.isNotEmpty
+                                            ? ClipRRect(
+                                                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                                                child: Image.network(
+                                                  course.thumbnailURL,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              )
+                                            : Icon(
+                                                Icons.school_rounded,
+                                                size: 48,
+                                                color: Theme.of(context).colorScheme.primary,
+                                              ),
                                       ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            course.title,
+                                            style: Theme.of(context).textTheme.titleMedium,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.star_rounded, size: 16, color: Colors.amber),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                course.rating.toStringAsFixed(1),
+                                                style: Theme.of(context).textTheme.labelLarge,
+                                              ),
+                                              const Spacer(),
+                                              Text(
+                                                course.price == 0 ? 'FREE' : '\$${course.price.toStringAsFixed(0)}',
+                                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                                  color: course.price == 0 ? Colors.green : Theme.of(context).colorScheme.primary,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                       ),
                     ),
                   );
@@ -588,19 +561,6 @@ class _StudentHomeState extends State<StudentHome> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            const Color(0xFF4169E1),
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 24,
-                                          vertical: 14,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                      ),
                                       onPressed: () {
                                         setState(() => _selectedIndex = 1);
                                       },
@@ -608,22 +568,11 @@ class _StudentHomeState extends State<StudentHome> {
                                     ),
                                     const SizedBox(width: 12),
                                     OutlinedButton(
-                                      style: OutlinedButton.styleFrom(
-                                        side: BorderSide(
-                                            color: Colors.grey.shade300,
-                                            width: 2),
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 24, vertical: 14),
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                      ),
                                       onPressed: () {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (_) =>
-                                                const MyCoursesScreen(),
+                                            builder: (_) => const MyCoursesScreen(),
                                           ),
                                         );
                                       },
@@ -661,83 +610,58 @@ class _StudentHomeState extends State<StudentHome> {
                                         );
                                       },
                                       child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Expanded(
                                             child: Container(
                                               width: double.infinity,
                                               decoration: BoxDecoration(
-                                                color: Colors.blue[50],
-                                                borderRadius:
-                                                    const BorderRadius.vertical(
-                                                  top: Radius.circular(12),
+                                                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                                                borderRadius: const BorderRadius.vertical(
+                                                  top: Radius.circular(20),
                                                 ),
                                               ),
-                                              child: course
-                                                      .thumbnailURL.isNotEmpty
-                                                  ? Image.network(
-                                                      course.thumbnailURL,
-                                                      fit: BoxFit.cover,
+                                              child: course.thumbnailURL.isNotEmpty
+                                                  ? ClipRRect(
+                                                      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                                                      child: Image.network(
+                                                        course.thumbnailURL,
+                                                        fit: BoxFit.cover,
+                                                      ),
                                                     )
-                                                  : const Icon(
-                                                      Icons.school,
-                                                      size: 40,
-                                                      color: Color(0xFF4169E1),
+                                                  : Icon(
+                                                      Icons.school_rounded,
+                                                      size: 48,
+                                                      color: Theme.of(context).colorScheme.primary,
                                                     ),
                                             ),
                                           ),
                                           Padding(
-                                            padding: const EdgeInsets.all(12),
+                                            padding: const EdgeInsets.all(16),
                                             child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Text(
                                                   course.title,
-                                                  style: const TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
+                                                  style: Theme.of(context).textTheme.titleMedium,
                                                   maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
+                                                  overflow: TextOverflow.ellipsis,
                                                 ),
-                                                const SizedBox(height: 4),
+                                                const SizedBox(height: 8),
                                                 Row(
                                                   children: [
-                                                    const Icon(Icons.star,
-                                                        size: 14,
-                                                        color: Colors.amber),
+                                                    const Icon(Icons.star_rounded, size: 16, color: Colors.amber),
                                                     const SizedBox(width: 4),
-                                                    Flexible(
-                                                      child: Text(
-                                                        course.rating
-                                                            .toStringAsFixed(1),
-                                                        style: const TextStyle(
-                                                            fontSize: 12),
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                      ),
+                                                    Text(
+                                                      course.rating.toStringAsFixed(1),
+                                                      style: Theme.of(context).textTheme.labelLarge,
                                                     ),
                                                     const Spacer(),
-                                                    Flexible(
-                                                      child: Text(
-                                                        course.price == 0
-                                                            ? 'FREE'
-                                                            : '\$${course.price.toStringAsFixed(0)}',
-                                                        style: TextStyle(
-                                                          fontSize: 14,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: course.price ==
-                                                                  0
-                                                              ? Colors.green
-                                                              : const Color(
-                                                                  0xFF4169E1),
-                                                        ),
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
+                                                    Text(
+                                                      course.price == 0 ? 'FREE' : '\$${course.price.toStringAsFixed(0)}',
+                                                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                                        color: course.price == 0 ? Colors.green : Theme.of(context).colorScheme.primary,
+                                                        fontWeight: FontWeight.bold,
                                                       ),
                                                     ),
                                                   ],

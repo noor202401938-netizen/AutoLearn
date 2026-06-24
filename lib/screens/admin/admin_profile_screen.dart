@@ -123,16 +123,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
         elevation: 0,
       ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Theme.of(context).colorScheme.primaryContainer,
-              Theme.of(context).colorScheme.background,
-            ],
-          ),
-        ),
+        
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : Center(

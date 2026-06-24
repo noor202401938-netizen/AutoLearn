@@ -141,18 +141,18 @@ class FilterChips extends StatelessWidget {
                 cat,
                 style: TextStyle(
                   color: isSelected 
-                      ? (isDark ? Colors.black : Colors.white)
-                      : (isDark ? Colors.white : Colors.black87),
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               selected: isSelected,
               onSelected: (bool value) {},
-              backgroundColor: isDark ? Colors.grey[800] : Colors.white,
-              selectedColor: isDark ? Colors.white : Colors.black,
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              selectedColor: Theme.of(context).colorScheme.primary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
-                side: BorderSide(color: isDark ? Colors.grey[700]! : Colors.grey[300]!),
+                side: BorderSide(color: Theme.of(context).dividerColor),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             ),
@@ -187,11 +187,11 @@ class ActivityChart extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: cardBgColor,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Theme.of(context).shadowColor.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -214,7 +214,7 @@ class ActivityChart extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isDark ? Colors.grey[800] : Colors.grey[100],
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -272,7 +272,7 @@ class ActivityChart extends StatelessWidget {
                       height: height,
                       decoration: BoxDecoration(
                         color: isCurrent 
-                            ? (isDark ? Colors.white : Colors.black)
+                            ? Theme.of(context).colorScheme.primary
                             : DashboardColors.getCardColor(context, index),
                         borderRadius: BorderRadius.circular(6),
                       ),

@@ -101,27 +101,27 @@ class _UserInfoPageState extends State<UserInfoPage> {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
-      style: const TextStyle(color: Colors.white),
+      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
       decoration: InputDecoration(
         labelText: labelText,
-        labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+        labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
         hintText: hintText,
-        hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
-        prefixIcon: Icon(prefixIcon, color: Theme.of(context).colorScheme.secondary),
+        hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5)),
+        prefixIcon: Icon(prefixIcon, color: Theme.of(context).colorScheme.primary),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
         ),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.05),
+        fillColor: Theme.of(context).colorScheme.surface,
       ),
       validator: validator,
     );
@@ -136,26 +136,26 @@ class _UserInfoPageState extends State<UserInfoPage> {
   }) {
     return DropdownButtonFormField<String>(
       value: value,
-      dropdownColor: const Color(0xFF1E1E2C),
-      style: const TextStyle(color: Colors.white),
+      dropdownColor: Theme.of(context).colorScheme.surface,
+      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
       decoration: InputDecoration(
         labelText: labelText,
-        labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-        prefixIcon: Icon(prefixIcon, color: Theme.of(context).colorScheme.secondary),
+        labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        prefixIcon: Icon(prefixIcon, color: Theme.of(context).colorScheme.primary),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
         ),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.05),
+        fillColor: Theme.of(context).colorScheme.surface,
       ),
       items: items.map((item) {
         return DropdownMenuItem(value: item, child: Text(item));
@@ -167,18 +167,8 @@ class _UserInfoPageState extends State<UserInfoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Theme.of(context).colorScheme.primaryContainer,
-              Theme.of(context).colorScheme.background,
-            ],
-            stops: const [0.0, 0.6],
-          ),
-        ),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -189,14 +179,13 @@ class _UserInfoPageState extends State<UserInfoPage> {
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                       shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white.withOpacity(0.2)),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.person_add_rounded,
                       size: 60,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   const SizedBox(height: 30),
@@ -205,32 +194,34 @@ class _UserInfoPageState extends State<UserInfoPage> {
                   Container(
                     padding: const EdgeInsets.all(32),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.05),
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.white.withOpacity(0.1)),
+                      border: Border.all(color: Theme.of(context).dividerColor),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(context).shadowColor.withOpacity(0.05),
+                          blurRadius: 24,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
                     ),
                     child: Form(
                       key: _formKey,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const Text(
+                          Text(
                             "Tell Us About Yourself",
                             textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             "Help us personalize your learning experience",
                             textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white.withOpacity(0.7),
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           const SizedBox(height: 28),
 
@@ -285,18 +276,16 @@ class _UserInfoPageState extends State<UserInfoPage> {
 
                           // Continue Button
                           _isLoading
-                              ? const Center(
-                            child: CircularProgressIndicator(color: Colors.white),
+                              ? Center(
+                            child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
                           )
                               : Container(
                             decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
-                              ),
+                              
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
                                   blurRadius: 12,
                                   offset: const Offset(0, 4),
                                 ),
@@ -304,9 +293,8 @@ class _UserInfoPageState extends State<UserInfoPage> {
                             ),
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.transparent,
-                                shadowColor: Colors.transparent,
-                                foregroundColor: Colors.white,
+                                backgroundColor: Theme.of(context).colorScheme.primary,
+                                foregroundColor: Theme.of(context).colorScheme.onPrimary,
                                 minimumSize: const Size(double.infinity, 56),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
@@ -324,7 +312,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                           ),
                           const SizedBox(height: 16),
 
-                          // Skip Button
+                           // Skip Button
                           TextButton(
                             onPressed: () async {
                               final prefs = await SharedPreferences.getInstance();
@@ -336,7 +324,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                             child: Text(
                               "Skip for now",
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.7),
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -350,10 +338,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                             children: [
                               Text(
                                 "Already have an account? ",
-                                  style: TextStyle(
-                                    color: Colors.white.withOpacity(0.7),
-                                    fontSize: 15,
-                                  ),
+                                  style: Theme.of(context).textTheme.bodyMedium,
                               ),
                               TextButton(
                                 onPressed: () async {
@@ -363,14 +348,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                                     Navigator.pushReplacementNamed(context, '/login');
                                   }
                                 },
-                                child: Text(
-                                  "Login",
-                                    style: TextStyle(
-                                      color: Theme.of(context).colorScheme.secondary,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                    ),
-                                ),
+                                child: const Text("Login"),
                               ),
                             ],
                           ),

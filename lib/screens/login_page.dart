@@ -165,7 +165,10 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
+      backgroundColor: theme.colorScheme.background,
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isDesktop = constraints.maxWidth > 800;
@@ -178,14 +181,14 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                 child: Container(
                   padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface.withOpacity(isDesktop ? 1.0 : 0.8),
+                    color: theme.colorScheme.surface,
                     borderRadius: BorderRadius.circular(24),
-                    border: isDesktop ? null : Border.all(color: Colors.white.withOpacity(0.1)),
+                    border: Border.all(color: theme.dividerColor),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 40,
-                        offset: const Offset(0, 10),
+                        color: theme.shadowColor.withOpacity(0.05),
+                        blurRadius: 24,
+                        offset: const Offset(0, 8),
                       ),
                     ],
                   ),
@@ -199,7 +202,14 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                           Center(
                             child: Hero(
                               tag: 'app_logo',
-                              child: Icon(Icons.auto_awesome, size: 48, color: Theme.of(context).colorScheme.primary),
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.primary.withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(Icons.school_rounded, size: 48, color: theme.colorScheme.primary),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 24),
@@ -207,16 +217,15 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                         Text(
                           "Welcome Back!",
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontWeight: FontWeight.bold,
+                          style: theme.textTheme.headlineMedium?.copyWith(
+                            color: theme.colorScheme.primary,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           "Sign in to continue learning",
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyMedium,
+                          style: theme.textTheme.bodyMedium,
                         ),
                         const SizedBox(height: 32),
 
@@ -224,7 +233,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                          style: TextStyle(color: theme.colorScheme.onSurface),
                           decoration: const InputDecoration(
                             labelText: "Email",
                             hintText: "Enter your email",
@@ -242,7 +251,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                          style: TextStyle(color: theme.colorScheme.onSurface),
                           decoration: InputDecoration(
                             labelText: "Password",
                             hintText: "Enter your password",
@@ -268,9 +277,9 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                             Checkbox(
                               value: _rememberMe,
                               onChanged: (v) => setState(() => _rememberMe = v ?? false),
-                              activeColor: Theme.of(context).colorScheme.primary,
+                              activeColor: theme.colorScheme.primary,
                             ),
-                            Text("Remember me", style: Theme.of(context).textTheme.bodyMedium),
+                            Text("Remember me", style: theme.textTheme.bodyMedium),
                             const Spacer(),
                             TextButton(
                               onPressed: _showForgotPasswordDialog,
@@ -293,7 +302,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text("Don't have an account? ", style: Theme.of(context).textTheme.bodyMedium),
+                            Text("Don't have an account? ", style: theme.textTheme.bodyMedium),
                             TextButton(
                               onPressed: () => Navigator.pushReplacementNamed(context, '/signup'),
                               child: const Text("Sign Up"),
@@ -315,20 +324,13 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Theme.of(context).colorScheme.primaryContainer,
-                          Theme.of(context).colorScheme.secondary.withOpacity(0.5),
-                        ],
-                      ),
+                      color: theme.colorScheme.primary,
                     ),
                     child: Stack(
                       children: [
                         Positioned.fill(
                           child: CustomPaint(
-                            painter: _GridPainter(color: Colors.white.withOpacity(0.05)),
+                            painter: _GridPainter(color: Colors.white.withOpacity(0.1)),
                           ),
                         ),
                         Center(
@@ -340,17 +342,16 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                                 child: Container(
                                   padding: const EdgeInsets.all(24),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.1),
+                                    color: Colors.white.withOpacity(0.2),
                                     shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.white.withOpacity(0.2)),
                                   ),
-                                  child: const Icon(Icons.auto_awesome, size: 80, color: Colors.white),
+                                  child: const Icon(Icons.school_rounded, size: 80, color: Colors.white),
                                 ),
                               ),
                               const SizedBox(height: 40),
                               Text(
                                 "AutoLearn",
-                                style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                                style: theme.textTheme.displayLarge?.copyWith(
                                   color: Colors.white,
                                 ),
                               ),
@@ -358,8 +359,8 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                               Text(
                                 "Master the future with AI-driven\npersonalized learning paths.",
                                 textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                  color: Colors.white.withOpacity(0.8),
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: Colors.white.withOpacity(0.9),
                                 ),
                               ),
                             ],
@@ -372,7 +373,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                 // Right Side - Form
                 Expanded(
                   child: Container(
-                    color: Theme.of(context).colorScheme.background,
+                    color: theme.colorScheme.background,
                     child: formContent,
                   ),
                 ),
@@ -383,20 +384,13 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           // Mobile View
           return Container(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Theme.of(context).colorScheme.primaryContainer,
-                  Theme.of(context).colorScheme.background,
-                ],
-              ),
+              color: theme.colorScheme.background,
             ),
             child: Stack(
               children: [
                 Positioned.fill(
                   child: CustomPaint(
-                    painter: _GridPainter(color: Colors.white.withOpacity(0.02)),
+                    painter: _GridPainter(color: theme.colorScheme.primary.withOpacity(0.05)),
                   ),
                 ),
                 SafeArea(child: formContent),

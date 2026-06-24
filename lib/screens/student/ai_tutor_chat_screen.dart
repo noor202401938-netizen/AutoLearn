@@ -176,17 +176,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
         ],
       ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
-              Theme.of(context).colorScheme.background,
-            ],
-            stops: const [0.0, 0.3],
-          ),
-        ),
+        
         child: SafeArea(
           child: _isLoading
               ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary))
@@ -452,14 +442,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
             const SizedBox(width: 12),
             Container(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: _isSending
-                      ? [Colors.grey, Colors.grey]
-                      : [
-                          Theme.of(context).colorScheme.primary,
-                          Theme.of(context).colorScheme.secondary,
-                        ],
-                ),
+                
                 shape: BoxShape.circle,
                 boxShadow: [
                   if (!_isSending)

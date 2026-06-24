@@ -41,7 +41,7 @@ class GradientMenu extends StatelessWidget {
         color: Theme.of(context).colorScheme.background,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Theme.of(context).shadowColor.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -64,7 +64,7 @@ class GradientMenu extends StatelessWidget {
                   width: isSelected ? 130.0 : 60.0,
                   height: 60.0,
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.transparent : Colors.white,
+                    color: isSelected ? Colors.transparent : Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(30),
                     boxShadow: isSelected
                         ? [
@@ -76,7 +76,7 @@ class GradientMenu extends StatelessWidget {
                           ]
                         : [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Theme.of(context).shadowColor.withOpacity(0.05),
                               blurRadius: 5,
                               offset: const Offset(0, 2),
                             )
@@ -94,7 +94,7 @@ class GradientMenu extends StatelessWidget {
                     children: [
                       Icon(
                         item['icon'] as IconData,
-                        color: isSelected ? Colors.white : Colors.grey.shade500,
+                        color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
                         size: 24,
                       ),
                       if (isSelected) ...[

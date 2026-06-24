@@ -93,15 +93,15 @@ class _StudentHomeState extends State<StudentHome> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text(
-          'AI Tutor',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        title: Text(
+          'Admin Dashboard',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+            icon: Icon(Icons.notifications_outlined, color: Theme.of(context).colorScheme.primary),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('No new notifications')),
@@ -113,17 +113,7 @@ class _StudentHomeState extends State<StudentHome> {
       ),
       body: isMobile
           ? Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
-                    Theme.of(context).colorScheme.background,
-                  ],
-                  stops: const [0.0, 0.4],
-                ),
-              ),
+              
               child: SafeArea(
                 child: _getSelectedScreen(),
               ),
@@ -186,9 +176,16 @@ class _StudentHomeState extends State<StudentHome> {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: Theme.of(context).dividerColor),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(context).shadowColor.withOpacity(0.05),
+                        blurRadius: 24,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
                   child: Row(
                     children: [
@@ -196,34 +193,34 @@ class _StudentHomeState extends State<StudentHome> {
                         child: _buildQuickStat(
                           'Courses',
                           _stats['enrolledCourses'].toString(),
-                          Icons.book,
+                          Icons.book_rounded,
                           Theme.of(context).colorScheme.primary,
                         ),
                       ),
                       Container(
                         width: 1,
                         height: 40,
-                        color: Colors.white.withOpacity(0.1),
+                        color: Theme.of(context).dividerColor,
                       ),
                       Expanded(
                         child: _buildQuickStat(
                           'Completed',
                           _stats['completedCourses'].toString(),
-                          Icons.check_circle,
+                          Icons.check_circle_rounded,
                           Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       Container(
                         width: 1,
                         height: 40,
-                        color: Colors.white.withOpacity(0.1),
+                        color: Theme.of(context).dividerColor,
                       ),
                       Expanded(
                         child: _buildQuickStat(
                           'Lessons',
                           _stats['totalLessonsWatched'].toString(),
-                          Icons.play_circle,
-                          Colors.orangeAccent,
+                          Icons.play_circle_rounded,
+                          Colors.amber,
                         ),
                       ),
                     ],
@@ -242,12 +239,12 @@ class _StudentHomeState extends State<StudentHome> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Featured Courses',
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     TextButton(
@@ -272,14 +269,14 @@ class _StudentHomeState extends State<StudentHome> {
                       Icon(
                         Icons.auto_stories_outlined,
                         size: 80,
-                        color: Colors.white.withOpacity(0.3),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         'No courses available yet',
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.white.withOpacity(0.5),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -308,10 +305,10 @@ class _StudentHomeState extends State<StudentHome> {
         const SizedBox(height: 8),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 4),
@@ -319,7 +316,7 @@ class _StudentHomeState extends State<StudentHome> {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.white.withOpacity(0.5),
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ],
@@ -340,15 +337,15 @@ class _StudentHomeState extends State<StudentHome> {
             Icon(
               Icons.analytics_outlined,
               size: 100,
-              color: Colors.white.withOpacity(0.3),
+              color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'No progress data',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 8),
@@ -356,7 +353,7 @@ class _StudentHomeState extends State<StudentHome> {
               'Start learning to track your progress',
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.white.withOpacity(0.5),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -395,10 +392,10 @@ class _StudentHomeState extends State<StudentHome> {
           const SizedBox(height: 20),
           Text(
             _userProfile?['displayName'] ?? 'Student',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 8),
@@ -406,7 +403,7 @@ class _StudentHomeState extends State<StudentHome> {
             _userProfile?['email'] ?? '',
             style: TextStyle(
               fontSize: 16,
-              color: Colors.white.withOpacity(0.7),
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 32),
@@ -474,20 +471,20 @@ class _StudentHomeState extends State<StudentHome> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: ListTile(
-        leading: Icon(icon, color: Theme.of(context).colorScheme.secondary),
+        leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
         title: Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.w500,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
-        trailing: Icon(Icons.chevron_right, color: Colors.white.withOpacity(0.5)),
+        trailing: Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),
         onTap: onTap,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -704,15 +701,10 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Widget _buildCustomSidebar() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    
-    // We can use a sleek dark aesthetic for the sidebar even on light mode (like the admin dashboard),
-    // or keep it matching the surface color but elevated. 
-    // Given Dribbble aesthetics, a clean white or dark sidebar with soft rounding is best.
-    final bgColor = isDark ? const Color(0xFF1E2433) : Colors.white;
-    final activeBgColor = isDark ? const Color(0xFF3B445B) : const Color(0xFFF0F4FF);
-    final activeTextColor = isDark ? Colors.white : Theme.of(context).colorScheme.primary;
-    final inactiveTextColor = isDark ? Colors.grey[400]! : Colors.grey[600]!;
+    final bgColor = Theme.of(context).colorScheme.surface;
+    final activeBgColor = Theme.of(context).colorScheme.primary.withOpacity(0.1);
+    final activeTextColor = Theme.of(context).colorScheme.primary;
+    final inactiveTextColor = Theme.of(context).colorScheme.onSurfaceVariant;
 
     return Container(
       width: 100,
@@ -720,7 +712,7 @@ class _StudentHomeState extends State<StudentHome> {
         color: bgColor,
         border: Border(
           right: BorderSide(
-            color: Theme.of(context).dividerColor.withOpacity(0.05),
+            color: Theme.of(context).dividerColor,
             width: 1,
           ),
         ),

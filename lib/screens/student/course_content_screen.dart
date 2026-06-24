@@ -92,17 +92,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
-              Theme.of(context).colorScheme.background,
-            ],
-            stops: const [0.0, 0.3],
-          ),
-        ),
+        
         child: SafeArea(
           child: _loading
               ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary))

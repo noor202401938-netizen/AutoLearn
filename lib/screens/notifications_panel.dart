@@ -70,36 +70,26 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Notifications', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: Text('Notifications', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.primary),
         actions: [
           if (_notifications.any((n) => !n.isRead))
             TextButton(
               onPressed: _markAllAsRead,
-              child: const Text(
+              child: Text(
                 'Mark all read',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontWeight: FontWeight.bold),
               ),
             ),
         ],
       ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
-              Theme.of(context).colorScheme.background,
-            ],
-            stops: const [0.0, 0.4],
-          ),
-        ),
+        color: Theme.of(context).colorScheme.background,
         child: SafeArea(
           child: _isLoading
-              ? const Center(child: CircularProgressIndicator(color: Colors.white))
+              ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary))
               : _notifications.isEmpty
                   ? _buildEmptyState()
                   : _buildNotificationsList(),
@@ -113,11 +103,11 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.notifications_none, size: 80, color: Colors.white.withOpacity(0.3)),
+          Icon(Icons.notifications_none_rounded, size: 80, color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5)),
           const SizedBox(height: 16),
           Text(
             'No Notifications',
-            style: TextStyle(fontSize: 20, color: Colors.white.withOpacity(0.5)),
+            style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ],
       ),
@@ -133,34 +123,34 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: notification.isRead ? Colors.white.withOpacity(0.05) : Theme.of(context).colorScheme.primary.withOpacity(0.15),
+            color: notification.isRead ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.primary.withOpacity(0.05),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: notification.isRead ? Colors.white.withOpacity(0.1) : Theme.of(context).colorScheme.secondary.withOpacity(0.5),
+              color: notification.isRead ? Theme.of(context).dividerColor : Theme.of(context).colorScheme.secondary.withOpacity(0.3),
             ),
           ),
           child: ListTile(
             leading: Icon(
               _getNotificationIcon(notification.type),
-              color: notification.isRead ? Colors.white.withOpacity(0.5) : Theme.of(context).colorScheme.secondary,
+              color: notification.isRead ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.secondary,
             ),
             title: Text(
               notification.title,
               style: TextStyle(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
               ),
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(notification.body, style: TextStyle(color: Colors.white.withOpacity(0.7))),
+                Text(notification.body, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 const SizedBox(height: 4),
                 Text(
                   _formatTime(notification.createdAt),
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.white.withOpacity(0.5),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.8),
                   ),
                 ),
               ],

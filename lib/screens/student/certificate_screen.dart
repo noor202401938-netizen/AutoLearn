@@ -45,17 +45,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
         ],
       ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
-              Theme.of(context).colorScheme.background,
-            ],
-            stops: const [0.0, 0.4],
-          ),
-        ),
+        
         child: SafeArea(
           child: SingleChildScrollView(
             child: Center(

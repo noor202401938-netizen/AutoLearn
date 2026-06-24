@@ -212,17 +212,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
         ],
       ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
-              Theme.of(context).colorScheme.background,
-            ],
-            stops: const [0.0, 0.3],
-          ),
-        ),
+        
         child: SafeArea(
           child: _isLoading
               ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondary))
@@ -445,9 +435,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                   flex: 2,
                   child: Container(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
-                      ),
+                      
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
@@ -515,11 +503,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
           Container(
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: passed
-                    ? [Colors.green[400]!, Colors.green[600]!]
-                    : [Colors.orange[400]!, Colors.orange[600]!],
-              ),
+              
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
@@ -639,9 +623,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
           Container(
             width: double.infinity,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
-              ),
+              
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(

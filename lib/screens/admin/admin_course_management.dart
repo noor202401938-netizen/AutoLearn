@@ -123,17 +123,7 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
-              Theme.of(context).colorScheme.background,
-            ],
-            stops: const [0.0, 0.4],
-          ),
-        ),
+        
         child: SafeArea(
           child: Column(
             children: [
@@ -317,9 +307,7 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
   Widget _buildCreateButton() {
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
-        ),
+        
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -445,14 +433,7 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                   height: 64,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
-                    gradient: LinearGradient(
-                      colors: [
-                        Theme.of(context).colorScheme.primary.withOpacity(0.5),
-                        Theme.of(context).colorScheme.secondary.withOpacity(0.5),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                    
                     border: Border.all(color: Colors.white.withOpacity(0.2)),
                   ),
                   child: const Icon(

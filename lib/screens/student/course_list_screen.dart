@@ -105,17 +105,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
         elevation: 0,
       ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
-              Theme.of(context).colorScheme.background,
-            ],
-            stops: const [0.0, 0.3],
-          ),
-        ),
+        
         child: SafeArea(
           child: RefreshIndicator(
             onRefresh: _loadCourses,

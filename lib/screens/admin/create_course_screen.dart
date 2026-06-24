@@ -116,17 +116,7 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
-              Theme.of(context).colorScheme.background,
-            ],
-            stops: const [0.0, 0.4],
-          ),
-        ),
+        
         child: SafeArea(
           child: Form(
         key: _formKey,
@@ -280,9 +270,7 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
                   )
                 : Container(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
-                      ),
+                      
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(

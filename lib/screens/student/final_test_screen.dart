@@ -25,17 +25,7 @@ class FinalTestScreen extends StatelessWidget {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
-              Theme.of(context).colorScheme.background,
-            ],
-            stops: const [0.0, 0.4],
-          ),
-        ),
+        
         child: SafeArea(
           child: Center(
             child: Padding(
@@ -62,9 +52,7 @@ class FinalTestScreen extends StatelessWidget {
                   const SizedBox(height: 32),
                   Container(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
-                      ),
+                      
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(

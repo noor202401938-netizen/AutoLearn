@@ -122,26 +122,16 @@ class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Theme & Accessibility', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: Text('Theme & Accessibility', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.primary),
       ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
-              Theme.of(context).colorScheme.background,
-            ],
-            stops: const [0.0, 0.4],
-          ),
-        ),
+        color: Theme.of(context).colorScheme.background,
         child: SafeArea(
           child: _isLoading
-              ? const Center(child: CircularProgressIndicator(color: Colors.white))
+              ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary))
               : SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -151,19 +141,19 @@ class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
                   _buildSectionTitle('Theme'),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.05),
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withOpacity(0.1)),
+                      border: Border.all(color: Theme.of(context).dividerColor),
                     ),
                     child: Column(
                       children: [
                         Theme(
-                          data: Theme.of(context).copyWith(unselectedWidgetColor: Colors.white.withOpacity(0.5)),
+                          data: Theme.of(context).copyWith(unselectedWidgetColor: Theme.of(context).colorScheme.onSurfaceVariant),
                           child: RadioListTile<String>(
-                            title: const Text('System Default', style: TextStyle(color: Colors.white)),
+                            title: Text('System Default', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                             value: 'system',
                             groupValue: _selectedTheme,
-                            activeColor: Theme.of(context).colorScheme.secondary,
+                            activeColor: Theme.of(context).colorScheme.primary,
                             onChanged: (value) {
                               setState(() => _selectedTheme = value!);
                               _savePreferences(showSnackBar: false);
@@ -171,12 +161,12 @@ class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
                           ),
                         ),
                         Theme(
-                          data: Theme.of(context).copyWith(unselectedWidgetColor: Colors.white.withOpacity(0.5)),
+                          data: Theme.of(context).copyWith(unselectedWidgetColor: Theme.of(context).colorScheme.onSurfaceVariant),
                           child: RadioListTile<String>(
-                            title: const Text('Light', style: TextStyle(color: Colors.white)),
+                            title: Text('Light', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                             value: 'light',
                             groupValue: _selectedTheme,
-                            activeColor: Theme.of(context).colorScheme.secondary,
+                            activeColor: Theme.of(context).colorScheme.primary,
                             onChanged: (value) {
                               setState(() => _selectedTheme = value!);
                               _savePreferences(showSnackBar: false);
@@ -184,12 +174,12 @@ class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
                           ),
                         ),
                         Theme(
-                          data: Theme.of(context).copyWith(unselectedWidgetColor: Colors.white.withOpacity(0.5)),
+                          data: Theme.of(context).copyWith(unselectedWidgetColor: Theme.of(context).colorScheme.onSurfaceVariant),
                           child: RadioListTile<String>(
-                            title: const Text('Dark', style: TextStyle(color: Colors.white)),
+                            title: Text('Dark', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                             value: 'dark',
                             groupValue: _selectedTheme,
-                            activeColor: Theme.of(context).colorScheme.secondary,
+                            activeColor: Theme.of(context).colorScheme.primary,
                             onChanged: (value) {
                               setState(() => _selectedTheme = value!);
                               _savePreferences(showSnackBar: false);
@@ -206,23 +196,23 @@ class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
                   _buildSectionTitle('Font Size'),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.05),
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withOpacity(0.1)),
+                      border: Border.all(color: Theme.of(context).dividerColor),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Current: ${(_fontSizeMultiplier * 100).round()}%', style: TextStyle(color: Colors.white.withOpacity(0.7))),
+                          Text('Current: ${(_fontSizeMultiplier * 100).round()}%', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                           Slider(
                             value: _fontSizeMultiplier,
                             min: AccessibilityManager.smallFontSize,
                             max: AccessibilityManager.extraLargeFontSize,
                             divisions: 3,
-                            activeColor: Theme.of(context).colorScheme.secondary,
-                            inactiveColor: Colors.white.withOpacity(0.2),
+                            activeColor: Theme.of(context).colorScheme.primary,
+                            inactiveColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
                             label: '${(_fontSizeMultiplier * 100).round()}%',
                             onChanged: (value) {
                               setState(() => _fontSizeMultiplier = value);
@@ -240,27 +230,27 @@ class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
                   _buildSectionTitle('Accessibility'),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.05),
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withOpacity(0.1)),
+                      border: Border.all(color: Theme.of(context).dividerColor),
                     ),
                     child: Column(
                       children: [
                         SwitchListTile(
-                          title: const Text('High Contrast', style: TextStyle(color: Colors.white)),
-                          subtitle: Text('Increase contrast for better visibility', style: TextStyle(color: Colors.white.withOpacity(0.5))),
+                          title: Text('High Contrast', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                          subtitle: Text('Increase contrast for better visibility', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                           value: _highContrast,
-                          activeColor: Theme.of(context).colorScheme.secondary,
+                          activeColor: Theme.of(context).colorScheme.primary,
                           onChanged: (value) {
                             setState(() => _highContrast = value);
                             _savePreferences(showSnackBar: false);
                           },
                         ),
                         SwitchListTile(
-                          title: const Text('Reduce Motion', style: TextStyle(color: Colors.white)),
-                          subtitle: Text('Minimize animations and transitions', style: TextStyle(color: Colors.white.withOpacity(0.5))),
+                          title: Text('Reduce Motion', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                          subtitle: Text('Minimize animations and transitions', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                           value: _reduceMotion,
-                          activeColor: Theme.of(context).colorScheme.secondary,
+                          activeColor: Theme.of(context).colorScheme.primary,
                           onChanged: (value) {
                             setState(() => _reduceMotion = value);
                             _savePreferences(showSnackBar: false);
@@ -282,10 +272,10 @@ class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.primary,
         ),
       ),
     );

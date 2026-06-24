@@ -294,17 +294,7 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
         ],
       ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
-              Theme.of(context).colorScheme.background,
-            ],
-            stops: const [0.0, 0.4],
-          ),
-        ),
+        
         child: SafeArea(
           child: _isLoading
               ? const Center(child: CircularProgressIndicator(color: Colors.white))
@@ -354,9 +344,7 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
                       Expanded(
                         child: Container(
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
-                            ),
+                            
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: ElevatedButton.icon(
