@@ -278,6 +278,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 ),
               ],
             ),
+          ),
           // MAIN CONTENT AREA (LIGHT THEME)
           Expanded(
             child: Column(
