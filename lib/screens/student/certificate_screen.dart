@@ -45,7 +45,13 @@ class _CertificateScreenState extends State<CertificateScreen> {
         ],
       ),
       body: Container(
-        
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF4231C0), Color(0xFF6B38D4)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
         child: SafeArea(
           child: SingleChildScrollView(
             child: Center(
@@ -78,20 +84,20 @@ class _CertificateScreenState extends State<CertificateScreen> {
     return Container(
       width: double.infinity,
       constraints: const BoxConstraints(maxWidth: 900),
-              decoration: BoxDecoration(
-        color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFCFCFF), // Slight off-white for premium feel
+        borderRadius: BorderRadius.circular(16), // Rounded corners
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 20,
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 30,
             spreadRadius: 5,
-            offset: const Offset(0, 10),
+            offset: const Offset(0, 15),
           ),
         ],
         border: Border.all(
-          color: Colors.black,
-          width: 2,
+          color: const Color(0xFFC8C4D7).withOpacity(0.5),
+          width: 1,
         ),
       ),
       child: Stack(

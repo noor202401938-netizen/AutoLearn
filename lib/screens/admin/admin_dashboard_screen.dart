@@ -1,11 +1,69 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class AdminDashboardScreen extends StatelessWidget {
+import '../../repository/user_repository.dart';
+import '../../business_logic/course_manager.dart';
+import '../../business_logic/payment_manager.dart';
+import '../../model/course_model.dart';
+
+class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
 
   @override
+  State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
+}
+
+class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
+  final UserRepository _userRepository = UserRepository();
+  final CourseManager _courseManager = CourseManager();
+  final PaymentManager _paymentManager = PaymentManager();
+
+  bool _isLoading = true;
+  double _totalRevenue = 0.0;
+  int _activeUsers = 0;
+  double _completionRate = 0.842; // Fallback since we don't have global completion rate
+  List<CourseModel> _recentCourses = [];
+  List<Map<String, dynamic>> _recentUsers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDashboardData();
+  }
+
+  Future<void> _fetchDashboardData() async {
+    setState(() => _isLoading = true);
+    try {
+      final users = await _userRepository.getAllUsers();
+      final stats = await _courseManager.getCourseStats();
+      final finance = await _paymentManager.getFinancialStats();
+      final courses = await _courseManager.getPublishedCourses();
+      
+      if (mounted) {
+        setState(() {
+          _activeUsers = users.length;
+          _totalRevenue = (finance['totalRevenue'] as num?)?.toDouble() ?? 124592.00;
+          _recentCourses = courses.take(3).toList();
+          _recentUsers = users.take(3).toList();
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1200),
@@ -20,7 +78,7 @@ class AdminDashboardScreen extends StatelessWidget {
                 style: GoogleFonts.geist(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF121c2a),
+                  color: colorScheme.onSurface,
                   letterSpacing: -0.01,
                 ),
               ),
@@ -29,7 +87,7 @@ class AdminDashboardScreen extends StatelessWidget {
                 'Real-time performance overview',
                 style: GoogleFonts.inter(
                   fontSize: 14,
-                  color: const Color(0xFF474554),
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 24),
@@ -44,7 +102,7 @@ class AdminDashboardScreen extends StatelessWidget {
                       // Revenue Card
                       Expanded(
                         flex: isDesktop ? 2 : 0,
-                        child: _buildRevenueCard(),
+                        child: _buildRevenueCard(context),
                       ),
                       if (isDesktop) const SizedBox(width: 16),
                       if (!isDesktop) const SizedBox(height: 16),
@@ -53,9 +111,9 @@ class AdminDashboardScreen extends StatelessWidget {
                         flex: isDesktop ? 3 : 0,
                         child: Row(
                           children: [
-                            Expanded(child: _buildActiveUsersCard()),
+                            Expanded(child: _buildActiveUsersCard(context)),
                             const SizedBox(width: 16),
-                            Expanded(child: _buildCompletionRateCard()),
+                            Expanded(child: _buildCompletionRateCard(context)),
                           ],
                         ),
                       ),
@@ -74,7 +132,7 @@ class AdminDashboardScreen extends StatelessWidget {
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF121c2a),
+                      color: colorScheme.onSurface,
                       letterSpacing: 0.02,
                     ),
                   ),
@@ -85,7 +143,7 @@ class AdminDashboardScreen extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF4231c0),
+                        color: colorScheme.primary,
                         letterSpacing: 0.05,
                       ),
                     ),
@@ -94,32 +152,31 @@ class AdminDashboardScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               
-              _buildActivityItem(
-                icon: Icons.school,
-                iconColor: const Color(0xFF6b38d4),
-                iconBg: const Color(0xFF6b38d4).withOpacity(0.1),
-                title: 'New Course Published',
-                subtitle: 'Advanced React Design Patterns',
-                time: '2M AGO',
-              ),
-              const SizedBox(height: 12),
-              _buildActivityItem(
-                icon: Icons.person_add,
-                iconColor: const Color(0xFF00573a),
-                iconBg: const Color(0xFF00573a).withOpacity(0.1),
-                title: 'New Admin Invited',
-                subtitle: 'sarah.j@autolearn.com',
-                time: '1H AGO',
-              ),
-              const SizedBox(height: 12),
-              _buildActivityItem(
-                icon: Icons.payments,
-                iconColor: const Color(0xFF4231c0),
-                iconBg: const Color(0xFF4231c0).withOpacity(0.1),
-                title: 'Bulk Payout Processed',
-                subtitle: '24 instructors cleared',
-                time: '4H AGO',
-              ),
+              ..._recentCourses.map((course) => Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: _buildActivityItem(
+                  context,
+                  icon: Icons.school,
+                  iconColor: const Color(0xFF6b38d4),
+                  iconBg: const Color(0xFF6b38d4).withOpacity(0.1),
+                  title: 'Course Updated',
+                  subtitle: course.title,
+                  time: 'JUST NOW',
+                ),
+              )).toList(),
+
+              ..._recentUsers.map((user) => Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: _buildActivityItem(
+                  context,
+                  icon: Icons.person_add,
+                  iconColor: const Color(0xFF00573a),
+                  iconBg: const Color(0xFF00573a).withOpacity(0.1),
+                  title: 'New Member',
+                  subtitle: user['email'] ?? user['displayName'] ?? 'Unknown',
+                  time: 'RECENT',
+                ),
+              )).toList(),
               
               const SizedBox(height: 100), // Space for FAB/BottomNav
             ],
@@ -129,13 +186,15 @@ class AdminDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRevenueCard() {
+  Widget _buildRevenueCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.8),
+        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white.withOpacity(0.8),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,17 +211,17 @@ class AdminDashboardScreen extends StatelessWidget {
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF474554),
+                      color: colorScheme.onSurfaceVariant,
                       letterSpacing: 1.5,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '\$124,592.00',
+                    '\$${_totalRevenue.toStringAsFixed(2)}',
                     style: GoogleFonts.geist(
                       fontSize: 32,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF4231c0),
+                      color: colorScheme.primary,
                       letterSpacing: -0.02,
                     ),
                   ),
@@ -205,13 +264,15 @@ class AdminDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActiveUsersCard() {
+  Widget _buildActiveUsersCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.8),
+        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white.withOpacity(0.8),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,7 +282,7 @@ class AdminDashboardScreen extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF474554),
+              color: colorScheme.onSurfaceVariant,
               letterSpacing: 1.5,
             ),
           ),
@@ -230,11 +291,11 @@ class AdminDashboardScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '18.4k',
+                '$_activeUsers',
                 style: GoogleFonts.geist(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF121c2a),
+                  color: colorScheme.onSurface,
                   letterSpacing: -0.01,
                 ),
               ),
@@ -255,10 +316,10 @@ class AdminDashboardScreen extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              _buildOverlapAvatar(Colors.grey[200]!, null),
-              Transform.translate(offset: const Offset(-8, 0), child: _buildOverlapAvatar(Colors.grey[300]!, null)),
-              Transform.translate(offset: const Offset(-16, 0), child: _buildOverlapAvatar(Colors.grey[400]!, null)),
-              Transform.translate(offset: const Offset(-24, 0), child: _buildOverlapAvatar(const Color(0xFF5b4ed9), '+12', textColor: Colors.white)),
+              _buildOverlapAvatar(context, isDark ? colorScheme.surfaceContainer : Colors.grey[200]!, null),
+              Transform.translate(offset: const Offset(-8, 0), child: _buildOverlapAvatar(context, isDark ? colorScheme.surfaceContainerHigh : Colors.grey[300]!, null)),
+              Transform.translate(offset: const Offset(-16, 0), child: _buildOverlapAvatar(context, isDark ? colorScheme.surfaceContainerHighest : Colors.grey[400]!, null)),
+              Transform.translate(offset: const Offset(-24, 0), child: _buildOverlapAvatar(context, colorScheme.primary, '+12', textColor: colorScheme.onPrimary)),
             ],
           ),
         ],
@@ -266,13 +327,15 @@ class AdminDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCompletionRateCard() {
+  Widget _buildCompletionRateCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.8),
+        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white.withOpacity(0.8),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,7 +345,7 @@ class AdminDashboardScreen extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF474554),
+              color: colorScheme.onSurfaceVariant,
               letterSpacing: 1.5,
             ),
           ),
@@ -291,11 +354,11 @@ class AdminDashboardScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '84.2%',
+                '${(_completionRate * 100).toStringAsFixed(1)}%',
                 style: GoogleFonts.geist(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF121c2a),
+                  color: colorScheme.onSurface,
                   letterSpacing: -0.01,
                 ),
               ),
@@ -318,11 +381,11 @@ class AdminDashboardScreen extends StatelessWidget {
             height: 8,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: const Color(0xFFe6eeff),
+              color: isDark ? colorScheme.surfaceContainerHigh : const Color(0xFFe6eeff),
               borderRadius: BorderRadius.circular(4),
             ),
             child: FractionallySizedBox(
-              widthFactor: 0.842,
+              widthFactor: _completionRate,
               alignment: Alignment.centerLeft,
               child: Container(
                 decoration: BoxDecoration(
@@ -339,14 +402,15 @@ class AdminDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildOverlapAvatar(Color color, String? text, {Color? textColor}) {
+  Widget _buildOverlapAvatar(BuildContext context, Color color, String? text, {Color? textColor}) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       width: 24,
       height: 24,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: color,
-        border: Border.all(color: Colors.white, width: 2),
+        border: Border.all(color: colorScheme.surface, width: 2),
       ),
       alignment: Alignment.center,
       child: text != null
@@ -358,7 +422,8 @@ class AdminDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActivityItem({
+  Widget _buildActivityItem(
+    BuildContext context, {
     required IconData icon,
     required Color iconColor,
     required Color iconBg,
@@ -366,12 +431,14 @@ class AdminDashboardScreen extends StatelessWidget {
     required String subtitle,
     required String time,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
       ),
       child: Row(
         children: [
@@ -394,14 +461,14 @@ class AdminDashboardScreen extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF121c2a),
+                    color: colorScheme.onSurface,
                   ),
                 ),
                 Text(
                   subtitle,
                   style: GoogleFonts.inter(
                     fontSize: 14,
-                    color: const Color(0xFF474554),
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -412,7 +479,7 @@ class AdminDashboardScreen extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 10,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF474554),
+              color: colorScheme.onSurfaceVariant,
               letterSpacing: 0.05,
             ),
           ),

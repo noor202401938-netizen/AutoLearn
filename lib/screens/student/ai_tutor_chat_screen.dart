@@ -357,9 +357,9 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 4,
-                      offset: Offset(0, 2),
+                      color: const Color(0xFF5B4ED9).withOpacity(0.2),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -432,11 +432,11 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
               bottomRight: Radius.circular(16),
             ),
             border: Border.all(color: const Color(0xFFC8C4D7)),
-            boxShadow: const [
+            boxShadow: [
               BoxShadow(
-                color: Colors.black12,
-                blurRadius: 4,
-                offset: Offset(0, 2),
+                color: const Color(0xFF5B4ED9).withOpacity(0.08),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
               ),
             ],
           ),

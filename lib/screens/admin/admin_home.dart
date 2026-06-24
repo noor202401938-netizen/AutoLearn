@@ -39,14 +39,15 @@ class _AdminHomeState extends State<AdminHome> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final isDesktop = MediaQuery.of(context).size.width >= 800;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FF),
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white.withOpacity(0.8),
+        backgroundColor: colorScheme.surface,
         elevation: 1,
-        shadowColor: Colors.black12,
+        shadowColor: colorScheme.shadow,
         titleSpacing: 20,
         title: Row(
           children: [
@@ -55,10 +56,10 @@ class _AdminHomeState extends State<AdminHome> {
               height: 32,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFF5b4ed9).withOpacity(0.2), width: 2),
-                color: const Color(0xFFd9e3f6),
+                border: Border.all(color: colorScheme.primary.withOpacity(0.2), width: 2),
+                color: colorScheme.primaryContainer,
               ),
-              child: const Icon(Icons.person, color: Color(0xFF4231c0), size: 18),
+              child: Icon(Icons.person, color: colorScheme.onPrimaryContainer, size: 18),
             ),
             const SizedBox(width: 12),
             Text(
@@ -66,7 +67,7 @@ class _AdminHomeState extends State<AdminHome> {
               style: GoogleFonts.geist(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF4231C0),
+                color: colorScheme.primary,
                 letterSpacing: -0.5,
               ),
             ),
@@ -74,7 +75,7 @@ class _AdminHomeState extends State<AdminHome> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications, color: Color(0xFF4231C0)),
+            icon: Icon(Icons.notifications, color: colorScheme.primary),
             onPressed: () {},
           ),
           const SizedBox(width: 8),
@@ -88,11 +89,11 @@ class _AdminHomeState extends State<AdminHome> {
                 selectedIndex: _currentIndex,
                 onDestinationSelected: _onItemTapped,
                 labelType: NavigationRailLabelType.all,
-                backgroundColor: Colors.white,
-                selectedIconTheme: const IconThemeData(color: Color(0xFF4231C0)),
-                unselectedIconTheme: const IconThemeData(color: Color(0xFF474554)),
-                selectedLabelTextStyle: GoogleFonts.inter(color: const Color(0xFF4231C0), fontWeight: FontWeight.bold, fontSize: 12),
-                unselectedLabelTextStyle: GoogleFonts.inter(color: const Color(0xFF474554), fontSize: 12),
+                backgroundColor: colorScheme.surface,
+                selectedIconTheme: IconThemeData(color: colorScheme.primary),
+                unselectedIconTheme: IconThemeData(color: colorScheme.onSurfaceVariant),
+                selectedLabelTextStyle: GoogleFonts.inter(color: colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 12),
+                unselectedLabelTextStyle: GoogleFonts.inter(color: colorScheme.onSurfaceVariant, fontSize: 12),
                 destinations: const [
                   NavigationRailDestination(
                     icon: Icon(Icons.dashboard_outlined),
@@ -140,9 +141,9 @@ class _AdminHomeState extends State<AdminHome> {
               currentIndex: _currentIndex,
               onTap: _onItemTapped,
               type: BottomNavigationBarType.fixed,
-              backgroundColor: Colors.white,
-              selectedItemColor: const Color(0xFF4231C0),
-              unselectedItemColor: const Color(0xFF474554),
+              backgroundColor: colorScheme.surface,
+              selectedItemColor: colorScheme.primary,
+              unselectedItemColor: colorScheme.onSurfaceVariant,
               showUnselectedLabels: true,
               selectedLabelStyle: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold),
               unselectedLabelStyle: GoogleFonts.inter(fontSize: 10),

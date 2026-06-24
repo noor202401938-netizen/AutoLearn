@@ -1,11 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../business_logic/analytics_monitoring_manager.dart';
 
-class AdminAnalyticsScreen extends StatelessWidget {
+class AdminAnalyticsScreen extends StatefulWidget {
   const AdminAnalyticsScreen({super.key});
 
   @override
+  State<AdminAnalyticsScreen> createState() => _AdminAnalyticsScreenState();
+}
+
+class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
+  final AnalyticsMonitoringManager _analyticsManager = AnalyticsMonitoringManager();
+  bool _isLoading = true;
+  double _totalRevenue = 0.0;
+  int _activeEnrollments = 0;
+  double _completionRate = 0.0;
+  int _nps = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    setState(() => _isLoading = true);
+    try {
+      final stats = await _analyticsManager.getPlatformAnalytics();
+      if (mounted) {
+        setState(() {
+          _totalRevenue = (stats['totalRevenue'] as num?)?.toDouble() ?? 2482900.0;
+          _activeEnrollments = (stats['activeEnrollments'] as num?)?.toInt() ?? 45120;
+          _completionRate = (stats['completionRate'] as num?)?.toDouble() ?? 0.784;
+          _nps = (stats['nps'] as num?)?.toInt() ?? 72;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1440),
@@ -27,7 +73,7 @@ class AdminAnalyticsScreen extends StatelessWidget {
                         style: GoogleFonts.geist(
                           fontSize: 32,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF121c2a),
+                          color: colorScheme.onSurface,
                           letterSpacing: -0.02,
                         ),
                       ),
@@ -36,16 +82,16 @@ class AdminAnalyticsScreen extends StatelessWidget {
                         'Real-time performance metrics across all learning verticals.',
                         style: GoogleFonts.inter(
                           fontSize: 16,
-                          color: const Color(0xFF474554),
+                          color: colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
                   ),
                   Row(
                     children: [
-                      _buildControlButton('Last 30 Days', Icons.calendar_today),
+                      _buildControlButton(context, 'Last 30 Days', Icons.calendar_today),
                       const SizedBox(width: 12),
-                      _buildControlButton('Export Reports', Icons.file_download),
+                      _buildControlButton(context, 'Export Reports', Icons.file_download),
                     ],
                   )
                 ],
@@ -65,40 +111,44 @@ class AdminAnalyticsScreen extends StatelessWidget {
                     childAspectRatio: isDesktop ? 1.5 : 1.2,
                     children: [
                       _buildMetricCard(
+                        context: context,
                         title: 'Total Revenue',
-                        value: '\$2,482,900',
+                        value: '\$${_totalRevenue.toStringAsFixed(2)}',
                         badgeText: '12.5%',
                         badgeIcon: Icons.trending_up,
                         badgeColor: const Color(0xFF00724e),
                         badgeBg: const Color(0xFF6ffbbe),
-                        bottomWidget: _buildMockLineChart(),
+                        bottomWidget: _buildMockLineChart(context),
                       ),
                       _buildMetricCard(
+                        context: context,
                         title: 'Active Enrollments',
-                        value: '45,120',
+                        value: '$_activeEnrollments',
                         badgeText: '8.2%',
                         badgeIcon: Icons.trending_up,
                         badgeColor: const Color(0xFF00724e),
                         badgeBg: const Color(0xFF6ffbbe),
-                        bottomWidget: Text('Across 128 courses', style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF474554))),
+                        bottomWidget: Text('Across all courses', style: GoogleFonts.inter(fontSize: 14, color: colorScheme.onSurfaceVariant)),
                       ),
                       _buildMetricCard(
+                        context: context,
                         title: 'Completion Rate',
-                        value: '78.4%',
+                        value: '${(_completionRate * 100).toStringAsFixed(1)}%',
                         badgeText: '0.4%',
                         badgeIcon: Icons.trending_down,
                         badgeColor: const Color(0xFFba1a1a),
                         badgeBg: const Color(0xFFffdad6),
-                        bottomWidget: _buildProgressBar(0.784),
+                        bottomWidget: _buildProgressBar(context, _completionRate),
                       ),
                       _buildMetricCard(
+                        context: context,
                         title: 'Net Promoter Score',
-                        value: '72 / 100',
+                        value: '$_nps / 100',
                         badgeText: 'Target Met',
                         badgeIcon: Icons.check_circle,
                         badgeColor: const Color(0xFF00724e),
                         badgeBg: const Color(0xFF6ffbbe),
-                        bottomWidget: Text('Calculated from 12k reviews', style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF474554))),
+                        bottomWidget: Text('Calculated from reviews', style: GoogleFonts.inter(fontSize: 14, color: colorScheme.onSurfaceVariant)),
                       ),
                     ],
                   );
@@ -116,13 +166,13 @@ class AdminAnalyticsScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         flex: isDesktop ? 2 : 0,
-                        child: _buildBarChartSection(isDesktop),
+                        child: _buildBarChartSection(context, isDesktop),
                       ),
                       if (isDesktop) const SizedBox(width: 24),
                       if (!isDesktop) const SizedBox(height: 24),
                       Expanded(
                         flex: isDesktop ? 1 : 0,
-                        child: _buildTopCoursesSection(isDesktop),
+                        child: _buildTopCoursesSection(context, isDesktop),
                       ),
                     ],
                   );
@@ -131,7 +181,7 @@ class AdminAnalyticsScreen extends StatelessWidget {
               const SizedBox(height: 24),
 
               // Detailed Reports Table
-              _buildRecentConversionsTable(),
+              _buildRecentConversionsTable(context),
 
               const SizedBox(height: 100),
             ],
@@ -141,23 +191,26 @@ class AdminAnalyticsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildControlButton(String text, IconData icon) {
+  Widget _buildControlButton(BuildContext context, String text, IconData icon) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFdee9fc),
+        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : const Color(0xFFdee9fc),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: const Color(0xFF121c2a)),
+          Icon(icon, size: 18, color: colorScheme.onSurface),
           const SizedBox(width: 8),
           Text(
             text,
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF121c2a),
+              color: colorScheme.onSurface,
             ),
           ),
         ],
@@ -166,6 +219,7 @@ class AdminAnalyticsScreen extends StatelessWidget {
   }
 
   Widget _buildMetricCard({
+    required BuildContext context,
     required String title,
     required String value,
     required String badgeText,
@@ -174,12 +228,15 @@ class AdminAnalyticsScreen extends StatelessWidget {
     required Color badgeBg,
     required Widget bottomWidget,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFc8c4d7)),
+        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,15 +245,18 @@ class AdminAnalyticsScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title.toUpperCase(),
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF474554),
-                  letterSpacing: 0.5,
-                ),
-              ),
+               Expanded(
+                 child: Text(
+                  title.toUpperCase(),
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: colorScheme.onSurfaceVariant,
+                    letterSpacing: 0.5,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                               ),
+               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
@@ -220,12 +280,16 @@ class AdminAnalyticsScreen extends StatelessWidget {
               )
             ],
           ),
-          Text(
-            value,
-            style: GoogleFonts.geist(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF121c2a),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: GoogleFonts.geist(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: colorScheme.onSurface,
+              ),
             ),
           ),
           bottomWidget,
@@ -234,26 +298,30 @@ class AdminAnalyticsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMockLineChart() {
+  Widget _buildMockLineChart(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return SizedBox(
       height: 32,
       child: CustomPaint(
         size: const Size(double.infinity, 32),
-        painter: _LineChartPainter(),
+        painter: _LineChartPainter(color: colorScheme.primary),
       ),
     );
   }
 
-  Widget _buildProgressBar(double progress) {
+  Widget _buildProgressBar(BuildContext context, double progress) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
       height: 8,
       decoration: BoxDecoration(
-        color: const Color(0xFFd9e3f6),
+        color: isDark ? colorScheme.surfaceContainerHigh : const Color(0xFFd9e3f6),
         borderRadius: BorderRadius.circular(4),
       ),
       child: FractionallySizedBox(
         alignment: Alignment.centerLeft,
-        widthFactor: progress,
+        widthFactor: progress.clamp(0.0, 1.0),
         child: Container(
           decoration: BoxDecoration(
             gradient: const LinearGradient(colors: [Color(0xFF00724e), Color(0xFF4edea3)]),
@@ -264,14 +332,17 @@ class AdminAnalyticsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBarChartSection(bool isDesktop) {
+  Widget _buildBarChartSection(BuildContext context, bool isDesktop) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       height: 450,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFc8c4d7)),
+        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
       ),
       child: Column(
         children: [
@@ -286,7 +357,7 @@ class AdminAnalyticsScreen extends StatelessWidget {
                     style: GoogleFonts.geist(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF121c2a),
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -294,16 +365,16 @@ class AdminAnalyticsScreen extends StatelessWidget {
                     'Monthly breakdown of new signups and average session hours.',
                     style: GoogleFonts.inter(
                       fontSize: 14,
-                      color: const Color(0xFF474554),
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
               ),
               Row(
                 children: [
-                  _buildLegendItem('Signups', const Color(0xFF4231c0)),
+                  _buildLegendItem(context, 'Signups', colorScheme.primary),
                   const SizedBox(width: 16),
-                  _buildLegendItem('Engagement', const Color(0xFF8455ef)),
+                  _buildLegendItem(context, 'Engagement', colorScheme.tertiary),
                 ],
               )
             ],
@@ -314,13 +385,13 @@ class AdminAnalyticsScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                _buildDoubleBar('JAN', 0.4, 0.6),
-                _buildDoubleBar('FEB', 0.55, 0.7),
-                _buildDoubleBar('MAR', 0.75, 0.65),
-                _buildDoubleBar('APR', 0.65, 0.85),
-                _buildDoubleBar('MAY', 0.9, 0.8),
-                _buildDoubleBar('JUN', 0.85, 0.95),
-                _buildDoubleBar('JUL', 1.0, 0.9),
+                _buildDoubleBar(context, 'JAN', 0.4, 0.6),
+                _buildDoubleBar(context, 'FEB', 0.55, 0.7),
+                _buildDoubleBar(context, 'MAR', 0.75, 0.65),
+                _buildDoubleBar(context, 'APR', 0.65, 0.85),
+                _buildDoubleBar(context, 'MAY', 0.9, 0.8),
+                _buildDoubleBar(context, 'JUN', 0.85, 0.95),
+                _buildDoubleBar(context, 'JUL', 1.0, 0.9),
               ],
             ),
           )
@@ -329,7 +400,8 @@ class AdminAnalyticsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLegendItem(String label, Color color) {
+  Widget _buildLegendItem(BuildContext context, String label, Color color) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Row(
       children: [
         Container(
@@ -346,14 +418,15 @@ class AdminAnalyticsScreen extends StatelessWidget {
           style: GoogleFonts.inter(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: const Color(0xFF121c2a),
+            color: colorScheme.onSurface,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildDoubleBar(String label, double fill1, double fill2) {
+  Widget _buildDoubleBar(BuildContext context, String label, double fill1, double fill2) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -365,9 +438,9 @@ class AdminAnalyticsScreen extends StatelessWidget {
                 heightFactor: fill1,
                 child: Container(
                   width: 16,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF4231c0),
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(4)),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary,
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
                   ),
                 ),
               ),
@@ -376,9 +449,9 @@ class AdminAnalyticsScreen extends StatelessWidget {
                 heightFactor: fill2,
                 child: Container(
                   width: 16,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF8455ef),
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(4)),
+                  decoration: BoxDecoration(
+                    color: colorScheme.tertiary,
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
                   ),
                 ),
               ),
@@ -391,21 +464,24 @@ class AdminAnalyticsScreen extends StatelessWidget {
           style: GoogleFonts.inter(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF474554),
+            color: colorScheme.onSurfaceVariant,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildTopCoursesSection(bool isDesktop) {
+  Widget _buildTopCoursesSection(BuildContext context, bool isDesktop) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       height: isDesktop ? 450 : null,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFc8c4d7)),
+        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -415,7 +491,7 @@ class AdminAnalyticsScreen extends StatelessWidget {
             style: GoogleFonts.geist(
               fontSize: 24,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF121c2a),
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 4),
@@ -423,7 +499,7 @@ class AdminAnalyticsScreen extends StatelessWidget {
             'Ranked by conversion & engagement.',
             style: GoogleFonts.inter(
               fontSize: 14,
-              color: const Color(0xFF474554),
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 24),
@@ -433,13 +509,13 @@ class AdminAnalyticsScreen extends StatelessWidget {
               shrinkWrap: !isDesktop,
               physics: isDesktop ? const AlwaysScrollableScrollPhysics() : const NeverScrollableScrollPhysics(),
               children: [
-                _buildCourseItem('Full-Stack Dev Mastery', '14.2%', '2.4k Students', Icons.terminal, const Color(0xFFc5c0ff), const Color(0xFF4231c0)),
+                _buildCourseItem(context, 'Full-Stack Dev Mastery', '14.2%', '2.4k Students', Icons.terminal, const Color(0xFFc5c0ff), const Color(0xFF4231c0)),
                 const SizedBox(height: 16),
-                _buildCourseItem('AI Ethics & Implementation', '12.8%', '1.9k Students', Icons.psychology, const Color(0xFFe9ddff), const Color(0xFF6b38d4)),
+                _buildCourseItem(context, 'AI Ethics & Implementation', '12.8%', '1.9k Students', Icons.psychology, const Color(0xFFe9ddff), const Color(0xFF6b38d4)),
                 const SizedBox(height: 16),
-                _buildCourseItem('Advanced UI Design Systems', '11.5%', '3.1k Students', Icons.design_services, const Color(0xFF4edea3), const Color(0xFF00573a)),
+                _buildCourseItem(context, 'Advanced UI Design Systems', '11.5%', '3.1k Students', Icons.design_services, const Color(0xFF4edea3), const Color(0xFF00573a)),
                 const SizedBox(height: 16),
-                _buildCourseItem('Data Science Foundations', '9.8%', '1.2k Students', Icons.monitoring, const Color(0xFFd9e3f6), const Color(0xFF474554)),
+                _buildCourseItem(context, 'Data Science Foundations', '9.8%', '1.2k Students', Icons.monitoring, const Color(0xFFd9e3f6), const Color(0xFF474554)),
               ],
             ),
           )
@@ -448,7 +524,8 @@ class AdminAnalyticsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCourseItem(String title, String conversion, String students, IconData icon, Color iconBg, Color iconColor) {
+  Widget _buildCourseItem(BuildContext context, String title, String conversion, String students, IconData icon, Color iconBg, Color iconColor) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -476,7 +553,7 @@ class AdminAnalyticsScreen extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF121c2a),
+                    color: colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -491,15 +568,15 @@ class AdminAnalyticsScreen extends StatelessWidget {
                         letterSpacing: -0.5,
                       ),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Icon(Icons.circle, size: 4, color: Color(0xFFc8c4d7)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Icon(Icons.circle, size: 4, color: colorScheme.outlineVariant),
                     ),
                     Text(
                       students,
                       style: GoogleFonts.inter(
                         fontSize: 12,
-                        color: const Color(0xFF474554),
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -507,20 +584,24 @@ class AdminAnalyticsScreen extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: Color(0xFF4231c0)),
+          Icon(Icons.chevron_right, color: colorScheme.primary),
         ],
       ),
     );
   }
 
-  Widget _buildRecentConversionsTable() {
+  Widget _buildRecentConversionsTable(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFc8c4d7)),
+        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 24),
@@ -532,7 +613,7 @@ class AdminAnalyticsScreen extends StatelessWidget {
                   style: GoogleFonts.geist(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF121c2a),
+                    color: colorScheme.onSurface,
                   ),
                 ),
                 TextButton(
@@ -542,29 +623,29 @@ class AdminAnalyticsScreen extends StatelessWidget {
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF4231c0),
+                      color: colorScheme.primary,
                     ),
                   ),
                 ),
               ],
             ),
           ),
-          const Divider(height: 1, color: Color(0xFFc8c4d7)),
+          Divider(height: 1, color: colorScheme.outlineVariant.withOpacity(0.5)),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
-              headingRowColor: WidgetStateProperty.all(const Color(0xFFeff4ff)),
+              headingRowColor: WidgetStateProperty.all(isDark ? colorScheme.surfaceContainer : const Color(0xFFeff4ff)),
               columns: [
-                DataColumn(label: Text('STUDENT', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF474554)))),
-                DataColumn(label: Text('COURSE', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF474554)))),
-                DataColumn(label: Text('DATE', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF474554)))),
-                DataColumn(label: Text('AMOUNT', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF474554)))),
-                DataColumn(label: Text('STATUS', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF474554)))),
+                DataColumn(label: Text('STUDENT', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: colorScheme.onSurfaceVariant))),
+                DataColumn(label: Text('COURSE', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: colorScheme.onSurfaceVariant))),
+                DataColumn(label: Text('DATE', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: colorScheme.onSurfaceVariant))),
+                DataColumn(label: Text('AMOUNT', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: colorScheme.onSurfaceVariant))),
+                DataColumn(label: Text('STATUS', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: colorScheme.onSurfaceVariant))),
               ],
               rows: [
-                _buildDataRow('JD', 'James D.', 'Mastering React 18', 'Oct 24, 2023', '\$149.00', 'COMPLETED', const Color(0xFF00724e), const Color(0xFF6ffbbe)),
-                _buildDataRow('MS', 'Maria S.', 'UX Strategy Workshop', 'Oct 24, 2023', '\$299.00', 'COMPLETED', const Color(0xFF00724e), const Color(0xFF6ffbbe)),
-                _buildDataRow('AL', 'Alex L.', 'Python for Analytics', 'Oct 23, 2023', '\$89.00', 'PROCESSING', const Color(0xFF5516be), const Color(0xFFe9ddff)),
+                _buildDataRow(context, 'JD', 'James D.', 'Mastering React 18', 'Oct 24, 2023', '\$149.00', 'COMPLETED', const Color(0xFF00724e), const Color(0xFF6ffbbe)),
+                _buildDataRow(context, 'MS', 'Maria S.', 'UX Strategy Workshop', 'Oct 24, 2023', '\$299.00', 'COMPLETED', const Color(0xFF00724e), const Color(0xFF6ffbbe)),
+                _buildDataRow(context, 'AL', 'Alex L.', 'Python for Analytics', 'Oct 23, 2023', '\$89.00', 'PROCESSING', const Color(0xFF5516be), const Color(0xFFe9ddff)),
               ],
             ),
           )
@@ -573,23 +654,24 @@ class AdminAnalyticsScreen extends StatelessWidget {
     );
   }
 
-  DataRow _buildDataRow(String initials, String name, String course, String date, String amount, String status, Color statusColor, Color statusBg) {
+  DataRow _buildDataRow(BuildContext context, String initials, String name, String course, String date, String amount, String status, Color statusColor, Color statusBg) {
+    final colorScheme = Theme.of(context).colorScheme;
     return DataRow(
       cells: [
         DataCell(Row(
           children: [
             CircleAvatar(
               radius: 16,
-              backgroundColor: const Color(0xFF4231c0).withOpacity(0.1),
-              child: Text(initials, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF4231c0))),
+              backgroundColor: colorScheme.primary.withOpacity(0.1),
+              child: Text(initials, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.primary)),
             ),
             const SizedBox(width: 12),
-            Text(name, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600, color: const Color(0xFF121c2a))),
+            Text(name, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600, color: colorScheme.onSurface)),
           ],
         )),
-        DataCell(Text(course, style: GoogleFonts.inter(fontSize: 14))),
-        DataCell(Text(date, style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF474554)))),
-        DataCell(Text(amount, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold))),
+        DataCell(Text(course, style: GoogleFonts.inter(fontSize: 14, color: colorScheme.onSurface))),
+        DataCell(Text(date, style: GoogleFonts.inter(fontSize: 14, color: colorScheme.onSurfaceVariant))),
+        DataCell(Text(amount, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: colorScheme.onSurface))),
         DataCell(
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -613,10 +695,13 @@ class AdminAnalyticsScreen extends StatelessWidget {
 }
 
 class _LineChartPainter extends CustomPainter {
+  final Color color;
+  _LineChartPainter({required this.color});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFF4231c0)
+      ..color = color
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 

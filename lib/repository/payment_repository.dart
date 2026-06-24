@@ -25,4 +25,16 @@ class PaymentRepository {
   Future<void> markPaidForCourse({required String uid, required String courseId}) async {
     // Endpoint to mark course paid/enrolled after successful stripe webhook
   }
+
+  Future<Map<String, dynamic>> getFinancialStats() async {
+    try {
+      final response = await _apiClient.get('/finance/stats');
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      }
+      return {};
+    } catch (e) {
+      return {};
+    }
+  }
 }

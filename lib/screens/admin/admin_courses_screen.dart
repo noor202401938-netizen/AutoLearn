@@ -1,11 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class AdminCoursesScreen extends StatelessWidget {
+import '../../business_logic/course_manager.dart';
+import '../../model/course_model.dart';
+
+class AdminCoursesScreen extends StatefulWidget {
   const AdminCoursesScreen({super.key});
 
   @override
+  State<AdminCoursesScreen> createState() => _AdminCoursesScreenState();
+}
+
+class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
+  final CourseManager _courseManager = CourseManager();
+  bool _isLoading = true;
+  List<CourseModel> _allCourses = [];
+  List<CourseModel> _filteredCourses = [];
+  String _selectedFilter = 'All';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCourses();
+  }
+
+  Future<void> _fetchCourses() async {
+    setState(() => _isLoading = true);
+    try {
+      final courses = await _courseManager.getAllCourses();
+      if (mounted) {
+        setState(() {
+          _allCourses = courses;
+          _filteredCourses = courses;
+          _isLoading = false;
+        });
+        _applyFilter(_selectedFilter);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _applyFilter(String filter) {
+    setState(() {
+      _selectedFilter = filter;
+      if (filter == 'All') {
+        _filteredCourses = List.from(_allCourses);
+      } else if (filter == 'Published') {
+        _filteredCourses = _allCourses.where((c) => c.isPublished).toList();
+      } else if (filter == 'Drafts') {
+        _filteredCourses = _allCourses.where((c) => !c.isPublished).toList();
+      } else if (filter == 'Archived') {
+        _filteredCourses = []; // Assuming no explicit archived flag for now
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1200),
@@ -20,7 +77,7 @@ class AdminCoursesScreen extends StatelessWidget {
                 style: GoogleFonts.geist(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF121c2a),
+                  color: colorScheme.onSurface,
                   letterSpacing: -0.01,
                 ),
               ),
@@ -29,7 +86,7 @@ class AdminCoursesScreen extends StatelessWidget {
                 'Manage and organize your learning curriculum.',
                 style: GoogleFonts.inter(
                   fontSize: 14,
-                  color: const Color(0xFF474554),
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 24),
@@ -37,14 +94,25 @@ class AdminCoursesScreen extends StatelessWidget {
               // Search Bar
               Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFFeff4ff),
+                  color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.3) : const Color(0xFFeff4ff),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      if (value.isEmpty) {
+                        _applyFilter(_selectedFilter);
+                      } else {
+                        _filteredCourses = _allCourses
+                            .where((c) => c.title.toLowerCase().contains(value.toLowerCase()))
+                            .toList();
+                      }
+                    });
+                  },
                   decoration: InputDecoration(
                     hintText: 'Search courses...',
-                    hintStyle: GoogleFonts.inter(color: const Color(0xFFc8c4d7)),
-                    prefixIcon: const Icon(Icons.search, color: Color(0xFF787586)),
+                    hintStyle: GoogleFonts.inter(color: colorScheme.outline),
+                    prefixIcon: Icon(Icons.search, color: colorScheme.onSurfaceVariant),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   ),
@@ -57,68 +125,60 @@ class AdminCoursesScreen extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _buildFilterChip('All', true),
+                    _buildFilterChip(context, 'All'),
                     const SizedBox(width: 8),
-                    _buildFilterChip('Published', false),
+                    _buildFilterChip(context, 'Published'),
                     const SizedBox(width: 8),
-                    _buildFilterChip('Drafts', false),
+                    _buildFilterChip(context, 'Drafts'),
                     const SizedBox(width: 8),
-                    _buildFilterChip('Archived', false),
+                    _buildFilterChip(context, 'Archived'),
                   ],
                 ),
               ),
               const SizedBox(height: 24),
 
               // Courses List Grid for Desktop / List for Mobile
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final isDesktop = constraints.maxWidth > 800;
-                  return GridView.count(
-                    crossAxisCount: isDesktop ? 2 : 1,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 16,
-                    childAspectRatio: isDesktop ? 3 : 2.5,
-                    children: [
-                      _buildCourseCard(
-                        title: 'Advanced React Patterns',
-                        status: 'PUBLISHED',
-                        statusBg: const Color(0xFF6ffbbe),
-                        statusColor: const Color(0xFF002113),
-                        enrolled: '1,284',
-                        progress: 0.85,
-                      ),
-                      _buildCourseCard(
-                        title: 'UI/UX Strategy 2024',
-                        status: 'DRAFT',
-                        statusBg: const Color(0xFFe9ddff),
-                        statusColor: const Color(0xFF23005c),
-                        enrolled: '0',
-                        progress: 0.0,
-                        isDraft: true,
-                      ),
-                      _buildCourseCard(
-                        title: 'Backend Architecture',
-                        status: 'PUBLISHED',
-                        statusBg: const Color(0xFF6ffbbe),
-                        statusColor: const Color(0xFF002113),
-                        enrolled: '2,540',
-                        progress: 0.92,
-                      ),
-                      _buildCourseCard(
-                        title: 'Legacy Content Strategy',
-                        status: 'ARCHIVED',
-                        statusBg: const Color(0xFFffdad6),
-                        statusColor: const Color(0xFF93000a),
-                        enrolled: '450',
-                        progress: 1.0,
-                        isArchived: true,
-                      ),
-                    ],
-                  );
-                }
-              ),
+              if (_isLoading)
+                const Center(child: Padding(
+                  padding: EdgeInsets.all(32.0),
+                  child: CircularProgressIndicator(),
+                ))
+              else if (_filteredCourses.isEmpty)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Text('No courses found', style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant)),
+                  ),
+                )
+              else
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isDesktop = constraints.maxWidth > 800;
+                    return GridView.builder(
+                      itemCount: _filteredCourses.length,
+                      crossAxisCount: isDesktop ? 2 : 1,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      mainAxisSpacing: 16,
+                      crossAxisSpacing: 16,
+                      childAspectRatio: isDesktop ? 3 : 2.5,
+                      itemBuilder: (context, index) {
+                        final course = _filteredCourses[index];
+                        final isPublished = course.isPublished;
+                        return _buildCourseCard(
+                          context: context,
+                          title: course.title,
+                          status: isPublished ? 'PUBLISHED' : 'DRAFT',
+                          statusBg: isPublished ? const Color(0xFF6ffbbe) : const Color(0xFFe9ddff),
+                          statusColor: isPublished ? const Color(0xFF002113) : const Color(0xFF23005c),
+                          enrolled: '${course.enrollmentCount}',
+                          progress: isPublished ? 1.0 : 0.0,
+                          isDraft: !isPublished,
+                        );
+                      },
+                    );
+                  }
+                ),
 
               const SizedBox(height: 100), // Space for FAB/Nav
             ],
@@ -128,26 +188,34 @@ class AdminCoursesScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFilterChip(String label, bool isSelected) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFF5b4ed9) : Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: isSelected ? const Color(0xFF5b4ed9) : const Color(0xFFC8C4D7)),
-      ),
-      child: Text(
-        label,
-        style: GoogleFonts.inter(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: isSelected ? Colors.white : const Color(0xFF474554),
+  Widget _buildFilterChip(BuildContext context, String label) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isSelected = _selectedFilter == label;
+    
+    return GestureDetector(
+      onTap: () => _applyFilter(label),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? colorScheme.primary : (isDark ? colorScheme.surfaceContainerHighest : Colors.white),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: isSelected ? colorScheme.primary : colorScheme.outlineVariant),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
+          ),
         ),
       ),
     );
   }
 
   Widget _buildCourseCard({
+    required BuildContext context,
     required String title,
     required String status,
     required Color statusBg,
@@ -157,11 +225,14 @@ class AdminCoursesScreen extends StatelessWidget {
     bool isDraft = false,
     bool isArchived = false,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
+        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.5)),
       ),
       child: Row(
         children: [
@@ -169,9 +240,9 @@ class AdminCoursesScreen extends StatelessWidget {
           Container(
             width: 100,
             height: double.infinity,
-            decoration: const BoxDecoration(
-              color: Color(0xFFd9e3f6),
-              borderRadius: BorderRadius.horizontal(left: Radius.circular(16)),
+            decoration: BoxDecoration(
+              color: isDark ? colorScheme.surfaceContainer : const Color(0xFFd9e3f6),
+              borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
             ),
             padding: const EdgeInsets.all(8),
             alignment: Alignment.topLeft,
@@ -208,7 +279,7 @@ class AdminCoursesScreen extends StatelessWidget {
                         style: GoogleFonts.geist(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF121c2a),
+                          color: colorScheme.onSurface,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -216,13 +287,13 @@ class AdminCoursesScreen extends StatelessWidget {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.person, size: 14, color: Color(0xFF474554)),
+                          Icon(Icons.person, size: 14, color: colorScheme.onSurfaceVariant),
                           const SizedBox(width: 4),
                           Text(
                             '$enrolled Enrolled',
                             style: GoogleFonts.inter(
                               fontSize: 12,
-                              color: const Color(0xFF474554),
+                              color: colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -233,13 +304,13 @@ class AdminCoursesScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: isDraft
-                            ? Text('Drafting in progress...', style: GoogleFonts.inter(fontSize: 10, color: const Color(0xFF787586), fontStyle: FontStyle.italic, fontWeight: FontWeight.bold))
+                            ? Text('Drafting in progress...', style: GoogleFonts.inter(fontSize: 10, color: colorScheme.outline, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold))
                             : isArchived
-                                ? Text('Access Restricted', style: GoogleFonts.inter(fontSize: 10, color: const Color(0xFF787586), fontWeight: FontWeight.bold))
+                                ? Text('Access Restricted', style: GoogleFonts.inter(fontSize: 10, color: colorScheme.outline, fontWeight: FontWeight.bold))
                                 : Container(
                                     height: 6,
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFe6eeff),
+                                      color: isDark ? colorScheme.surfaceContainerHigh : const Color(0xFFe6eeff),
                                       borderRadius: BorderRadius.circular(3),
                                     ),
                                     child: FractionallySizedBox(
@@ -255,7 +326,7 @@ class AdminCoursesScreen extends StatelessWidget {
                                   ),
                       ),
                       const SizedBox(width: 12),
-                      const Icon(Icons.chevron_right, color: Color(0xFF4231c0)),
+                      Icon(Icons.chevron_right, color: colorScheme.primary),
                     ],
                   )
                 ],

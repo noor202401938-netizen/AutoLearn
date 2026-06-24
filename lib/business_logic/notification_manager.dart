@@ -56,4 +56,9 @@ class NotificationManager {
   Stream<List<NotificationModel>> watchNotifications(String userId) {
     return _repository.watchUserNotifications(userId);
   }
+
+  // Get broadcast history
+  Future<List<dynamic>> getBroadcastHistory() async {
+    return await _repository.getBroadcastHistory();
+  }
 }

@@ -1,11 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class AdminFinanceScreen extends StatelessWidget {
+import '../../business_logic/payment_manager.dart';
+
+class AdminFinanceScreen extends StatefulWidget {
   const AdminFinanceScreen({super.key});
 
   @override
+  State<AdminFinanceScreen> createState() => _AdminFinanceScreenState();
+}
+
+class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
+  final PaymentManager _paymentManager = PaymentManager();
+  bool _isLoading = true;
+  double _totalRevenue = 0.0;
+  List<Map<String, dynamic>> _transactions = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchFinanceData();
+  }
+
+  Future<void> _fetchFinanceData() async {
+    setState(() => _isLoading = true);
+    try {
+      final finance = await _paymentManager.getFinancialStats();
+      if (mounted) {
+        setState(() {
+          _totalRevenue = (finance['totalRevenue'] as num?)?.toDouble() ?? 142850.00;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1200),
@@ -19,15 +61,15 @@ class AdminFinanceScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF4231c0), Color(0xFF6b38d4)],
+                  gradient: LinearGradient(
+                    colors: [colorScheme.primary, colorScheme.tertiary],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF4231c0).withOpacity(0.3),
+                      color: colorScheme.primary.withOpacity(isDark ? 0.6 : 0.3),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     )
@@ -54,7 +96,7 @@ class AdminFinanceScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '\$142,850.00',
+                              '\$${_totalRevenue.toStringAsFixed(2)}',
                               style: GoogleFonts.geist(
                                 fontSize: 36,
                                 fontWeight: FontWeight.w800,
@@ -120,10 +162,10 @@ class AdminFinanceScreen extends StatelessWidget {
                   return Flex(
                     direction: isDesktop ? Axis.horizontal : Axis.vertical,
                     children: [
-                      Expanded(flex: isDesktop ? 1 : 0, child: _buildSecondaryStat('TRANSACTIONS', '1,284', '12%', true)),
+                      Expanded(flex: isDesktop ? 1 : 0, child: _buildSecondaryStat(context, 'TRANSACTIONS', '1,284', '12%', true)),
                       if (isDesktop) const SizedBox(width: 16),
                       if (!isDesktop) const SizedBox(height: 16),
-                      Expanded(flex: isDesktop ? 1 : 0, child: _buildSecondaryStat('AVG ORDER', '\$111.25', '5%', true)),
+                      Expanded(flex: isDesktop ? 1 : 0, child: _buildSecondaryStat(context, 'AVG ORDER', '\$111.25', '5%', true)),
                     ],
                   );
                 }
@@ -134,9 +176,9 @@ class AdminFinanceScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFC8C4D7)),
+                  border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
                 ),
                 child: Column(
                   children: [
@@ -148,7 +190,7 @@ class AdminFinanceScreen extends StatelessWidget {
                           style: GoogleFonts.geist(
                             fontSize: 24,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF121c2a),
+                            color: colorScheme.onSurface,
                             letterSpacing: -0.01,
                           ),
                         ),
@@ -157,7 +199,7 @@ class AdminFinanceScreen extends StatelessWidget {
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF474554),
+                            color: colorScheme.onSurfaceVariant,
                             letterSpacing: 0.05,
                           ),
                         ),
@@ -170,12 +212,12 @@ class AdminFinanceScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          _buildBar('JAN', 0.4),
-                          _buildBar('FEB', 0.55),
-                          _buildBar('MAR', 0.48),
-                          _buildBar('APR', 0.72),
-                          _buildBar('MAY', 0.85),
-                          _buildBar('JUN', 1.0),
+                          _buildBar(context, 'JAN', 0.4),
+                          _buildBar(context, 'FEB', 0.55),
+                          _buildBar(context, 'MAR', 0.48),
+                          _buildBar(context, 'APR', 0.72),
+                          _buildBar(context, 'MAY', 0.85),
+                          _buildBar(context, 'JUN', 1.0),
                         ],
                       ),
                     ),
@@ -193,7 +235,7 @@ class AdminFinanceScreen extends StatelessWidget {
                     style: GoogleFonts.geist(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF121c2a),
+                      color: colorScheme.onSurface,
                       letterSpacing: -0.01,
                     ),
                   ),
@@ -204,7 +246,7 @@ class AdminFinanceScreen extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF4231c0),
+                        color: colorScheme.primary,
                       ),
                     ),
                   ),
@@ -213,6 +255,7 @@ class AdminFinanceScreen extends StatelessWidget {
               const SizedBox(height: 12),
 
               _buildTransactionItem(
+                context: context,
                 name: 'Alex Rivers',
                 txId: '#TXN-89421',
                 amount: '\$299.00',
@@ -222,15 +265,17 @@ class AdminFinanceScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               _buildTransactionItem(
+                context: context,
                 name: 'Jordan Smith',
                 txId: '#TXN-89422',
                 amount: '\$149.50',
                 status: 'PENDING',
-                statusColor: const Color(0xFF474554),
-                statusBg: const Color(0xFFdee9fc),
+                statusColor: colorScheme.onSurfaceVariant,
+                statusBg: isDark ? colorScheme.surfaceContainerHigh : const Color(0xFFdee9fc),
               ),
               const SizedBox(height: 12),
               _buildTransactionItem(
+                context: context,
                 name: 'Maria Garcia',
                 txId: '#TXN-89423',
                 amount: '\$45.00',
@@ -247,13 +292,16 @@ class AdminFinanceScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSecondaryStat(String title, String value, String change, bool isUp) {
+  Widget _buildSecondaryStat(BuildContext context, String title, String value, String change, bool isUp) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC8C4D7)),
+        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -263,7 +311,7 @@ class AdminFinanceScreen extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF474554),
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 8),
@@ -272,7 +320,7 @@ class AdminFinanceScreen extends StatelessWidget {
             style: GoogleFonts.geist(
               fontSize: 24,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF4231c0),
+              color: colorScheme.primary,
               letterSpacing: -0.01,
             ),
           ),
@@ -295,7 +343,8 @@ class AdminFinanceScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBar(String label, double fillPercent) {
+  Widget _buildBar(BuildContext context, String label, double fillPercent) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4.0),
@@ -305,7 +354,7 @@ class AdminFinanceScreen extends StatelessWidget {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF5b4ed9).withOpacity(0.1),
+                  color: colorScheme.primary.withOpacity(0.1),
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
                 ),
                 alignment: Alignment.bottomCenter,
@@ -313,7 +362,7 @@ class AdminFinanceScreen extends StatelessWidget {
                   heightFactor: fillPercent,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: const Color(0xFF5b4ed9),
+                      color: colorScheme.primary,
                       borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
                     ),
                   ),
@@ -325,7 +374,7 @@ class AdminFinanceScreen extends StatelessWidget {
               label,
               style: GoogleFonts.inter(
                 fontSize: 10,
-                color: const Color(0xFF474554),
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -335,6 +384,7 @@ class AdminFinanceScreen extends StatelessWidget {
   }
 
   Widget _buildTransactionItem({
+    required BuildContext context,
     required String name,
     required String txId,
     required String amount,
@@ -342,12 +392,15 @@ class AdminFinanceScreen extends StatelessWidget {
     required Color statusColor,
     required Color statusBg,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC8C4D7)),
+        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -358,10 +411,10 @@ class AdminFinanceScreen extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF5b4ed9).withOpacity(0.1),
+                  color: colorScheme.primary.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.person, color: Color(0xFF4231c0)),
+                child: Icon(Icons.person, color: colorScheme.primary),
               ),
               const SizedBox(width: 16),
               Column(
@@ -372,14 +425,14 @@ class AdminFinanceScreen extends StatelessWidget {
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF121c2a),
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   Text(
                     txId,
                     style: GoogleFonts.inter(
                       fontSize: 14,
-                      color: const Color(0xFF474554),
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -394,7 +447,7 @@ class AdminFinanceScreen extends StatelessWidget {
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF121c2a),
+                  color: colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 4),

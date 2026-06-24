@@ -116,10 +116,13 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Profile Settings'),
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        title: Text('Admin Profile Settings', style: TextStyle(color: colorScheme.onSurface)),
+        backgroundColor: colorScheme.surface,
         elevation: 0,
       ),
       body: Container(
@@ -133,9 +136,9 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                     constraints: const BoxConstraints(maxWidth: 500),
                     padding: const EdgeInsets.all(32),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.05),
+                      color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : colorScheme.surfaceContainer,
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.white.withOpacity(0.1)),
+                      border: Border.all(color: colorScheme.outlineVariant),
                     ),
                     child: Form(
                       key: _formKey,
@@ -145,12 +148,12 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                           // Profile Picture Preview
                           CircleAvatar(
                             radius: 50,
-                            backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+                            backgroundColor: colorScheme.primary.withOpacity(0.2),
                             backgroundImage: _profilePicController.text.isNotEmpty
                                 ? NetworkImage(_profilePicController.text)
                                 : null,
                             child: _profilePicController.text.isEmpty
-                                ? Icon(Icons.person, size: 50, color: Theme.of(context).colorScheme.secondary)
+                                ? Icon(Icons.person, size: 50, color: colorScheme.primary)
                                 : null,
                           ),
                           const SizedBox(height: 24),
@@ -158,15 +161,15 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                           // Profile Picture URL
                           TextFormField(
                             controller: _profilePicController,
-                            style: const TextStyle(color: Colors.white),
+                            style: TextStyle(color: colorScheme.onSurface),
                             decoration: InputDecoration(
                               labelText: "Profile Picture URL",
-                              labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-                              prefixIcon: Icon(Icons.image, color: Theme.of(context).colorScheme.secondary),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+                              prefixIcon: Icon(Icons.image, color: colorScheme.primary),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.outlineVariant)),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+                                borderSide: BorderSide(color: colorScheme.outlineVariant),
                               ),
                             ),
                             onChanged: (val) => setState(() {}),
@@ -176,15 +179,15 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                           // Display Name
                           TextFormField(
                             controller: _nameController,
-                            style: const TextStyle(color: Colors.white),
+                            style: TextStyle(color: colorScheme.onSurface),
                             decoration: InputDecoration(
                               labelText: "Display Name",
-                              labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-                              prefixIcon: Icon(Icons.badge, color: Theme.of(context).colorScheme.secondary),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+                              prefixIcon: Icon(Icons.badge, color: colorScheme.primary),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.outlineVariant)),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+                                borderSide: BorderSide(color: colorScheme.outlineVariant),
                               ),
                             ),
                             validator: (value) => value == null || value.isEmpty ? 'Required' : null,
@@ -194,16 +197,16 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                           // New Password
                           TextFormField(
                             controller: _passwordController,
-                            style: const TextStyle(color: Colors.white),
+                            style: TextStyle(color: colorScheme.onSurface),
                             obscureText: true,
                             decoration: InputDecoration(
                               labelText: "New Password (Leave blank to keep current)",
-                              labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-                              prefixIcon: Icon(Icons.lock, color: Theme.of(context).colorScheme.secondary),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+                              prefixIcon: Icon(Icons.lock, color: colorScheme.primary),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.outlineVariant)),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+                                borderSide: BorderSide(color: colorScheme.outlineVariant),
                               ),
                             ),
                           ),
@@ -212,12 +215,12 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                           // Save Button
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              backgroundColor: colorScheme.primary,
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
                             onPressed: _saveProfileInfo,
-                            child: const Text("Save Changes", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                            child: Text("Save Changes", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: colorScheme.onPrimary)),
                           ),
                         ],
                       ),

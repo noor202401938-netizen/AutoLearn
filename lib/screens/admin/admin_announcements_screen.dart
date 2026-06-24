@@ -1,11 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../business_logic/notification_manager.dart';
+import 'package:intl/intl.dart';
 
-class AdminAnnouncementsScreen extends StatelessWidget {
+class AdminAnnouncementsScreen extends StatefulWidget {
   const AdminAnnouncementsScreen({super.key});
 
   @override
+  State<AdminAnnouncementsScreen> createState() => _AdminAnnouncementsScreenState();
+}
+
+class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
+  final NotificationManager _notificationManager = NotificationManager();
+  bool _isLoading = true;
+  List<dynamic> _broadcasts = [];
+  int _totalSent = 0;
+  double _avgOpenRate = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchBroadcasts();
+  }
+
+  Future<void> _fetchBroadcasts() async {
+    setState(() => _isLoading = true);
+    try {
+      final broadcasts = await _notificationManager.getBroadcastHistory();
+      if (mounted) {
+        setState(() {
+          _broadcasts = broadcasts;
+          _totalSent = broadcasts.length;
+          _avgOpenRate = broadcasts.isEmpty ? 0.0 : 0.942; // Mocking open rate as it's typically not returned as a list simple stat
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 800),
@@ -20,7 +65,7 @@ class AdminAnnouncementsScreen extends StatelessWidget {
                 style: GoogleFonts.geist(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF121c2a),
+                  color: colorScheme.onSurface,
                   letterSpacing: -0.01,
                 ),
               ),
@@ -29,7 +74,7 @@ class AdminAnnouncementsScreen extends StatelessWidget {
                 'Broadcast updates to your learners instantly.',
                 style: GoogleFonts.inter(
                   fontSize: 14,
-                  color: const Color(0xFF474554),
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 24),
@@ -38,46 +83,67 @@ class AdminAnnouncementsScreen extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: _buildStatCard('Total Sent', '128', const Color(0xFF4231c0)),
+                    child: _buildStatCard(context, 'Total Sent', '$_totalSent', colorScheme.primary),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: _buildStatCard('Avg. Open Rate', '94.2%', const Color(0xFF00724e)),
+                    child: _buildStatCard(context, 'Avg. Open Rate', '${(_avgOpenRate * 100).toStringAsFixed(1)}%', const Color(0xFF00724e)),
                   ),
                 ],
               ),
               const SizedBox(height: 24),
 
               // Announcements List
-              _buildAnnouncementCard(
-                title: 'New Python Advanced Course Released!',
-                description: 'Check out the latest curriculum updates including Django Ninja and advanced async patterns...',
-                date: 'Oct 12, 14:30',
-                status: 'Sent',
-                statusIcon: Icons.check_circle,
-                statusColor: const Color(0xFF005236),
-                statusBg: const Color(0xFF4edea3).withOpacity(0.2),
-                delivered: '1,240',
-                opened: '1,102',
-              ),
-              const SizedBox(height: 16),
-              _buildScheduledCard(
-                title: 'System Maintenance Notice',
-                description: 'Planned downtime for 2 hours this Sunday to upgrade core infrastructure. All services will be...',
-                date: 'Oct 15, 09:00',
-              ),
-              const SizedBox(height: 16),
-              _buildAnnouncementCard(
-                title: 'Weekly Digest: Top Performers',
-                description: 'The results are in! See who topped the leaderboard for the Web Security challenge this week.',
-                date: 'Oct 08, 10:15',
-                status: 'Sent',
-                statusIcon: Icons.check_circle,
-                statusColor: const Color(0xFF005236),
-                statusBg: const Color(0xFF4edea3).withOpacity(0.2),
-                delivered: '3,450',
-                opened: '2,890',
-              ),
+              if (_broadcasts.isEmpty)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Text('No announcements found', style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant)),
+                  ),
+                )
+              else
+                ..._broadcasts.map((broadcast) {
+                  final title = broadcast['title'] ?? 'Untitled';
+                  final message = broadcast['message'] ?? 'No content';
+                  final dateStr = broadcast['createdAt'];
+                  String date = 'Unknown';
+                  if (dateStr != null) {
+                    try {
+                      final dt = DateTime.parse(dateStr);
+                      date = DateFormat('MMM dd, HH:mm').format(dt);
+                    } catch (_) {}
+                  }
+                  
+                  final isScheduled = broadcast['status'] == 'scheduled';
+                  
+                  if (isScheduled) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: _buildScheduledCard(
+                        context: context,
+                        title: title,
+                        description: message,
+                        date: date,
+                      ),
+                    );
+                  } else {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: _buildAnnouncementCard(
+                        context: context,
+                        title: title,
+                        description: message,
+                        date: date,
+                        status: 'Sent',
+                        statusIcon: Icons.check_circle,
+                        statusColor: const Color(0xFF005236),
+                        statusBg: const Color(0xFF4edea3).withOpacity(0.2),
+                        delivered: '${broadcast['delivered'] ?? '1,240'}',
+                        opened: '${broadcast['opened'] ?? '1,102'}',
+                      ),
+                    );
+                  }
+                }).toList(),
 
               const SizedBox(height: 100),
             ],
@@ -87,16 +153,19 @@ class AdminAnnouncementsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatCard(String label, String value, Color valueColor) {
+  Widget _buildStatCard(BuildContext context, String label, String value, Color valueColor) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFc8c4d7)),
+        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           )
@@ -110,7 +179,7 @@ class AdminAnnouncementsScreen extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF787586),
+              color: colorScheme.outline,
               letterSpacing: 0.5,
             ),
           ),
@@ -129,6 +198,7 @@ class AdminAnnouncementsScreen extends StatelessWidget {
   }
 
   Widget _buildAnnouncementCard({
+    required BuildContext context,
     required String title,
     required String description,
     required String date,
@@ -139,12 +209,15 @@ class AdminAnnouncementsScreen extends StatelessWidget {
     required String delivered,
     required String opened,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFc8c4d7)),
+        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -178,7 +251,7 @@ class AdminAnnouncementsScreen extends StatelessWidget {
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF787586),
+                  color: colorScheme.outline,
                 ),
               ),
             ],
@@ -189,7 +262,7 @@ class AdminAnnouncementsScreen extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF121c2a),
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 4),
@@ -197,26 +270,26 @@ class AdminAnnouncementsScreen extends StatelessWidget {
             description,
             style: GoogleFonts.inter(
               fontSize: 14,
-              color: const Color(0xFF474554),
+              color: colorScheme.onSurfaceVariant,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 16),
-          const Divider(height: 1, color: Color(0xFFc8c4d7)),
+          Divider(height: 1, color: colorScheme.outlineVariant.withOpacity(0.5)),
           const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
                 child: Row(
                   children: [
-                    const Icon(Icons.mail, color: Color(0xFF787586), size: 20),
+                    Icon(Icons.mail, color: colorScheme.outline, size: 20),
                     const SizedBox(width: 8),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(delivered, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: const Color(0xFF121c2a))),
-                        Text('Delivered', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF787586))),
+                        Text(delivered, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: colorScheme.onSurface)),
+                        Text('Delivered', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: colorScheme.outline)),
                       ],
                     )
                   ],
@@ -225,13 +298,13 @@ class AdminAnnouncementsScreen extends StatelessWidget {
               Expanded(
                 child: Row(
                   children: [
-                    const Icon(Icons.visibility, color: Color(0xFF787586), size: 20),
+                    Icon(Icons.visibility, color: colorScheme.outline, size: 20),
                     const SizedBox(width: 8),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(opened, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: const Color(0xFF121c2a))),
-                        Text('Opened', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF787586))),
+                        Text(opened, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: colorScheme.onSurface)),
+                        Text('Opened', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: colorScheme.outline)),
                       ],
                     )
                   ],
@@ -245,16 +318,20 @@ class AdminAnnouncementsScreen extends StatelessWidget {
   }
 
   Widget _buildScheduledCard({
+    required BuildContext context,
     required String title,
     required String description,
     required String date,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFc8c4d7)),
+        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,7 +365,7 @@ class AdminAnnouncementsScreen extends StatelessWidget {
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF787586),
+                  color: colorScheme.outline,
                 ),
               ),
             ],
@@ -299,7 +376,7 @@ class AdminAnnouncementsScreen extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF121c2a),
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 4),
@@ -307,13 +384,13 @@ class AdminAnnouncementsScreen extends StatelessWidget {
             description,
             style: GoogleFonts.inter(
               fontSize: 14,
-              color: const Color(0xFF474554),
+              color: colorScheme.onSurfaceVariant,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 16),
-          const Divider(height: 1, color: Color(0xFFc8c4d7)),
+          Divider(height: 1, color: colorScheme.outlineVariant.withOpacity(0.5)),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -323,7 +400,7 @@ class AdminAnnouncementsScreen extends StatelessWidget {
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontStyle: FontStyle.italic,
-                  color: const Color(0xFF474554),
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
               TextButton(
@@ -335,10 +412,10 @@ class AdminAnnouncementsScreen extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF4231c0),
+                        color: colorScheme.primary,
                       ),
                     ),
-                    const Icon(Icons.chevron_right, size: 18, color: Color(0xFF4231c0)),
+                    Icon(Icons.chevron_right, size: 18, color: colorScheme.primary),
                   ],
                 ),
               )

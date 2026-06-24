@@ -52,13 +52,13 @@ class _AdminPaymentManagementState extends State<AdminPaymentManagement> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E2C),
-        title: const Text('Confirm Refund', style: TextStyle(color: Colors.white)),
-        content: const Text('Are you sure you want to refund this payment?', style: TextStyle(color: Colors.white70)),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        title: Text('Confirm Refund', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+        content: Text('Are you sure you want to refund this payment?', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+            child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -106,6 +106,9 @@ class _AdminPaymentManagementState extends State<AdminPaymentManagement> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -127,7 +130,7 @@ class _AdminPaymentManagementState extends State<AdminPaymentManagement> {
     }
 
     if (_payments.isEmpty) {
-      return const Center(child: Text('No payments found.', style: TextStyle(color: Colors.white70, fontSize: 18)));
+      return Center(child: Text('No payments found.', style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 18)));
     }
 
     return Padding(
@@ -138,12 +141,12 @@ class _AdminPaymentManagementState extends State<AdminPaymentManagement> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Payment Management',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: colorScheme.onSurface),
               ),
               IconButton(
-                icon: const Icon(Icons.refresh, color: Colors.white),
+                icon: Icon(Icons.refresh, color: colorScheme.onSurface),
                 onPressed: _fetchPayments,
                 tooltip: 'Refresh',
               )
@@ -162,7 +165,7 @@ class _AdminPaymentManagementState extends State<AdminPaymentManagement> {
                 final userEmail = payment['user']?['email'] ?? 'Unknown User';
 
                 return Card(
-                  color: Colors.white.withOpacity(0.05),
+                  color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.3) : colorScheme.surfaceContainerHigh,
                   margin: const EdgeInsets.only(bottom: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   child: ListTile(
@@ -177,7 +180,7 @@ class _AdminPaymentManagementState extends State<AdminPaymentManagement> {
                     ),
                     title: Text(
                       '$amount $currency - $userEmail',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                      style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w600),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -190,7 +193,7 @@ class _AdminPaymentManagementState extends State<AdminPaymentManagement> {
                         if (date != null)
                           Text(
                             'Date: ${DateFormat('MMM d, yyyy - h:mm a').format(date.toLocal())}',
-                            style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12),
+                            style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
                           ),
                       ],
                     ),

@@ -1,11 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class AdminUsersScreen extends StatelessWidget {
+import '../../repository/user_repository.dart';
+
+class AdminUsersScreen extends StatefulWidget {
   const AdminUsersScreen({super.key});
 
   @override
+  State<AdminUsersScreen> createState() => _AdminUsersScreenState();
+}
+
+class _AdminUsersScreenState extends State<AdminUsersScreen> {
+  final UserRepository _userRepository = UserRepository();
+  bool _isLoading = true;
+  List<Map<String, dynamic>> _allUsers = [];
+  List<Map<String, dynamic>> _filteredUsers = [];
+  String _selectedTab = 'All';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUsers();
+  }
+
+  Future<void> _fetchUsers() async {
+    setState(() => _isLoading = true);
+    try {
+      final users = await _userRepository.getAllUsers();
+      if (mounted) {
+        setState(() {
+          _allUsers = users;
+          _filteredUsers = users;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _applyFilter(String tab) {
+    setState(() {
+      _selectedTab = tab;
+      if (tab == 'All') {
+        _filteredUsers = List.from(_allUsers);
+      } else if (tab == 'Instructor') {
+        _filteredUsers = _allUsers.where((u) => (u['role'] ?? '').toString().toLowerCase() == 'instructor').toList();
+      } else if (tab == 'Premium') {
+        // Mock premium filtering, since we don't have a premium flag yet
+        _filteredUsers = _allUsers.where((u) => (u['role'] ?? '').toString().toLowerCase() == 'premium').toList();
+      } else if (tab == 'Inactive') {
+        // Mock inactive filtering
+        _filteredUsers = [];
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1200),
@@ -21,10 +78,10 @@ class AdminUsersScreen extends StatelessWidget {
                   return Flex(
                     direction: isDesktop ? Axis.horizontal : Axis.vertical,
                     children: [
-                      Expanded(flex: isDesktop ? 1 : 0, child: _buildStatCard('Active Now', '1,284', Icons.pause, const Color(0xFF00724e), const [Color(0xFF4edea3), Color(0xFF00724e)], 0.75)),
+                      Expanded(flex: isDesktop ? 1 : 0, child: _buildStatCard(context, 'Active Now', '${_allUsers.length}', Icons.pause, const Color(0xFF00724e), const [Color(0xFF4edea3), Color(0xFF00724e)], 0.75)),
                       if (isDesktop) const SizedBox(width: 16),
                       if (!isDesktop) const SizedBox(height: 16),
-                      Expanded(flex: isDesktop ? 1 : 0, child: _buildStatCard('Retention', '94.2%', Icons.trending_up, const Color(0xFF4231c0), const [Color(0xFF4231c0), Color(0xFF6b38d4)], 0.94)),
+                      Expanded(flex: isDesktop ? 1 : 0, child: _buildStatCard(context, 'Retention', '94.2%', Icons.trending_up, colorScheme.primary, [colorScheme.primary, colorScheme.tertiary], 0.94)),
                     ],
                   );
                 }
@@ -34,14 +91,25 @@ class AdminUsersScreen extends StatelessWidget {
               // Search
               Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFFeff4ff),
+                  color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.3) : const Color(0xFFeff4ff),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      if (value.isEmpty) {
+                        _applyFilter(_selectedTab);
+                      } else {
+                        _filteredUsers = _allUsers
+                            .where((u) => (u['email'] ?? '').toString().toLowerCase().contains(value.toLowerCase()) || (u['displayName'] ?? '').toString().toLowerCase().contains(value.toLowerCase()))
+                            .toList();
+                      }
+                    });
+                  },
                   decoration: InputDecoration(
                     hintText: 'Search members...',
-                    hintStyle: GoogleFonts.inter(color: const Color(0xFFc8c4d7)),
-                    prefixIcon: const Icon(Icons.search, color: Color(0xFF787586)),
+                    hintStyle: GoogleFonts.inter(color: colorScheme.outline),
+                    prefixIcon: Icon(Icons.search, color: colorScheme.onSurfaceVariant),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   ),
@@ -54,10 +122,10 @@ class AdminUsersScreen extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _buildTab('All', true),
-                    _buildTab('Premium', false),
-                    _buildTab('Instructor', false),
-                    _buildTab('Inactive', false),
+                    _buildTab(context, 'All'),
+                    _buildTab(context, 'Premium'),
+                    _buildTab(context, 'Instructor'),
+                    _buildTab(context, 'Inactive'),
                   ],
                 ),
               ),
@@ -72,7 +140,7 @@ class AdminUsersScreen extends StatelessWidget {
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF787586),
+                      color: colorScheme.outline,
                       letterSpacing: 0.05,
                     ),
                   ),
@@ -81,7 +149,7 @@ class AdminUsersScreen extends StatelessWidget {
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF4231c0),
+                      color: colorScheme.primary,
                       letterSpacing: 0.05,
                     ),
                   ),
@@ -89,49 +157,36 @@ class AdminUsersScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              // Member List Items
-              _buildMemberItem(
-                name: 'Elena Rodriguez',
-                role: 'Premium',
-                roleColor: const Color(0xFF4231c0),
-                roleBg: const Color(0xFF4231c0).withOpacity(0.1),
-                subtitle: 'Active 2m ago • Python Mastery',
-              ),
-              const SizedBox(height: 12),
-              _buildMemberItem(
-                name: 'Marcus Thorne',
-                role: 'Instructor',
-                roleColor: const Color(0xFF6b38d4),
-                roleBg: const Color(0xFF6b38d4).withOpacity(0.1),
-                subtitle: 'Active 15m ago • UI Design Pro',
-              ),
-              const SizedBox(height: 12),
-              _buildMemberItem(
-                name: 'Liam Chen',
-                role: 'Free',
-                roleColor: const Color(0xFF474554),
-                roleBg: const Color(0xFFd9e3f6),
-                subtitle: 'Active 1h ago • Data Structures',
-              ),
-              const SizedBox(height: 12),
-              Opacity(
-                opacity: 0.6,
-                child: _buildMemberItem(
-                  name: 'Sarah Jenkins',
-                  role: 'Inactive',
-                  roleColor: const Color(0xFFba1a1a),
-                  roleBg: const Color(0xFFffdad6).withOpacity(0.5),
-                  subtitle: 'Last seen 2w ago • DevOps Basics',
-                ),
-              ),
-              const SizedBox(height: 12),
-              _buildMemberItem(
-                name: 'David Okoro',
-                role: 'Premium',
-                roleColor: const Color(0xFF4231c0),
-                roleBg: const Color(0xFF4231c0).withOpacity(0.1),
-                subtitle: 'Active Now • Full-Stack Dev',
-              ),
+              if (_isLoading)
+                const Center(child: Padding(
+                  padding: EdgeInsets.all(32.0),
+                  child: CircularProgressIndicator(),
+                ))
+              else if (_filteredUsers.isEmpty)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Text('No users found', style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant)),
+                  ),
+                )
+              else
+                ..._filteredUsers.map((user) {
+                  final role = (user['role'] ?? 'Free').toString();
+                  final isInstructor = role.toLowerCase() == 'instructor';
+                  final isPremium = role.toLowerCase() == 'premium';
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12.0),
+                    child: _buildMemberItem(
+                      context: context,
+                      name: user['displayName'] ?? user['email'] ?? 'Unknown',
+                      role: role.isEmpty ? 'Free' : role,
+                      roleColor: isInstructor ? colorScheme.tertiary : (isPremium ? colorScheme.primary : colorScheme.onSurfaceVariant),
+                      roleBg: isInstructor ? colorScheme.tertiary.withOpacity(0.1) : (isPremium ? colorScheme.primary.withOpacity(0.1) : (isDark ? colorScheme.surfaceContainer : const Color(0xFFd9e3f6))),
+                      subtitle: user['email'] ?? 'No email',
+                    ),
+                  );
+                }).toList(),
 
               const SizedBox(height: 100),
             ],
@@ -141,13 +196,16 @@ class AdminUsersScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color iconColor, List<Color> gradientColors, double progress) {
+  Widget _buildStatCard(BuildContext context, String title, String value, IconData icon, Color iconColor, List<Color> gradientColors, double progress) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,7 +219,7 @@ class AdminUsersScreen extends StatelessWidget {
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF787586),
+                  color: colorScheme.outline,
                   letterSpacing: 1.5,
                 ),
               ),
@@ -173,7 +231,7 @@ class AdminUsersScreen extends StatelessWidget {
             style: GoogleFonts.geist(
               fontSize: 32,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF121c2a),
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 16),
@@ -181,7 +239,7 @@ class AdminUsersScreen extends StatelessWidget {
             height: 4,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: isDark ? colorScheme.surfaceContainerHigh : Colors.grey[100],
               borderRadius: BorderRadius.circular(2),
             ),
             child: FractionallySizedBox(
@@ -200,50 +258,59 @@ class AdminUsersScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTab(String text, bool isActive) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 24.0),
-      child: Column(
-        children: [
-          Text(
-            text,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: isActive ? const Color(0xFF4231c0) : const Color(0xFF474554),
-            ),
-          ),
-          if (isActive) ...[
-            const SizedBox(height: 4),
-            Container(
-              height: 2,
-              width: 24,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [Color(0xFF4231c0), Color(0xFF6b38d4)]),
-                borderRadius: BorderRadius.circular(2),
+  Widget _buildTab(BuildContext context, String text) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isActive = _selectedTab == text;
+    return GestureDetector(
+      onTap: () => _applyFilter(text),
+      child: Padding(
+        padding: const EdgeInsets.only(right: 24.0),
+        child: Column(
+          children: [
+            Text(
+              text,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isActive ? colorScheme.primary : colorScheme.onSurfaceVariant,
               ),
             ),
-          ] else ...[
-            const SizedBox(height: 6),
-          ]
-        ],
+            if (isActive) ...[
+              const SizedBox(height: 4),
+              Container(
+                height: 2,
+                width: 24,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: [colorScheme.primary, colorScheme.tertiary]),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ] else ...[
+              const SizedBox(height: 6),
+            ]
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildMemberItem({
+    required BuildContext context,
     required String name,
     required String role,
     required Color roleColor,
     required Color roleBg,
     required String subtitle,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.2)),
+        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.2)),
       ),
       child: Row(
         children: [
@@ -251,10 +318,10 @@ class AdminUsersScreen extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: const Color(0xFFd9e3f6),
+              color: isDark ? colorScheme.surfaceContainer : const Color(0xFFd9e3f6),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.person, color: Color(0xFF474554)),
+            child: Icon(Icons.person, color: colorScheme.onSurfaceVariant),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -268,7 +335,7 @@ class AdminUsersScreen extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF121c2a),
+                        color: colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -295,14 +362,14 @@ class AdminUsersScreen extends StatelessWidget {
                   subtitle,
                   style: GoogleFonts.inter(
                     fontSize: 12,
-                    color: const Color(0xFF474554),
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.more_vert, color: Color(0xFF787586)),
+            icon: Icon(Icons.more_vert, color: colorScheme.outline),
             onPressed: () {},
           )
         ],

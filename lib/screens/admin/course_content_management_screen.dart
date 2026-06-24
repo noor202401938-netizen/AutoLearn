@@ -265,17 +265,20 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Manage Content',
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: colorScheme.onSurface),
         actions: [
           if (_hasUnsavedChanges)
             const Padding(
@@ -297,28 +300,28 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
         
         child: SafeArea(
           child: _isLoading
-              ? const Center(child: CircularProgressIndicator(color: Colors.white))
+              ? const Center(child: CircularProgressIndicator())
               : Column(
               children: [
                 // Action Buttons
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
-                    border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.1))),
+                    color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : colorScheme.surfaceContainer,
+                    border: Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
                   ),
                   child: Row(
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          icon: Icon(Icons.upload_file, size: 18, color: Colors.white.withOpacity(0.9)),
+                          icon: Icon(Icons.upload_file, size: 18, color: colorScheme.onSurface),
                           label: Text(
                             'Import XML',
-                            style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.9)),
+                            style: TextStyle(fontSize: 11, color: colorScheme.onSurface),
                           ),
                           onPressed: _importFromXml,
                           style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: Colors.white.withOpacity(0.3)),
+                            side: BorderSide(color: colorScheme.outlineVariant),
                             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           ),
@@ -327,14 +330,14 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
                       const SizedBox(width: 6),
                       Expanded(
                         child: OutlinedButton.icon(
-                          icon: Icon(Icons.download, size: 18, color: Colors.white.withOpacity(0.9)),
+                          icon: Icon(Icons.download, size: 18, color: colorScheme.onSurface),
                           label: Text(
                             'Export XML',
-                            style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.9)),
+                            style: TextStyle(fontSize: 11, color: colorScheme.onSurface),
                           ),
                           onPressed: _exportToXml,
                           style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: Colors.white.withOpacity(0.3)),
+                            side: BorderSide(color: colorScheme.outlineVariant),
                             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           ),
@@ -348,15 +351,15 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: ElevatedButton.icon(
-                            icon: const Icon(Icons.add, size: 18),
-                            label: const Text(
+                            icon: Icon(Icons.add, size: 18, color: colorScheme.onSurface),
+                            label: Text(
                               'Add Module',
-                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: colorScheme.onSurface),
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,
                               shadowColor: Colors.transparent,
-                              foregroundColor: Colors.white,
+                              foregroundColor: colorScheme.onSurface,
                               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
                             ),
                             onPressed: _addModule,
@@ -400,14 +403,14 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
                               Icon(
                                 Icons.folder_open,
                                 size: 80,
-                                color: Colors.white.withOpacity(0.2),
+                                color: colorScheme.outlineVariant,
                               ),
                               const SizedBox(height: 16),
                               Text(
                                 'No modules yet',
                                 style: TextStyle(
                                   fontSize: 18,
-                                  color: Colors.white.withOpacity(0.7),
+                                  color: colorScheme.onSurfaceVariant,
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -415,7 +418,7 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
                                 'Import from XML or add a new module',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.white.withOpacity(0.5),
+                                  color: colorScheme.onSurfaceVariant,
                                 ),
                               ),
                             ],
@@ -441,41 +444,41 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: isDark ? Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3) : Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
-          iconColor: Colors.white,
-          collapsedIconColor: Colors.white.withOpacity(0.7),
+          iconColor: Theme.of(context).colorScheme.onSurface,
+          collapsedIconColor: Theme.of(context).colorScheme.onSurfaceVariant,
           leading: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(Icons.folder, color: Theme.of(context).colorScheme.secondary),
+            child: Icon(Icons.folder, color: Theme.of(context).colorScheme.primary),
           ),
           title: TextField(
             controller: TextEditingController(text: module.title),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
             decoration: InputDecoration(
               border: InputBorder.none,
               hintText: 'Module Title',
-              hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+              hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
               contentPadding: EdgeInsets.zero,
             ),
             onChanged: (value) => _updateModuleTitle(moduleIndex, value),
           ),
           subtitle: Text(
             '${module.lessons.length} lessons',
-            style: TextStyle(color: Colors.white.withOpacity(0.6)),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
@@ -497,14 +500,14 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
           children: [
             Container(
               decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: Colors.white.withOpacity(0.1))),
+                border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
               ),
               child: module.lessons.isEmpty
                   ? Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
                         'No lessons in this module',
-                        style: TextStyle(color: Colors.white.withOpacity(0.5)),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     )
                   : Column(
@@ -522,19 +525,21 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
   }
 
   Widget _buildLessonTile(int moduleIndex, int lessonIndex, LessonModel lesson) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
+          color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.3) : colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(_getLessonIcon(lesson.type), color: Colors.white.withOpacity(0.9)),
+        child: Icon(_getLessonIcon(lesson.type), color: colorScheme.onSurface),
       ),
-      title: Text(lesson.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+      title: Text(lesson.title, style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w500)),
       subtitle: Text(
         '${lesson.type} • ${lesson.duration} min',
-        style: TextStyle(color: Colors.white.withOpacity(0.5)),
+        style: TextStyle(color: colorScheme.onSurfaceVariant),
       ),
       trailing: IconButton(
         icon: const Icon(Icons.delete, color: Colors.redAccent),
@@ -568,14 +573,18 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
 
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
+      builder: (context) {
+        final colorScheme = Theme.of(context).colorScheme;
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+
+        return StatefulBuilder(
         builder: (context, setDialogState) => Dialog(
           backgroundColor: Colors.transparent,
           child: Container(
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
+              color: colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
+              border: Border.all(color: colorScheme.outlineVariant),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -584,20 +593,20 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
                   padding: const EdgeInsets.all(20),
                   child: Row(
                     children: [
-                      const Icon(Icons.edit, color: Colors.white),
+                      Icon(Icons.edit, color: colorScheme.onSurface),
                       const SizedBox(width: 12),
-                      const Text(
+                      Text(
                         'Edit Lesson',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: colorScheme.onSurface,
                         ),
                       ),
                     ],
                   ),
                 ),
-                Divider(color: Colors.white.withOpacity(0.1), height: 1),
+                Divider(color: colorScheme.outlineVariant, height: 1),
                 Flexible(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(20),
@@ -611,17 +620,17 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
                         const SizedBox(height: 16),
                         Container(
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.05),
+                            color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.3) : colorScheme.surfaceContainerHigh,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.white.withOpacity(0.1)),
+                            border: Border.all(color: colorScheme.outlineVariant),
                           ),
                           child: DropdownButtonFormField<String>(
                             value: selectedType,
-                            dropdownColor: Theme.of(context).colorScheme.surface,
-                            style: const TextStyle(color: Colors.white),
+                            dropdownColor: colorScheme.surface,
+                            style: TextStyle(color: colorScheme.onSurface),
                             decoration: InputDecoration(
                               labelText: 'Lesson Type',
-                              labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                              labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
                               border: InputBorder.none,
                               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                             ),
@@ -661,7 +670,8 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
                     ),
                   ),
                 ),
-                Divider(color: Colors.white.withOpacity(0.1), height: 1),
+                ),
+                Divider(color: colorScheme.outlineVariant, height: 1),
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(
@@ -669,14 +679,14 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
                     children: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
-                        style: TextButton.styleFrom(foregroundColor: Colors.white.withOpacity(0.7)),
+                        style: TextButton.styleFrom(foregroundColor: colorScheme.onSurfaceVariant),
                         child: const Text('Cancel'),
                       ),
                       const SizedBox(width: 12),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.primary,
-                          foregroundColor: Colors.white,
+                          backgroundColor: colorScheme.primary,
+                          foregroundColor: colorScheme.onPrimary,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         ),
                         onPressed: () {
@@ -714,20 +724,23 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
     int maxLines = 1,
     TextInputType? keyboardType,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.3) : colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: colorScheme.outlineVariant),
       ),
       child: TextField(
         controller: controller,
-        style: const TextStyle(color: Colors.white),
+        style: TextStyle(color: colorScheme.onSurface),
         maxLines: maxLines,
         keyboardType: keyboardType,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+          labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),

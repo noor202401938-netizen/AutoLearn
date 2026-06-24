@@ -8,13 +8,18 @@ class PoliciesScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
+      backgroundColor: const Color(0xFFF8F9FF),
       appBar: AppBar(
-        title: const Text('Policies & Terms', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text('Policies & Terms', 
+          style: TextStyle(
+            fontWeight: FontWeight.bold, 
+            color: const Color(0xFF4231C0),
+          )
+        ),
+        backgroundColor: Colors.white.withOpacity(0.9),
+        elevation: 1,
+        shadowColor: Colors.black12,
+        iconTheme: const IconThemeData(color: Color(0xFF4231C0)),
       ),
       body: Container(
         
@@ -25,33 +30,33 @@ class PoliciesScreen extends StatelessWidget {
               Text(
                 'Terms of Service',
                 style: textTheme.headlineMedium?.copyWith(
-                  color: Colors.white,
+                  color: const Color(0xFF121C2A),
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 12),
               Text(
                 'Welcome to AutoLearn. By using our application, you agree to these Terms of Service. Our services are designed to provide AI-assisted tutoring and educational content. You must not misuse our services or use them for any malicious purposes. AutoLearn reserves the right to suspend or terminate accounts that violate these terms. The content provided is for educational purposes only.',
-                style: textTheme.bodyMedium?.copyWith(color: Colors.white.withOpacity(0.7)),
+                style: textTheme.bodyMedium?.copyWith(color: const Color(0xFF787586)),
               ),
               const SizedBox(height: 32),
               Text(
                 'Privacy Policy',
                 style: textTheme.headlineMedium?.copyWith(
-                  color: Colors.white,
+                  color: const Color(0xFF121C2A),
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 12),
               Text(
                 'Your privacy is important to us. AutoLearn collects basic account information such as your email address to provide you with personalized learning experiences. We do not sell your personal data to third parties. We use secure encryption to protect your data, both in transit and at rest. If you wish to delete your account and associated data, please contact our support team.',
-                style: textTheme.bodyMedium?.copyWith(color: Colors.white.withOpacity(0.7)),
+                style: textTheme.bodyMedium?.copyWith(color: const Color(0xFF787586)),
               ),
               const SizedBox(height: 32),
               Text(
                 'Frequently Asked Questions (FAQ)',
                 style: textTheme.headlineMedium?.copyWith(
-                  color: Colors.white,
+                  color: const Color(0xFF121C2A),
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -80,7 +85,7 @@ class PoliciesScreen extends StatelessWidget {
               Center(
                 child: Text(
                   'Last updated: June 2026',
-                  style: textTheme.bodySmall?.copyWith(color: Colors.white.withOpacity(0.3)),
+                  style: textTheme.bodySmall?.copyWith(color: const Color(0xFFC8C4D7)),
                 ),
               ),
             ],
@@ -96,9 +101,16 @@ class PoliciesScreen extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withOpacity(0.1)),
+          border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF4231C0).withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
         ),
         child: Theme(
           data: theme.copyWith(dividerColor: Colors.transparent),
@@ -107,17 +119,17 @@ class PoliciesScreen extends StatelessWidget {
               question,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: const Color(0xFF121C2A),
               ),
             ),
-            iconColor: Colors.white,
-            collapsedIconColor: Colors.white.withOpacity(0.5),
+            iconColor: const Color(0xFF4231C0),
+            collapsedIconColor: const Color(0xFF4231C0).withOpacity(0.5),
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: Text(
                   answer,
-                  style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white.withOpacity(0.7)),
+                  style: theme.textTheme.bodyMedium?.copyWith(color: const Color(0xFF787586)),
                 ),
               ),
             ],

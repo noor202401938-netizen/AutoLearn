@@ -274,24 +274,38 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   Widget _buildVideoPlayer() {
     return Container(
-      color: Colors.black,
-      child: _youtubeController != null
-          ? YoutubePlayerBuilder(
-              player: YoutubePlayer(
-                controller: _youtubeController!,
-                showVideoProgressIndicator: true,
-                progressIndicatorColor: const Color(0xFF6B38D4),
-                progressColors: const ProgressBarColors(
-                  playedColor: Color(0xFF6B38D4),
-                  handleColor: Color(0xFF5B4ED9),
+      margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF5b4ed9).withOpacity(0.15),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: _youtubeController != null
+            ? YoutubePlayerBuilder(
+                player: YoutubePlayer(
+                  controller: _youtubeController!,
+                  showVideoProgressIndicator: true,
+                  progressIndicatorColor: const Color(0xFF6B38D4),
+                  progressColors: const ProgressBarColors(
+                    playedColor: Color(0xFF6B38D4),
+                    handleColor: Color(0xFF5B4ED9),
+                  ),
                 ),
+                builder: (context, player) => player,
+              )
+            : const AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Center(child: Text('Video Not Available', style: TextStyle(color: Colors.white))),
               ),
-              builder: (context, player) => player,
-            )
-          : const AspectRatio(
-              aspectRatio: 16 / 9,
-              child: Center(child: Text('Video Not Available', style: TextStyle(color: Colors.white))),
-            ),
+      ),
     );
   }
 

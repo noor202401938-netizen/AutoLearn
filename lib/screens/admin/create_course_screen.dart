@@ -107,13 +107,16 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Create New Course', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: Text('Create New Course', style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: colorScheme.onSurface),
       ),
       body: Container(
         
@@ -242,21 +245,21 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
             // Publish Toggle
             Container(
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
+                color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.3) : colorScheme.surfaceContainerHigh,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withOpacity(0.1)),
+                border: Border.all(color: colorScheme.outlineVariant),
               ),
               child: SwitchListTile(
-                title: const Text('Publish Course', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                title: Text('Publish Course', style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold)),
                 subtitle: Text(
                   'Published courses will be visible to students',
-                  style: TextStyle(color: Colors.white.withOpacity(0.6)),
+                  style: TextStyle(color: colorScheme.onSurfaceVariant),
                 ),
                 value: _isPublished,
                 onChanged: (value) {
                   setState(() => _isPublished = value);
                 },
-                activeColor: Theme.of(context).colorScheme.secondary,
+                activeColor: colorScheme.primary,
               ),
             ),
             const SizedBox(height: 40),
@@ -265,7 +268,7 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
             _isLoading
                 ? Center(
                     child: CircularProgressIndicator(
-                      color: Theme.of(context).colorScheme.secondary,
+                      color: colorScheme.primary,
                     ),
                   )
                 : Container(
@@ -274,7 +277,7 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                          color: colorScheme.primary.withOpacity(0.3),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -282,9 +285,9 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
                     ),
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
+                        backgroundColor: colorScheme.primary,
                         shadowColor: Colors.transparent,
-                        foregroundColor: Colors.white,
+                        foregroundColor: colorScheme.onPrimary,
                         minimumSize: const Size(double.infinity, 60),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
@@ -318,27 +321,30 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
     String? helperText,
     String? Function(String?)? validator,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.3) : colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: colorScheme.outlineVariant),
       ),
       child: TextFormField(
         controller: controller,
-        style: const TextStyle(color: Colors.white),
+        style: TextStyle(color: colorScheme.onSurface),
         maxLines: maxLines,
         keyboardType: keyboardType,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+          labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+          hintStyle: TextStyle(color: colorScheme.onSurfaceVariant.withOpacity(0.5)),
           helperText: helperText,
-          helperStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+          helperStyle: TextStyle(color: colorScheme.onSurfaceVariant),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.5)),
+          prefixIcon: Icon(icon, color: colorScheme.onSurfaceVariant),
         ),
         validator: validator,
       ),
@@ -346,27 +352,30 @@ class _CreateCourseScreenState extends State<CreateCourseScreen> {
   }
 
   Widget _buildDropdownField() {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.3) : colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: colorScheme.outlineVariant),
       ),
       child: DropdownButtonFormField<String>(
         initialValue: _selectedLevel,
-        dropdownColor: Theme.of(context).colorScheme.surface,
-        style: const TextStyle(color: Colors.white),
+        dropdownColor: colorScheme.surface,
+        style: TextStyle(color: colorScheme.onSurface),
         decoration: InputDecoration(
           labelText: 'Level *',
-          labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+          labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          prefixIcon: Icon(Icons.signal_cellular_alt, color: Colors.white.withOpacity(0.5)),
+          prefixIcon: Icon(Icons.signal_cellular_alt, color: colorScheme.onSurfaceVariant),
         ),
-        items: const [
-          DropdownMenuItem(value: 'beginner', child: Text('Beginner', style: TextStyle(color: Colors.white))),
-          DropdownMenuItem(value: 'intermediate', child: Text('Intermediate', style: TextStyle(color: Colors.white))),
-          DropdownMenuItem(value: 'advanced', child: Text('Advanced', style: TextStyle(color: Colors.white))),
+        items: [
+          DropdownMenuItem(value: 'beginner', child: Text('Beginner', style: TextStyle(color: colorScheme.onSurface))),
+          DropdownMenuItem(value: 'intermediate', child: Text('Intermediate', style: TextStyle(color: colorScheme.onSurface))),
+          DropdownMenuItem(value: 'advanced', child: Text('Advanced', style: TextStyle(color: colorScheme.onSurface))),
         ],
         onChanged: (value) {
           setState(() => _selectedLevel = value!);

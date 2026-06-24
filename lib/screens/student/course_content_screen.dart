@@ -179,9 +179,10 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
       title: Text(
         'AutoLearn',
         style: GoogleFonts.geist(
-          color: Theme.of(context).colorScheme.primary,
+          color: const Color(0xFF4231C0),
           fontWeight: FontWeight.bold,
           fontSize: 24,
+          letterSpacing: -0.5,
         ),
       ),
       actions: [
@@ -392,14 +393,14 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFFe6eeff),
+        color: const Color(0xFFeff4ff), // surface-container-low
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFc8c4d7)),
+        border: Border.all(color: Colors.transparent),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: const Color(0xFF5b4ed9).withOpacity(0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -561,9 +562,9 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
           border: Border.all(color: const Color(0xFFc8c4d7)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+              color: const Color(0xFF5b4ed9).withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             )
           ],
         ),
@@ -612,14 +613,14 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
       return Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.05),
+          color: const Color(0xFFeff4ff),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
+          border: Border.all(color: const Color(0xFF4231c0), width: 2),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
+              color: const Color(0xFF5b4ed9).withOpacity(0.15),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
             )
           ],
         ),
@@ -632,7 +633,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer,
+                color: const Color(0xFF4231c0),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(Icons.play_arrow, color: Colors.white),
@@ -645,7 +646,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: const Color(0xFF4231c0),
                     letterSpacing: 0.6,
                   ),
                 ),
@@ -710,9 +711,9 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
       return Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: const Color(0xFFeff4ff),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFc8c4d7).withOpacity(0.3)),
+          border: Border.all(color: const Color(0xFFc8c4d7).withOpacity(0.5)),
         ),
         child: Opacity(
           opacity: 0.6,

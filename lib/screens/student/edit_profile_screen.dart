@@ -135,18 +135,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      backgroundColor: const Color(0xFFF8F9FF),
       appBar: AppBar(
-        title: const Text('Edit Profile', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text('Edit Profile', 
+          style: TextStyle(
+            fontWeight: FontWeight.bold, 
+            color: const Color(0xFF4231C0),
+          )
+        ),
+        backgroundColor: Colors.white.withOpacity(0.9),
+        elevation: 1,
+        shadowColor: Colors.black12,
+        iconTheme: const IconThemeData(color: Color(0xFF4231C0)),
       ),
       body: Container(
-        
         child: SafeArea(
           child: _isLoading && _userProfile == null
-              ? const Center(child: CircularProgressIndicator(color: Colors.white))
+              ? const Center(child: CircularProgressIndicator(color: Color(0xFF4231C0)))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Form(
@@ -171,7 +176,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                         child: CircleAvatar(
                           radius: 60,
-                          backgroundColor: Colors.white.withOpacity(0.1),
+                          backgroundColor: const Color(0xFFE6EEFF),
                           child: Text(
                             (_nameController.text.isNotEmpty
                                     ? _nameController.text
@@ -180,7 +185,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             style: const TextStyle(
                               fontSize: 48,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Color(0xFF4231C0),
                             ),
                           ),
                         ),
@@ -256,11 +261,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        
+                        color: const Color(0xFF4231C0),
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                            color: const Color(0xFF4231C0).withOpacity(0.3),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -314,21 +319,28 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(readOnly ? 0.02 : 0.05),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF4231C0).withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: TextFormField(
         controller: controller,
         readOnly: readOnly,
         keyboardType: keyboardType,
-        style: TextStyle(color: readOnly ? Colors.white.withOpacity(0.5) : Colors.white),
+        style: TextStyle(color: readOnly ? const Color(0xFF121C2A).withOpacity(0.5) : const Color(0xFF121C2A)),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+          labelStyle: TextStyle(color: const Color(0xFF787586)),
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
-          prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.7)),
+          hintStyle: TextStyle(color: const Color(0xFFC8C4D7)),
+          prefixIcon: Icon(icon, color: const Color(0xFF4231C0)),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(20),
         ),
@@ -347,18 +359,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF4231C0).withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: DropdownButtonFormField<String>(
         value: value,
-        dropdownColor: const Color(0xFF1E1E2C),
-        style: const TextStyle(color: Colors.white),
+        dropdownColor: Colors.white,
+        style: const TextStyle(color: Color(0xFF121C2A)),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-          prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.7)),
+          labelStyle: TextStyle(color: const Color(0xFF787586)),
+          prefixIcon: Icon(icon, color: const Color(0xFF4231C0)),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(20),
         ),

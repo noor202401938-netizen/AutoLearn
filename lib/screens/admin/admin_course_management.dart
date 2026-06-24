@@ -120,6 +120,9 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: Container(
@@ -131,8 +134,8 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.05),
-                  border: Border(bottom: BorderSide(color: Colors.white.withOpacity(0.1))),
+                  color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : colorScheme.surfaceContainer,
+                  border: Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,12 +147,12 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'Course Management',
                               style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: colorScheme.onSurface,
                               ),
                             ),
                             const SizedBox(height: 12),
@@ -164,13 +167,13 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Expanded(
+                          Expanded(
                             child: Text(
                               'Course Management',
                               style: TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: colorScheme.onSurface,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -217,16 +220,16 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.05),
+                      color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.3) : colorScheme.surfaceContainerHigh,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withOpacity(0.1)),
+                      border: Border.all(color: colorScheme.outlineVariant),
                     ),
                     child: TextField(
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: colorScheme.onSurface),
                       decoration: InputDecoration(
                         hintText: 'Search courses...',
-                        hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
-                        prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.5)),
+                        hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+                        prefixIcon: Icon(Icons.search, color: colorScheme.onSurfaceVariant),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                       ),
@@ -271,14 +274,14 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                               Icon(
                                 Icons.school_outlined,
                                 size: 80,
-                                color: Colors.white.withOpacity(0.2),
+                                color: colorScheme.outlineVariant,
                               ),
                               const SizedBox(height: 16),
                               Text(
                                 'No courses found',
                                 style: TextStyle(
                                   fontSize: 18,
-                                  color: Colors.white.withOpacity(0.7),
+                                  color: colorScheme.onSurfaceVariant,
                                 ),
                               ),
                             ],
@@ -305,13 +308,14 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
   }
 
   Widget _buildCreateButton() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
         
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+            color: colorScheme.primary.withOpacity(0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -319,9 +323,9 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
       ),
       child: ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
+          backgroundColor: colorScheme.primary,
           shadowColor: Colors.transparent,
-          foregroundColor: Colors.white,
+          foregroundColor: colorScheme.onPrimary,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
@@ -343,6 +347,8 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
   }
 
   Widget _buildFilterChip(String label, String? value) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isSelected = _filterStatus == value;
     return InkWell(
       onTap: () {
@@ -354,10 +360,10 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? Theme.of(context).colorScheme.primary.withOpacity(0.2) : Colors.white.withOpacity(0.05),
+          color: isSelected ? colorScheme.primary.withOpacity(0.1) : (isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.3) : colorScheme.surfaceContainerHigh),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? Theme.of(context).colorScheme.secondary : Colors.white.withOpacity(0.1),
+            color: isSelected ? colorScheme.primary : colorScheme.outlineVariant,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -365,7 +371,7 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.white.withOpacity(0.7),
+            color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -407,15 +413,18 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
   }
 
   Widget _buildCourseCard(CourseModel course) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface.withOpacity(0.4),
+        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: colorScheme.outlineVariant),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -434,11 +443,11 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     
-                    border: Border.all(color: Colors.white.withOpacity(0.2)),
+                    border: Border.all(color: colorScheme.outlineVariant),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.school,
-                    color: Colors.white,
+                    color: colorScheme.primary,
                     size: 32,
                   ),
                 ),
@@ -449,10 +458,10 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                     children: [
                       Text(
                         course.title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: colorScheme.onSurface,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -462,7 +471,7 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                         course.instructor,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.white.withOpacity(0.7),
+                          color: colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -499,21 +508,21 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
             const SizedBox(height: 20),
             Row(
               children: [
-                Icon(Icons.people, size: 16, color: Colors.white.withOpacity(0.5)),
+                Icon(Icons.people, size: 16, color: colorScheme.onSurfaceVariant),
                 const SizedBox(width: 6),
-                Text('${course.enrollmentCount} enrolled', style: TextStyle(color: Colors.white.withOpacity(0.8))),
+                Text('${course.enrollmentCount} enrolled', style: TextStyle(color: colorScheme.onSurfaceVariant)),
                 const SizedBox(width: 20),
                 const Icon(Icons.star, size: 16, color: Colors.amberAccent),
                 const SizedBox(width: 6),
-                Text(course.rating.toStringAsFixed(1), style: TextStyle(color: Colors.white.withOpacity(0.8))),
+                Text(course.rating.toStringAsFixed(1), style: TextStyle(color: colorScheme.onSurfaceVariant)),
                 const SizedBox(width: 20),
-                Icon(Icons.access_time, size: 16, color: Colors.white.withOpacity(0.5)),
+                Icon(Icons.access_time, size: 16, color: colorScheme.onSurfaceVariant),
                 const SizedBox(width: 6),
-                Text('${course.duration}h', style: TextStyle(color: Colors.white.withOpacity(0.8))),
+                Text('${course.duration}h', style: TextStyle(color: colorScheme.onSurfaceVariant)),
               ],
             ),
             const SizedBox(height: 20),
-            Divider(color: Colors.white.withOpacity(0.1)),
+            Divider(color: colorScheme.outlineVariant),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [

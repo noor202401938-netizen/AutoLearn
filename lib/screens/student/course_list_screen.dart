@@ -119,24 +119,17 @@ class _CourseListScreenState extends State<CourseListScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: const Color(0xFFeff4ff), // surface-container-low
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFc8c4d7)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                    border: Border.all(color: Colors.transparent),
                   ),
                   child: TextField(
                     controller: _searchController,
                     style: GoogleFonts.inter(color: const Color(0xFF121c2a)),
                     decoration: InputDecoration(
                       hintText: 'Search courses...',
-                      hintStyle: GoogleFonts.inter(color: const Color(0xFF787586)),
-                      prefixIcon: const Icon(Icons.search, color: Color(0xFF4231c0)),
+                      hintStyle: GoogleFonts.inter(color: const Color(0xFFc8c4d7)),
+                      prefixIcon: const Icon(Icons.search, color: Color(0xFF787586)),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
                               icon: const Icon(Icons.clear, color: Color(0xFF474554)),
@@ -163,68 +156,71 @@ class _CourseListScreenState extends State<CourseListScreen> {
                 children: [
                   // Category Filter
                   if (_categories.isNotEmpty) ...[
-                    ChoiceChip(
-                      label: Text(_selectedCategory ?? 'All Categories'),
-                      selected: _selectedCategory != null,
-                      onSelected: (selected) {
-                        showModalBottomSheet(
-                          context: context,
-                          builder: (context) => Container(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Select Category',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Wrap(
-                                  spacing: 8,
-                                  runSpacing: 8,
-                                  children: [
-                                    ChoiceChip(
-                                      label: const Text('All'),
-                                      selected: _selectedCategory == null,
-                                      onSelected: (selected) {
-                                        setState(() => _selectedCategory = null);
-                                        _filterCourses();
-                                        Navigator.pop(context);
-                                      },
+                      ChoiceChip(
+                        label: Text(_selectedCategory ?? 'All Categories', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                        selected: _selectedCategory != null,
+                        onSelected: (selected) {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (context) => Container(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Select Category',
+                                    style: GoogleFonts.geist(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF121c2a),
                                     ),
-                                    ..._categories.map((category) {
-                                      return ChoiceChip(
-                                        label: Text(category),
-                                        selected: _selectedCategory == category,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    children: [
+                                      ChoiceChip(
+                                        label: const Text('All'),
+                                        selected: _selectedCategory == null,
                                         onSelected: (selected) {
-                                          setState(() => _selectedCategory = category);
+                                          setState(() => _selectedCategory = null);
                                           _filterCourses();
                                           Navigator.pop(context);
                                         },
-                                      );
-                                    }),
-                                  ],
-                                ),
-                              ],
+                                      ),
+                                      ..._categories.map((category) {
+                                        return ChoiceChip(
+                                          label: Text(category),
+                                          selected: _selectedCategory == category,
+                                          onSelected: (selected) {
+                                            setState(() => _selectedCategory = category);
+                                            _filterCourses();
+                                            Navigator.pop(context);
+                                          },
+                                        );
+                                      }),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                      selectedColor: Theme.of(context).colorScheme.primary,
-                      labelStyle: TextStyle(
-                        color: _selectedCategory != null ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
+                          );
+                        },
+                        selectedColor: const Color(0xFFe9ddff),
+                        backgroundColor: const Color(0xFFeff4ff),
+                        side: BorderSide(color: _selectedCategory != null ? const Color(0xFF5516be) : const Color(0xFFc8c4d7)),
+                        labelStyle: TextStyle(
+                          color: _selectedCategory != null ? const Color(0xFF5516be) : const Color(0xFF474554),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
+                      const SizedBox(width: 8),
                   ],
 
                   // Level Filter
                   ChoiceChip(
-                    label: Text(_selectedLevel ?? 'All Levels'),
+                    label: Text(_selectedLevel ?? 'All Levels', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
                     selected: _selectedLevel != null,
                     onSelected: (selected) {
                       showModalBottomSheet(
@@ -235,11 +231,12 @@ class _CourseListScreenState extends State<CourseListScreen> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'Select Level',
-                                style: TextStyle(
+                                style: GoogleFonts.geist(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF121c2a),
                                 ),
                               ),
                               const SizedBox(height: 16),
@@ -290,16 +287,18 @@ class _CourseListScreenState extends State<CourseListScreen> {
                         ),
                       );
                     },
-                    selectedColor: Theme.of(context).colorScheme.primary,
+                    selectedColor: const Color(0xFFe9ddff),
+                    backgroundColor: const Color(0xFFeff4ff),
+                    side: BorderSide(color: _selectedLevel != null ? const Color(0xFF5516be) : const Color(0xFFc8c4d7)),
                     labelStyle: TextStyle(
-                      color: _selectedLevel != null ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
+                      color: _selectedLevel != null ? const Color(0xFF5516be) : const Color(0xFF474554),
                     ),
                   ),
                   const SizedBox(width: 8),
 
                   // Sort Filter
                   ChoiceChip(
-                    label: Text(_selectedSortBy ?? 'Sort'),
+                    label: Text(_selectedSortBy ?? 'Sort', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
                     selected: _selectedSortBy != null,
                     onSelected: (selected) {
                       showModalBottomSheet(
@@ -310,11 +309,12 @@ class _CourseListScreenState extends State<CourseListScreen> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'Sort By',
-                                style: TextStyle(
+                                style: GoogleFonts.geist(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF121c2a),
                                 ),
                               ),
                               const SizedBox(height: 16),
@@ -374,9 +374,11 @@ class _CourseListScreenState extends State<CourseListScreen> {
                         ),
                       );
                     },
-                    selectedColor: Theme.of(context).colorScheme.primary,
+                    selectedColor: const Color(0xFFe9ddff),
+                    backgroundColor: const Color(0xFFeff4ff),
+                    side: BorderSide(color: _selectedSortBy != null ? const Color(0xFF5516be) : const Color(0xFFc8c4d7)),
                     labelStyle: TextStyle(
-                      color: _selectedSortBy != null ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
+                      color: _selectedSortBy != null ? const Color(0xFF5516be) : const Color(0xFF474554),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -384,14 +386,16 @@ class _CourseListScreenState extends State<CourseListScreen> {
                   // Advanced Filters
                   Flexible(
                     child: ActionChip(
-                      label: const Text('More Filters'),
+                      label: Text('More Filters', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: const Color(0xFF474554))),
+                      backgroundColor: const Color(0xFFeff4ff),
+                      side: const BorderSide(color: Color(0xFFc8c4d7)),
                       onPressed: () {
                         showModalBottomSheet(
                           context: context,
                           builder: (context) => _buildAdvancedFiltersSheet(),
                         );
                       },
-                      avatar: const Icon(Icons.tune, size: 18),
+                      avatar: const Icon(Icons.tune, size: 18, color: Color(0xFF474554)),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -400,9 +404,11 @@ class _CourseListScreenState extends State<CourseListScreen> {
                   if (_selectedCategory != null || _selectedLevel != null || _selectedSortBy != null || _minRating != null || _maxPrice != null || _searchController.text.isNotEmpty)
                     Flexible(
                       child: ActionChip(
-                        label: const Text('Clear'),
+                        label: Text('Clear', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: const Color(0xFFba1a1a))),
+                        backgroundColor: const Color(0xFFffdad6),
+                        side: const BorderSide(color: Color(0xFFffdad6)),
                         onPressed: _clearFilters,
-                        avatar: const Icon(Icons.clear, size: 18),
+                        avatar: const Icon(Icons.clear, size: 18, color: Color(0xFFba1a1a)),
                       ),
                     ),
                 ],
@@ -494,12 +500,12 @@ class _CourseListScreenState extends State<CourseListScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFc8c4d7).withOpacity(0.5)),
+        border: Border.all(color: const Color(0xFFc8c4d7)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
+            color: const Color(0xFF5b4ed9).withOpacity(0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
           ),
         ],
       ),

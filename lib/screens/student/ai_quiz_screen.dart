@@ -178,7 +178,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FF),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.white.withOpacity(0.8),
         elevation: 1,
         shadowColor: Colors.black12,
         scrolledUnderElevation: 1,
@@ -383,7 +383,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                           duration: const Duration(milliseconds: 200),
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
-                            color: isSelected ? const Color(0xFFE6EEFF) : Colors.white,
+                            color: isSelected ? const Color(0xFFeff4ff) : Colors.white.withOpacity(0.8),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
                               color: isSelected
@@ -456,7 +456,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                 if (question.type == QuestionType.shortAnswer)
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Colors.white.withOpacity(0.8),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
                     ),

@@ -29,12 +29,18 @@ class HelpSupportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      backgroundColor: const Color(0xFFF8F9FF),
       appBar: AppBar(
-        title: const Text('Help & Support', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text('Help & Support', 
+          style: TextStyle(
+            fontWeight: FontWeight.bold, 
+            color: const Color(0xFF4231C0),
+          )
+        ),
+        backgroundColor: Colors.white.withOpacity(0.9),
+        elevation: 1,
+        shadowColor: Colors.black12,
+        iconTheme: const IconThemeData(color: Color(0xFF4231C0)),
       ),
       body: Container(
         
@@ -47,7 +53,7 @@ class HelpSupportScreen extends StatelessWidget {
                 Icon(
                   Icons.help_outline,
                   size: 80,
-                  color: Colors.white.withOpacity(0.5),
+                  color: const Color(0xFF4231C0).withOpacity(0.5),
                 ),
                 const SizedBox(height: 24),
                 const Text(
@@ -55,7 +61,7 @@ class HelpSupportScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: Color(0xFF121C2A),
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -63,15 +69,22 @@ class HelpSupportScreen extends StatelessWidget {
                 // Contact Support
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                    border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF4231C0).withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
                   ),
                   child: ListTile(
-                    leading: Icon(Icons.email, color: Theme.of(context).colorScheme.secondary),
-                    title: const Text('Contact Support', style: TextStyle(color: Colors.white)),
-                    subtitle: Text('Email us at support@autolearn.com', style: TextStyle(color: Colors.white.withOpacity(0.5))),
-                    trailing: Icon(Icons.chevron_right, color: Colors.white.withOpacity(0.5)),
+                    leading: const Icon(Icons.email, color: Color(0xFF4231C0)),
+                    title: const Text('Contact Support', style: TextStyle(color: Color(0xFF121C2A))),
+                    subtitle: const Text('Email us at support@autolearn.com', style: TextStyle(color: Color(0xFF787586))),
+                    trailing: const Icon(Icons.chevron_right, color: Color(0xFF4231C0)),
                     onTap: _launchEmail,
                   ),
                 ),
@@ -80,15 +93,22 @@ class HelpSupportScreen extends StatelessWidget {
                 // FAQ
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                    border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF4231C0).withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
                   ),
                   child: ExpansionTile(
-                    leading: Icon(Icons.help, color: Theme.of(context).colorScheme.secondary),
-                    title: const Text('Frequently Asked Questions', style: TextStyle(color: Colors.white)),
-                    iconColor: Colors.white,
-                    collapsedIconColor: Colors.white.withOpacity(0.5),
+                    leading: const Icon(Icons.help, color: Color(0xFF4231C0)),
+                    title: const Text('Frequently Asked Questions', style: TextStyle(color: Color(0xFF121C2A))),
+                    iconColor: const Color(0xFF4231C0),
+                    collapsedIconColor: const Color(0xFF4231C0).withOpacity(0.5),
                     children: [
                       _buildFAQItem(
                         context,
@@ -118,14 +138,21 @@ class HelpSupportScreen extends StatelessWidget {
                 // Privacy Policy
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                    border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF4231C0).withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
                   ),
                   child: ListTile(
-                    leading: Icon(Icons.privacy_tip, color: Theme.of(context).colorScheme.secondary),
-                    title: const Text('Privacy Policy', style: TextStyle(color: Colors.white)),
-                    trailing: Icon(Icons.chevron_right, color: Colors.white.withOpacity(0.5)),
+                    leading: const Icon(Icons.privacy_tip, color: Color(0xFF4231C0)),
+                    title: const Text('Privacy Policy', style: TextStyle(color: Color(0xFF121C2A))),
+                    trailing: const Icon(Icons.chevron_right, color: Color(0xFF4231C0)),
                     onTap: () {
                       _launchURL('https://autolearn.com/privacy');
                     },
@@ -136,14 +163,21 @@ class HelpSupportScreen extends StatelessWidget {
                 // Terms of Service
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                    border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF4231C0).withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
                   ),
                   child: ListTile(
-                    leading: Icon(Icons.description, color: Theme.of(context).colorScheme.secondary),
-                    title: const Text('Terms of Service', style: TextStyle(color: Colors.white)),
-                    trailing: Icon(Icons.chevron_right, color: Colors.white.withOpacity(0.5)),
+                    leading: const Icon(Icons.description, color: Color(0xFF4231C0)),
+                    title: const Text('Terms of Service', style: TextStyle(color: Color(0xFF121C2A))),
+                    trailing: const Icon(Icons.chevron_right, color: Color(0xFF4231C0)),
                     onTap: () {
                       _launchURL('https://autolearn.com/terms');
                     },
@@ -157,7 +191,7 @@ class HelpSupportScreen extends StatelessWidget {
                     'App Version 1.0.0',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.white.withOpacity(0.3),
+                      color: const Color(0xFFC8C4D7),
                     ),
                   ),
                 ),
@@ -180,15 +214,15 @@ class HelpSupportScreen extends StatelessWidget {
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
-              color: Colors.white,
+              color: Color(0xFF121C2A),
             ),
           ),
           const SizedBox(height: 8),
           Text(
             answer,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
-              color: Colors.white.withOpacity(0.7),
+              color: Color(0xFF787586),
             ),
           ),
         ],

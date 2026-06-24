@@ -98,6 +98,9 @@ class _AdminNotificationManagementState extends State<AdminNotificationManagemen
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -108,7 +111,7 @@ class _AdminNotificationManagementState extends State<AdminNotificationManagemen
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 8),
@@ -116,16 +119,16 @@ class _AdminNotificationManagementState extends State<AdminNotificationManagemen
             'Send a real-time notification to all students.',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.white.withOpacity(0.6),
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 32),
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+              color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : colorScheme.surfaceContainer,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
+              border: Border.all(color: colorScheme.outlineVariant),
             ),
             child: Form(
               key: _formKey,
@@ -134,17 +137,17 @@ class _AdminNotificationManagementState extends State<AdminNotificationManagemen
                 children: [
                   TextFormField(
                     controller: _titleController,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: colorScheme.onSurface),
                     decoration: InputDecoration(
                       labelText: 'Notification Title',
-                      labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                      labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+                        borderSide: BorderSide(color: colorScheme.outlineVariant),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+                        borderSide: BorderSide(color: colorScheme.outlineVariant),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -161,19 +164,19 @@ class _AdminNotificationManagementState extends State<AdminNotificationManagemen
                   const SizedBox(height: 20),
                   TextFormField(
                     controller: _messageController,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: colorScheme.onSurface),
                     maxLines: 4,
                     decoration: InputDecoration(
                       labelText: 'Message Body',
-                      labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                      labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
                       alignLabelWithHint: true,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+                        borderSide: BorderSide(color: colorScheme.outlineVariant),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+                        borderSide: BorderSide(color: colorScheme.outlineVariant),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -191,17 +194,17 @@ class _AdminNotificationManagementState extends State<AdminNotificationManagemen
                   DropdownButtonFormField<String>(
                     value: _selectedType,
                     dropdownColor: Theme.of(context).colorScheme.surface,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: colorScheme.onSurface),
                     decoration: InputDecoration(
                       labelText: 'Notification Type',
-                      labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                      labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+                        borderSide: BorderSide(color: colorScheme.outlineVariant),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
+                        borderSide: BorderSide(color: colorScheme.outlineVariant),
                       ),
                     ),
                     items: const [
@@ -249,7 +252,7 @@ class _AdminNotificationManagementState extends State<AdminNotificationManagemen
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 16),
@@ -258,7 +261,7 @@ class _AdminNotificationManagementState extends State<AdminNotificationManagemen
           else if (_history.isEmpty)
             Text(
               'No broadcast history found.',
-              style: TextStyle(color: Colors.white.withOpacity(0.6)),
+              style: TextStyle(color: colorScheme.onSurfaceVariant),
             )
           else
             ListView.builder(
@@ -268,16 +271,16 @@ class _AdminNotificationManagementState extends State<AdminNotificationManagemen
               itemBuilder: (context, index) {
                 final item = _history[index];
                 return Card(
-                  color: Colors.white.withOpacity(0.05),
+                  color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.3) : colorScheme.surfaceContainerHigh,
                   margin: const EdgeInsets.only(bottom: 8),
                   child: ListTile(
-                    title: Text(item['title'] ?? 'No Title', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    title: Text(item['title'] ?? 'No Title', style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold)),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(item['message'] ?? '', style: TextStyle(color: Colors.white.withOpacity(0.7))),
+                        Text(item['message'] ?? '', style: TextStyle(color: colorScheme.onSurfaceVariant)),
                         const SizedBox(height: 4),
-                        Text('Type: ${item['type']} | Sent: ${item['sentAt']}', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12)),
+                        Text('Type: ${item['type']} | Sent: ${item['sentAt']}', style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12)),
                       ],
                     ),
                   ),

@@ -90,6 +90,10 @@ class PaymentManager {
   Future<void> confirmPaid() async {
     // No longer used - use confirmPaidForCourse instead
   }
+
+  Future<Map<String, dynamic>> getFinancialStats() async {
+    return await _paymentRepository.getFinancialStats();
+  }
 }
 
 

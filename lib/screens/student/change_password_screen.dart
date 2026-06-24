@@ -91,12 +91,18 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      backgroundColor: const Color(0xFFF8F9FF),
       appBar: AppBar(
-        title: const Text('Change Password', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text('Change Password', 
+          style: TextStyle(
+            fontWeight: FontWeight.bold, 
+            color: const Color(0xFF4231C0),
+          )
+        ),
+        backgroundColor: Colors.white.withOpacity(0.9),
+        elevation: 1,
+        shadowColor: Colors.black12,
+        iconTheme: const IconThemeData(color: Color(0xFF4231C0)),
       ),
       body: Container(
         
@@ -112,15 +118,15 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 Icon(
                   Icons.lock_outline,
                   size: 80,
-                  color: Colors.white.withOpacity(0.5),
+                  color: const Color(0xFF4231C0).withOpacity(0.5),
                 ),
                 const SizedBox(height: 24),
-                const Text(
+                Text(
                   'Change Your Password',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: const Color(0xFF121C2A),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -129,7 +135,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   'Enter your current password and choose a new one',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.white.withOpacity(0.7),
+                    color: const Color(0xFF787586),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -208,11 +214,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  
+                  color: const Color(0xFF4231C0),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Theme.of(context).colorScheme.secondary.withOpacity(0.3),
+                      color: const Color(0xFF4231C0).withOpacity(0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -265,25 +271,32 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF4231C0).withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: TextFormField(
         controller: controller,
         obscureText: obscureText,
-        style: const TextStyle(color: Colors.white),
+        style: const TextStyle(color: Color(0xFF121C2A)),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+          labelStyle: TextStyle(color: const Color(0xFF787586)),
           hintText: hint,
-          hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
-          prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.7)),
+          hintStyle: TextStyle(color: const Color(0xFFC8C4D7)),
+          prefixIcon: Icon(icon, color: const Color(0xFF4231C0)),
           suffixIcon: onToggleObscure != null
               ? IconButton(
                   icon: Icon(
                     obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                    color: Colors.white.withOpacity(0.7),
+                    color: const Color(0xFF474554),
                   ),
                   onPressed: onToggleObscure,
                 )
