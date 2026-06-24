@@ -212,6 +212,32 @@ class _StudentHomeState extends State<StudentHome> {
           ? GradientBottomNav(
               selectedIndex: _selectedIndex,
               onItemSelected: _onItemTapped,
+              menuItems: [
+                {
+                  'title': 'Home',
+                  'icon': Icons.home_outlined,
+                  'selectedIcon': Icons.home,
+                  'colors': [const Color(0xFFa955ff), const Color(0xFFea51ff)],
+                },
+                {
+                  'title': 'Courses',
+                  'icon': Icons.school_outlined,
+                  'selectedIcon': Icons.school,
+                  'colors': [const Color(0xFF56CCF2), const Color(0xFF2F80ED)],
+                },
+                {
+                  'title': 'Progress',
+                  'icon': Icons.show_chart_outlined,
+                  'selectedIcon': Icons.show_chart,
+                  'colors': [const Color(0xFFFF9966), const Color(0xFFFF5E62)],
+                },
+                {
+                  'title': 'Profile',
+                  'icon': Icons.person_outline,
+                  'selectedIcon': Icons.person,
+                  'colors': [const Color(0xFF80FF72), const Color(0xFF7EE8FA)],
+                },
+              ],
             )
           : null,
       body: Container(

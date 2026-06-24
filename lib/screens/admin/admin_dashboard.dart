@@ -26,6 +26,7 @@ import 'admin_course_management.dart';
 import 'admin_payment_management.dart';
 import 'admin_notification_management.dart';
 import '../../widgets/admin_dashboard_components.dart';
+import '../../widgets/gradient_bottom_nav.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -137,12 +138,60 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+
     return Scaffold(
+      extendBody: true,
       backgroundColor: const Color(0xFFF5F7FA), // Light grey background for the main area
+      bottomNavigationBar: isMobile
+          ? GradientBottomNav(
+              selectedIndex: _selectedIndex,
+              onItemSelected: _onItemTapped,
+              menuItems: [
+                {
+                  'title': 'Dash',
+                  'icon': Icons.dashboard_outlined,
+                  'selectedIcon': Icons.dashboard,
+                  'colors': [const Color(0xFF56CCF2), const Color(0xFF2F80ED)],
+                },
+                {
+                  'title': 'Users',
+                  'icon': Icons.people_outline,
+                  'selectedIcon': Icons.people,
+                  'colors': [const Color(0xFFa955ff), const Color(0xFFea51ff)],
+                },
+                {
+                  'title': 'Courses',
+                  'icon': Icons.school_outlined,
+                  'selectedIcon': Icons.school,
+                  'colors': [const Color(0xFF00C9FF), const Color(0xFF92FE9D)],
+                },
+                {
+                  'title': 'Notifs',
+                  'icon': Icons.campaign_outlined,
+                  'selectedIcon': Icons.campaign,
+                  'colors': [const Color(0xFFFF9966), const Color(0xFFFF5E62)],
+                },
+                {
+                  'title': 'Pay',
+                  'icon': Icons.payment_outlined,
+                  'selectedIcon': Icons.payment,
+                  'colors': [const Color(0xFF80FF72), const Color(0xFF7EE8FA)],
+                },
+                {
+                  'title': 'Stats',
+                  'icon': Icons.analytics_outlined,
+                  'selectedIcon': Icons.analytics,
+                  'colors': [const Color(0xFFF7971E), const Color(0xFFFFD200)],
+                },
+              ],
+            )
+          : null,
       body: Row(
         children: [
           // FULL HEIGHT SIDEBAR (DARK THEME)
-          Container(
+          if (!isMobile)
+            Container(
             color: const Color(0xFF222E3C), // Dark blue/black sidebar
             child: NavigationRail(
               backgroundColor: Colors.transparent,
@@ -229,8 +278,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 ),
               ],
             ),
-          ),
-          
           // MAIN CONTENT AREA (LIGHT THEME)
           Expanded(
             child: Column(
