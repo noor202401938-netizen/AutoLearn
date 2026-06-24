@@ -463,8 +463,14 @@ class _CourseListScreenState extends State<CourseListScreen> {
                   ],
                 ),
               )
-                  : ListView.builder(
+                  : GridView.builder(
                 padding: const EdgeInsets.all(16),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: MediaQuery.of(context).size.width > 1200 ? 4 : MediaQuery.of(context).size.width > 800 ? 3 : MediaQuery.of(context).size.width > 600 ? 2 : 1,
+                  childAspectRatio: 0.8,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                ),
                 itemCount: _filteredCourses.length,
                 itemBuilder: (context, index) {
                   return _buildCourseCard(_filteredCourses[index]);
@@ -481,7 +487,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
 
   Widget _buildCourseCard(CourseModel course) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+      margin: EdgeInsets.zero,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
         borderRadius: BorderRadius.circular(20),
@@ -521,9 +527,9 @@ class _CourseListScreenState extends State<CourseListScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Course Thumbnail
-                Container(
-                  height: 180,
-                  width: double.infinity,
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
                   ),
@@ -548,6 +554,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
                             color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
                           ),
                         ),
+                  ),
                 ),
 
                 // Course Info
