@@ -109,7 +109,6 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
         Text(
           'Your Learning Journey',
           style: theme.textTheme.titleMedium,
-          ),
         ),
         const SizedBox(height: 4),
         Text(
@@ -172,7 +171,6 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                       Text(
                         '${(progressPercent * 100).toInt()}%',
                         style: theme.textTheme.titleMedium,
-                        ),
                       ),
                       Text(
                         '${_learningGoal.currentHours.toInt()}/${_learningGoal.goalHours.toInt()} HOURS',
@@ -201,7 +199,6 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                     Text(
                       '5 Day Streak',
                       style: theme.textTheme.bodyMedium,
-                      ),
                     ),
                   ],
                 ),
@@ -215,7 +212,6 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                   child: Text(
                     'View History',
                     style: theme.textTheme.bodyMedium,
-                    ),
                   ),
                 ),
               ],
@@ -268,7 +264,6 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                   Text(
                     'THIS WEEK',
                     style: theme.textTheme.bodyMedium,
-                    ),
                   ),
                 ],
               ),

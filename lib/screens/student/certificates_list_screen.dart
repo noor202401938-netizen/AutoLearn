@@ -157,7 +157,7 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
             const SizedBox(height: 8),
             Text(
               'View and share your earned certificates',
-              style: theme.textTheme.bodyMedium),
+              style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 24),
             Container(
@@ -234,7 +234,7 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
                     children: [
                       Text(
                         certificate.courseName,
-                        style: theme.textTheme.titleMedium),
+                        style: theme.textTheme.titleMedium,
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -250,7 +250,7 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
                         ),
                         child: Text(
                           'Credential ID: ${certificate.certificateId.length >= 8 ? certificate.certificateId.substring(0, 8) : certificate.certificateId}...',
-                          style: theme.textTheme.bodyMedium),
+                          style: theme.textTheme.bodyMedium,
                         ),
                       ),
                     ],

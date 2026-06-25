@@ -163,7 +163,6 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
         title: Text(
           'AI Tutor',
           style: theme.textTheme.titleMedium,
-          ),
         ),
         actions: [
           IconButton(
@@ -245,13 +244,11 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
         Text(
           'LEARNING MODULE',
           style: theme.textTheme.bodyMedium,
-          ),
         ),
         const SizedBox(height: 4),
         Text(
           widget.lessonId ?? 'Advanced Prototyping',
           style: theme.textTheme.titleMedium,
-          ),
         ),
       ],
     );
@@ -295,7 +292,6 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
               child: Text(
                 'AI Tutor',
                 style: theme.textTheme.titleMedium,
-                ),
               ),
             ),
             const SizedBox(height: 12),
@@ -352,7 +348,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
                 ),
                 child: Text(
                   message.content,
-                  style: theme.textTheme.bodyMedium,
+                  style: theme.textTheme.bodyMedium?.copyWith(
                     fontSize: 16,
                     height: 1.5,
                   ),
@@ -364,7 +360,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
         const SizedBox(height: 6),
         Text(
           _formatTime(message.timestamp),
-          style: theme.textTheme.bodyMedium,
+          style: theme.textTheme.bodyMedium?.copyWith(
             fontSize: 10,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.5,

@@ -114,11 +114,11 @@ class AppTheme {
       displayMedium: TextStyle(fontFamily: 'Geist', fontSize: 36, fontWeight: FontWeight.w800, letterSpacing: -0.03 * 36, color: onSurf, height: 1.1),
       headlineMedium: TextStyle(fontFamily: 'Geist', fontSize: 32, fontWeight: FontWeight.w700, letterSpacing: -0.02 * 32, color: onSurf, height: 1.2),
       headlineSmall: TextStyle(fontFamily: 'Geist', fontSize: 24, fontWeight: FontWeight.w700, letterSpacing: -0.01 * 24, color: onSurf, height: 1.2),
-      bodyLarge: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w400, color: onSurf, height: 1.6),
-      bodyMedium: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w400, color: onSurfVar, height: 1.5),
-      bodySmall: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w400, color: onSurfVar, height: 1.5),
-      labelLarge: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, letterSpacing: 0.02 * 14, color: onSurf, height: 1.0),
-      labelSmall: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 0.05 * 12, color: onSurf, height: 1.0),
+      bodyLarge: TextStyle(fontFamily: 'Inter', fontSize: 18, fontWeight: FontWeight.w400, color: onSurf, height: 1.6),
+      bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 16, fontWeight: FontWeight.w400, color: onSurfVar, height: 1.5),
+      bodySmall: TextStyle(fontFamily: 'Inter', fontSize: 14, fontWeight: FontWeight.w400, color: onSurfVar, height: 1.5),
+      labelLarge: TextStyle(fontFamily: 'Inter', fontSize: 14, fontWeight: FontWeight.w600, letterSpacing: 0.02 * 14, color: onSurf, height: 1.0),
+      labelSmall: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 0.05 * 12, color: onSurf, height: 1.0),
     );
   }
 
@@ -139,8 +139,8 @@ class AppTheme {
     );
   }
 
-  static CardTheme _buildCardTheme(Color surf, Color outlineVar) {
-    return CardTheme(
+  static CardThemeData _buildCardTheme(Color surf, Color outlineVar) {
+    return CardThemeData(
       color: surf,
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -161,7 +161,8 @@ class AppTheme {
           borderRadius: BorderRadius.circular(8),
         ),
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-        textStyle: GoogleFonts.inter(
+        textStyle: const TextStyle(
+          fontFamily: 'Inter',
           fontSize: 14,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.02 * 14,
@@ -179,7 +180,8 @@ class AppTheme {
           borderRadius: BorderRadius.circular(8),
         ),
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-        textStyle: GoogleFonts.inter(
+        textStyle: const TextStyle(
+          fontFamily: 'Inter',
           fontSize: 14,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.02 * 14,
@@ -205,8 +207,8 @@ class AppTheme {
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(color: focusedColor, width: 2),
       ),
-      hintStyle: GoogleFonts.inter(color: hintColor),
-      labelStyle: GoogleFonts.inter(color: hintColor),
+      hintStyle: TextStyle(fontFamily: 'Inter', color: hintColor),
+      labelStyle: TextStyle(fontFamily: 'Inter', color: hintColor),
     );
   }
 
@@ -217,8 +219,8 @@ class AppTheme {
       unselectedItemColor: unselected,
       type: BottomNavigationBarType.fixed,
       elevation: 0,
-      selectedLabelStyle: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600),
-      unselectedLabelStyle: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500),
+      selectedLabelStyle: const TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w600),
+      unselectedLabelStyle: const TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w500),
     );
   }
 }

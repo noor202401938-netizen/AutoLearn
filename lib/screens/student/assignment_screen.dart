@@ -388,13 +388,15 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                   children: [
                     Text(
                       isOverdue ? 'Overdue' : 'Due In',
-                      style: theme.textTheme.bodyMedium : const Color(0xFF00724E),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: isOverdue ? theme.colorScheme.error : const Color(0xFF00724E),
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       isOverdue ? '0 Days' : ' Days',
-                      style: theme.textTheme.titleMedium : const Color(0xFF00724E),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: isOverdue ? theme.colorScheme.error : const Color(0xFF00724E),
                       ),
                     ),
                   ],
@@ -433,7 +435,6 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
               Text(
                 'Instructions',
                 style: theme.textTheme.titleMedium,
-                ),
               ),
             ],
           ),
@@ -456,7 +457,6 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
         Text(
           'Required Resources',
           style: theme.textTheme.titleMedium,
-          ),
         ),
         const SizedBox(height: 16),
         GridView.count(
@@ -503,8 +503,8 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(title, style: theme.textTheme.bodyMedium), overflow: TextOverflow.ellipsis),
-                Text(subtitle, style: theme.textTheme.bodyMedium)),
+                Text(title, style: theme.textTheme.bodyMedium, overflow: TextOverflow.ellipsis),
+                Text(subtitle, style: theme.textTheme.bodyMedium),
               ],
             ),
           )
@@ -554,7 +554,6 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
           Text(
             'Upload Work',
             style: theme.textTheme.titleMedium,
-            ),
           ),
           const SizedBox(height: 12),
           
@@ -597,7 +596,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
             style: theme.textTheme.bodyMedium,
             decoration: InputDecoration(
               hintText: 'Add optional comments...',
-              hintStyle: GoogleFonts.inter(color: theme.colorScheme.onSurfaceVariant),
+              hintStyle: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               filled: true,
               fillColor: theme.colorScheme.background,
               border: OutlineInputBorder(
@@ -713,7 +712,6 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
           Text(
             'Feedback',
             style: theme.textTheme.titleMedium,
-            ),
           ),
           const SizedBox(height: 12),
           Container(
@@ -732,7 +730,6 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
           Text(
             'Your Submission',
             style: theme.textTheme.titleMedium,
-            ),
           ),
           const SizedBox(height: 12),
           Container(

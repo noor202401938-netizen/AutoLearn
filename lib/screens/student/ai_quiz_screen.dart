@@ -201,14 +201,12 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                     Text(
                       widget.courseTitle,
                       style: theme.textTheme.bodyMedium,
-                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       'Unit: ${widget.moduleTitle}'.toUpperCase(),
                       style: theme.textTheme.bodyMedium,
-                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -280,7 +278,6 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                         TextSpan(
                           text: 'of ${_quiz!.questions.length}',
                           style: theme.textTheme.bodyMedium,
-                          ),
                         ),
                       ],
                     ),
@@ -288,7 +285,6 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                   Text(
                     '${(progressPercent * 100).toInt()}%',
                     style: theme.textTheme.bodyMedium,
-                    ),
                   ),
                 ],
               ),
@@ -437,15 +433,14 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                         _answers[question.questionId] = value;
                       },
                       maxLines: 5,
-                      style: theme.textTheme.bodyMedium),
+                      style: theme.textTheme.bodyMedium,
                       decoration: InputDecoration(
                         hintText: 'Type your answer here...',
-                        hintStyle: GoogleFonts.inter(color: theme.colorScheme.onSurfaceVariant),
+                        hintStyle: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.all(24),
                       ),
                     ),
-                  ),
               ],
             ),
           ),
@@ -599,7 +594,6 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                 Text(
                   '$score%',
                   style: theme.textTheme.titleMedium,
-                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -610,7 +604,6 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                 Text(
                   '${_submission!.earnedPoints} / ${_submission!.totalPoints} points',
                   style: theme.textTheme.bodyMedium,
-                  ),
                 ),
               ],
             ),
@@ -669,7 +662,6 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                         child: Text(
                           question.explanation!,
                           style: theme.textTheme.bodyMedium),
-                        ),
                       ),
                   ],
                 ),

@@ -56,7 +56,6 @@ class AITutorBanner extends StatelessWidget {
                     child: Text(
                       'Instant answers and personalized practice for your current modules.',
                       style: theme.textTheme.bodyMedium,
-                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -76,7 +75,6 @@ class AITutorBanner extends StatelessWidget {
                     child: Text(
                       'Start Chat',
                       style: theme.textTheme.bodyMedium,
-                      ),
                     ),
                   ),
                 ],

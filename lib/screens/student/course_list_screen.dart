@@ -392,7 +392,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
                   // Advanced Filters
                   Flexible(
                     child: ActionChip(
-                      label: Text('More Filters', style: theme.textTheme.labelLarge)),
+                      label: Text('More Filters', style: theme.textTheme.labelLarge),
                       backgroundColor: theme.colorScheme.surfaceVariant,
                       side: const BorderSide(color: Color(0xFFc8c4d7)),
                       onPressed: () {
@@ -410,7 +410,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
                   if (_selectedCategory != null || _selectedLevel != null || _selectedSortBy != null || _minRating != null || _maxPrice != null || _searchController.text.isNotEmpty)
                     Flexible(
                       child: ActionChip(
-                        label: Text('Clear', style: theme.textTheme.labelLarge)),
+                        label: Text('Clear', style: theme.textTheme.labelLarge),
                         backgroundColor: theme.colorScheme.errorContainer,
                         side: const BorderSide(color: Color(0xFFffdad6)),
                         onPressed: _clearFilters,
@@ -488,11 +488,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
                 },
               ),
             ),
-            ),
-          ),
-          ),
-          ),
-        ],
+          ],
       ),
     );
   }

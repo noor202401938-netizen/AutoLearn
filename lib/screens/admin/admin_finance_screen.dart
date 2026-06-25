@@ -87,9 +87,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
                           children: [
                             Text(
                               'NET REVENUE',
-                              style: theme.textTheme.bodyMedium,
-                                letterSpacing: 0.5,
-                              ),
+                              style: theme.textTheme.bodyMedium?.copyWith(letterSpacing: 0.5),
                             ),
                             const SizedBox(height: 4),
                             Text(
@@ -111,7 +109,6 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
                               Text(
                                 '+24.8%',
                                 style: theme.textTheme.bodyMedium,
-                                ),
                               ),
                             ],
                           ),
@@ -133,10 +130,9 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
                         Text(
                           'Live data updated 2m ago',
                           style: theme.textTheme.bodyMedium,
-                          ),
                         ),
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -156,7 +152,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
                       Expanded(flex: isDesktop ? 1 : 0, child: _buildSecondaryStat(context, 'AVG ORDER', '\$111.25', '5%', true)),
                     ],
                   );
-                }
+                },
               ),
               const SizedBox(height: 24),
 
@@ -293,10 +289,9 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
               Text(
                 change,
                 style: theme.textTheme.bodyMedium,
-                ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );

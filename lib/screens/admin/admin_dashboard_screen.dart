@@ -214,7 +214,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     Text(
                       '12%',
                       style: theme.textTheme.bodyMedium,
-                      ),
                     ),
                   ],
                 ),
@@ -267,7 +266,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 child: Text(
                   '+4.2%',
                   style: theme.textTheme.bodyMedium,
-                  ),
                 ),
               ),
             ],
@@ -318,7 +316,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 child: Text(
                   '-2.1%',
                   style: theme.textTheme.bodyMedium,
-                  ),
                 ),
               ),
             ],

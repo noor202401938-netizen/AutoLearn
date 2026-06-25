@@ -323,7 +323,6 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
                     Text(
                       'Scheduled',
                       style: theme.textTheme.bodyMedium,
-                      ),
                     ),
                   ],
                 ),
