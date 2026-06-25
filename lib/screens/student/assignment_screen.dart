@@ -362,17 +362,13 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                       ),
                       child: Text(
                         widget.moduleTitle.toUpperCase(),
-                        style: theme.textTheme.bodyMedium,
-                          letterSpacing: 0.5,
-                        ),
+                        style: theme.textTheme.bodyMedium?.copyWith(letterSpacing: 0.5),
                       ),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       _assignment!.title,
-                      style: theme.textTheme.titleMedium,
-                        height: 1.1,
-                      ),
+                      style: theme.textTheme.titleMedium?.copyWith(height: 1.1),
                     ),
                   ],
                 ),
@@ -394,14 +390,14 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      isOverdue ? '0 Days' : ' Days',
+                      isOverdue ? '0 Days' : '${daysUntilDue} Days',
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: isOverdue ? theme.colorScheme.error : const Color(0xFF00724E),
                       ),
                     ),
                   ],
                 ),
-              )
+              ),
             ],
           ),
           if (_assignment!.description.isNotEmpty) ...[
@@ -410,7 +406,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
               _assignment!.description,
               style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
-          ]
+          ],
         ],
       ),
     );

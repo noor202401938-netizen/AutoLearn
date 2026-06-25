@@ -126,7 +126,7 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
           const SizedBox(height: 8),
           Text(
             'You\'re all caught up!',
-            style: theme.textTheme.bodyMedium),
+            style: theme.textTheme.bodyMedium,
           ),
         ],
       ),
@@ -186,7 +186,6 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
                 Text(
                   _formatTime(notification.createdAt),
                   style: theme.textTheme.bodyMedium,
-                  ),
                 ),
               ],
             ),

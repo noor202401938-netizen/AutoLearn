@@ -454,7 +454,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
         const SizedBox(height: 6),
         Text(
           _formatTime(message.timestamp),
-          style: theme.textTheme.bodyMedium,
+          style: theme.textTheme.bodyMedium?.copyWith(
             fontSize: 10,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.5,
@@ -498,11 +498,11 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
                     Expanded(
                       child: TextField(
                         controller: _messageController,
-                        style: theme.textTheme.bodyMedium),
+                        style: theme.textTheme.bodyMedium,
                         decoration: InputDecoration(
                           hintText: 'Ask AI Tutor anything...',
-                          hintStyle: GoogleFonts.inter(
-                              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5)),
+                          hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5)),
                           border: InputBorder.none,
                           isDense: true,
                         ),
@@ -557,7 +557,6 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
         Text(
           'CONTINUE LEARNING',
           style: theme.textTheme.bodyMedium,
-          ),
         ),
         const SizedBox(height: 8),
         SingleChildScrollView(
@@ -593,7 +592,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
         ),
         child: Text(
           text,
-          style: theme.textTheme.bodyMedium,
+          style: theme.textTheme.bodyMedium?.copyWith(
             fontWeight: FontWeight.w600,
             fontSize: 14,
           ),
