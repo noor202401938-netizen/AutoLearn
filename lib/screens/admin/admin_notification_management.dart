@@ -107,7 +107,7 @@ class _AdminNotificationManagementState extends State<AdminNotificationManagemen
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Broadcast Notification',
             style: TextStyle(
               fontSize: 24,
@@ -248,7 +248,7 @@ class _AdminNotificationManagementState extends State<AdminNotificationManagemen
             ),
           ),
           const SizedBox(height: 32),
-          const Text(
+          Text(
             'Broadcast History',
             style: TextStyle(
               fontSize: 20,

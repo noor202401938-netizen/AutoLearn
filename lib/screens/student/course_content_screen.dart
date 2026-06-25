@@ -10,6 +10,7 @@ import '../../model/video_progress_model.dart';
 import 'video_player_screen.dart';
 import 'ai_quiz_screen.dart';
 import 'assignment_screen.dart';
+import 'project_screen.dart';
 
 class CourseContentScreen extends StatefulWidget {
   final String courseId;
@@ -804,6 +805,8 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
           _navigateToQuiz(module, lesson);
         } else if (lesson.type == 'assignment') {
           _navigateToAssignment(module, lesson);
+        } else if (lesson.type == 'project') {
+          _navigateToProject(module, lesson);
         } else {
           _showLessonInfo(lesson);
         }
@@ -915,6 +918,10 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
 
   void _navigateToAssignment(ModuleModel module, LessonModel lesson) {
     Navigator.push(context, MaterialPageRoute(builder: (context) => AssignmentScreen(courseId: widget.courseId, courseTitle: widget.title, moduleId: module.moduleId, moduleTitle: module.title, lessonId: lesson.lessonId, lessonTitle: lesson.title,))).then((_) => _loadCourseContent());
+  }
+
+  void _navigateToProject(ModuleModel module, LessonModel lesson) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ProjectScreen(courseId: widget.courseId, courseTitle: widget.title, lessonId: lesson.lessonId, lessonTitle: lesson.title,))).then((_) => _loadCourseContent());
   }
 
   void _showLessonInfo(LessonModel lesson) {

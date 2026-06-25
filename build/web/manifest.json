@@ -1,6 +1,6 @@
 {
-    "name": "economics_learner",
-    "short_name": "economics_learner",
+    "name": "AutoLearn",
+    "short_name": "AutoLearn",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

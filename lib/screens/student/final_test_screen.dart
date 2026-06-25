@@ -97,7 +97,7 @@ class FinalTestScreen extends StatelessWidget {
                                     const SizedBox(width: 8),
                                     Text(
                                       'FINAL CERTIFICATION',
-                                      style: theme.textTheme.bodyMedium,
+                                      style: theme.textTheme.bodyMedium?.copyWith(
                                         letterSpacing: 0.5,
                                       ),
                                     ),
@@ -107,7 +107,7 @@ class FinalTestScreen extends StatelessWidget {
                               const SizedBox(height: 16),
                               Text(
                                 'Machine Learning\nMastery Exam',
-                                style: theme.textTheme.titleMedium,
+                                style: theme.textTheme.titleMedium?.copyWith(
                                   height: 1.1,
                                   letterSpacing: -1.0,
                                 ),
@@ -151,10 +151,10 @@ class FinalTestScreen extends StatelessWidget {
                                 crossAxisSpacing: 16,
                                 childAspectRatio: 4,
                                 children: [
-                                  _buildChecklistItem(Icons.wifi, 'Stable Internet', 'A high-speed connection is required.', Colors.green.shade800),
-                                  _buildChecklistItem(Icons.volume_off, 'Quiet Environment', 'Minimize distractions for 60 mins.', Colors.green.shade800),
-                                  _buildChecklistItem(Icons.battery_charging_full, 'Power Source', 'Ensure device is fully charged.', Colors.green.shade800),
-                                  _buildChecklistItem(Icons.lock_reset, 'Single Attempt', 'Leaving the tab may disqualify you.', Colors.green.shade800),
+                                  _buildChecklistItem(context, Icons.wifi, 'Stable Internet', 'A high-speed connection is required.', Colors.green.shade800),
+                                  _buildChecklistItem(context, Icons.volume_off, 'Quiet Environment', 'Minimize distractions for 60 mins.', Colors.green.shade800),
+                                  _buildChecklistItem(context, Icons.battery_charging_full, 'Power Source', 'Ensure device is fully charged.', Colors.green.shade800),
+                                  _buildChecklistItem(context, Icons.lock_reset, 'Single Attempt', 'Leaving the tab may disqualify you.', Colors.green.shade800),
                                 ],
                               ),
                             ],
@@ -180,26 +180,26 @@ class FinalTestScreen extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'EXAM PARAMETERS',
-                                style: theme.textTheme.bodyMedium,
-                                  letterSpacing: 0.5,
+                                Text(
+                                  'EXAM PARAMETERS',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    letterSpacing: 0.5,
+                                  ),
                                 ),
-                              ),
                               const SizedBox(height: 24),
-                              _buildParameterRow(Icons.quiz, '50 Questions', 'Multiple Choice', theme.colorScheme.primary),
+                              _buildParameterRow(context, Icons.quiz, '50 Questions', 'Multiple Choice', theme.colorScheme.primary),
                               const SizedBox(height: 16),
-                              _buildParameterRow(Icons.schedule, '60 Minutes', 'Time Limit', theme.colorScheme.primary),
+                              _buildParameterRow(context, Icons.schedule, '60 Minutes', 'Time Limit', theme.colorScheme.primary),
                               const SizedBox(height: 16),
-                              _buildParameterRow(Icons.grade, '80% to Pass', '40 Correct', Colors.green.shade800),
+                              _buildParameterRow(context, Icons.grade, '80% to Pass', '40 Correct', Colors.green.shade800),
                               const SizedBox(height: 32),
                               const Divider(color: Color(0xFFC8C4D7)),
                               const SizedBox(height: 16),
                               Row(
-                                justifyContent: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text('Success Probability', style: theme.textTheme.labelLarge),
-                                  Text('High', style: theme.textTheme.bodyMedium)),
+                                  Text('High', style: theme.textTheme.bodyMedium),
                                 ],
                               ),
                               const SizedBox(height: 8),
@@ -257,10 +257,10 @@ class FinalTestScreen extends StatelessWidget {
                                   builder: (context) => AIQuizScreen(
                                     courseId: courseId,
                                     courseTitle: courseTitle,
-                                    moduleId: \'final\',
-                                    moduleTitle: \'Final Test\',
-                                    lessonId: \'final_test_\',
-                                    lessonTitle: \'Final Test: \',
+                                    moduleId: 'final',
+                                    moduleTitle: 'Final Test',
+                                    lessonId: 'final_test_',
+                                    lessonTitle: 'Final Test: ',
                                   ),
                                 ),
                               );
@@ -296,11 +296,13 @@ class FinalTestScreen extends StatelessWidget {
             },
           ),
         ),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildChecklistItem(IconData icon, String title, String subtitle, Color color) {
+  Widget _buildChecklistItem(BuildContext context, IconData icon, String title, String subtitle, Color color) {
     final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
@@ -328,7 +330,7 @@ class FinalTestScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildParameterRow(IconData icon, String title, String subtitle, Color color) {
+  Widget _buildParameterRow(BuildContext context, IconData icon, String title, String subtitle, Color color) {
     final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -348,7 +350,7 @@ class FinalTestScreen extends StatelessWidget {
             Text(title, style: theme.textTheme.titleMedium),
           ],
         ),
-        Text(subtitle, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold) ? theme.colorScheme.onSurfaceVariant : color)),
+        Text(subtitle, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold, color: color)),
       ],
     );
   }

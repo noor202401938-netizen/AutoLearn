@@ -1,15 +1,60 @@
 import 'package:flutter/material.dart';
 import 'assignment_screen.dart';
 
-class ProjectScreen extends StatelessWidget {
+import '../../repository/quiz_repository.dart';
+import '../../repository/auth_repository.dart';
+import '../../model/quiz_model.dart';
+import 'package:intl/intl.dart';
+
+class ProjectScreen extends StatefulWidget {
   final String courseId;
   final String courseTitle;
+  final String lessonId;
+  final String lessonTitle;
 
   const ProjectScreen({
     super.key,
     required this.courseId,
     required this.courseTitle,
+    required this.lessonId,
+    required this.lessonTitle,
   });
+
+  @override
+  State<ProjectScreen> createState() => _ProjectScreenState();
+}
+
+class _ProjectScreenState extends State<ProjectScreen> {
+  final QuizRepository _quizRepository = QuizRepository();
+  bool _isLoading = true;
+  AssignmentModel? _assignment;
+  AssignmentSubmissionModel? _existingSubmission;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProject();
+  }
+
+  Future<void> _loadProject() async {
+    setState(() => _isLoading = true);
+    try {
+      _assignment = await _quizRepository.getAssignmentByLessonId(widget.lessonId);
+      if (_assignment != null) {
+        final user = await AuthRepository().getCurrentUser();
+        final uid = user?['uid'] as String?;
+        if (uid != null) {
+          _existingSubmission = await _quizRepository.getUserAssignmentSubmission(
+            userId: uid,
+            assignmentId: _assignment!.assignmentId,
+          );
+        }
+      }
+      setState(() => _isLoading = false);
+    } catch (e) {
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,34 +114,22 @@ class ProjectScreen extends StatelessWidget {
                                 ),
                                 child: Text(
                                   'CAPSTONE PROJECT',
-                                  style: theme.textTheme.bodyMedium,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
                                     letterSpacing: 0.5,
                                   ),
                                 ),
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                'Autonomous Drone Navigation System',
+                                _assignment?.title ?? widget.lessonTitle,
                                 style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                'Develop an AI-driven navigation module capable of obstacle avoidance and path optimization in dynamic urban environments.',
+                                _assignment?.description.isNotEmpty == true ? _assignment!.description : 'Complete this final capstone project to demonstrate your mastery of the course material.',
                                 style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                               ),
                               const SizedBox(height: 16),
-                              Row(
-                                children: [
-                                  Row(
-                                    children: [
-                                      _buildAvatar('https://lh3.googleusercontent.com/aida-public/AB6AXuANW3-bQ_ummKOuxbZbbaqFe7slSRnrAmV9727pLAaoZgFuWbzjdj04qyrOro56CWjzT1nKJUxMKjJhRIs0NwheQqU6D3EbzTyLWXjVlgDQ6I_8hOGOL6Lg6m26MXAWIfol00hDGo13pXVNcwIHX-9vFCdRZ5OoJmyyw_Sr_g9-zC3F-xIXjTSOx8upU-K5DtheUbbJhT_Nc4-gnxGmtzm5bSaTbZyTSTnnEsCTeObzW6oCR5U4FkY-asp5_N0djxb3AbFhpOQ-crah'),
-                                      Transform.translate(offset: const Offset(-10, 0), child: _buildAvatar('https://lh3.googleusercontent.com/aida-public/AB6AXuDHm8JbTo9OcYfnih0U3VYPDE47W6BnEALpLQrsl4iLUjvLpEyVa-fEyxmXgdWSOfefEBw7Heibg6dZX1tkUv9MPcY3zLhYfbeIN35yKmKVaJceFtxtwfNwOvLzMsJBQKL9fpwRqMTdIODqM-OppVY9FDWGlFZJ1gLTsEuER40oQw-aQjYJIZbDTtzBrZlfTXRPRgt-eGis330MCgCrFNC5oMtLuJ6XX7FQQaiZ1p-VAdUqEaU5tg7ds81LB-iT-vh0Eku-3mXBpcSC')),
-                                    ],
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text('Team Delta', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
-                                ],
-                              )
                             ],
                           ),
                         ),
@@ -112,7 +145,7 @@ class ProjectScreen extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('PROJECT BRIEF', style: theme.textTheme.bodyMedium, letterSpacing: 1.5)),
+                              Text('PROJECT BRIEF', style: theme.textTheme.bodyMedium?.copyWith(letterSpacing: 1.5)),
                               const SizedBox(height: 16),
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,7 +178,7 @@ class ProjectScreen extends StatelessWidget {
                                       children: [
                                         Text('Deadline', style: theme.textTheme.labelLarge),
                                         const SizedBox(height: 4),
-                                        Text('November 24, 2024 (12 Days Left)', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                                        Text(_assignment != null ? DateFormat('MMMM d, yyyy').format(_assignment!.dueDate) : 'Loading...', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
                                       ],
                                     ),
                                   )
@@ -174,10 +207,10 @@ class ProjectScreen extends StatelessWidget {
                           child: Column(
                             children: [
                               Row(
-                                justifyAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text('Overall Completion', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-                                  Text('65%', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.green.shade800)),
+                                  Text(_existingSubmission != null ? '100%' : '0%', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.green.shade800)),
                                 ],
                               ),
                               const SizedBox(height: 16),
@@ -188,8 +221,8 @@ class ProjectScreen extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: FractionallySizedBox(
-                                  widthFactor: 0.65,
-                                  alignment: Alignment.centerLeft,
+                                    widthFactor: _existingSubmission != null ? 1.0 : 0.05,
+                                    alignment: Alignment.centerLeft,
                                   child: Container(
                                     decoration: BoxDecoration(
                                       gradient: const LinearGradient(colors: [Color(0xFF00573A), Color(0xFF4EDEA3)]),
@@ -212,12 +245,14 @@ class ProjectScreen extends StatelessWidget {
                           childAspectRatio: isDesktop ? 2 : 3,
                           children: [
                             _buildMilestoneCard(
+                              context: context,
                               title: 'Planning & Research',
                               subtitle: 'Market analysis and hardware specification selection completed.',
                               phase: 'Phase 1',
                               isDone: true,
                             ),
                             _buildMilestoneCard(
+                              context: context,
                               title: 'System Design',
                               subtitle: 'Architecture diagrams and API schema finalized.',
                               phase: 'Phase 2',
@@ -226,7 +261,7 @@ class ProjectScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        _buildActiveMilestoneCard(),
+                        _buildActiveMilestoneCard(context),
                         const SizedBox(height: 24),
                         // Submit Final Project
                         Container(
@@ -252,12 +287,12 @@ class ProjectScreen extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => AssignmentScreen(
-                                    courseId: courseId,
-                                    courseTitle: courseTitle,
-                                    moduleId: \'project\',
-                                    moduleTitle: \'Final Project\',
-                                    lessonId: \'project_\',
-                                    lessonTitle: \'Final Project: \',
+                                    courseId: widget.courseId,
+                                    courseTitle: widget.courseTitle,
+                                    moduleId: 'project',
+                                    moduleTitle: 'Final Project',
+                                    lessonId: widget.lessonId,
+                                    lessonTitle: widget.lessonTitle,
                                   ),
                                 ),
                               );
@@ -271,9 +306,9 @@ class ProjectScreen extends StatelessWidget {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text('Submit Final Project', style: theme.textTheme.bodyMedium),
-                                const SizedBox(width: 8),
                                 const Icon(Icons.send, color: Colors.white, size: 20),
+                                const SizedBox(width: 8),
+                                Text(_existingSubmission != null ? 'Submitted' : 'Submit Now', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                               ],
                             ),
                           ),
@@ -286,11 +321,13 @@ class ProjectScreen extends StatelessWidget {
             },
           ),
         ),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildAvatar(String url) {
+  Widget _buildAvatar(BuildContext context, String url) {
     final theme = Theme.of(context);
     return Container(
       width: 32,
@@ -306,7 +343,7 @@ class ProjectScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMilestoneCard({required String title, required String subtitle, required String phase, required bool isDone}) {
+  Widget _buildMilestoneCard({required BuildContext context, required String title, required String subtitle, required String phase, required bool isDone}) {
     final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
@@ -322,7 +359,7 @@ class ProjectScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Icon(Icons.check_circle, color: Color(0xFF00573A), size: 20),
-              Text(phase, style: theme.textTheme.bodyMedium)),
+              Text(phase, style: theme.textTheme.bodyMedium),
             ],
           ),
           const SizedBox(height: 12),
@@ -334,7 +371,7 @@ class ProjectScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActiveMilestoneCard() {
+  Widget _buildActiveMilestoneCard(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(24),
@@ -373,7 +410,7 @@ class ProjectScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text('LIDAR Integration', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
-              Text('Done', style: theme.textTheme.bodyMedium)),
+              Text('Done', style: theme.textTheme.bodyMedium),
             ],
           ),
           const SizedBox(height: 8),

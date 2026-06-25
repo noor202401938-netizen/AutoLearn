@@ -441,6 +441,7 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
   }
 
   Widget _buildModuleCard(int moduleIndex) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final module = _modules[moduleIndex];
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -640,6 +641,7 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
                               DropdownMenuItem(value: 'quiz', child: Text('Quiz')),
                               DropdownMenuItem(value: 'assignment', child: Text('Assignment')),
                               DropdownMenuItem(value: 'reading', child: Text('Reading')),
+                              DropdownMenuItem(value: 'project', child: Text('Project')),
                             ],
                             onChanged: (value) {
                               setDialogState(() => selectedType = value!);
@@ -670,7 +672,6 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
                       ],
                     ),
                   ),
-                ),
                 ),
                 Divider(color: colorScheme.outlineVariant, height: 1),
                 Padding(
@@ -715,9 +716,10 @@ class _CourseContentManagementScreenState extends State<CourseContentManagementS
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
+    },
+  );
+}
 
   Widget _buildDialogTextField({
     required TextEditingController controller,

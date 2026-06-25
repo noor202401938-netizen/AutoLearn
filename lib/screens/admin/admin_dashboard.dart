@@ -89,12 +89,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
             // Map course data to a format compatible with our UI
             if (data['courses'] != null) {
               _analyticsCourses = (data['courses'] as List).map((c) => CourseModel(
-                id: c['id'] ?? '',
+                courseId: c['id'] ?? '',
                 title: c['title'] ?? '',
                 description: '',
-                thumbnailUrl: '',
+                instructor: '',
+                category: '',
+                level: '',
+                duration: 0,
+                thumbnailURL: '',
                 price: 0,
                 enrollmentCount: c['enrollmentCount'] ?? 0,
+                createdAt: DateTime.now(),
+                createdBy: '',
               )).toList();
             }
             _isLoadingAnalytics = false;
