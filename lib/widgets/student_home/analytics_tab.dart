@@ -313,7 +313,8 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                 child: Text(
                   days[index],
                   textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium : theme.colorScheme.onSurfaceVariant,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: isToday ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
               );
@@ -385,7 +386,6 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                     child: Text(
                       '+${_learningGoal.scoreIncrease.toInt()}% Avg.',
                       style: theme.textTheme.bodyMedium,
-                      ),
                     ),
                   ),
                 ),
@@ -403,14 +403,12 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                   Text(
                     'Top 5% this month',
                     style: theme.textTheme.bodyMedium,
-                    ),
                   ),
                 ],
               ),
               Text(
                 '${_learningGoal.avgScore}/100 AVG',
                 style: theme.textTheme.bodyMedium,
-                ),
               ),
             ],
           ),
@@ -463,14 +461,12 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                       Text(
                         strength.level,
                         style: theme.textTheme.bodyMedium, // tertiary-fixed-dim
-                        ),
                       ),
                     ],
                   ),
                   Text(
                     strength.skillName,
                     style: theme.textTheme.bodyMedium,
-                    ),
                   ),
                   Container(
                     height: 6,
@@ -519,7 +515,6 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                 Text(
                   'Recommended Next Step',
                   style: theme.textTheme.bodyMedium,
-                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(

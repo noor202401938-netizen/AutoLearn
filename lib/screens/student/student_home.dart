@@ -26,6 +26,7 @@ import '../../widgets/student_home/stat_card.dart';
 import '../../widgets/student_home/ai_tutor_banner.dart';
 import '../../widgets/student_home/progress_course_card.dart';
 import '../../widgets/student_home/recommended_course_card.dart';
+import '../../widgets/student_home/ambient_background.dart';
 
 import '../../widgets/student_home/profile_tab.dart';
 import '../../widgets/student_home/analytics_tab.dart';
@@ -109,14 +110,16 @@ class _StudentHomeState extends State<StudentHome> {
     return FutureBuilder<Map<String, dynamic>?>(
       future: _authRepository.getCurrentUser(),
       builder: (context, userSnapshot) {
-      final theme = Theme.of(context);
         final user = userSnapshot.data;
         final uid = user?['uid'] as String?;
 
         if (uid == null) {
           return Text(
             'Student',
-            style: theme.textTheme.titleMedium.colorScheme.primary,
+            style: theme.textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: theme.colorScheme.primary,
+              letterSpacing: -1.0,
             ),
           );
         }
@@ -124,7 +127,6 @@ class _StudentHomeState extends State<StudentHome> {
         return StreamBuilder<Map<String, dynamic>?>(
           stream: _userRepository.streamUserProfile(uid),
           builder: (context, snapshot) {
-      final theme = Theme.of(context);
             String name = _userProfile?['displayName'] ??
                 user?['displayName'] ??
                 (user?['email'] as String?)?.split('@')[0] ??
@@ -138,7 +140,10 @@ class _StudentHomeState extends State<StudentHome> {
             }
             return Text(
               name,
-              style: theme.textTheme.titleMedium.colorScheme.primary,
+              style: theme.textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: theme.colorScheme.primary,
+                letterSpacing: -1.0,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -177,15 +182,25 @@ class _StudentHomeState extends State<StudentHome> {
     final isMobile = MediaQuery.of(context).size.width < 600;
     
     return Scaffold(
-      extendBodyBehindAppBar: false,
+      extendBodyBehindAppBar: true,
       extendBody: true,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'AutoLearn',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            color: Theme.of(context).colorScheme.primary,
+            letterSpacing: -1.0,
+          ),
         ),
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
         elevation: 0,
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(color: Colors.transparent),
+          ),
+        ),
         actions: [
           IconButton(
             icon: Icon(
@@ -200,18 +215,26 @@ class _StudentHomeState extends State<StudentHome> {
               PreferenceNotifier.instance.updateTheme(newTheme);
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const NotificationsPanel(),
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0, left: 8.0),
+            child: Center(
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    width: 2,
+                  ),
                 ),
-              );
-            },
+                child: CircleAvatar(
+                  backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                  child: Icon(Icons.person, color: Theme.of(context).colorScheme.primary),
+                ),
+              ),
+            ),
           ),
-          const SizedBox(width: 8),
         ],
       ),
       bottomNavigationBar: isMobile 
@@ -247,8 +270,11 @@ class _StudentHomeState extends State<StudentHome> {
             )
           : null,
       body: Container(
-        color: Theme.of(context).colorScheme.surface,
-        child: Row(
+        color: Colors.transparent,
+        child: Stack(
+          children: [
+            const AmbientBackground(),
+            Row(
           children: [
             if (!isMobile) ...[
               NavigationRail(
@@ -321,13 +347,17 @@ class _StudentHomeState extends State<StudentHome> {
                   children: [
                     Text(
                       'Welcome back, ',
-                      style: theme.textTheme.titleMedium.colorScheme.onSurface,
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: theme.colorScheme.onSurface,
+                        letterSpacing: -1.0,
+                      ),
                       ),
                     ),
                     Expanded(child: _buildGreetingName()),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 Text(
                   'You\'re on a $streak-day learning streak! Keep it up.',
                   style: theme.textTheme.bodyMedium.colorScheme.onSurfaceVariant,

@@ -1,4 +1,5 @@
 // lib/screens/student/course_content_screen.dart
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../repository/course_repository.dart';
 import '../../repository/progress_repository.dart';
@@ -117,42 +118,65 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                         bottom: 0,
                         left: 0,
                         right: 0,
-                        child: Container(
-                          padding: EdgeInsets.only(
-                            bottom: MediaQuery.of(context).padding.bottom + 20,
-                            top: 20,
-                            left: 20,
-                            right: 20,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.7),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 10,
-                                offset: const Offset(0, -5),
+                        child: ClipRect(
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                            child: Container(
+                              padding: EdgeInsets.only(
+                                bottom: MediaQuery.of(context).padding.bottom + 20,
+                                top: 20,
+                                left: 20,
+                                right: 20,
                               ),
-                            ],
-                          ),
-                          child: ElevatedButton(
-                            onPressed: _handleContinueLearning,
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              backgroundColor: Theme.of(context).colorScheme.primary,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.7),
                               ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.play_circle_fill, color: Colors.white),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Continue Learning',
-                                  style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onPrimary),
+                              child: Center(
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(maxWidth: 1200),
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      onTap: _handleContinueLearning,
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: Ink(
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [theme.colorScheme.primary, theme.colorScheme.secondary],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.circular(16),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                                              blurRadius: 10,
+                                              offset: const Offset(0, 4),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 16),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              const Icon(Icons.play_circle_fill, color: Colors.white),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                'Continue Learning',
+                                                style: theme.textTheme.titleMedium?.copyWith(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
@@ -170,25 +194,47 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
       expandedHeight: 0,
       floating: true,
       pinned: true,
-      backgroundColor: Colors.white.withOpacity(0.9),
+      backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.8),
+      flexibleSpace: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Container(color: Colors.transparent),
+        ),
+      ),
       elevation: 0,
-      iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+      iconTheme: IconThemeData(color: theme.colorScheme.onSurfaceVariant),
       title: Text(
         'AutoLearn',
-        style: TextStyle(
+        style: theme.textTheme.headlineSmall?.copyWith(
           color: theme.colorScheme.primary,
           fontWeight: FontWeight.bold,
-          fontSize: 24,
           letterSpacing: -0.5,
         ),
       ),
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 16.0),
-          child: CircleAvatar(
-            radius: 18,
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-            child: const Icon(Icons.person, size: 20, color: Colors.white),
+          child: FutureBuilder<Map<String, dynamic>?>(
+            future: AuthRepository().getCurrentUser(),
+            builder: (context, snapshot) {
+              final photoUrl = snapshot.data?['photoUrl'] as String?;
+              return Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: theme.colorScheme.primaryContainer, width: 2),
+                ),
+                child: ClipOval(
+                  child: photoUrl != null && photoUrl.isNotEmpty
+                      ? Image.network(photoUrl, fit: BoxFit.cover)
+                      : Container(
+                          color: theme.colorScheme.primaryContainer,
+                          child: const Icon(Icons.person, color: Colors.white, size: 20),
+                        ),
+                ),
+              );
+            },
           ),
         ),
       ],
@@ -267,107 +313,134 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
               aspectRatio: 16 / 9,
               child: Container(
                 width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: theme.colorScheme.secondaryContainer,
-                image: _course!.thumbnailURL.isNotEmpty
-                    ? DecorationImage(
-                        image: NetworkImage(_course!.thumbnailURL),
-                        fit: BoxFit.cover,
-                      )
-                    : null,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  )
-                ],
-              ),
-              child: Stack(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      color: Colors.black.withOpacity(0.2),
-                    ),
-                  ),
-                  Center(
-                    child: Container(
-                      width: 64,
-                      height: 64,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  color: theme.colorScheme.surfaceContainerHighest,
+                  image: _course!.thumbnailURL.isNotEmpty
+                      ? DecorationImage(
+                          image: NetworkImage(_course!.thumbnailURL),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    )
+                  ],
+                ),
+                child: Stack(
+                  children: [
+                    Container(
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.play_arrow,
-                        size: 32,
-                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.circular(16),
+                        color: Colors.black.withValues(alpha: 0.2),
                       ),
                     ),
-                  ),
-                  // Progress overlay on video bottom
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      height: 4,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFd9e3f6),
-                        borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
-                      ),
-                      child: FractionallySizedBox(
-                        alignment: Alignment.centerLeft,
-                        widthFactor: _courseCompletion / 100,
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Color(0xFF10b981), Color(0xFF14b8a6)],
+                    Center(
+                      child: Container(
+                        width: 64,
+                        height: 64,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.2),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
                             ),
-                            borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.play_arrow,
+                          size: 32,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                    // Progress overlay on video bottom
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceContainerHighest,
+                          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+                        ),
+                        child: FractionallySizedBox(
+                          alignment: Alignment.centerLeft,
+                          widthFactor: _courseCompletion / 100,
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Color(0xFF10b981), Color(0xFF14b8a6)],
+                              ),
+                              borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
               ),
             ),
           ),
           const SizedBox(height: 24),
           Text(
             widget.title,
-            style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+            style: theme.textTheme.headlineMedium?.copyWith(
+              color: theme.colorScheme.onSurface,
+              fontWeight: FontWeight.bold,
+              height: 1.2,
+              letterSpacing: -0.5,
+            ),
           ),
           const SizedBox(height: 12),
           Row(
             children: [
-              CircleAvatar(
-                radius: 16,
-                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                child: const Icon(Icons.person, size: 16, color: Colors.white),
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: theme.colorScheme.primaryContainer,
+                ),
+                child: ClipOval(
+                  child: Container(
+                    color: theme.colorScheme.primaryContainer,
+                    child: const Icon(Icons.person, color: Colors.white, size: 20),
+                  ),
+                ),
               ),
               const SizedBox(width: 12),
               Text(
                 _course!.instructor,
-                style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(width: 8),
-              Container(width: 4, height: 4, decoration: const BoxDecoration(color: Color(0xFFc8c4d7), shape: BoxShape.circle)),
+              Container(
+                width: 4,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.outlineVariant,
+                  shape: BoxShape.circle,
+                ),
+              ),
               const SizedBox(width: 8),
               Text(
                 'Lead Instructor',
-                style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.primary),
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -382,14 +455,14 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceVariant, // surface-container-low
+        color: theme.colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.transparent),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
         boxShadow: [
           BoxShadow(
-            color: theme.colorScheme.primary.withOpacity(0.08),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
@@ -401,7 +474,11 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
             children: [
               Text(
                 'OVERALL PROGRESS',
-                style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold),
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant, 
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                ),
               ),
               const SizedBox(height: 4),
               Row(
@@ -410,12 +487,15 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                 children: [
                   Text(
                     '${_courseCompletion.toStringAsFixed(0)}%',
-                    style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onSurface,
+                    ),
                   ),
                   const SizedBox(width: 4),
                   Text(
                     'Complete',
-                    style: theme.textTheme.bodyMedium,
+                    style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -428,15 +508,24 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
               fit: StackFit.expand,
               children: [
                 CircularProgressIndicator(
+                  value: 1.0,
+                  valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.surfaceContainerHighest),
+                  strokeWidth: 4,
+                ),
+                CircularProgressIndicator(
                   value: _courseCompletion / 100,
-                  backgroundColor: theme.colorScheme.secondaryContainer,
-                  valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+                  backgroundColor: Colors.transparent,
+                  valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
                   strokeWidth: 4,
                 ),
                 Center(
                   child: Text(
                     '${_courseCompletion.toStringAsFixed(0)}%',
-                    style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.primary),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10,
+                    ),
                   ),
                 ),
               ],
@@ -525,41 +614,41 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
       return Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.colorScheme.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: theme.colorScheme.outline),
-          boxShadow: [
-            BoxShadow(
-              color: theme.colorScheme.primary.withOpacity(0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            )
-          ],
+          border: Border.all(color: theme.colorScheme.outlineVariant),
         ),
         child: Theme(
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
           child: ExpansionTile(
-            tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             leading: Container(
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.1),
+                color: theme.colorScheme.tertiaryContainer.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.check_circle, color: Color(0xFF00573a)),
+              child: Icon(Icons.check_circle, color: theme.colorScheme.tertiary),
             ),
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'COMPLETED',
-                  style: theme.textTheme.labelMedium?.copyWith(color: Colors.green.shade800, fontWeight: FontWeight.bold),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.tertiary,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Module ${moduleIndex + 1}: ${module.title}',
-                  style: theme.textTheme.titleMedium,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: theme.colorScheme.onSurface,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -572,42 +661,42 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
       return Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceVariant,
+          color: theme.colorScheme.primaryContainer.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: theme.colorScheme.primary, width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: theme.colorScheme.primary.withOpacity(0.15),
-              blurRadius: 16,
-              offset: const Offset(0, 8),
-            )
-          ],
         ),
         child: Theme(
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
           child: ExpansionTile(
             initiallyExpanded: true,
-            tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             leading: Container(
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: theme.colorScheme.primary,
+                color: theme.colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.play_arrow, color: Colors.white),
+              child: Icon(Icons.play_arrow, color: theme.colorScheme.onPrimary),
             ),
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'CURRENT MODULE',
-                  style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Module ${moduleIndex + 1}: ${module.title}',
-                  style: theme.textTheme.titleMedium,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: theme.colorScheme.onSurface,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -621,11 +710,16 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                       children: [
                         Text(
                           'Section Progress',
-                          style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold),
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
                         ),
                         Text(
                           '${modProgress.toStringAsFixed(0)}%',
-                          style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold),
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
@@ -634,15 +728,15 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
                         value: modProgress / 100,
-                        backgroundColor: theme.colorScheme.secondaryContainer,
-                        valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+                        backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                        valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
                         minHeight: 8,
                       ),
                     ),
                   ],
                 ),
               ),
-              ...module.lessons.map((lesson) => _buildLessonTile(module, lesson)).toList(),
+              ...module.lessons.map((lesson) => _buildLessonTile(module, lesson)),
             ],
           ),
         ),
@@ -652,34 +746,41 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
       return Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
+          border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3)),
         ),
         child: Opacity(
           opacity: 0.6,
           child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             leading: Container(
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: theme.colorScheme.outline.withOpacity(0.2),
+                color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.lock, color: Color(0xFF787586)),
+              child: Icon(Icons.lock, color: theme.colorScheme.outline),
             ),
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'LOCKED',
-                  style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.outline,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Module ${moduleIndex + 1}: ${module.title}',
-                  style: theme.textTheme.titleMedium,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: theme.colorScheme.onSurface,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),

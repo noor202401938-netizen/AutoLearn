@@ -1,51 +1,90 @@
 import 'package:flutter/material.dart';
 
-class StatCard extends StatelessWidget {
+class StatCard extends StatefulWidget {
   final IconData icon;
   final String value;
   final String label;
 
   const StatCard({
-    Key? key,
+    super.key,
     required this.icon,
     required this.value,
     required this.label,
-  }) : super(key: key);
+  });
+
+  @override
+  State<StatCard> createState() => _StatCardState();
+}
+
+class _StatCardState extends State<StatCard> {
+  bool _isHovered = false;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        transform: Matrix4.translationValues(0, _isHovered ? -4.0 : 0, 0),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: theme.colorScheme.outlineVariant.withOpacity(0.5),
           ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: Theme.of(context).colorScheme.primary, size: 32),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: theme.textTheme.titleMedium.colorScheme.onSurface,
+          boxShadow: [
+            BoxShadow(
+              color: _isHovered 
+                  ? theme.colorScheme.primary.withOpacity(0.15)
+                  : theme.shadowColor.withOpacity(0.05),
+              blurRadius: _isHovered ? 20 : 10,
+              offset: Offset(0, _isHovered ? 10 : 4),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label.toUpperCase(),
-            style: theme.textTheme.bodyMedium.colorScheme.onSurfaceVariant,
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AnimatedScale(
+              scale: _isHovered ? 1.1 : 1.0,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOutBack,
+              child: AnimatedSlide(
+                offset: _isHovered ? const Offset(0, -0.1) : Offset.zero,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutCubic,
+                child: Icon(
+                  widget.icon, 
+                  color: theme.colorScheme.primary, 
+                  size: 32,
+                ),
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            Text(
+              widget.value,
+              style: theme.textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onSurface,
+              ) ?? const TextStyle(fontWeight: FontWeight.bold, fontSize: 32),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              widget.label.toUpperCase(),
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                letterSpacing: 0.5,
+                fontWeight: FontWeight.bold,
+              ) ?? const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
       ),
     );
   }

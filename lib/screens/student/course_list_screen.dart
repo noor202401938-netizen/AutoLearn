@@ -1,4 +1,5 @@
 // lib/screens/student/course_list_screen.dart
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../business_logic/course_manager.dart';
 import '../../business_logic/search_filter_engine.dart';
@@ -8,6 +9,7 @@ import '../../business_logic/payment_manager.dart';
 import '../../backend/api_client.dart';
 import 'payment_screen.dart';
 import 'course_content_screen.dart';
+import '../../widgets/student_home/ambient_background.dart';
 
 class CourseListScreen extends StatefulWidget {
   const CourseListScreen({super.key});
@@ -99,20 +101,36 @@ class _CourseListScreenState extends State<CourseListScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('Browse Courses', style: theme.textTheme.titleLarge),
-        backgroundColor: theme.colorScheme.background,
+        title: Text(
+          'Browse Courses',
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+            letterSpacing: -0.5,
+          ),
+        ),
+        backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.8),
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+            child: Container(color: Colors.transparent),
+          ),
+        ),
         elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF121c2a)),
+        iconTheme: IconThemeData(color: theme.colorScheme.onSurfaceVariant),
       ),
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: RefreshIndicator(
-          onRefresh: _loadCourses,
-          child: Column(
+      body: Stack(
+        children: [
+          const AmbientBackground(),
+          SafeArea(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1200),
+                child: RefreshIndicator(
+              onRefresh: _loadCourses,
+              child: Column(
             children: [
               // Search Bar
               Padding(
@@ -470,11 +488,11 @@ class _CourseListScreenState extends State<CourseListScreen> {
                 },
               ),
             ),
-          ],
-        ),
-      ),
-      ),
-      ),
+            ),
+          ),
+          ),
+          ),
+        ],
       ),
     );
   }
@@ -484,14 +502,14 @@ class _CourseListScreenState extends State<CourseListScreen> {
     return Container(
       margin: EdgeInsets.zero,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.outline),
+        border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
-            color: theme.colorScheme.primary.withOpacity(0.08),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
           ),
         ],
       ),
@@ -615,40 +633,39 @@ class _CourseListScreenState extends State<CourseListScreen> {
                       Row(
                         children: [
                           const Icon(
-                            Icons.star,
-                            size: 16,
+                            Icons.star_rounded,
+                            size: 18,
                             color: Colors.amber,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             course.rating.toStringAsFixed(1),
-                            style: theme.textTheme.bodyLarge,
+                            style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           Text(
                             ' (${course.ratingCount})',
-                            style: theme.textTheme.bodySmall,
+                            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                           ),
                           const SizedBox(width: 12),
-                          const Icon(
-                            Icons.access_time,
-                            size: 14,
-                            color: Color(0xFF787586),
+                          Icon(
+                            Icons.schedule,
+                            size: 16,
+                            color: theme.colorScheme.onSurfaceVariant,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             '${course.duration}h',
-                            style: theme.textTheme.bodySmall,
+                            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                           ),
                           const Spacer(),
                           Text(
                             course.price == 0
                                 ? 'FREE'
                                 : '\$${course.price.toStringAsFixed(0)}',
-                            style: TextStyle(
-                              fontSize: 18,
+                            style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: course.price == 0
-                                  ? Colors.green.shade800
+                                  ? Colors.green.shade700
                                   : theme.colorScheme.primary,
                             ),
                           ),
@@ -753,7 +770,9 @@ class _CourseListScreenState extends State<CourseListScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: enrolled ? theme.colorScheme.secondaryContainer : theme.colorScheme.primary,
                   foregroundColor: enrolled ? theme.colorScheme.onSurfaceVariant : Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: enrolled ? 0 : 4,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
                 child: Text(enrolled ? 'Open' : 'Enroll', style: theme.textTheme.labelLarge),
               ),

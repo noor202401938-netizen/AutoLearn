@@ -164,7 +164,6 @@ class _ProfileTabState extends State<ProfileTab> {
                     child: Text(
                       displayName.isNotEmpty ? displayName[0].toUpperCase() : 'U',
                       style: theme.textTheme.titleMedium,
-                      ),
                     ),
                   ),
                 ),
@@ -198,7 +197,6 @@ class _ProfileTabState extends State<ProfileTab> {
                     Text(
                       'Premium',
                       style: theme.textTheme.bodyMedium,
-                      ),
                     ),
                   ],
                 ),
@@ -210,7 +208,6 @@ class _ProfileTabState extends State<ProfileTab> {
         Text(
           displayName,
           style: theme.textTheme.titleMedium,
-          ),
         ),
         const SizedBox(height: 4),
         Text(
@@ -258,7 +255,6 @@ class _ProfileTabState extends State<ProfileTab> {
               Text(
                 '${_userStats.points}',
                 style: theme.textTheme.titleMedium,
-                ),
               ),
               const SizedBox(height: 16),
               Container(
@@ -385,7 +381,6 @@ class _ProfileTabState extends State<ProfileTab> {
               child: Text(
                 'View All',
                 style: theme.textTheme.bodyMedium,
-                ),
               ),
             ),
           ],
@@ -434,7 +429,6 @@ class _ProfileTabState extends State<ProfileTab> {
                     Text(
                       achievement.title,
                       style: theme.textTheme.bodyMedium,
-                      ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 4),
@@ -551,7 +545,6 @@ class _ProfileTabState extends State<ProfileTab> {
                   Text(
                     title,
                     style: theme.textTheme.bodyMedium,
-                    ),
                   ),
                   Text(
                     subtitle,
