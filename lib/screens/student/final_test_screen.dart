@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../model/quiz_model.dart';
 import 'ai_quiz_screen.dart';
 
@@ -15,8 +14,9 @@ class FinalTestScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FF),
+      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         backgroundColor: Colors.white.withOpacity(0.8),
         elevation: 1,
@@ -30,12 +30,7 @@ class FinalTestScreen extends StatelessWidget {
         ),
         title: Text(
           'AutoLearn',
-          style: GoogleFonts.outfit(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF4231C0),
-            letterSpacing: -0.5,
-          ),
+          style: theme.textTheme.headlineSmall?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold),
         ),
         actions: [
           Padding(
@@ -45,7 +40,7 @@ class FinalTestScreen extends StatelessWidget {
               height: 40,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFF4231C0).withOpacity(0.2), width: 2),
+                border: Border.all(color: theme.colorScheme.primary.withOpacity(0.2), width: 2),
                 color: const Color(0xFFD9E3F6),
               ),
               child: const Icon(Icons.person, color: Color(0xFF4231C0)),
@@ -61,6 +56,7 @@ class FinalTestScreen extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           child: LayoutBuilder(
             builder: (context, constraints) {
+      final theme = Theme.of(context);
               final isDesktop = constraints.maxWidth > 800;
               return Flex(
                 direction: isDesktop ? Axis.horizontal : Axis.vertical,
@@ -76,10 +72,10 @@ class FinalTestScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.8),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.3)),
+                            border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF4231C0).withOpacity(0.05),
+                                color: theme.colorScheme.primary.withOpacity(0.05),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               )
@@ -101,10 +97,7 @@ class FinalTestScreen extends StatelessWidget {
                                     const SizedBox(width: 8),
                                     Text(
                                       'FINAL CERTIFICATION',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                        color: const Color(0xFF00724E),
+                                      style: theme.textTheme.bodyMedium,
                                         letterSpacing: 0.5,
                                       ),
                                     ),
@@ -114,10 +107,7 @@ class FinalTestScreen extends StatelessWidget {
                               const SizedBox(height: 16),
                               Text(
                                 'Machine Learning\nMastery Exam',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 36,
-                                  fontWeight: FontWeight.w800,
-                                  color: const Color(0xFF121C2A),
+                                style: theme.textTheme.titleMedium,
                                   height: 1.1,
                                   letterSpacing: -1.0,
                                 ),
@@ -125,11 +115,7 @@ class FinalTestScreen extends StatelessWidget {
                               const SizedBox(height: 16),
                               Text(
                                 'This is your final milestone. Upon successful completion, you will earn the AutoLearn Certified ML Professional credential. Ensure you are ready before proceeding.',
-                                style: GoogleFonts.inter(
-                                  fontSize: 16,
-                                  color: const Color(0xFF474554),
-                                  height: 1.5,
-                                ),
+                                style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                               ),
                             ],
                           ),
@@ -141,7 +127,7 @@ class FinalTestScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFC8C4D7)),
+                            border: Border.all(color: theme.colorScheme.outline),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,11 +138,7 @@ class FinalTestScreen extends StatelessWidget {
                                   const SizedBox(width: 8),
                                   Text(
                                     'Before You Begin',
-                                    style: GoogleFonts.outfit(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w700,
-                                      color: const Color(0xFF121C2A),
-                                    ),
+                                    style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                                   ),
                                 ],
                               ),
@@ -169,10 +151,10 @@ class FinalTestScreen extends StatelessWidget {
                                 crossAxisSpacing: 16,
                                 childAspectRatio: 4,
                                 children: [
-                                  _buildChecklistItem(Icons.wifi, 'Stable Internet', 'A high-speed connection is required.', const Color(0xFF00573A)),
-                                  _buildChecklistItem(Icons.volume_off, 'Quiet Environment', 'Minimize distractions for 60 mins.', const Color(0xFF00573A)),
-                                  _buildChecklistItem(Icons.battery_charging_full, 'Power Source', 'Ensure device is fully charged.', const Color(0xFF00573A)),
-                                  _buildChecklistItem(Icons.lock_reset, 'Single Attempt', 'Leaving the tab may disqualify you.', const Color(0xFF00573A)),
+                                  _buildChecklistItem(Icons.wifi, 'Stable Internet', 'A high-speed connection is required.', Colors.green.shade800),
+                                  _buildChecklistItem(Icons.volume_off, 'Quiet Environment', 'Minimize distractions for 60 mins.', Colors.green.shade800),
+                                  _buildChecklistItem(Icons.battery_charging_full, 'Power Source', 'Ensure device is fully charged.', Colors.green.shade800),
+                                  _buildChecklistItem(Icons.lock_reset, 'Single Attempt', 'Leaving the tab may disqualify you.', Colors.green.shade800),
                                 ],
                               ),
                             ],
@@ -193,34 +175,31 @@ class FinalTestScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFC8C4D7)),
+                            border: Border.all(color: theme.colorScheme.outline),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 'EXAM PARAMETERS',
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: const Color(0xFF787586),
+                                style: theme.textTheme.bodyMedium,
                                   letterSpacing: 0.5,
                                 ),
                               ),
                               const SizedBox(height: 24),
-                              _buildParameterRow(Icons.quiz, '50 Questions', 'Multiple Choice', const Color(0xFF4231C0)),
+                              _buildParameterRow(Icons.quiz, '50 Questions', 'Multiple Choice', theme.colorScheme.primary),
                               const SizedBox(height: 16),
-                              _buildParameterRow(Icons.schedule, '60 Minutes', 'Time Limit', const Color(0xFF4231C0)),
+                              _buildParameterRow(Icons.schedule, '60 Minutes', 'Time Limit', theme.colorScheme.primary),
                               const SizedBox(height: 16),
-                              _buildParameterRow(Icons.grade, '80% to Pass', '40 Correct', const Color(0xFF00573A)),
+                              _buildParameterRow(Icons.grade, '80% to Pass', '40 Correct', Colors.green.shade800),
                               const SizedBox(height: 32),
                               const Divider(color: Color(0xFFC8C4D7)),
                               const SizedBox(height: 16),
                               Row(
                                 justifyContent: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('Success Probability', style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 14)),
-                                  Text('High', style: GoogleFonts.inter(fontWeight: FontWeight.w700, color: const Color(0xFF00573A))),
+                                  Text('Success Probability', style: theme.textTheme.labelLarge),
+                                  Text('High', style: theme.textTheme.bodyMedium)),
                                 ],
                               ),
                               const SizedBox(height: 8),
@@ -245,7 +224,7 @@ class FinalTestScreen extends StatelessWidget {
                               Center(
                                 child: Text(
                                   'Based on your quiz performance (92% avg)',
-                                  style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF474554), fontStyle: FontStyle.italic),
+                                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                                 ),
                               ),
                             ],
@@ -264,7 +243,7 @@ class FinalTestScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF4231C0).withOpacity(0.3),
+                                color: theme.colorScheme.primary.withOpacity(0.3),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
@@ -295,14 +274,14 @@ class FinalTestScreen extends StatelessWidget {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text('Start Final Assessment', style: GoogleFonts.inter(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                                Text('Start Final Assessment', style: theme.textTheme.bodyMedium),
                                 const SizedBox(height: 8),
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     const Icon(Icons.play_arrow, size: 16, color: Colors.white70),
                                     const SizedBox(width: 4),
-                                    Text('Ready to begin session', style: GoogleFonts.inter(color: Colors.white70, fontSize: 14)),
+                                    Text('Ready to begin session', style: theme.textTheme.bodyMedium),
                                   ],
                                 ),
                               ],
@@ -322,10 +301,11 @@ class FinalTestScreen extends StatelessWidget {
   }
 
   Widget _buildChecklistItem(IconData icon, String title, String subtitle, Color color) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF4FF),
+        color: theme.colorScheme.surfaceVariant,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -337,9 +317,9 @@ class FinalTestScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 14, color: const Color(0xFF121C2A))),
+                Text(title, style: theme.textTheme.bodyMedium),
                 const SizedBox(height: 4),
-                Text(subtitle, style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF474554))),
+                Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
               ],
             ),
           )
@@ -349,6 +329,7 @@ class FinalTestScreen extends StatelessWidget {
   }
 
   Widget _buildParameterRow(IconData icon, String title, String subtitle, Color color) {
+    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -364,10 +345,10 @@ class FinalTestScreen extends StatelessWidget {
               child: Icon(icon, color: color, size: 20),
             ),
             const SizedBox(width: 12),
-            Text(title, style: GoogleFonts.inter(fontSize: 16, color: const Color(0xFF121C2A))),
+            Text(title, style: theme.textTheme.titleMedium),
           ],
         ),
-        Text(subtitle, style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 14, color: color == const Color(0xFF4231C0) ? const Color(0xFF474554) : color)),
+        Text(subtitle, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold) ? theme.colorScheme.onSurfaceVariant : color)),
       ],
     );
   }

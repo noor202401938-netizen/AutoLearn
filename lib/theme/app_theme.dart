@@ -1,243 +1,224 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Vibrant, Professional Primary Color (Indigo)
-  static const Color primaryColor = Color(0xFF4F46E5);
-  // Playful Accent Color (Coral/Amber)
-  static const Color accentColor = Color(0xFFFF6B6B);
+  // Brand Colors from Stitch
+  static const Color primary = Color(0xFF4231C0);
+  static const Color primaryContainer = Color(0xFF5B4ED9);
+  static const Color onPrimary = Color(0xFFFFFFFF);
   
-  // Dark Theme Colors
-  static const Color darkBackgroundColor = Color(0xFF0F172A); // Slate 900
-  static const Color darkSurfaceColor = Color(0xFF1E293B);    // Slate 800
-  static const Color darkOnPrimary = Color(0xFFFFFFFF);
-  static const Color darkTextPrimary = Color(0xFFF8FAFC);     // Slate 50
-  static const Color darkTextSecondary = Color(0xFF94A3B8);   // Slate 400
-  static const Color darkDivider = Color(0xFF334155);
+  static const Color secondary = Color(0xFF6B38D4);
+  static const Color secondaryContainer = Color(0xFF8455EF);
+  
+  static const Color tertiary = Color(0xFF00573A);
+  static const Color tertiaryContainer = Color(0xFF00724E);
+  static const Color onTertiaryContainer = Color(0xFF6DFABC); // Used for success/progress highlights (Emerald)
+  
+  static const Color error = Color(0xFFBA1A1A);
+  static const Color onError = Color(0xFFFFFFFF);
+  
+  // Surfaces
+  static const Color background = Color(0xFFF8F9FF);
+  static const Color onBackground = Color(0xFF121C2A);
+  
+  static const Color surface = Color(0xFFFFFFFF); // surface-container-lowest
+  static const Color onSurface = Color(0xFF121C2A);
+  static const Color onSurfaceVariant = Color(0xFF474554);
+  
+  static const Color outline = Color(0xFF787586);
+  static const Color outlineVariant = Color(0xFFC8C4D7);
+  
+  // Custom Gradients (Lift-and-Glow concept)
+  static const LinearGradient primaryGradient = LinearGradient(
+    colors: [primary, secondary],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+  
+  static ThemeData get lightTheme {
+    return ThemeData(
+      brightness: Brightness.light,
+      primaryColor: primary,
+      scaffoldBackgroundColor: background,
+      colorScheme: const ColorScheme.light(
+        primary: primary,
+        primaryContainer: primaryContainer,
+        secondary: secondary,
+        secondaryContainer: secondaryContainer,
+        tertiary: tertiary,
+        tertiaryContainer: tertiaryContainer,
+        error: error,
+        background: background,
+        surface: surface,
+        onPrimary: onPrimary,
+        onSecondary: onPrimary,
+        onSurface: onSurface,
+        onBackground: onBackground,
+        onError: onError,
+        outline: outline,
+        outlineVariant: outlineVariant,
+      ),
+      textTheme: _buildTextTheme(onSurface, onSurfaceVariant),
+      appBarTheme: _buildAppBarTheme(background, onSurface),
+      cardTheme: _buildCardTheme(surface, outlineVariant),
+      elevatedButtonTheme: _buildElevatedButtonTheme(primary, onPrimary),
+      outlinedButtonTheme: _buildOutlinedButtonTheme(primary, outlineVariant),
+      inputDecorationTheme: _buildInputDecorationTheme(surface, outlineVariant, primary, onSurfaceVariant),
+      bottomNavigationBarTheme: _buildBottomNavigationBarTheme(surface, primary, onSurfaceVariant),
+    );
+  }
 
-  // Light Theme Colors
-  static const Color lightBackgroundColor = Color(0xFFF8FAFC); // Slate 50
-  static const Color lightSurfaceColor = Color(0xFFFFFFFF);
-  static const Color lightOnPrimary = Color(0xFFFFFFFF);
-  static const Color lightTextPrimary = Color(0xFF0F172A);     // Slate 900
-  static const Color lightTextSecondary = Color(0xFF64748B);   // Slate 500
-  static const Color lightDivider = Color(0xFFE2E8F0);
+  // Define a dark theme as well to prevent runtime errors, though the design system is light-dominant.
+  // Using inverted colors for the dark mode equivalent.
+  static ThemeData get darkTheme {
+    const Color darkBg = Color(0xFF121C2A);
+    const Color darkSurface = Color(0xFF1F2937); // Slate 800
+    const Color darkOnSurface = Color(0xFFF8F9FF);
+    const Color darkOnSurfaceVariant = Color(0xFFC8C4D7);
+    const Color darkOutlineVariant = Color(0xFF474554);
 
-  static final ThemeData darkTheme = ThemeData(
-    brightness: Brightness.dark,
-    primaryColor: primaryColor,
-    scaffoldBackgroundColor: darkBackgroundColor,
-    dividerColor: darkDivider,
-    colorScheme: const ColorScheme.dark(
-      primary: primaryColor,
-      secondary: accentColor,
-      surface: darkSurfaceColor,
-      background: darkBackgroundColor,
-      onPrimary: darkOnPrimary,
-      onSurface: darkTextPrimary,
-      onBackground: darkTextPrimary,
-    ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: darkBackgroundColor,
+    return ThemeData(
+      brightness: Brightness.dark,
+      primaryColor: primaryContainer,
+      scaffoldBackgroundColor: darkBg,
+      colorScheme: const ColorScheme.dark(
+        primary: primaryContainer,
+        primaryContainer: primary,
+        secondary: secondaryContainer,
+        secondaryContainer: secondary,
+        tertiary: onTertiaryContainer,
+        tertiaryContainer: tertiary,
+        error: error,
+        background: darkBg,
+        surface: darkSurface,
+        onPrimary: onPrimary,
+        onSecondary: onPrimary,
+        onSurface: darkOnSurface,
+        onBackground: darkOnSurface,
+        onError: onError,
+        outline: outlineVariant,
+        outlineVariant: darkOutlineVariant,
+      ),
+      textTheme: _buildTextTheme(darkOnSurface, darkOnSurfaceVariant),
+      appBarTheme: _buildAppBarTheme(darkBg, darkOnSurface),
+      cardTheme: _buildCardTheme(darkSurface, darkOutlineVariant),
+      elevatedButtonTheme: _buildElevatedButtonTheme(primaryContainer, onPrimary),
+      outlinedButtonTheme: _buildOutlinedButtonTheme(primaryContainer, darkOutlineVariant),
+      inputDecorationTheme: _buildInputDecorationTheme(darkSurface, darkOutlineVariant, primaryContainer, darkOnSurfaceVariant),
+      bottomNavigationBarTheme: _buildBottomNavigationBarTheme(darkSurface, primaryContainer, darkOnSurfaceVariant),
+    );
+  }
+
+  static TextTheme _buildTextTheme(Color onSurf, Color onSurfVar) {
+    return TextTheme(
+      displayLarge: TextStyle(fontFamily: 'Geist', fontSize: 48, fontWeight: FontWeight.w800, letterSpacing: -0.04 * 48, color: onSurf, height: 1.1),
+      displayMedium: TextStyle(fontFamily: 'Geist', fontSize: 36, fontWeight: FontWeight.w800, letterSpacing: -0.03 * 36, color: onSurf, height: 1.1),
+      headlineMedium: TextStyle(fontFamily: 'Geist', fontSize: 32, fontWeight: FontWeight.w700, letterSpacing: -0.02 * 32, color: onSurf, height: 1.2),
+      headlineSmall: TextStyle(fontFamily: 'Geist', fontSize: 24, fontWeight: FontWeight.w700, letterSpacing: -0.01 * 24, color: onSurf, height: 1.2),
+      bodyLarge: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w400, color: onSurf, height: 1.6),
+      bodyMedium: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w400, color: onSurfVar, height: 1.5),
+      bodySmall: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w400, color: onSurfVar, height: 1.5),
+      labelLarge: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, letterSpacing: 0.02 * 14, color: onSurf, height: 1.0),
+      labelSmall: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 0.05 * 12, color: onSurf, height: 1.0),
+    );
+  }
+
+  static AppBarTheme _buildAppBarTheme(Color bg, Color onSurf) {
+    return AppBarTheme(
+      backgroundColor: bg,
       elevation: 0,
       centerTitle: true,
       scrolledUnderElevation: 0,
-      iconTheme: IconThemeData(color: darkTextPrimary),
+      iconTheme: IconThemeData(color: onSurf),
       titleTextStyle: TextStyle(
-        fontFamily: 'Plus Jakarta Sans',
+        fontFamily: 'Geist',
         fontSize: 20,
         fontWeight: FontWeight.w700,
-        letterSpacing: -0.5,
-        color: darkTextPrimary,
+        letterSpacing: -0.01 * 20,
+        color: onSurf,
       ),
-    ),
-    fontFamily: 'Inter',
-    textTheme: const TextTheme(
-      displayLarge: TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 32, fontWeight: FontWeight.w800, letterSpacing: -1.0, color: darkTextPrimary),
-      displayMedium: TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -0.5, color: darkTextPrimary),
-      displaySmall: TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 24, fontWeight: FontWeight.w700, letterSpacing: -0.5, color: darkTextPrimary),
-      headlineMedium: TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 20, fontWeight: FontWeight.w700, letterSpacing: -0.5, color: darkTextPrimary),
-      titleLarge: TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 18, fontWeight: FontWeight.w600, color: darkTextPrimary),
-      titleMedium: TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 16, fontWeight: FontWeight.w600, color: darkTextPrimary),
-      bodyLarge: TextStyle(fontFamily: 'Inter', fontSize: 16, color: darkTextPrimary, height: 1.5),
-      bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14, color: darkTextSecondary, height: 1.5),
-      labelLarge: TextStyle(fontFamily: 'Inter', fontSize: 14, fontWeight: FontWeight.w600, color: darkTextPrimary),
-    ),
-    cardTheme: CardThemeData(
-      color: darkSurfaceColor,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: darkDivider, width: 1),
-      ),
-      margin: EdgeInsets.zero,
-    ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: primaryColor,
-        foregroundColor: darkOnPrimary,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-        textStyle: const TextStyle(
-          fontFamily: 'Plus Jakarta Sans',
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    ),
-    outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        foregroundColor: primaryColor,
-        side: const BorderSide(color: primaryColor, width: 2),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-        textStyle: const TextStyle(
-          fontFamily: 'Plus Jakarta Sans',
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    ),
-    inputDecorationTheme: InputDecorationTheme(
-      filled: true,
-      fillColor: darkSurfaceColor,
-      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: darkDivider, width: 1),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: darkDivider, width: 1),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: primaryColor, width: 2),
-      ),
-      hintStyle: const TextStyle(color: darkTextSecondary),
-    ),
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      backgroundColor: darkSurfaceColor,
-      selectedItemColor: primaryColor,
-      unselectedItemColor: darkTextSecondary,
-      type: BottomNavigationBarType.fixed,
-      elevation: 0,
-      selectedLabelStyle: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w600),
-      unselectedLabelStyle: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w500),
-    ),
-  );
+    );
+  }
 
-  static final ThemeData lightTheme = ThemeData(
-    brightness: Brightness.light,
-    primaryColor: primaryColor,
-    scaffoldBackgroundColor: lightBackgroundColor,
-    dividerColor: lightDivider,
-    colorScheme: const ColorScheme.light(
-      primary: primaryColor,
-      secondary: accentColor,
-      surface: lightSurfaceColor,
-      background: lightBackgroundColor,
-      onPrimary: lightOnPrimary,
-      onSurface: lightTextPrimary,
-      onBackground: lightTextPrimary,
-    ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: lightBackgroundColor,
-      elevation: 0,
-      centerTitle: true,
-      scrolledUnderElevation: 0,
-      iconTheme: IconThemeData(color: lightTextPrimary),
-      titleTextStyle: TextStyle(
-        fontFamily: 'Plus Jakarta Sans',
-        fontSize: 20,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -0.5,
-        color: lightTextPrimary,
-      ),
-    ),
-    fontFamily: 'Inter',
-    textTheme: const TextTheme(
-      displayLarge: TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 32, fontWeight: FontWeight.w800, letterSpacing: -1.0, color: lightTextPrimary),
-      displayMedium: TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: -0.5, color: lightTextPrimary),
-      displaySmall: TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 24, fontWeight: FontWeight.w700, letterSpacing: -0.5, color: lightTextPrimary),
-      headlineMedium: TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 20, fontWeight: FontWeight.w700, letterSpacing: -0.5, color: lightTextPrimary),
-      titleLarge: TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 18, fontWeight: FontWeight.w600, color: lightTextPrimary),
-      titleMedium: TextStyle(fontFamily: 'Plus Jakarta Sans', fontSize: 16, fontWeight: FontWeight.w600, color: lightTextPrimary),
-      bodyLarge: TextStyle(fontFamily: 'Inter', fontSize: 16, color: lightTextPrimary, height: 1.5),
-      bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14, color: lightTextSecondary, height: 1.5),
-      labelLarge: TextStyle(fontFamily: 'Inter', fontSize: 14, fontWeight: FontWeight.w600, color: lightTextPrimary),
-    ),
-    cardTheme: CardThemeData(
-      color: lightSurfaceColor,
+  static CardTheme _buildCardTheme(Color surf, Color outlineVar) {
+    return CardTheme(
+      color: surf,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: lightDivider, width: 1),
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: outlineVar, width: 1),
       ),
       margin: EdgeInsets.zero,
-    ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
+    );
+  }
+
+  static ElevatedButtonThemeData _buildElevatedButtonTheme(Color btnColor, Color onBtnColor) {
+    return ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: primaryColor,
-        foregroundColor: lightOnPrimary,
+        backgroundColor: btnColor,
+        foregroundColor: onBtnColor,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(8),
         ),
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-        textStyle: const TextStyle(
-          fontFamily: 'Plus Jakarta Sans',
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
+        textStyle: GoogleFonts.inter(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.02 * 14,
         ),
       ),
-    ),
-    outlinedButtonTheme: OutlinedButtonThemeData(
+    );
+  }
+
+  static OutlinedButtonThemeData _buildOutlinedButtonTheme(Color btnColor, Color outlineVar) {
+    return OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: primaryColor,
-        side: const BorderSide(color: primaryColor, width: 2),
+        foregroundColor: btnColor,
+        side: BorderSide(color: outlineVar, width: 1),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(8),
         ),
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-        textStyle: const TextStyle(
-          fontFamily: 'Plus Jakarta Sans',
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
+        textStyle: GoogleFonts.inter(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.02 * 14,
         ),
       ),
-    ),
-    inputDecorationTheme: InputDecorationTheme(
+    );
+  }
+
+  static InputDecorationTheme _buildInputDecorationTheme(Color surf, Color outlineVar, Color focusedColor, Color hintColor) {
+    return InputDecorationTheme(
       filled: true,
-      fillColor: lightSurfaceColor,
-      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+      fillColor: surf,
+      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: lightDivider, width: 1),
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: outlineVar, width: 1),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: lightDivider, width: 1),
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: outlineVar, width: 1),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: primaryColor, width: 2),
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: focusedColor, width: 2),
       ),
-      hintStyle: const TextStyle(color: lightTextSecondary),
-    ),
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      backgroundColor: lightSurfaceColor,
-      selectedItemColor: primaryColor,
-      unselectedItemColor: lightTextSecondary,
+      hintStyle: GoogleFonts.inter(color: hintColor),
+      labelStyle: GoogleFonts.inter(color: hintColor),
+    );
+  }
+
+  static BottomNavigationBarThemeData _buildBottomNavigationBarTheme(Color surf, Color selected, Color unselected) {
+    return BottomNavigationBarThemeData(
+      backgroundColor: surf,
+      selectedItemColor: selected,
+      unselectedItemColor: unselected,
       type: BottomNavigationBarType.fixed,
       elevation: 0,
-      selectedLabelStyle: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w600),
-      unselectedLabelStyle: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w500),
-    ),
-  );
+      selectedLabelStyle: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600),
+      unselectedLabelStyle: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500),
+    );
+  }
 }
-

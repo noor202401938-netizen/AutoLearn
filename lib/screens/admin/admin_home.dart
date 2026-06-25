@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'admin_dashboard_screen.dart';
 import 'admin_users_screen.dart';
@@ -39,6 +38,7 @@ class _AdminHomeState extends State<AdminHome> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDesktop = MediaQuery.of(context).size.width >= 800;
 
@@ -64,12 +64,7 @@ class _AdminHomeState extends State<AdminHome> {
             const SizedBox(width: 12),
             Text(
               'AutoLearn Admin',
-              style: GoogleFonts.outfit(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: colorScheme.primary,
-                letterSpacing: -0.5,
-              ),
+              style: theme.textTheme.titleMedium,
             ),
           ],
         ),

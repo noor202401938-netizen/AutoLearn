@@ -141,6 +141,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(

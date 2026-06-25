@@ -28,13 +28,14 @@ class HelpSupportScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FF),
+      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         title: Text('Help & Support', 
           style: TextStyle(
             fontWeight: FontWeight.bold, 
-            color: const Color(0xFF4231C0),
+            color: theme.colorScheme.primary,
           )
         ),
         backgroundColor: Colors.white.withOpacity(0.9),
@@ -53,7 +54,7 @@ class HelpSupportScreen extends StatelessWidget {
                 Icon(
                   Icons.help_outline,
                   size: 80,
-                  color: const Color(0xFF4231C0).withOpacity(0.5),
+                  color: theme.colorScheme.primary.withOpacity(0.5),
                 ),
                 const SizedBox(height: 24),
                 const Text(
@@ -71,10 +72,10 @@ class HelpSupportScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
+                    border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF4231C0).withOpacity(0.05),
+                        color: theme.colorScheme.primary.withOpacity(0.05),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),
@@ -95,10 +96,10 @@ class HelpSupportScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
+                    border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF4231C0).withOpacity(0.05),
+                        color: theme.colorScheme.primary.withOpacity(0.05),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),
@@ -107,8 +108,8 @@ class HelpSupportScreen extends StatelessWidget {
                   child: ExpansionTile(
                     leading: const Icon(Icons.help, color: Color(0xFF4231C0)),
                     title: const Text('Frequently Asked Questions', style: TextStyle(color: Color(0xFF121C2A))),
-                    iconColor: const Color(0xFF4231C0),
-                    collapsedIconColor: const Color(0xFF4231C0).withOpacity(0.5),
+                    iconColor: theme.colorScheme.primary,
+                    collapsedIconColor: theme.colorScheme.primary.withOpacity(0.5),
                     children: [
                       _buildFAQItem(
                         context,
@@ -140,10 +141,10 @@ class HelpSupportScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
+                    border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF4231C0).withOpacity(0.05),
+                        color: theme.colorScheme.primary.withOpacity(0.05),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),
@@ -165,10 +166,10 @@ class HelpSupportScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
+                    border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF4231C0).withOpacity(0.05),
+                        color: theme.colorScheme.primary.withOpacity(0.05),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),
@@ -191,7 +192,7 @@ class HelpSupportScreen extends StatelessWidget {
                     'App Version 1.0.0',
                     style: TextStyle(
                       fontSize: 12,
-                      color: const Color(0xFFC8C4D7),
+                      color: theme.colorScheme.outline,
                     ),
                   ),
                 ),

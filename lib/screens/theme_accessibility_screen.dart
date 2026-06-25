@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../business_logic/accessibility_manager.dart';
 import '../repository/user_preferences_repository.dart';
 import '../utils/preference_notifier.dart';
@@ -13,6 +12,8 @@ class ThemeAccessibilityScreen extends StatefulWidget {
 }
 
 class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
+  ThemeData get theme => Theme.of(context);
+
   final AccessibilityManager _accessibilityManager = AccessibilityManager();
   final UserPreferencesRepository _preferencesRepository =
       UserPreferencesRepository();
@@ -107,7 +108,7 @@ class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
               children: [
                 const Icon(Icons.check_circle_outline, color: Colors.white),
                 const SizedBox(width: 10),
-                Expanded(child: Text('Preferences saved', style: GoogleFonts.inter())),
+                Expanded(child: Text('Preferences saved', style: theme.textTheme.bodyMedium)),
               ],
             ),
             backgroundColor: const Color(0xFF00724e),
@@ -122,7 +123,7 @@ class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error saving preferences: $e', style: GoogleFonts.inter()),
+            content: Text('Error saving preferences: $e', style: theme.textTheme.bodyMedium),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -139,7 +140,7 @@ class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('Theme & Accessibility', style: GoogleFonts.outfit(fontWeight: FontWeight.w700, color: colorScheme.onSurface)),
+        title: Text('Theme & Accessibility', style: theme.textTheme.titleMedium),
         backgroundColor: colorScheme.surface.withOpacity(0.8),
         elevation: 0,
         iconTheme: IconThemeData(color: colorScheme.onSurface),
@@ -205,8 +206,8 @@ class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Current Size', style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500)),
-                              Text('${(_fontSizeMultiplier * 100).round()}%', style: GoogleFonts.inter(color: colorScheme.primary, fontWeight: FontWeight.bold)),
+                              Text('Current Size', style: theme.textTheme.bodyMedium),
+                              Text('${(_fontSizeMultiplier * 100).round()}%', style: theme.textTheme.bodyMedium),
                             ],
                           ),
                           const SizedBox(height: 16),
@@ -248,8 +249,8 @@ class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
                       children: [
                         SwitchListTile(
                           contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                          title: Text('High Contrast', style: GoogleFonts.inter(color: colorScheme.onSurface, fontWeight: FontWeight.w600)),
-                          subtitle: Text('Increase contrast for better visibility', style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant)),
+                          title: Text('High Contrast', style: theme.textTheme.bodyMedium),
+                          subtitle: Text('Increase contrast for better visibility', style: theme.textTheme.bodyMedium),
                           value: _highContrast,
                           activeColor: colorScheme.primary,
                           onChanged: (value) {
@@ -260,8 +261,8 @@ class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
                         const Divider(height: 1, indent: 24, endIndent: 24),
                         SwitchListTile(
                           contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                          title: Text('Reduce Motion', style: GoogleFonts.inter(color: colorScheme.onSurface, fontWeight: FontWeight.w600)),
-                          subtitle: Text('Minimize animations and transitions', style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant)),
+                          title: Text('Reduce Motion', style: theme.textTheme.bodyMedium),
+                          subtitle: Text('Minimize animations and transitions', style: theme.textTheme.bodyMedium),
                           value: _reduceMotion,
                           activeColor: colorScheme.primary,
                           onChanged: (value) {
@@ -281,11 +282,12 @@ class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
   }
 
   Widget _buildThemeRadioTile(String title, String value, ColorScheme colorScheme) {
+    final theme = Theme.of(context);
     return Theme(
       data: Theme.of(context).copyWith(unselectedWidgetColor: colorScheme.onSurfaceVariant),
       child: RadioListTile<String>(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        title: Text(title, style: GoogleFonts.inter(color: colorScheme.onSurface, fontWeight: FontWeight.w500)),
+        title: Text(title, style: theme.textTheme.bodyMedium),
         value: value,
         groupValue: _selectedTheme,
         activeColor: colorScheme.primary,
@@ -298,15 +300,12 @@ class _ThemeAccessibilityScreenState extends State<ThemeAccessibilityScreen> {
   }
 
   Widget _buildSectionTitle(String title, ColorScheme colorScheme) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0, left: 8.0),
       child: Text(
         title,
-        style: GoogleFonts.outfit(
-          fontSize: 20,
-          fontWeight: FontWeight.w800,
-          color: colorScheme.primary,
-        ),
+        style: theme.textTheme.titleMedium,
       ),
     );
   }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AITutorBanner extends StatelessWidget {
   final VoidCallback onTap;
@@ -8,6 +7,7 @@ class AITutorBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -21,7 +21,7 @@ class AITutorBanner extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF4231C0).withOpacity(0.3),
+              color: theme.colorScheme.primary.withOpacity(0.3),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -48,20 +48,14 @@ class AITutorBanner extends StatelessWidget {
                 children: [
                   Text(
                     'Ask AI Tutor',
-                    style: GoogleFonts.outfit(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                    style: theme.textTheme.titleMedium,
                   ),
                   const SizedBox(height: 8),
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.6,
                     child: Text(
                       'Instant answers and personalized practice for your current modules.',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        color: Colors.white.withOpacity(0.9),
+                      style: theme.textTheme.bodyMedium,
                       ),
                     ),
                   ),
@@ -81,10 +75,7 @@ class AITutorBanner extends StatelessWidget {
                     ),
                     child: Text(
                       'Start Chat',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF4231C0),
+                      style: theme.textTheme.bodyMedium,
                       ),
                     ),
                   ),

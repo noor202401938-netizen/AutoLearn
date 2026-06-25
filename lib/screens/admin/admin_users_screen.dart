@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../repository/user_repository.dart';
 
@@ -56,6 +55,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -70,6 +70,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               // Summary Cards
               LayoutBuilder(
                 builder: (context, constraints) {
+      final theme = Theme.of(context);
                   final isDesktop = constraints.maxWidth > 600;
                   return Flex(
                     direction: isDesktop ? Axis.horizontal : Axis.vertical,
@@ -132,21 +133,11 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                 children: [
                   Text(
                     'Platform Members',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: colorScheme.outline,
-                      letterSpacing: 0.05,
-                    ),
+                    style: theme.textTheme.bodyMedium,
                   ),
                   Text(
                     'Sort: Recent',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: colorScheme.primary,
-                      letterSpacing: 0.05,
-                    ),
+                    style: theme.textTheme.bodyMedium,
                   ),
                 ],
               ),
@@ -161,7 +152,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.all(32.0),
-                    child: Text('No users found', style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant)),
+                    child: Text('No users found', style: theme.textTheme.bodyMedium),
                   ),
                 )
               else
@@ -192,6 +183,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
   }
 
   Widget _buildStatCard(BuildContext context, String title, String value, IconData icon, Color iconColor, List<Color> gradientColors, double progress) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -211,23 +203,14 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               const SizedBox(width: 8),
               Text(
                 title,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: colorScheme.outline,
-                  letterSpacing: 1.5,
-                ),
+                style: theme.textTheme.bodyMedium,
               ),
             ],
           ),
           const SizedBox(height: 12),
           Text(
             value,
-            style: GoogleFonts.outfit(
-              fontSize: 32,
-              fontWeight: FontWeight.w700,
-              color: colorScheme.onSurface,
-            ),
+            style: theme.textTheme.titleMedium,
           ),
           const SizedBox(height: 16),
           Container(
@@ -254,6 +237,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
   }
 
   Widget _buildTab(BuildContext context, String text) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isActive = _selectedTab == text;
     return GestureDetector(
@@ -264,11 +248,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           children: [
             Text(
               text,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: isActive ? colorScheme.primary : colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodyMedium,
             ),
             if (isActive) ...[
               const SizedBox(height: 4),
@@ -297,6 +277,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     required Color roleBg,
     required String subtitle,
   }) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -327,11 +308,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                   children: [
                     Text(
                       name,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: colorScheme.onSurface,
-                      ),
+                      style: theme.textTheme.bodyMedium,
                     ),
                     const SizedBox(width: 8),
                     Container(
@@ -342,12 +319,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                       ),
                       child: Text(
                         role.toUpperCase(),
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: roleColor,
-                          letterSpacing: 0.5,
-                        ),
+                        style: theme.textTheme.bodyMedium,
                       ),
                     ),
                   ],
@@ -355,10 +327,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
+                  style: theme.textTheme.bodyMedium,
                 ),
               ],
             ),

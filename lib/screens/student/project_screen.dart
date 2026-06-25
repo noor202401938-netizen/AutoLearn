@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'assignment_screen.dart';
 
 class ProjectScreen extends StatelessWidget {
@@ -14,8 +13,9 @@ class ProjectScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FF),
+      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         backgroundColor: Colors.white.withOpacity(0.8),
         elevation: 1,
@@ -29,12 +29,7 @@ class ProjectScreen extends StatelessWidget {
         ),
         title: Text(
           'AutoLearn',
-          style: GoogleFonts.outfit(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF4231C0),
-            letterSpacing: -0.5,
-          ),
+          style: theme.textTheme.headlineSmall?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold),
         ),
       ),
       body: SafeArea(
@@ -45,6 +40,7 @@ class ProjectScreen extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           child: LayoutBuilder(
             builder: (context, constraints) {
+      final theme = Theme.of(context);
               final isDesktop = constraints.maxWidth > 800;
               return Flex(
                 direction: isDesktop ? Axis.horizontal : Axis.vertical,
@@ -60,7 +56,7 @@ class ProjectScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.8),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.3)),
+                            border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,15 +64,12 @@ class ProjectScreen extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF4231C0).withOpacity(0.1),
+                                  color: theme.colorScheme.primary.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(24),
                                 ),
                                 child: Text(
                                   'CAPSTONE PROJECT',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: const Color(0xFF4231C0),
+                                  style: theme.textTheme.bodyMedium,
                                     letterSpacing: 0.5,
                                   ),
                                 ),
@@ -84,22 +77,12 @@ class ProjectScreen extends StatelessWidget {
                               const SizedBox(height: 16),
                               Text(
                                 'Autonomous Drone Navigation System',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.w700,
-                                  color: const Color(0xFF121C2A),
-                                  height: 1.1,
-                                  letterSpacing: -0.5,
-                                ),
+                                style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 16),
                               Text(
                                 'Develop an AI-driven navigation module capable of obstacle avoidance and path optimization in dynamic urban environments.',
-                                style: GoogleFonts.inter(
-                                  fontSize: 14,
-                                  color: const Color(0xFF474554),
-                                  height: 1.5,
-                                ),
+                                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                               ),
                               const SizedBox(height: 16),
                               Row(
@@ -111,7 +94,7 @@ class ProjectScreen extends StatelessWidget {
                                     ],
                                   ),
                                   const SizedBox(width: 8),
-                                  Text('Team Delta', style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF474554))),
+                                  Text('Team Delta', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
                                 ],
                               )
                             ],
@@ -124,12 +107,12 @@ class ProjectScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.8),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.3)),
+                            border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('PROJECT BRIEF', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF787586), letterSpacing: 1.5)),
+                              Text('PROJECT BRIEF', style: theme.textTheme.bodyMedium, letterSpacing: 1.5)),
                               const SizedBox(height: 16),
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,11 +123,11 @@ class ProjectScreen extends StatelessWidget {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text('Objectives', style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 14)),
+                                        Text('Objectives', style: theme.textTheme.labelLarge),
                                         const SizedBox(height: 4),
-                                        Text('• Real-time sensor fusion processing', style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF474554))),
-                                        Text('• LIDAR-based mapping algorithm', style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF474554))),
-                                        Text('• Battery-efficient flight paths', style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF474554))),
+                                        Text('• Real-time sensor fusion processing', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                                        Text('• LIDAR-based mapping algorithm', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                                        Text('• Battery-efficient flight paths', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
                                       ],
                                     ),
                                   )
@@ -160,9 +143,9 @@ class ProjectScreen extends StatelessWidget {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text('Deadline', style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 14)),
+                                        Text('Deadline', style: theme.textTheme.labelLarge),
                                         const SizedBox(height: 4),
-                                        Text('November 24, 2024 (12 Days Left)', style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF474554))),
+                                        Text('November 24, 2024 (12 Days Left)', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
                                       ],
                                     ),
                                   )
@@ -186,22 +169,22 @@ class ProjectScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.3)),
+                            border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
                           ),
                           child: Column(
                             children: [
                               Row(
                                 justifyAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('Overall Completion', style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w700, color: const Color(0xFF121C2A))),
-                                  Text('65%', style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w700, color: const Color(0xFF00573A))),
+                                  Text('Overall Completion', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                                  Text('65%', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.green.shade800)),
                                 ],
                               ),
                               const SizedBox(height: 16),
                               Container(
                                 height: 8,
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFE6EEFF),
+                                  color: theme.colorScheme.secondaryContainer,
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: FractionallySizedBox(
@@ -257,7 +240,7 @@ class ProjectScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF4231C0).withOpacity(0.3),
+                                color: theme.colorScheme.primary.withOpacity(0.3),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
@@ -288,7 +271,7 @@ class ProjectScreen extends StatelessWidget {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text('Submit Final Project', style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                                Text('Submit Final Project', style: theme.textTheme.bodyMedium),
                                 const SizedBox(width: 8),
                                 const Icon(Icons.send, color: Colors.white, size: 20),
                               ],
@@ -308,6 +291,7 @@ class ProjectScreen extends StatelessWidget {
   }
 
   Widget _buildAvatar(String url) {
+    final theme = Theme.of(context);
     return Container(
       width: 32,
       height: 32,
@@ -323,10 +307,11 @@ class ProjectScreen extends StatelessWidget {
   }
 
   Widget _buildMilestoneCard({required String title, required String subtitle, required String phase, required bool isDone}) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF4FF),
+        color: theme.colorScheme.surfaceVariant,
         borderRadius: BorderRadius.circular(12),
         border: const Border(left: BorderSide(color: Color(0xFF00573A), width: 4)),
       ),
@@ -337,19 +322,20 @@ class ProjectScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Icon(Icons.check_circle, color: Color(0xFF00573A), size: 20),
-              Text(phase, style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF00573A))),
+              Text(phase, style: theme.textTheme.bodyMedium)),
             ],
           ),
           const SizedBox(height: 12),
-          Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 14, color: const Color(0xFF121C2A))),
+          Text(title, style: theme.textTheme.bodyMedium),
           const SizedBox(height: 4),
-          Text(subtitle, style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF474554))),
+          Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
         ],
       ),
     );
   }
 
   Widget _buildActiveMilestoneCard() {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -358,7 +344,7 @@ class ProjectScreen extends StatelessWidget {
         border: const Border(left: BorderSide(color: Color(0xFF4231C0), width: 4)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF4231C0).withOpacity(0.05),
+            color: theme.colorScheme.primary.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           )
@@ -374,27 +360,27 @@ class ProjectScreen extends StatelessWidget {
                 children: [
                   const Icon(Icons.hourglass_top, color: Color(0xFF4231C0), size: 20),
                   const SizedBox(width: 8),
-                  Text('PHASE 3: IMPLEMENTATION (CURRENT)', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF4231C0))),
+                  Text('PHASE 3: IMPLEMENTATION (CURRENT)', style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
                 ],
               ),
-              Text('In Progress', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: const Color(0xFF4231C0))),
+              Text('In Progress', style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 24),
-          Text('Core Navigation Logic', style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w700, color: const Color(0xFF121C2A))),
+          Text('Core Navigation Logic', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('LIDAR Integration', style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF474554))),
-              Text('Done', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: const Color(0xFF00573A))),
+              Text('LIDAR Integration', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+              Text('Done', style: theme.textTheme.bodyMedium)),
             ],
           ),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Pathfinding AI Model', style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF474554))),
+              Text('Pathfinding AI Model', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
               Row(
                 children: [
                   Container(
@@ -406,7 +392,7 @@ class ProjectScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text('Training...', style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF474554))),
+                  Text('Training...', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
                 ],
               ),
             ],

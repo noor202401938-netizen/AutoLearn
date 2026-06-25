@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class RecommendedCourseCard extends StatelessWidget {
   final String title;
@@ -21,6 +20,7 @@ class RecommendedCourseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -69,17 +69,12 @@ class RecommendedCourseCard extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF4231C0).withOpacity(0.9),
+                          color: theme.colorScheme.primary.withOpacity(0.9),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           tag.toUpperCase(),
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            letterSpacing: 0.5,
-                          ),
+                          style: theme.textTheme.bodyMedium,
                         ),
                       ),
                     ),
@@ -94,10 +89,7 @@ class RecommendedCourseCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.outfit(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurface,
+                    style: theme.textTheme.titleMedium.colorScheme.onSurface,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -105,9 +97,7 @@ class RecommendedCourseCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     description,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    style: theme.textTheme.bodyMedium.colorScheme.onSurfaceVariant,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -122,10 +112,7 @@ class RecommendedCourseCard extends StatelessWidget {
                           const SizedBox(width: 4),
                           Text(
                             rating.toStringAsFixed(1),
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.onSurface,
+                            style: theme.textTheme.bodyMedium.colorScheme.onSurface,
                             ),
                           ),
                         ],

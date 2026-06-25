@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../backend/api_client.dart';
 import '../repository/auth_repository.dart';
 import 'admin/admin_home.dart';
@@ -72,6 +71,7 @@ class _RoleBasedWrapperState extends State<RoleBasedWrapper> with SingleTickerPr
   }
 
   Widget _buildContent(BuildContext context, ColorScheme colorScheme, bool isDark) {
+    final theme = Theme.of(context);
     if (_isLoading) {
       return Scaffold(
         key: const ValueKey('loading'),
@@ -94,11 +94,7 @@ class _RoleBasedWrapperState extends State<RoleBasedWrapper> with SingleTickerPr
               const SizedBox(height: 24),
               Text(
                 'Authenticating...',
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  color: colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: theme.textTheme.bodyMedium,
               ),
             ],
           ),

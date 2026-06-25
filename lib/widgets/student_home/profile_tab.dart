@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../model/user_stats_model.dart';
 import '../../business_logic/auth_manager.dart';
 import '../../screens/student/edit_profile_screen.dart';
@@ -109,6 +108,7 @@ class _ProfileTabState extends State<ProfileTab> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final displayName = widget.userProfile?['displayName'] ?? 'Student';
     
@@ -136,6 +136,7 @@ class _ProfileTabState extends State<ProfileTab> {
   }
 
   Widget _buildProfileHeader(String displayName) {
+    final theme = Theme.of(context);
     return Column(
       children: [
         Stack(
@@ -162,10 +163,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   child: Center(
                     child: Text(
                       displayName.isNotEmpty ? displayName[0].toUpperCase() : 'U',
-                      style: GoogleFonts.outfit(
-                        fontSize: 48,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF4231c0),
+                      style: theme.textTheme.titleMedium,
                       ),
                     ),
                   ),
@@ -199,11 +197,7 @@ class _ProfileTabState extends State<ProfileTab> {
                     const SizedBox(width: 4),
                     Text(
                       'Premium',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.05,
-                        color: const Color(0xFFe2deff),
+                      style: theme.textTheme.bodyMedium,
                       ),
                     ),
                   ],
@@ -215,26 +209,20 @@ class _ProfileTabState extends State<ProfileTab> {
         const SizedBox(height: 24),
         Text(
           displayName,
-          style: GoogleFonts.outfit(
-            fontSize: 32,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -0.02,
-            color: const Color(0xFF121c2a),
+          style: theme.textTheme.titleMedium,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           'Premium Learner • Level ${_userStats.level}',
-          style: GoogleFonts.inter(
-            fontSize: 16,
-            color: const Color(0xFF474554),
-          ),
+          style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
       ],
     );
   }
 
   Widget _buildStatsGrid() {
+    final theme = Theme.of(context);
     return Column(
       children: [
         // Points Earned full width card
@@ -261,12 +249,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 children: [
                   Text(
                     'POINTS EARNED',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.05,
-                      color: const Color(0xFF474554),
-                    ),
+                    style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   ),
                   const Icon(Icons.stars, color: Color(0xFF6b38d4)),
                 ],
@@ -274,10 +257,7 @@ class _ProfileTabState extends State<ProfileTab> {
               const SizedBox(height: 12),
               Text(
                 '${_userStats.points}',
-                style: GoogleFonts.outfit(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF4231c0),
+                style: theme.textTheme.titleMedium,
                 ),
               ),
               const SizedBox(height: 16),
@@ -290,6 +270,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 ),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
+      final theme = Theme.of(context);
                     return Align(
                       alignment: Alignment.centerLeft,
                       child: Container(
@@ -308,10 +289,7 @@ class _ProfileTabState extends State<ProfileTab> {
               const SizedBox(height: 8),
               Text(
                 '${_userStats.pointsToNextLevel} pts until next level',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: const Color(0xFF474554),
-                ),
+                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
             ],
           ),
@@ -342,18 +320,11 @@ class _ProfileTabState extends State<ProfileTab> {
                     const SizedBox(height: 8),
                     Text(
                       '${_userStats.certificates}',
-                      style: GoogleFonts.outfit(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: theme.textTheme.titleMedium,
                     ),
                     Text(
                       'Certificates',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF474554),
-                      ),
+                      style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -382,18 +353,11 @@ class _ProfileTabState extends State<ProfileTab> {
                     const SizedBox(height: 8),
                     Text(
                       _userStats.globalRank,
-                      style: GoogleFonts.outfit(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: theme.textTheme.titleMedium,
                     ),
                     Text(
                       'Global Rank',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF474554),
-                      ),
+                      style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -406,6 +370,7 @@ class _ProfileTabState extends State<ProfileTab> {
   }
 
   Widget _buildAchievementsSection() {
+    final theme = Theme.of(context);
     return Column(
       children: [
         Row(
@@ -413,19 +378,13 @@ class _ProfileTabState extends State<ProfileTab> {
           children: [
             Text(
               'Recent Achievements',
-              style: GoogleFonts.outfit(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-              ),
+              style: theme.textTheme.titleMedium,
             ),
             TextButton(
               onPressed: () {},
               child: Text(
                 'View All',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF4231c0),
+                style: theme.textTheme.bodyMedium,
                 ),
               ),
             ),
@@ -474,20 +433,14 @@ class _ProfileTabState extends State<ProfileTab> {
                     const SizedBox(height: 12),
                     Text(
                       achievement.title,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF121c2a),
+                      style: theme.textTheme.bodyMedium,
                       ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       achievement.description,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        color: const Color(0xFF474554),
-                      ),
+                      style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -501,6 +454,7 @@ class _ProfileTabState extends State<ProfileTab> {
   }
 
   Widget _buildSettingsList(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -508,10 +462,7 @@ class _ProfileTabState extends State<ProfileTab> {
           padding: const EdgeInsets.only(left: 4, bottom: 24),
           child: Text(
             'Settings',
-            style: GoogleFonts.outfit(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-            ),
+            style: theme.textTheme.titleMedium,
           ),
         ),
         Container(
@@ -573,6 +524,7 @@ class _ProfileTabState extends State<ProfileTab> {
     required VoidCallback onTap,
     required bool showBorder,
   }) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -598,18 +550,12 @@ class _ProfileTabState extends State<ProfileTab> {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF121c2a),
+                    style: theme.textTheme.bodyMedium,
                     ),
                   ),
                   Text(
                     subtitle,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: const Color(0xFF474554),
-                    ),
+                    style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -622,6 +568,7 @@ class _ProfileTabState extends State<ProfileTab> {
   }
 
   Widget _buildSignOutButton(BuildContext context) {
+    final theme = Theme.of(context);
     return OutlinedButton(
       onPressed: () async {
         await _authManager.logout();
@@ -644,10 +591,7 @@ class _ProfileTabState extends State<ProfileTab> {
           const SizedBox(width: 8),
           Text(
             'Sign Out',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
+            style: theme.textTheme.bodyMedium,
           ),
         ],
       ),

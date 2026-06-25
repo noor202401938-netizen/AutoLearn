@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../model/user_stats_model.dart';
 import 'dart:math' as math;
 
@@ -75,6 +74,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.only(top: 24, left: 20, right: 20, bottom: 100),
       child: Center(
@@ -102,30 +102,26 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   }
 
   Widget _buildWelcomeSection() {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Your Learning Journey',
-          style: GoogleFonts.outfit(
-            fontSize: 32,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF121c2a),
+          style: theme.textTheme.titleMedium,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           'Tracking your growth since Jan 2024',
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            color: const Color(0xFF474554),
-          ),
+          style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
       ],
     );
   }
 
   Widget _buildProgressWheelCard() {
+    final theme = Theme.of(context);
     final progressPercent = (_learningGoal.currentHours / _learningGoal.goalHours).clamp(0.0, 1.0);
     
     return Container(
@@ -148,11 +144,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
             alignment: Alignment.centerLeft,
             child: Text(
               'Weekly Goal Progress',
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFF474554),
-              ),
+              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
           ),
           const SizedBox(height: 16),
@@ -179,20 +171,12 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                     children: [
                       Text(
                         '${(progressPercent * 100).toInt()}%',
-                        style: GoogleFonts.outfit(
-                          fontSize: 36,
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF4231c0),
+                        style: theme.textTheme.titleMedium,
                         ),
                       ),
                       Text(
                         '${_learningGoal.currentHours.toInt()}/${_learningGoal.goalHours.toInt()} HOURS',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.05,
-                          color: const Color(0xFF474554),
-                        ),
+                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -216,10 +200,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                     const SizedBox(width: 4),
                     Text(
                       '5 Day Streak',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF121c2a),
+                      style: theme.textTheme.bodyMedium,
                       ),
                     ),
                   ],
@@ -233,10 +214,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                   ),
                   child: Text(
                     'View History',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF4231c0),
+                    style: theme.textTheme.bodyMedium,
                     ),
                   ),
                 ),
@@ -249,6 +227,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   }
 
   Widget _buildHoursLearnedChart() {
+    final theme = Theme.of(context);
     final maxHours = _learningGoal.weeklyHours.isEmpty ? 1.0 : _learningGoal.weeklyHours.reduce(math.max);
     final days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
     
@@ -273,11 +252,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
             children: [
               Text(
                 'Hours Learned',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF474554),
-                ),
+                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
               Row(
                 children: [
@@ -292,11 +267,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                   const SizedBox(width: 4),
                   Text(
                     'THIS WEEK',
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.05,
-                      color: const Color(0xFF474554),
+                    style: theme.textTheme.bodyMedium,
                     ),
                   ),
                 ],
@@ -342,10 +313,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                 child: Text(
                   days[index],
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
-                    color: isToday ? const Color(0xFF4231c0) : const Color(0xFF787586),
+                  style: theme.textTheme.bodyMedium : theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
               );
@@ -357,6 +325,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   }
 
   Widget _buildQuizPerformance() {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -376,11 +345,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
         children: [
           Text(
             'Quiz Performance',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF474554),
-            ),
+            style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 16),
           // Simplified graph representation
@@ -419,10 +384,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                     ),
                     child: Text(
                       '+${_learningGoal.scoreIncrease.toInt()}% Avg.',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF4231c0),
+                      style: theme.textTheme.bodyMedium,
                       ),
                     ),
                   ),
@@ -440,19 +402,14 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                   const SizedBox(width: 4),
                   Text(
                     'Top 5% this month',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: const Color(0xFF121c2a),
+                    style: theme.textTheme.bodyMedium,
                     ),
                   ),
                 ],
               ),
               Text(
                 '${_learningGoal.avgScore}/100 AVG',
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF787586),
+                style: theme.textTheme.bodyMedium,
                 ),
               ),
             ],
@@ -463,16 +420,13 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   }
 
   Widget _buildStrengthsSection() {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Top Learning Strengths',
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: const Color(0xFF474554),
-          ),
+          style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
         const SizedBox(height: 12),
         GridView.builder(
@@ -508,20 +462,14 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                       ),
                       Text(
                         strength.level,
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF4edea3), // tertiary-fixed-dim
+                        style: theme.textTheme.bodyMedium, // tertiary-fixed-dim
                         ),
                       ),
                     ],
                   ),
                   Text(
                     strength.skillName,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF00573a),
+                    style: theme.textTheme.bodyMedium,
                     ),
                   ),
                   Container(
@@ -554,6 +502,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   }
 
   Widget _buildCourseSuggestion() {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -569,19 +518,13 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
               children: [
                 Text(
                   'Recommended Next Step',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF4231c0),
+                  style: theme.textTheme.bodyMedium,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Deep dive into Information Architecture to boost your research score.',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: const Color(0xFF474554),
-                  ),
+                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: 12),
                 Container(
@@ -600,11 +543,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                     ),
                     child: Text(
                       'Start Module',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
+                      style: theme.textTheme.bodyMedium,
                     ),
                   ),
                 ),

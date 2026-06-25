@@ -24,6 +24,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -67,6 +68,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
   }
 
   Widget _buildCertificate(BuildContext context) {
+    final theme = Theme.of(context);
     // Format date
     String formattedDate;
     try {
@@ -96,7 +98,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
           ),
         ],
         border: Border.all(
-          color: const Color(0xFFC8C4D7).withOpacity(0.5),
+          color: theme.colorScheme.outline.withOpacity(0.5),
           width: 1,
         ),
       ),
@@ -294,6 +296,7 @@ class _CertificateScreenState extends State<CertificateScreen> {
   }
 
   Widget _buildCornerDecoration() {
+    final theme = Theme.of(context);
     return SizedBox(
       width: 150,
       height: 150,

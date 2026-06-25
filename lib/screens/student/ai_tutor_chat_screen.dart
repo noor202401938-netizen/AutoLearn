@@ -1,4 +1,3 @@
-import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui';
 // lib/screens/student/ai_tutor_chat_screen.dart
 import 'package:flutter/material.dart';
@@ -152,8 +151,9 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FF),
+      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         backgroundColor: Colors.white.withOpacity(0.9),
         elevation: 1,
@@ -162,10 +162,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
         centerTitle: false,
         title: Text(
           'AI Tutor',
-          style: GoogleFonts.outfit(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: const Color(0xFF4231C0),
+          style: theme.textTheme.titleMedium,
           ),
         ),
         actions: [
@@ -182,7 +179,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
               decoration: BoxDecoration(
                 color: const Color(0xFFDEE9FC),
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFC8C4D7)),
+                border: Border.all(color: theme.colorScheme.outline),
               ),
               child: const ClipOval(
                 child: Icon(Icons.person, color: Color(0xFF5548D3)),
@@ -194,7 +191,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
       body: SafeArea(
         child: _isLoading
             ? Center(
-                child: CircularProgressIndicator(color: const Color(0xFF4231C0)))
+                child: CircularProgressIndicator(color: theme.colorScheme.primary))
             : Stack(
                 children: [
                   Column(
@@ -241,25 +238,19 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
   }
 
   Widget _buildContextHeader() {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'LEARNING MODULE',
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.6,
-            color: const Color(0xFF4231C0),
+          style: theme.textTheme.bodyMedium,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           widget.lessonId ?? 'Advanced Prototyping',
-          style: GoogleFonts.outfit(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: const Color(0xFF121C2A),
+          style: theme.textTheme.titleMedium,
           ),
         ),
       ],
@@ -267,6 +258,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
   }
 
   Widget _buildEmptyState() {
+    final theme = Theme.of(context);
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
@@ -302,10 +294,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
             Center(
               child: Text(
                 'AI Tutor',
-                style: GoogleFonts.outfit(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF121C2A),
+                style: theme.textTheme.titleMedium,
                 ),
               ),
             ),
@@ -314,11 +303,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
               child: Text(
                 'Ask me anything about your subjects!\nI\'m here to help you learn.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  color: const Color(0xFF474554),
-                  height: 1.5,
-                ),
+                style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
             ),
           ],
@@ -328,6 +313,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
   }
 
   Widget _buildMessageBubble(ChatMessageModel message) {
+    final theme = Theme.of(context);
     final isUser = message.isUser;
     
     return Padding(
@@ -337,6 +323,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
   }
 
   Widget _buildUserMessage(ChatMessageModel message) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -348,7 +335,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF5B4ED9),
+                  color: theme.colorScheme.primary,
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(16),
                     topRight: Radius.circular(4),
@@ -357,7 +344,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF5B4ED9).withOpacity(0.2),
+                      color: theme.colorScheme.primary.withOpacity(0.2),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -365,8 +352,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
                 ),
                 child: Text(
                   message.content,
-                  style: GoogleFonts.inter(
-                    color: const Color(0xFFE2DEFF),
+                  style: theme.textTheme.bodyMedium,
                     fontSize: 16,
                     height: 1.5,
                   ),
@@ -378,8 +364,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
         const SizedBox(height: 6),
         Text(
           _formatTime(message.timestamp),
-          style: GoogleFonts.inter(
-            color: const Color(0xFF787586),
+          style: theme.textTheme.bodyMedium,
             fontSize: 10,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.5,
@@ -390,6 +375,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
   }
 
   Widget _buildAIMessage(ChatMessageModel message) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -411,11 +397,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
             const SizedBox(width: 8),
             Text(
               'AI Tutor',
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFF121C2A),
-              ),
+              style: theme.textTheme.bodyMedium,
             ),
           ],
         ),
@@ -431,10 +413,10 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
               bottomLeft: Radius.circular(16),
               bottomRight: Radius.circular(16),
             ),
-            border: Border.all(color: const Color(0xFFC8C4D7)),
+            border: Border.all(color: theme.colorScheme.outline),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF5B4ED9).withOpacity(0.08),
+                color: theme.colorScheme.primary.withOpacity(0.08),
                 blurRadius: 16,
                 offset: const Offset(0, 8),
               ),
@@ -445,11 +427,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
             children: [
               Text(
                 message.content,
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  color: const Color(0xFF474554),
-                  height: 1.5,
-                ),
+                style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
               const SizedBox(height: 16),
               const Divider(color: Color(0xFFC8C4D7)),
@@ -458,18 +436,18 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.thumb_up_outlined, size: 18),
-                    color: const Color(0xFF4231C0),
+                    color: theme.colorScheme.primary,
                     onPressed: () {},
                   ),
                   IconButton(
                     icon: const Icon(Icons.thumb_down_outlined, size: 18),
-                    color: const Color(0xFF474554),
+                    color: theme.colorScheme.onSurfaceVariant,
                     onPressed: () {},
                   ),
                   const Spacer(),
                   IconButton(
                     icon: const Icon(Icons.share_outlined, size: 18),
-                    color: const Color(0xFF474554),
+                    color: theme.colorScheme.onSurfaceVariant,
                     onPressed: () {},
                   ),
                 ],
@@ -480,8 +458,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
         const SizedBox(height: 6),
         Text(
           _formatTime(message.timestamp),
-          style: GoogleFonts.inter(
-            color: const Color(0xFF787586),
+          style: theme.textTheme.bodyMedium,
             fontSize: 10,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.5,
@@ -492,6 +469,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
   }
 
   Widget _buildFloatingInputArea() {
+    final theme = Theme.of(context);
     return ClipRRect(
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
@@ -506,9 +484,9 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
               const SizedBox(height: 12),
               Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE6EEFF),
+                  color: theme.colorScheme.secondaryContainer,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.3)),
+                  border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
                   boxShadow: const [
                     BoxShadow(
                       color: Colors.black12,
@@ -524,11 +502,11 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
                     Expanded(
                       child: TextField(
                         controller: _messageController,
-                        style: GoogleFonts.inter(color: const Color(0xFF121C2A)),
+                        style: theme.textTheme.bodyMedium),
                         decoration: InputDecoration(
                           hintText: 'Ask AI Tutor anything...',
                           hintStyle: GoogleFonts.inter(
-                              color: const Color(0xFF474554).withOpacity(0.5)),
+                              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5)),
                           border: InputBorder.none,
                           isDense: true,
                         ),
@@ -575,17 +553,14 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
   }
 
   Widget _buildSuggestedPrompts() {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           'CONTINUE LEARNING',
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.5,
-            color: const Color(0xFF787586),
+          style: theme.textTheme.bodyMedium,
           ),
         ),
         const SizedBox(height: 8),
@@ -606,6 +581,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
   }
 
   Widget _buildSuggestionChip(String text) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: () {
         _messageController.text = text;
@@ -615,14 +591,13 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         decoration: BoxDecoration(
-          color: const Color(0xFFEFF4FF),
+          color: theme.colorScheme.surfaceVariant,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFF4231C0).withOpacity(0.2)),
+          border: Border.all(color: theme.colorScheme.primary.withOpacity(0.2)),
         ),
         child: Text(
           text,
-          style: GoogleFonts.inter(
-            color: const Color(0xFF4231C0),
+          style: theme.textTheme.bodyMedium,
             fontWeight: FontWeight.w600,
             fontSize: 14,
           ),

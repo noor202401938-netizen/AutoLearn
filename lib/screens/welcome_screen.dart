@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -49,11 +48,11 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     
     return Scaffold(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: colorScheme.background,
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -85,7 +84,7 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: colorScheme.primary.withOpacity(isDark ? 0.6 : 0.3),
+                              color: colorScheme.primary.withOpacity(0.3),
                               blurRadius: 24,
                               offset: const Offset(0, 8),
                             ),
@@ -110,23 +109,15 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
                         Text(
                           'Welcome to\nAutoLearn',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.outfit(
+                          style: theme.textTheme.displayLarge?.copyWith(
                             fontSize: 48,
-                            fontWeight: FontWeight.w800,
-                            height: 1.1,
-                            letterSpacing: -1.5,
-                            color: colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           'Unlock your potential with personalized, AI-powered learning paths designed just for you.',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.inter(
-                            fontSize: 16,
-                            height: 1.5,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
+                          style: theme.textTheme.bodyLarge,
                         ),
                       ],
                     ),
@@ -141,9 +132,14 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
                       height: 64,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(32),
+                        gradient: LinearGradient(
+                          colors: [colorScheme.primary, colorScheme.secondary],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
                         boxShadow: [
                           BoxShadow(
-                            color: colorScheme.primary.withOpacity(isDark ? 0.4 : 0.2),
+                            color: colorScheme.primary.withOpacity(0.2),
                             blurRadius: 20,
                             offset: const Offset(0, 8),
                           ),
@@ -152,8 +148,9 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
                       child: ElevatedButton(
                         onPressed: () => _onGetStarted(context),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: colorScheme.primary,
+                          backgroundColor: Colors.transparent,
                           foregroundColor: colorScheme.onPrimary,
+                          shadowColor: Colors.transparent,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(32),
                           ),
@@ -164,10 +161,7 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
                           children: [
                             Text(
                               "Get Started",
-                              style: GoogleFonts.inter(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                              ),
+                              style: theme.textTheme.labelLarge?.copyWith(fontSize: 18, color: colorScheme.onPrimary),
                             ),
                             const SizedBox(width: 12),
                             const Icon(Icons.arrow_forward_rounded, size: 24),
@@ -186,3 +180,4 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
     );
   }
 }
+

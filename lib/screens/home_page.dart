@@ -44,25 +44,25 @@ class _StudentHomeState extends State<StudentHome> {
     final user = await _authRepository.getCurrentUser();
     if (user != null) {
       final uid = user['uid'] as String;
-      // The profile might already be fully fetched by getCurrentUser, but we can assign it
       final stats = await _analyticsManager.getUserLearningStats(uid);
-      setState(() {
-        _userProfile = user;
-        _stats = stats;
-      });
-    }
-  }
-      });
+      if (mounted) {
+        setState(() {
+          _userProfile = user;
+          _stats = stats;
+        });
+      }
     }
   }
 
   Future<void> _loadFeaturedCourses() async {
     setState(() => _isLoadingCourses = true);
     final courses = await _courseManager.getPublishedCourses();
-    setState(() {
-      _featuredCourses = courses.take(5).toList(); // Show top 5 courses
-      _isLoadingCourses = false;
-    });
+    if (mounted) {
+      setState(() {
+        _featuredCourses = courses.take(5).toList(); // Show top 5 courses
+        _isLoadingCourses = false;
+      });
+    }
   }
 
   void _onItemTapped(int index) {
@@ -88,55 +88,28 @@ class _StudentHomeState extends State<StudentHome> {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 600;
+    final isMobile = MediaQuery.of(context).size.width < 800;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: Text(
-          'Admin Dashboard',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.notifications_outlined, color: Theme.of(context).colorScheme.primary),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('No new notifications')),
-              );
-            },
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: isMobile
-          ? Container(
-              
-              child: SafeArea(
-                child: _getSelectedScreen(),
-              ),
+          ? SafeArea(
+              child: _getSelectedScreen(),
             )
           : Row(
               children: [
                 _buildCustomSidebar(),
                 Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.background,
-                    ),
-                    child: SafeArea(
-                      child: _selectedIndex == 0 
-                          ? _buildDribbbleDashboard()
-                          : _getSelectedScreen(),
-                    ),
+                  child: SafeArea(
+                    child: _selectedIndex == 0 
+                        ? _buildDribbbleDashboard()
+                        : _getSelectedScreen(),
                   ),
                 ),
                 if (_selectedIndex == 0) ...[
                   Container(
                     width: 1,
-                    color: Theme.of(context).dividerColor.withOpacity(0.05),
+                    color: Theme.of(context).colorScheme.outlineVariant,
                   ),
                   SizedBox(
                     width: 320,
@@ -159,6 +132,48 @@ class _StudentHomeState extends State<StudentHome> {
     );
   }
 
+  Widget _buildTopBar() {
+    final theme = Theme.of(context);
+    final name = _userProfile?['displayName'] ?? 'Student';
+    
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Hello, $name 👋',
+                style: theme.textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Let\'s continue learning',
+                style: theme.textTheme.bodyMedium,
+              ),
+            ],
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            shape: BoxShape.circle,
+            border: Border.all(color: theme.colorScheme.outlineVariant),
+          ),
+          child: IconButton(
+            icon: Icon(Icons.notifications_outlined, color: theme.colorScheme.onSurface),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('No new notifications')),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildHomeScreen() {
     return SingleChildScrollView(
       child: Column(
@@ -172,16 +187,19 @@ class _StudentHomeState extends State<StudentHome> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildTopBar(),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
                 Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
+                    gradient: LinearGradient(
+                      colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: Theme.of(context).dividerColor),
                     boxShadow: [
                       BoxShadow(
-                        color: Theme.of(context).shadowColor.withOpacity(0.05),
+                        color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
                         blurRadius: 24,
                         offset: const Offset(0, 8),
                       ),
@@ -194,33 +212,33 @@ class _StudentHomeState extends State<StudentHome> {
                           'Courses',
                           _stats['enrolledCourses'].toString(),
                           Icons.book_rounded,
-                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.onPrimary,
                         ),
                       ),
                       Container(
                         width: 1,
                         height: 40,
-                        color: Theme.of(context).dividerColor,
+                        color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.2),
                       ),
                       Expanded(
                         child: _buildQuickStat(
                           'Completed',
                           _stats['completedCourses'].toString(),
                           Icons.check_circle_rounded,
-                          Theme.of(context).colorScheme.secondary,
+                          Theme.of(context).colorScheme.onPrimary,
                         ),
                       ),
                       Container(
                         width: 1,
                         height: 40,
-                        color: Theme.of(context).dividerColor,
+                        color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.2),
                       ),
                       Expanded(
                         child: _buildQuickStat(
                           'Lessons',
                           _stats['totalLessonsWatched'].toString(),
                           Icons.play_circle_rounded,
-                          Colors.amber,
+                          Theme.of(context).colorScheme.onPrimary,
                         ),
                       ),
                     ],
@@ -241,17 +259,13 @@ class _StudentHomeState extends State<StudentHome> {
                   children: [
                     Text(
                       'Featured Courses',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                     TextButton(
                       onPressed: () {
                         setState(() => _selectedIndex = 1);
                       },
-                      child: Text('See All', style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
+                      child: Text('See All', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
                     ),
                   ],
                 ),
@@ -274,10 +288,7 @@ class _StudentHomeState extends State<StudentHome> {
                       const SizedBox(height: 16),
                       Text(
                         'No courses available yet',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                        style: Theme.of(context).textTheme.bodyLarge,
                       ),
                     ],
                   ),
@@ -305,19 +316,12 @@ class _StudentHomeState extends State<StudentHome> {
         const SizedBox(height: 8),
         Text(
           value,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(color: color),
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: color.withOpacity(0.8)),
         ),
       ],
     );
@@ -342,19 +346,12 @@ class _StudentHomeState extends State<StudentHome> {
             const SizedBox(height: 24),
             Text(
               'No progress data',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+              style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
             Text(
               'Start learning to track your progress',
-              style: TextStyle(
-                fontSize: 16,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
         ),
@@ -363,8 +360,9 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Widget _buildProfileScreen() {
-    final user = _authRepository.getCurrentUser();
-
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -374,43 +372,32 @@ class _StudentHomeState extends State<StudentHome> {
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
+              border: Border.all(color: colorScheme.primary, width: 2),
             ),
             child: CircleAvatar(
               radius: 56,
-              backgroundColor: Theme.of(context).colorScheme.surface,
+              backgroundColor: colorScheme.surface,
               child: Text(
                 (_userProfile?['displayName'] ?? _userProfile?['email'] ?? 'U')[0].toUpperCase(),
-                style: TextStyle(
-                  fontSize: 48,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                style: theme.textTheme.displayMedium?.copyWith(color: colorScheme.primary),
               ),
             ),
           ),
           const SizedBox(height: 20),
           Text(
             _userProfile?['displayName'] ?? 'Student',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+            style: theme.textTheme.headlineSmall,
           ),
           const SizedBox(height: 8),
           Text(
             _userProfile?['email'] ?? '',
-            style: TextStyle(
-              fontSize: 16,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+            style: theme.textTheme.bodyMedium,
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
 
           _buildProfileOption(
             'Edit Profile',
-            Icons.edit,
+            Icons.edit_outlined,
                 () { Navigator.pushNamed(context, '/edit_profile'); },
           ),
           _buildProfileOption(
@@ -433,26 +420,24 @@ class _StudentHomeState extends State<StudentHome> {
             Icons.info_outline,
                 () { Navigator.pushNamed(context, '/about'); },
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 32),
 
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
+                backgroundColor: colorScheme.errorContainer,
+                foregroundColor: colorScheme.onErrorContainer,
                 padding: const EdgeInsets.symmetric(vertical: 16),
+                elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
               icon: const Icon(Icons.logout),
-              label: const Text(
+              label: Text(
                 'Logout',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: theme.textTheme.labelLarge?.copyWith(color: colorScheme.onErrorContainer),
               ),
               onPressed: () async {
                 await _authManager.logout();
@@ -472,49 +457,48 @@ class _StudentHomeState extends State<StudentHome> {
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Theme.of(context).dividerColor),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: ListTile(
         leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
         title: Text(
           title,
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
         ),
         trailing: Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),
         onTap: onTap,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
       ),
     );
   }
 
   Widget _buildCourseCard(CourseModel course) {
-    return DashboardCourseCard(
-      course: course,
-      index: _featuredCourses.indexOf(course),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CourseContentScreen(
-              courseId: course.courseId,
-              title: course.title,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: DashboardCourseCard(
+        course: course,
+        index: _featuredCourses.indexOf(course),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CourseContentScreen(
+                courseId: course.courseId,
+                title: course.title,
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
   Widget _buildDribbbleDashboard() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : Colors.black87;
-
+    final theme = Theme.of(context);
+    
     return SingleChildScrollView(
       padding: const EdgeInsets.all(32),
       child: Column(
@@ -522,25 +506,16 @@ class _StudentHomeState extends State<StudentHome> {
         children: [
           Text(
             'Invest in your\neducation',
-            style: TextStyle(
-              fontSize: 36,
-              fontWeight: FontWeight.bold,
-              color: textColor,
-              height: 1.2,
-            ),
+            style: theme.textTheme.displayMedium,
           ),
           const SizedBox(height: 32),
           FilterChips(),
           const SizedBox(height: 32),
           Text(
             'Most popular',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: textColor,
-            ),
+            style: theme.textTheme.titleLarge,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           _isLoadingCourses
               ? const Center(child: CircularProgressIndicator())
               : GridView.builder(
@@ -548,9 +523,9 @@ class _StudentHomeState extends State<StudentHome> {
                   physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 1.5,
+                    crossAxisSpacing: 24,
+                    mainAxisSpacing: 24,
+                    childAspectRatio: 1.2,
                   ),
                   itemCount: _featuredCourses.length,
                   itemBuilder: (context, index) {
@@ -577,9 +552,8 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Widget _buildRightSidebar() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : Colors.black87;
-    final cardBg = isDark ? const Color(0xFF222E3C) : const Color(0xFFF9FAFC);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(32),
@@ -589,12 +563,12 @@ class _StudentHomeState extends State<StudentHome> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               IconButton(
-                icon: Icon(Icons.notifications_outlined, color: textColor),
+                icon: Icon(Icons.notifications_outlined, color: colorScheme.onSurface),
                 onPressed: () {},
               ),
               const SizedBox(width: 8),
               IconButton(
-                icon: Icon(Icons.settings_outlined, color: textColor),
+                icon: Icon(Icons.settings_outlined, color: colorScheme.onSurface),
                 onPressed: () {},
               ),
             ],
@@ -603,40 +577,36 @@ class _StudentHomeState extends State<StudentHome> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: cardBg,
+              color: colorScheme.surface,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.05)),
+              border: Border.all(color: colorScheme.outlineVariant),
+              boxShadow: [
+                BoxShadow(
+                  color: colorScheme.onSurface.withOpacity(0.05),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
             ),
             child: Column(
               children: [
                 CircleAvatar(
                   radius: 48,
-                  backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  backgroundColor: colorScheme.primary.withOpacity(0.1),
                   child: Text(
                     (_userProfile?['displayName'] ?? _userProfile?['email'] ?? 'U')[0].toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 36,
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: theme.textTheme.headlineMedium?.copyWith(color: colorScheme.primary),
                   ),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   _userProfile?['displayName'] ?? _userProfile?['email']?.split('@').first ?? 'Student',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                  ),
+                  style: theme.textTheme.titleLarge,
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Student',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: isDark ? Colors.grey[400] : Colors.grey[600],
-                  ),
+                  style: theme.textTheme.bodyMedium,
                 ),
               ],
             ),
@@ -645,20 +615,23 @@ class _StudentHomeState extends State<StudentHome> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: cardBg,
+              color: colorScheme.surface,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.05)),
+              border: Border.all(color: colorScheme.outlineVariant),
+              boxShadow: [
+                BoxShadow(
+                  color: colorScheme.onSurface.withOpacity(0.05),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Activity',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                  ),
+                  style: theme.textTheme.titleLarge,
                 ),
                 const SizedBox(height: 24),
                 ActivityChart(stats: _stats),
@@ -670,11 +643,7 @@ class _StudentHomeState extends State<StudentHome> {
             children: [
               Text(
                 'My courses',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: textColor,
-                ),
+                style: theme.textTheme.titleLarge,
               ),
             ],
           ),
@@ -712,7 +681,7 @@ class _StudentHomeState extends State<StudentHome> {
         color: bgColor,
         border: Border(
           right: BorderSide(
-            color: Theme.of(context).dividerColor,
+            color: Theme.of(context).colorScheme.outlineVariant,
             width: 1,
           ),
         ),
@@ -729,19 +698,19 @@ class _StudentHomeState extends State<StudentHome> {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(
-                Icons.auto_awesome,
+                Icons.school_rounded,
                 color: Theme.of(context).colorScheme.primary,
                 size: 32,
               ),
             ),
             const SizedBox(height: 64),
-            _buildSidebarItem(0, Icons.home_outlined, Icons.home, 'Home', activeBgColor, activeTextColor, inactiveTextColor),
+            _buildSidebarItem(0, Icons.home_outlined, Icons.home_rounded, 'Home', activeBgColor, activeTextColor, inactiveTextColor),
             const SizedBox(height: 24),
-            _buildSidebarItem(1, Icons.school_outlined, Icons.school, 'Courses', activeBgColor, activeTextColor, inactiveTextColor),
+            _buildSidebarItem(1, Icons.auto_stories_outlined, Icons.auto_stories_rounded, 'Courses', activeBgColor, activeTextColor, inactiveTextColor),
             const SizedBox(height: 24),
-            _buildSidebarItem(2, Icons.show_chart_outlined, Icons.show_chart, 'Progress', activeBgColor, activeTextColor, inactiveTextColor),
+            _buildSidebarItem(2, Icons.analytics_outlined, Icons.analytics_rounded, 'Progress', activeBgColor, activeTextColor, inactiveTextColor),
             const SizedBox(height: 24),
-            _buildSidebarItem(3, Icons.person_outline, Icons.person, 'Profile', activeBgColor, activeTextColor, inactiveTextColor),
+            _buildSidebarItem(3, Icons.person_outline, Icons.person_rounded, 'Profile', activeBgColor, activeTextColor, inactiveTextColor),
             const Spacer(),
             IconButton(
               icon: Icon(Icons.logout, color: inactiveTextColor),
@@ -763,7 +732,7 @@ class _StudentHomeState extends State<StudentHome> {
     return GestureDetector(
       onTap: () => _onItemTapped(index),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
         decoration: BoxDecoration(
           color: isSelected ? activeBgColor : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
@@ -778,9 +747,8 @@ class _StudentHomeState extends State<StudentHome> {
             const SizedBox(height: 6),
             Text(
               label,
-              style: TextStyle(
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 color: isSelected ? activeTextColor : inactiveTextColor,
-                fontSize: 12,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
               ),
             ),

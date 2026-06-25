@@ -41,6 +41,7 @@ class DashboardCourseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final bgColor = DashboardColors.getCardColor(context, index);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
@@ -127,6 +128,7 @@ class FilterChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return SingleChildScrollView(
@@ -175,6 +177,7 @@ class ActivityChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDark ? Colors.white : Colors.black87;
     final cardBgColor = isDark ? Colors.grey[900] : Colors.white;

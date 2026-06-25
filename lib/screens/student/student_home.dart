@@ -22,7 +22,6 @@ import 'about_screen.dart';
 import 'policies_screen.dart';
 import '../../utils/preference_notifier.dart';
 import '../../widgets/gradient_bottom_nav.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/student_home/stat_card.dart';
 import '../../widgets/student_home/ai_tutor_banner.dart';
 import '../../widgets/student_home/progress_course_card.dart';
@@ -106,20 +105,18 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Widget _buildGreetingName() {
+    final theme = Theme.of(context);
     return FutureBuilder<Map<String, dynamic>?>(
       future: _authRepository.getCurrentUser(),
       builder: (context, userSnapshot) {
+      final theme = Theme.of(context);
         final user = userSnapshot.data;
         final uid = user?['uid'] as String?;
 
         if (uid == null) {
           return Text(
             'Student',
-            style: GoogleFonts.outfit(
-              fontSize: 36,
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.03 * 36,
-              color: Theme.of(context).colorScheme.primary,
+            style: theme.textTheme.titleMedium.colorScheme.primary,
             ),
           );
         }
@@ -127,6 +124,7 @@ class _StudentHomeState extends State<StudentHome> {
         return StreamBuilder<Map<String, dynamic>?>(
           stream: _userRepository.streamUserProfile(uid),
           builder: (context, snapshot) {
+      final theme = Theme.of(context);
             String name = _userProfile?['displayName'] ??
                 user?['displayName'] ??
                 (user?['email'] as String?)?.split('@')[0] ??
@@ -140,11 +138,7 @@ class _StudentHomeState extends State<StudentHome> {
             }
             return Text(
               name,
-              style: GoogleFonts.outfit(
-                fontSize: 36,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.03 * 36,
-                color: Theme.of(context).colorScheme.primary,
+              style: theme.textTheme.titleMedium.colorScheme.primary,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -162,6 +156,7 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Widget _getSelectedScreen() {
+    final theme = Theme.of(context);
     switch (_selectedIndex) {
       case 0:
         return _buildHomeScreen();
@@ -178,6 +173,7 @@ class _StudentHomeState extends State<StudentHome> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final isMobile = MediaQuery.of(context).size.width < 600;
     
     return Scaffold(
@@ -304,6 +300,7 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Widget _buildHomeScreen() {
+    final theme = Theme.of(context);
     int streak = _userProfile?['learningStreak'] ?? 12;
     int completedCoursesCount = _userProfile?['completedCoursesCount'] ?? 8;
     int certsCount = _userProfile?['certificationsCount'] ?? 3;
@@ -324,11 +321,7 @@ class _StudentHomeState extends State<StudentHome> {
                   children: [
                     Text(
                       'Welcome back, ',
-                      style: GoogleFonts.outfit(
-                        fontSize: 36,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.03 * 36,
-                        color: Theme.of(context).colorScheme.onSurface,
+                      style: theme.textTheme.titleMedium.colorScheme.onSurface,
                       ),
                     ),
                     Expanded(child: _buildGreetingName()),
@@ -337,9 +330,7 @@ class _StudentHomeState extends State<StudentHome> {
                 const SizedBox(height: 8),
                 Text(
                   'You\'re on a $streak-day learning streak! Keep it up.',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  style: theme.textTheme.bodyMedium.colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -404,10 +395,7 @@ class _StudentHomeState extends State<StudentHome> {
                   children: [
                     Text(
                       'Continue Learning',
-                      style: GoogleFonts.outfit(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: theme.textTheme.titleMedium,
                     ),
                     TextButton(
                       onPressed: () {
@@ -415,9 +403,7 @@ class _StudentHomeState extends State<StudentHome> {
                       },
                       child: Text(
                         'View All',
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
+                        style: theme.textTheme.bodyMedium.colorScheme.primary,
                         ),
                       ),
                     ),
@@ -438,9 +424,7 @@ class _StudentHomeState extends State<StudentHome> {
                                 const SizedBox(height: 16),
                                 Text(
                                   'No courses in progress',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 16,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  style: theme.textTheme.bodyMedium.colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                                 const SizedBox(height: 20),
@@ -489,10 +473,7 @@ class _StudentHomeState extends State<StudentHome> {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Text(
                 'For You',
-                style: GoogleFonts.outfit(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: theme.textTheme.titleMedium,
               ),
             ),
             const SizedBox(height: 16),
@@ -536,18 +517,22 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Widget _buildCoursesScreen() {
+    final theme = Theme.of(context);
     return const CourseListScreen();
   }
 
 
   Widget _buildProgressScreen() {
+    final theme = Theme.of(context);
     return const AnalyticsTab();
   }
 
   Widget _buildProfileScreen() {
+    final theme = Theme.of(context);
     return FutureBuilder<Map<String, dynamic>?>(
       future: _authRepository.getCurrentUser(),
       builder: (context, userSnapshot) {
+      final theme = Theme.of(context);
         final user = userSnapshot.data;
         
         return ProfileTab(

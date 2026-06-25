@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../business_logic/analytics_monitoring_manager.dart';
 
 class AdminAnalyticsScreen extends StatefulWidget {
@@ -10,6 +9,8 @@ class AdminAnalyticsScreen extends StatefulWidget {
 }
 
 class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
+  ThemeData get theme => Theme.of(context);
+
   final AnalyticsMonitoringManager _analyticsManager = AnalyticsMonitoringManager();
   bool _isLoading = true;
   double _totalRevenue = 0.0;
@@ -45,6 +46,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -70,20 +72,12 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                     children: [
                       Text(
                         'Platform Analytics',
-                        style: GoogleFonts.outfit(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w700,
-                          color: colorScheme.onSurface,
-                          letterSpacing: -0.02,
-                        ),
+                        style: theme.textTheme.titleMedium,
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Real-time performance metrics across all learning verticals.',
-                        style: GoogleFonts.inter(
-                          fontSize: 16,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
+                        style: theme.textTheme.bodyMedium,
                       ),
                     ],
                   ),
@@ -101,6 +95,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
               // Key Metrics Grid
               LayoutBuilder(
                 builder: (context, constraints) {
+      final theme = Theme.of(context);
                   final isDesktop = constraints.maxWidth > 800;
                   return GridView.count(
                     crossAxisCount: isDesktop ? 4 : 2,
@@ -118,7 +113,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                         badgeIcon: Icons.trending_up,
                         badgeColor: const Color(0xFF00724e),
                         badgeBg: const Color(0xFF6ffbbe),
-                        bottomWidget: Text('Total platform revenue', style: GoogleFonts.inter(fontSize: 14, color: colorScheme.onSurfaceVariant)),
+                        bottomWidget: Text('Total platform revenue', style: theme.textTheme.bodyMedium),
                       ),
                       _buildMetricCard(
                         context: context,
@@ -128,7 +123,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                         badgeIcon: Icons.trending_up,
                         badgeColor: const Color(0xFF00724e),
                         badgeBg: const Color(0xFF6ffbbe),
-                        bottomWidget: Text('Across all courses', style: GoogleFonts.inter(fontSize: 14, color: colorScheme.onSurfaceVariant)),
+                        bottomWidget: Text('Across all courses', style: theme.textTheme.bodyMedium),
                       ),
                       _buildMetricCard(
                         context: context,
@@ -148,7 +143,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                         badgeIcon: Icons.check_circle,
                         badgeColor: const Color(0xFF00724e),
                         badgeBg: const Color(0xFF6ffbbe),
-                        bottomWidget: Text('Calculated from reviews', style: GoogleFonts.inter(fontSize: 14, color: colorScheme.onSurfaceVariant)),
+                        bottomWidget: Text('Calculated from reviews', style: theme.textTheme.bodyMedium),
                       ),
                     ],
                   );
@@ -159,6 +154,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
               // Main Analytics Visualization & Side Panel
               LayoutBuilder(
                 builder: (context, constraints) {
+      final theme = Theme.of(context);
                   final isDesktop = constraints.maxWidth > 900;
                   return Flex(
                     direction: isDesktop ? Axis.horizontal : Axis.vertical,
@@ -192,6 +188,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
   }
 
   Widget _buildControlButton(BuildContext context, String text, IconData icon) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -207,11 +204,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
           const SizedBox(width: 8),
           Text(
             text,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: colorScheme.onSurface,
-            ),
+            style: theme.textTheme.bodyMedium,
           ),
         ],
       ),
@@ -228,6 +221,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
     required Color badgeBg,
     required Widget bottomWidget,
   }) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -248,12 +242,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                Expanded(
                  child: Text(
                   title.toUpperCase(),
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: colorScheme.onSurfaceVariant,
-                    letterSpacing: 0.5,
-                  ),
+                  style: theme.textTheme.bodyMedium,
                   overflow: TextOverflow.ellipsis,
                                ),
                ),
@@ -269,11 +258,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                     const SizedBox(width: 4),
                     Text(
                       badgeText,
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: badgeColor,
-                      ),
+                      style: theme.textTheme.bodyMedium,
                     ),
                   ],
                 ),
@@ -285,11 +270,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
             alignment: Alignment.centerLeft,
             child: Text(
               value,
-              style: GoogleFonts.outfit(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: colorScheme.onSurface,
-              ),
+              style: theme.textTheme.titleMedium,
             ),
           ),
           bottomWidget,
@@ -299,6 +280,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
   }
 
   Widget _buildMockLineChart(BuildContext context) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     return SizedBox(
       height: 32,
@@ -310,6 +292,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
   }
 
   Widget _buildProgressBar(BuildContext context, double progress) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
@@ -333,6 +316,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
   }
 
   Widget _buildBarChartSection(BuildContext context, bool isDesktop) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -354,19 +338,12 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                 children: [
                   Text(
                     'User Growth vs Engagement',
-                    style: GoogleFonts.outfit(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
-                      color: colorScheme.onSurface,
-                    ),
+                    style: theme.textTheme.titleMedium,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Monthly breakdown of new signups and average session hours.',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                    style: theme.textTheme.bodyMedium,
                   ),
                 ],
               ),
@@ -401,6 +378,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
   }
 
   Widget _buildLegendItem(BuildContext context, String label, Color color) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     return Row(
       children: [
@@ -415,17 +393,14 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
         const SizedBox(width: 4),
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface,
-          ),
+          style: theme.textTheme.bodyMedium,
         ),
       ],
     );
   }
 
   Widget _buildDoubleBar(BuildContext context, String label, double fill1, double fill2) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -461,17 +436,14 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
         const SizedBox(height: 8),
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: colorScheme.onSurfaceVariant,
-          ),
+          style: theme.textTheme.bodyMedium,
         ),
       ],
     );
   }
 
   Widget _buildTopCoursesSection(BuildContext context, bool isDesktop) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -488,19 +460,12 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
         children: [
           Text(
             'Top Performing Courses',
-            style: GoogleFonts.outfit(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: colorScheme.onSurface,
-            ),
+            style: theme.textTheme.titleMedium,
           ),
           const SizedBox(height: 4),
           Text(
             'Ranked by conversion & engagement.',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: colorScheme.onSurfaceVariant,
-            ),
+            style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 24),
           Expanded(
@@ -515,7 +480,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                 const SizedBox(height: 16),
                 _buildCourseItem(context, 'Advanced UI Design Systems', '11.5%', '3.1k Students', Icons.design_services, const Color(0xFF4edea3), const Color(0xFF00573a)),
                 const SizedBox(height: 16),
-                _buildCourseItem(context, 'Data Science Foundations', '9.8%', '1.2k Students', Icons.bar_chart, const Color(0xFFd9e3f6), const Color(0xFF474554)),
+                _buildCourseItem(context, 'Data Science Foundations', '9.8%', '1.2k Students', Icons.bar_chart, const Color(0xFFd9e3f6), theme.colorScheme.onSurfaceVariant),
               ],
             ),
           )
@@ -525,6 +490,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
   }
 
   Widget _buildCourseItem(BuildContext context, String title, String conversion, String students, IconData icon, Color iconBg, Color iconColor) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(12),
@@ -550,22 +516,14 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface,
-                  ),
+                  style: theme.textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
                     Text(
                       'CONVERSION: $conversion',
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.5,
-                      ),
+                      style: theme.textTheme.bodyMedium,
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -573,10 +531,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                     ),
                     Text(
                       students,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
+                      style: theme.textTheme.bodyMedium,
                     ),
                   ],
                 ),
@@ -590,6 +545,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
   }
 
   Widget _buildRecentConversionsTable(BuildContext context) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -609,21 +565,13 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
               children: [
                 Text(
                   'Recent Conversions',
-                  style: GoogleFonts.outfit(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    color: colorScheme.onSurface,
-                  ),
+                  style: theme.textTheme.titleMedium,
                 ),
                 TextButton(
                   onPressed: () {},
                   child: Text(
                     'View All Transactions',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: colorScheme.primary,
-                    ),
+                    style: theme.textTheme.bodyMedium,
                   ),
                 ),
               ],
@@ -635,11 +583,11 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
             child: DataTable(
               headingRowColor: WidgetStateProperty.all(isDark ? colorScheme.surfaceContainer : const Color(0xFFeff4ff)),
               columns: [
-                DataColumn(label: Text('STUDENT', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: colorScheme.onSurfaceVariant))),
-                DataColumn(label: Text('COURSE', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: colorScheme.onSurfaceVariant))),
-                DataColumn(label: Text('DATE', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: colorScheme.onSurfaceVariant))),
-                DataColumn(label: Text('AMOUNT', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: colorScheme.onSurfaceVariant))),
-                DataColumn(label: Text('STATUS', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: colorScheme.onSurfaceVariant))),
+                DataColumn(label: Text('STUDENT', style: theme.textTheme.bodyMedium)),
+                DataColumn(label: Text('COURSE', style: theme.textTheme.bodyMedium)),
+                DataColumn(label: Text('DATE', style: theme.textTheme.bodyMedium)),
+                DataColumn(label: Text('AMOUNT', style: theme.textTheme.bodyMedium)),
+                DataColumn(label: Text('STATUS', style: theme.textTheme.bodyMedium)),
               ],
               rows: [
                 _buildDataRow(context, 'JD', 'James D.', 'Mastering React 18', 'Oct 24, 2023', '\$149.00', 'COMPLETED', const Color(0xFF00724e), const Color(0xFF6ffbbe)),
@@ -662,15 +610,15 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
             CircleAvatar(
               radius: 16,
               backgroundColor: colorScheme.primary.withOpacity(0.1),
-              child: Text(initials, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.primary)),
+              child: Text(initials, style: theme.textTheme.bodyMedium),
             ),
             const SizedBox(width: 12),
-            Text(name, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600, color: colorScheme.onSurface)),
+            Text(name, style: theme.textTheme.bodyMedium),
           ],
         )),
-        DataCell(Text(course, style: GoogleFonts.inter(fontSize: 14, color: colorScheme.onSurface))),
-        DataCell(Text(date, style: GoogleFonts.inter(fontSize: 14, color: colorScheme.onSurfaceVariant))),
-        DataCell(Text(amount, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: colorScheme.onSurface))),
+        DataCell(Text(course, style: theme.textTheme.bodyMedium)),
+        DataCell(Text(date, style: theme.textTheme.bodyMedium)),
+        DataCell(Text(amount, style: theme.textTheme.bodyMedium)),
         DataCell(
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -680,11 +628,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
             ),
             child: Text(
               status,
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: statusColor,
-              ),
+              style: theme.textTheme.bodyMedium,
             ),
           )
         ),

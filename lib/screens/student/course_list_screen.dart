@@ -1,6 +1,5 @@
 // lib/screens/student/course_list_screen.dart
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../business_logic/course_manager.dart';
 import '../../business_logic/search_filter_engine.dart';
 import '../../model/course_model.dart';
@@ -98,11 +97,12 @@ class _CourseListScreenState extends State<CourseListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFf8f9ff),
+      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
-        title: Text('Browse Courses', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: const Color(0xFF121c2a))),
-        backgroundColor: const Color(0xFFf8f9ff),
+        title: Text('Browse Courses', style: theme.textTheme.titleLarge),
+        backgroundColor: theme.colorScheme.background,
         elevation: 0,
         iconTheme: const IconThemeData(color: Color(0xFF121c2a)),
       ),
@@ -119,16 +119,16 @@ class _CourseListScreenState extends State<CourseListScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFFeff4ff), // surface-container-low
+                    color: theme.colorScheme.surfaceVariant, // surface-container-low
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: Colors.transparent),
                   ),
                   child: TextField(
                     controller: _searchController,
-                    style: GoogleFonts.inter(color: const Color(0xFF121c2a)),
+                    style: theme.textTheme.bodyLarge,
                     decoration: InputDecoration(
                       hintText: 'Search courses...',
-                      hintStyle: GoogleFonts.inter(color: const Color(0xFFc8c4d7)),
+                      hintStyle: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.outline),
                       prefixIcon: const Icon(Icons.search, color: Color(0xFF787586)),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
@@ -157,7 +157,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
                   // Category Filter
                   if (_categories.isNotEmpty) ...[
                       ChoiceChip(
-                        label: Text(_selectedCategory ?? 'All Categories', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                        label: Text(_selectedCategory ?? 'All Categories', style: theme.textTheme.labelLarge),
                         selected: _selectedCategory != null,
                         onSelected: (selected) {
                           showModalBottomSheet(
@@ -170,11 +170,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
                                 children: [
                                   Text(
                                     'Select Category',
-                                    style: GoogleFonts.outfit(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: const Color(0xFF121c2a),
-                                    ),
+                                    style: theme.textTheme.titleLarge,
                                   ),
                                   const SizedBox(height: 16),
                                   Wrap(
@@ -208,11 +204,11 @@ class _CourseListScreenState extends State<CourseListScreen> {
                             ),
                           );
                         },
-                        selectedColor: const Color(0xFFe9ddff),
-                        backgroundColor: const Color(0xFFeff4ff),
-                        side: BorderSide(color: _selectedCategory != null ? const Color(0xFF5516be) : const Color(0xFFc8c4d7)),
+                        selectedColor: theme.colorScheme.primaryContainer,
+                        backgroundColor: theme.colorScheme.surfaceVariant,
+                        side: BorderSide(color: _selectedCategory != null ? theme.colorScheme.primary : theme.colorScheme.outline),
                         labelStyle: TextStyle(
-                          color: _selectedCategory != null ? const Color(0xFF5516be) : const Color(0xFF474554),
+                          color: _selectedCategory != null ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -220,7 +216,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
 
                   // Level Filter
                   ChoiceChip(
-                    label: Text(_selectedLevel ?? 'All Levels', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                    label: Text(_selectedLevel ?? 'All Levels', style: theme.textTheme.labelLarge),
                     selected: _selectedLevel != null,
                     onSelected: (selected) {
                       showModalBottomSheet(
@@ -233,11 +229,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
                             children: [
                               Text(
                                 'Select Level',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF121c2a),
-                                ),
+                                style: theme.textTheme.titleLarge,
                               ),
                               const SizedBox(height: 16),
                               Wrap(
@@ -287,18 +279,18 @@ class _CourseListScreenState extends State<CourseListScreen> {
                         ),
                       );
                     },
-                    selectedColor: const Color(0xFFe9ddff),
-                    backgroundColor: const Color(0xFFeff4ff),
-                    side: BorderSide(color: _selectedLevel != null ? const Color(0xFF5516be) : const Color(0xFFc8c4d7)),
+                    selectedColor: theme.colorScheme.primaryContainer,
+                    backgroundColor: theme.colorScheme.surfaceVariant,
+                    side: BorderSide(color: _selectedLevel != null ? theme.colorScheme.primary : theme.colorScheme.outline),
                     labelStyle: TextStyle(
-                      color: _selectedLevel != null ? const Color(0xFF5516be) : const Color(0xFF474554),
+                      color: _selectedLevel != null ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
                   const SizedBox(width: 8),
 
                   // Sort Filter
                   ChoiceChip(
-                    label: Text(_selectedSortBy ?? 'Sort', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                    label: Text(_selectedSortBy ?? 'Sort', style: theme.textTheme.labelLarge),
                     selected: _selectedSortBy != null,
                     onSelected: (selected) {
                       showModalBottomSheet(
@@ -311,11 +303,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
                             children: [
                               Text(
                                 'Sort By',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF121c2a),
-                                ),
+                                style: theme.textTheme.titleLarge,
                               ),
                               const SizedBox(height: 16),
                               Wrap(
@@ -374,11 +362,11 @@ class _CourseListScreenState extends State<CourseListScreen> {
                         ),
                       );
                     },
-                    selectedColor: const Color(0xFFe9ddff),
-                    backgroundColor: const Color(0xFFeff4ff),
-                    side: BorderSide(color: _selectedSortBy != null ? const Color(0xFF5516be) : const Color(0xFFc8c4d7)),
+                    selectedColor: theme.colorScheme.primaryContainer,
+                    backgroundColor: theme.colorScheme.surfaceVariant,
+                    side: BorderSide(color: _selectedSortBy != null ? theme.colorScheme.primary : theme.colorScheme.outline),
                     labelStyle: TextStyle(
-                      color: _selectedSortBy != null ? const Color(0xFF5516be) : const Color(0xFF474554),
+                      color: _selectedSortBy != null ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -386,8 +374,8 @@ class _CourseListScreenState extends State<CourseListScreen> {
                   // Advanced Filters
                   Flexible(
                     child: ActionChip(
-                      label: Text('More Filters', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: const Color(0xFF474554))),
-                      backgroundColor: const Color(0xFFeff4ff),
+                      label: Text('More Filters', style: theme.textTheme.labelLarge)),
+                      backgroundColor: theme.colorScheme.surfaceVariant,
                       side: const BorderSide(color: Color(0xFFc8c4d7)),
                       onPressed: () {
                         showModalBottomSheet(
@@ -404,8 +392,8 @@ class _CourseListScreenState extends State<CourseListScreen> {
                   if (_selectedCategory != null || _selectedLevel != null || _selectedSortBy != null || _minRating != null || _maxPrice != null || _searchController.text.isNotEmpty)
                     Flexible(
                       child: ActionChip(
-                        label: Text('Clear', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: const Color(0xFFba1a1a))),
-                        backgroundColor: const Color(0xFFffdad6),
+                        label: Text('Clear', style: theme.textTheme.labelLarge)),
+                        backgroundColor: theme.colorScheme.errorContainer,
                         side: const BorderSide(color: Color(0xFFffdad6)),
                         onPressed: _clearFilters,
                         avatar: const Icon(Icons.clear, size: 18, color: Color(0xFFba1a1a)),
@@ -423,11 +411,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
                 children: [
                   Text(
                     '${_filteredCourses.length} course${_filteredCourses.length != 1 ? 's' : ''} found',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: const Color(0xFF474554),
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: theme.textTheme.bodyMedium,
                   ),
                 ],
               ),
@@ -496,15 +480,16 @@ class _CourseListScreenState extends State<CourseListScreen> {
   }
 
   Widget _buildCourseCard(CourseModel course) {
+    final theme = Theme.of(context);
     return Container(
       margin: EdgeInsets.zero,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFc8c4d7)),
+        border: Border.all(color: theme.colorScheme.outline),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF5b4ed9).withOpacity(0.08),
+            color: theme.colorScheme.primary.withOpacity(0.08),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
@@ -584,16 +569,12 @@ class _CourseListScreenState extends State<CourseListScreen> {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFe9ddff),
+                              color: theme.colorScheme.primaryContainer,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
                               course.category,
-                              style: GoogleFonts.inter(
-                                fontSize: 10,
-                                color: const Color(0xFF6b38d4),
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.primary),
                             ),
                           ),
                           Container(
@@ -602,16 +583,12 @@ class _CourseListScreenState extends State<CourseListScreen> {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF00724e).withOpacity(0.1),
+                              color: Colors.green.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
                               course.level.toUpperCase(),
-                              style: GoogleFonts.inter(
-                                fontSize: 10,
-                                color: const Color(0xFF00573a),
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: theme.textTheme.labelSmall?.copyWith(color: Colors.green.shade800),
                             ),
                           ),
                         ],
@@ -621,11 +598,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
                       // Title
                       Text(
                         course.title,
-                        style: GoogleFonts.outfit(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF121c2a),
-                        ),
+                        style: theme.textTheme.titleLarge,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -634,10 +607,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
                       // Instructor
                       Text(
                         'by ${course.instructor}',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: const Color(0xFF474554),
-                        ),
+                        style: theme.textTheme.bodyMedium,
                       ),
                       const SizedBox(height: 12),
 
@@ -652,18 +622,11 @@ class _CourseListScreenState extends State<CourseListScreen> {
                           const SizedBox(width: 4),
                           Text(
                             course.rating.toStringAsFixed(1),
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFF121c2a),
-                            ),
+                            style: theme.textTheme.bodyLarge,
                           ),
                           Text(
                             ' (${course.ratingCount})',
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: const Color(0xFF787586),
-                            ),
+                            style: theme.textTheme.bodySmall,
                           ),
                           const SizedBox(width: 12),
                           const Icon(
@@ -674,22 +637,19 @@ class _CourseListScreenState extends State<CourseListScreen> {
                           const SizedBox(width: 4),
                           Text(
                             '${course.duration}h',
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: const Color(0xFF787586),
-                            ),
+                            style: theme.textTheme.bodySmall,
                           ),
                           const Spacer(),
                           Text(
                             course.price == 0
                                 ? 'FREE'
                                 : '\$${course.price.toStringAsFixed(0)}',
-                            style: GoogleFonts.outfit(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: course.price == 0
-                                  ? const Color(0xFF00573a)
-                                  : const Color(0xFF4231c0),
+                                  ? Colors.green.shade800
+                                  : theme.colorScheme.primary,
                             ),
                           ),
                         ],
@@ -708,6 +668,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
   }
 
   Widget _buildEnrollButton(CourseModel course) {
+    final theme = Theme.of(context);
     return FutureBuilder<String?>(
       future: ApiClient.instance.getToken(),
       builder: (context, snapshot) {
@@ -718,11 +679,11 @@ class _CourseListScreenState extends State<CourseListScreen> {
             child: ElevatedButton(
               onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4231c0),
+                backgroundColor: theme.colorScheme.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
-              child: Text('Login to Enroll', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+              child: Text('Login to Enroll', style: theme.textTheme.labelLarge),
             ),
           );
         }
@@ -790,11 +751,11 @@ class _CourseListScreenState extends State<CourseListScreen> {
                         }
                       },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: enrolled ? const Color(0xFFe6eeff) : const Color(0xFF4231c0),
-                  foregroundColor: enrolled ? const Color(0xFF474554) : Colors.white,
+                  backgroundColor: enrolled ? theme.colorScheme.secondaryContainer : theme.colorScheme.primary,
+                  foregroundColor: enrolled ? theme.colorScheme.onSurfaceVariant : Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: Text(enrolled ? 'Open' : 'Enroll', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                child: Text(enrolled ? 'Open' : 'Enroll', style: theme.textTheme.labelLarge),
               ),
             );
           },

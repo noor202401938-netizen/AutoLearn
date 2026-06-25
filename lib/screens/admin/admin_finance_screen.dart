@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../business_logic/payment_manager.dart';
 
@@ -41,6 +40,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -87,22 +87,14 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
                           children: [
                             Text(
                               'NET REVENUE',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white.withOpacity(0.8),
+                              style: theme.textTheme.bodyMedium,
                                 letterSpacing: 0.5,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               '\$${_totalRevenue.toStringAsFixed(2)}',
-                              style: GoogleFonts.outfit(
-                                fontSize: 36,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white,
-                                letterSpacing: -0.03,
-                              ),
+                              style: theme.textTheme.titleMedium,
                             ),
                           ],
                         ),
@@ -118,10 +110,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
                               const SizedBox(width: 4),
                               Text(
                                 '+24.8%',
-                                style: GoogleFonts.inter(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF002113),
+                                style: theme.textTheme.bodyMedium,
                                 ),
                               ),
                             ],
@@ -143,9 +132,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
                         const SizedBox(width: 8),
                         Text(
                           'Live data updated 2m ago',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: Colors.white.withOpacity(0.9),
+                          style: theme.textTheme.bodyMedium,
                           ),
                         ),
                       ],
@@ -158,6 +145,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
               // Secondary Stats
               LayoutBuilder(
                 builder: (context, constraints) {
+      final theme = Theme.of(context);
                   final isDesktop = constraints.maxWidth > 600;
                   return Flex(
                     direction: isDesktop ? Axis.horizontal : Axis.vertical,
@@ -187,21 +175,11 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
                       children: [
                         Text(
                           'Revenue Trends',
-                          style: GoogleFonts.outfit(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                            color: colorScheme.onSurface,
-                            letterSpacing: -0.01,
-                          ),
+                          style: theme.textTheme.titleMedium,
                         ),
                         Text(
                           'LAST 6 MONTHS',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: colorScheme.onSurfaceVariant,
-                            letterSpacing: 0.05,
-                          ),
+                          style: theme.textTheme.bodyMedium,
                         ),
                       ],
                     ),
@@ -232,22 +210,13 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
                 children: [
                   Text(
                     'Recent Transactions',
-                    style: GoogleFonts.outfit(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
-                      color: colorScheme.onSurface,
-                      letterSpacing: -0.01,
-                    ),
+                    style: theme.textTheme.titleMedium,
                   ),
                   TextButton(
                     onPressed: () {},
                     child: Text(
                       'View All',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: colorScheme.primary,
-                      ),
+                      style: theme.textTheme.bodyMedium,
                     ),
                   ),
                 ],
@@ -293,6 +262,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
   }
 
   Widget _buildSecondaryStat(BuildContext context, String title, String value, String change, bool isUp) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -308,21 +278,12 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
         children: [
           Text(
             title,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: colorScheme.onSurfaceVariant,
-            ),
+            style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 8),
           Text(
             value,
-            style: GoogleFonts.outfit(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: colorScheme.primary,
-              letterSpacing: -0.01,
-            ),
+            style: theme.textTheme.titleMedium,
           ),
           const SizedBox(height: 4),
           Row(
@@ -331,9 +292,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
               const SizedBox(width: 4),
               Text(
                 change,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: const Color(0xFF00573a),
+                style: theme.textTheme.bodyMedium,
                 ),
               ),
             ],
@@ -344,6 +303,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
   }
 
   Widget _buildBar(BuildContext context, String label, double fillPercent) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     return Expanded(
       child: Padding(
@@ -372,10 +332,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
             const SizedBox(height: 8),
             Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodyMedium,
             ),
           ],
         ),
@@ -392,6 +349,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
     required Color statusColor,
     required Color statusBg,
   }) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -422,18 +380,11 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
                 children: [
                   Text(
                     name,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: colorScheme.onSurface,
-                    ),
+                    style: theme.textTheme.bodyMedium,
                   ),
                   Text(
                     txId,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                    style: theme.textTheme.bodyMedium,
                   ),
                 ],
               ),
@@ -444,11 +395,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
             children: [
               Text(
                 amount,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: colorScheme.onSurface,
-                ),
+                style: theme.textTheme.bodyMedium,
               ),
               const SizedBox(height: 4),
               Container(
@@ -459,11 +406,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
                 ),
                 child: Text(
                   status,
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: statusColor,
-                  ),
+                  style: theme.textTheme.bodyMedium,
                 ),
               ),
             ],

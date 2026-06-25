@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../repository/user_repository.dart';
 import '../../business_logic/course_manager.dart';
@@ -57,6 +56,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -75,26 +75,19 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               // Welcome Section
               Text(
                 'Admin Dashboard',
-                style: GoogleFonts.outfit(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: colorScheme.onSurface,
-                  letterSpacing: -0.01,
-                ),
+                style: theme.textTheme.titleMedium,
               ),
               const SizedBox(height: 4),
               Text(
                 'Real-time performance overview',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: colorScheme.onSurfaceVariant,
-                ),
+                style: theme.textTheme.bodyMedium,
               ),
               const SizedBox(height: 24),
               
               // Executive Stats Bento Grid
               LayoutBuilder(
                 builder: (context, constraints) {
+      final theme = Theme.of(context);
                   final isDesktop = constraints.maxWidth > 800;
                   return Flex(
                     direction: isDesktop ? Axis.horizontal : Axis.vertical,
@@ -129,23 +122,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 children: [
                   Text(
                     'System Activity',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: colorScheme.onSurface,
-                      letterSpacing: 0.02,
-                    ),
+                    style: theme.textTheme.bodyMedium,
                   ),
                   TextButton(
                     onPressed: () {},
                     child: Text(
                       'VIEW ALL',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: colorScheme.primary,
-                        letterSpacing: 0.05,
-                      ),
+                      style: theme.textTheme.bodyMedium,
                     ),
                   ),
                 ],
@@ -187,6 +170,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _buildRevenueCard(BuildContext context) {
+    final theme = Theme.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
@@ -208,22 +192,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 children: [
                   Text(
                     'TOTAL REVENUE',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: colorScheme.onSurfaceVariant,
-                      letterSpacing: 1.5,
-                    ),
+                    style: theme.textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '\$${_totalRevenue.toStringAsFixed(2)}',
-                    style: GoogleFonts.outfit(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w700,
-                      color: colorScheme.primary,
-                      letterSpacing: -0.02,
-                    ),
+                    style: theme.textTheme.titleMedium,
                   ),
                 ],
               ),
@@ -239,10 +213,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     const SizedBox(width: 4),
                     Text(
                       '12%',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF00573a),
+                      style: theme.textTheme.bodyMedium,
                       ),
                     ),
                   ],
@@ -265,6 +236,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _buildActiveUsersCard(BuildContext context) {
+    final theme = Theme.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
@@ -279,12 +251,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         children: [
           Text(
             'ACTIVE USERS',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: colorScheme.onSurfaceVariant,
-              letterSpacing: 1.5,
-            ),
+            style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 4),
           Row(
@@ -292,22 +259,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             children: [
               Text(
                 '$_activeUsers',
-                style: GoogleFonts.outfit(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: colorScheme.onSurface,
-                  letterSpacing: -0.01,
-                ),
+                style: theme.textTheme.titleMedium,
               ),
               const SizedBox(width: 4),
               Padding(
                 padding: const EdgeInsets.only(bottom: 4.0),
                 child: Text(
                   '+4.2%',
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF00573a),
+                  style: theme.textTheme.bodyMedium,
                   ),
                 ),
               ),
@@ -328,6 +287,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _buildCompletionRateCard(BuildContext context) {
+    final theme = Theme.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
@@ -342,12 +302,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         children: [
           Text(
             'COMPLETION',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: colorScheme.onSurfaceVariant,
-              letterSpacing: 1.5,
-            ),
+            style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 4),
           Row(
@@ -355,22 +310,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             children: [
               Text(
                 '${(_completionRate * 100).toStringAsFixed(1)}%',
-                style: GoogleFonts.outfit(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: colorScheme.onSurface,
-                  letterSpacing: -0.01,
-                ),
+                style: theme.textTheme.titleMedium,
               ),
               const SizedBox(width: 4),
               Padding(
                 padding: const EdgeInsets.only(bottom: 4.0),
                 child: Text(
                   '-2.1%',
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFFba1a1a),
+                  style: theme.textTheme.bodyMedium,
                   ),
                 ),
               ),
@@ -403,6 +350,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _buildOverlapAvatar(BuildContext context, Color color, String? text, {Color? textColor}) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
       width: 24,
@@ -416,7 +364,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       child: text != null
           ? Text(
               text,
-              style: GoogleFonts.inter(fontSize: 8, fontWeight: FontWeight.bold, color: textColor),
+              style: theme.textTheme.bodyMedium,
             )
           : null,
     );
@@ -431,6 +379,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     required String subtitle,
     required String time,
   }) {
+    final theme = Theme.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
@@ -458,30 +407,18 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface,
-                  ),
+                  style: theme.textTheme.bodyMedium,
                 ),
                 Text(
                   subtitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
+                  style: theme.textTheme.bodyMedium,
                 ),
               ],
             ),
           ),
           Text(
             time,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: colorScheme.onSurfaceVariant,
-              letterSpacing: 0.05,
-            ),
+            style: theme.textTheme.bodyMedium,
           ),
         ],
       ),

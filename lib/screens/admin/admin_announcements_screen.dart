@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../business_logic/notification_manager.dart';
 import 'package:intl/intl.dart';
 
@@ -44,6 +43,7 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -62,20 +62,12 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
               // Section Header
               Text(
                 'Announcements',
-                style: GoogleFonts.outfit(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: colorScheme.onSurface,
-                  letterSpacing: -0.01,
-                ),
+                style: theme.textTheme.titleMedium,
               ),
               const SizedBox(height: 4),
               Text(
                 'Broadcast updates to your learners instantly.',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: colorScheme.onSurfaceVariant,
-                ),
+                style: theme.textTheme.bodyMedium,
               ),
               const SizedBox(height: 24),
 
@@ -98,7 +90,7 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.all(32.0),
-                    child: Text('No announcements found', style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant)),
+                    child: Text('No announcements found', style: theme.textTheme.bodyMedium),
                   ),
                 )
               else
@@ -154,6 +146,7 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
   }
 
   Widget _buildStatCard(BuildContext context, String label, String value, Color valueColor) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -176,21 +169,12 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
         children: [
           Text(
             label.toUpperCase(),
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: colorScheme.outline,
-              letterSpacing: 0.5,
-            ),
+            style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 8),
           Text(
             value,
-            style: GoogleFonts.outfit(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              color: valueColor,
-            ),
+            style: theme.textTheme.titleMedium,
           ),
         ],
       ),
@@ -209,6 +193,7 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
     required String delivered,
     required String opened,
   }) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -237,41 +222,26 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
                     const SizedBox(width: 4),
                     Text(
                       status,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: statusColor,
-                      ),
+                      style: theme.textTheme.bodyMedium,
                     ),
                   ],
                 ),
               ),
               Text(
                 date,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: colorScheme.outline,
-                ),
+                style: theme.textTheme.bodyMedium,
               ),
             ],
           ),
           const SizedBox(height: 12),
           Text(
             title,
-            style: GoogleFonts.inter(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: colorScheme.onSurface,
-            ),
+            style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 4),
           Text(
             description,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: colorScheme.onSurfaceVariant,
-            ),
+            style: theme.textTheme.bodyMedium,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -288,8 +258,8 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(delivered, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: colorScheme.onSurface)),
-                        Text('Delivered', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: colorScheme.outline)),
+                        Text(delivered, style: theme.textTheme.bodyMedium),
+                        Text('Delivered', style: theme.textTheme.bodyMedium),
                       ],
                     )
                   ],
@@ -303,8 +273,8 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(opened, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: colorScheme.onSurface)),
-                        Text('Opened', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: colorScheme.outline)),
+                        Text(opened, style: theme.textTheme.bodyMedium),
+                        Text('Opened', style: theme.textTheme.bodyMedium),
                       ],
                     )
                   ],
@@ -323,6 +293,7 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
     required String description,
     required String date,
   }) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -351,10 +322,7 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
                     const SizedBox(width: 4),
                     Text(
                       'Scheduled',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF5516be),
+                      style: theme.textTheme.bodyMedium,
                       ),
                     ),
                   ],
@@ -362,30 +330,19 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
               ),
               Text(
                 date,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: colorScheme.outline,
-                ),
+                style: theme.textTheme.bodyMedium,
               ),
             ],
           ),
           const SizedBox(height: 12),
           Text(
             title,
-            style: GoogleFonts.inter(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: colorScheme.onSurface,
-            ),
+            style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 4),
           Text(
             description,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: colorScheme.onSurfaceVariant,
-            ),
+            style: theme.textTheme.bodyMedium,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -397,11 +354,7 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
             children: [
               Text(
                 'Waiting for trigger...',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontStyle: FontStyle.italic,
-                  color: colorScheme.onSurfaceVariant,
-                ),
+                style: theme.textTheme.bodyMedium,
               ),
               TextButton(
                 onPressed: () {},
@@ -409,11 +362,7 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
                   children: [
                     Text(
                       'Edit',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: colorScheme.primary,
-                      ),
+                      style: theme.textTheme.bodyMedium,
                     ),
                     Icon(Icons.chevron_right, size: 18, color: colorScheme.primary),
                   ],

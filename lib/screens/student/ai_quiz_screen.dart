@@ -1,4 +1,3 @@
-import 'package:google_fonts/google_fonts.dart';
 // lib/screens/student/ai_quiz_screen.dart
 import 'package:flutter/material.dart';
 import '../../business_logic/ai_quiz_engine.dart';
@@ -175,8 +174,9 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FF),
+      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         backgroundColor: Colors.white.withOpacity(0.8),
         elevation: 1,
@@ -200,21 +200,14 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                   children: [
                     Text(
                       widget.courseTitle,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF4231C0),
+                      style: theme.textTheme.bodyMedium,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       'Unit: ${widget.moduleTitle}'.toUpperCase(),
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.5,
-                        color: const Color(0xFF787586),
+                      style: theme.textTheme.bodyMedium,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -228,7 +221,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                   decoration: BoxDecoration(
                     color: const Color(0xFFDEE9FC),
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.3)),
+                    border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
                   ),
                   child: Row(
                     children: [
@@ -236,11 +229,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                       const SizedBox(width: 6),
                       Text(
                         _formatTime(_timeRemaining),
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF121C2A),
-                        ),
+                        style: theme.textTheme.bodyMedium,
                       ),
                     ],
                   ),
@@ -251,7 +240,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
       ),
       body: SafeArea(
         child: _isLoading
-            ? Center(child: CircularProgressIndicator(color: const Color(0xFF4231C0)))
+            ? Center(child: CircularProgressIndicator(color: theme.colorScheme.primary))
             : _quiz == null
                 ? const Center(child: Text('Quiz not found', style: TextStyle(color: Colors.black)))
                 : _showResults
@@ -265,6 +254,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
   }
 
   Widget _buildQuizView() {
+    final theme = Theme.of(context);
     if (_quiz!.questions.isEmpty) {
       return const Center(child: Text('No questions available'));
     }
@@ -285,18 +275,11 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                   RichText(
                     text: TextSpan(
                       text: 'Question ${_currentQuestionIndex + 1} ',
-                      style: GoogleFonts.outfit(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF121C2A),
-                      ),
+                      style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                       children: [
                         TextSpan(
                           text: 'of ${_quiz!.questions.length}',
-                          style: GoogleFonts.inter(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                            color: const Color(0xFF787586),
+                          style: theme.textTheme.bodyMedium,
                           ),
                         ),
                       ],
@@ -304,10 +287,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                   ),
                   Text(
                     '${(progressPercent * 100).toInt()}%',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF4231C0),
+                    style: theme.textTheme.bodyMedium,
                     ),
                   ),
                 ],
@@ -322,6 +302,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                 ),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
+      final theme = Theme.of(context);
                     return Align(
                       alignment: Alignment.centerLeft,
                       child: AnimatedContainer(
@@ -354,12 +335,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
               children: [
                 Text(
                   question.questionText,
-                  style: GoogleFonts.outfit(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF121C2A),
-                    height: 1.2,
-                  ),
+                  style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 32),
 
@@ -387,13 +363,13 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
                               color: isSelected
-                                  ? const Color(0xFF4231C0)
-                                  : const Color(0xFFC8C4D7).withOpacity(0.5),
+                                  ? theme.colorScheme.primary
+                                  : theme.colorScheme.outline.withOpacity(0.5),
                             ),
                             boxShadow: [
                               if (isSelected)
                                 BoxShadow(
-                                  color: const Color(0xFF4231C0).withOpacity(0.15),
+                                  color: theme.colorScheme.primary.withOpacity(0.15),
                                   blurRadius: 20,
                                   offset: const Offset(0, 10),
                                 ),
@@ -410,8 +386,8 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                                   shape: BoxShape.circle,
                                   border: Border.all(
                                     color: isSelected
-                                        ? const Color(0xFF4231C0)
-                                        : const Color(0xFFC8C4D7),
+                                        ? theme.colorScheme.primary
+                                        : theme.colorScheme.outline,
                                     width: 2,
                                   ),
                                 ),
@@ -437,11 +413,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                                   children: [
                                     Text(
                                       option.text,
-                                      style: GoogleFonts.inter(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: const Color(0xFF121C2A),
-                                      ),
+                                      style: theme.textTheme.titleMedium,
                                     ),
                                   ],
                                 ),
@@ -458,17 +430,17 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.8),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
+                      border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
                     ),
                     child: TextField(
                       onChanged: (value) {
                         _answers[question.questionId] = value;
                       },
                       maxLines: 5,
-                      style: GoogleFonts.inter(color: const Color(0xFF121C2A)),
+                      style: theme.textTheme.bodyMedium),
                       decoration: InputDecoration(
                         hintText: 'Type your answer here...',
-                        hintStyle: GoogleFonts.inter(color: const Color(0xFF787586)),
+                        hintStyle: GoogleFonts.inter(color: theme.colorScheme.onSurfaceVariant),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.all(24),
                       ),
@@ -483,12 +455,13 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
   }
 
   Widget _buildBottomNavigation() {
+    final theme = Theme.of(context);
     final isLastQuestion = _currentQuestionIndex == _quiz!.questions.length - 1;
 
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: const Color(0xFFC8C4D7).withOpacity(0.2))),
+        border: Border(top: BorderSide(color: theme.colorScheme.outline.withOpacity(0.2))),
       ),
       padding: const EdgeInsets.all(20),
       child: SafeArea(
@@ -508,7 +481,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   side: const BorderSide(color: Color(0xFF4231C0)),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  foregroundColor: const Color(0xFF4231C0),
+                  foregroundColor: theme.colorScheme.primary,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -517,10 +490,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                     const SizedBox(width: 8),
                     Text(
                       'Back',
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
+                      style: theme.textTheme.labelLarge,
                     ),
                   ],
                 ),
@@ -539,7 +509,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF4231C0).withOpacity(0.3),
+                      color: theme.colorScheme.primary.withOpacity(0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -578,10 +548,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                           children: [
                             Text(
                               isLastQuestion ? 'Submit Quiz' : 'Next',
-                              style: GoogleFonts.inter(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                              ),
+                              style: theme.textTheme.labelLarge,
                             ),
                             const SizedBox(width: 8),
                             Icon(isLastQuestion ? Icons.check : Icons.arrow_forward, size: 18),
@@ -597,6 +564,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
   }
 
   Widget _buildResultsView() {
+    final theme = Theme.of(context);
     if (_submission == null) return const SizedBox();
 
     final score = _submission!.score;
@@ -611,7 +579,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
+              border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
               boxShadow: [
                 BoxShadow(
                   color: (passed ? Colors.green : Colors.orange).withOpacity(0.2),
@@ -630,27 +598,18 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                 const SizedBox(height: 16),
                 Text(
                   '$score%',
-                  style: GoogleFonts.outfit(
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF121C2A),
+                  style: theme.textTheme.titleMedium,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   passed ? 'Passed!' : 'Not Passed',
-                  style: GoogleFonts.inter(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF121C2A),
-                  ),
+                  style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   '${_submission!.earnedPoints} / ${_submission!.totalPoints} points',
-                  style: GoogleFonts.inter(
-                    fontSize: 18,
-                    color: const Color(0xFF474554),
+                  style: theme.textTheme.bodyMedium,
                   ),
                 ),
               ],
@@ -673,7 +632,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
+                border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
@@ -689,31 +648,27 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                         const SizedBox(width: 8),
                         Text(
                           'Question ${index + 1}',
-                          style: GoogleFonts.inter(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF121C2A),
-                          ),
+                          style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
                     const SizedBox(height: 12),
                     Text(
                       question.questionText,
-                      style: GoogleFonts.inter(fontSize: 16, color: const Color(0xFF121C2A)),
+                      style: theme.textTheme.titleMedium,
                     ),
                     const SizedBox(height: 16),
                     if (question.explanation != null)
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFEFF4FF),
+                          color: theme.colorScheme.surfaceVariant,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFF4231C0).withOpacity(0.2)),
+                          border: Border.all(color: theme.colorScheme.primary.withOpacity(0.2)),
                         ),
                         child: Text(
                           question.explanation!,
-                          style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF4231C0)),
+                          style: theme.textTheme.bodyMedium),
                         ),
                       ),
                   ],
@@ -735,7 +690,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF4231C0).withOpacity(0.3),
+                  color: theme.colorScheme.primary.withOpacity(0.3),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -751,11 +706,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
               ),
               child: Text(
                 'Done', 
-                style: GoogleFonts.inter(
-                  color: Colors.white, 
-                  fontSize: 18, 
-                  fontWeight: FontWeight.bold
-                )
+                style: theme.textTheme.bodyMedium
               ),
             ),
           ),

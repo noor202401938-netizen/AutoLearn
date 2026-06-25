@@ -1,7 +1,6 @@
 // lib/main.dart
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/welcome_screen.dart';
 import 'screens/user_info_screen.dart';
@@ -250,20 +249,12 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 const SizedBox(height: 30),
                 Text(
                   'AutoLearn',
-                  style: GoogleFonts.outfit(
-                    fontSize: 36,
-                    fontWeight: FontWeight.w800,
-                    color: theme.colorScheme.onSurface,
-                    letterSpacing: -1.0,
-                  ),
+                  style: theme.textTheme.titleMedium,
                 ),
                 const SizedBox(height: 10),
                 Text(
                   'Your Personal Learning Assistant',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
+                  style: theme.textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 50),
                 CircularProgressIndicator(

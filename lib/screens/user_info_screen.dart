@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserInfoPage extends StatefulWidget {
@@ -84,7 +83,7 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
               children: [
                 const Icon(Icons.check_circle_outline, color: Colors.white),
                 const SizedBox(width: 10),
-                Expanded(child: Text('Information saved! Please sign up to continue.', style: GoogleFonts.inter())),
+                Expanded(child: Text('Information saved! Please sign up to continue.', style: theme.textTheme.bodyMedium)),
               ],
             ),
             backgroundColor: const Color(0xFF00724e),
@@ -99,7 +98,7 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}', style: GoogleFonts.inter()),
+            content: Text('Error: ${e.toString()}', style: theme.textTheme.bodyMedium),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -123,7 +122,7 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
-      style: GoogleFonts.inter(color: colorScheme.onSurface),
+      style: theme.textTheme.bodyMedium,
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: GoogleFonts.inter(color: colorScheme.onSurfaceVariant),
@@ -160,7 +159,7 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
     return DropdownButtonFormField<String>(
       value: value,
       dropdownColor: colorScheme.surface,
-      style: GoogleFonts.inter(color: colorScheme.onSurface),
+      style: theme.textTheme.bodyMedium,
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: GoogleFonts.inter(color: colorScheme.onSurfaceVariant),
@@ -246,21 +245,13 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
                             Text(
                               "Tell Us About Yourself",
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.outfit(
-                                fontSize: 32,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -1.0,
-                                color: colorScheme.onSurface,
-                              ),
+                              style: theme.textTheme.titleMedium,
                             ),
                             const SizedBox(height: 8),
                             Text(
                               "Help us personalize your learning experience",
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.inter(
-                                fontSize: 16,
-                                color: colorScheme.onSurfaceVariant,
-                              ),
+                              style: theme.textTheme.bodyMedium,
                             ),
                             const SizedBox(height: 32),
 
@@ -332,10 +323,7 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
                                       onPressed: _saveUserInfo,
                                       child: Text(
                                         "Continue",
-                                        style: GoogleFonts.inter(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w700,
-                                        ),
+                                        style: theme.textTheme.bodyMedium,
                                       ),
                                     ),
                                   ),
@@ -352,10 +340,7 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
                               },
                               child: Text(
                                 "Skip for now",
-                                style: GoogleFonts.inter(
-                                  color: colorScheme.onSurfaceVariant,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: theme.textTheme.bodyMedium,
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -366,7 +351,7 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
                               children: [
                                 Text(
                                   "Already have an account? ",
-                                  style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant),
+                                  style: theme.textTheme.bodyMedium,
                                 ),
                                 TextButton(
                                   onPressed: () async {
@@ -376,7 +361,7 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
                                       Navigator.pushReplacementNamed(context, '/login');
                                     }
                                   },
-                                  child: Text("Login", style: GoogleFonts.inter(fontWeight: FontWeight.w700)),
+                                  child: Text("Login", style: theme.textTheme.bodyMedium),
                                 ),
                               ],
                             ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../repository/auth_repository.dart';
 import '../../repository/certificate_repository.dart';
 import '../../model/certificate_model.dart';
@@ -55,8 +54,9 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FF),
+      backgroundColor: theme.colorScheme.background,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -92,9 +92,9 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
                             children: [
                               Icon(Icons.workspace_premium_outlined, size: 80, color: Colors.grey.withOpacity(0.5)),
                               const SizedBox(height: 16),
-                              Text('No Certificates Yet', style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: const Color(0xFF121C2A))),
+                              Text('No Certificates Yet', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                               const SizedBox(height: 8),
-                              Text('Complete lessons to earn certificates', style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF474554))),
+                              Text('Complete lessons to earn certificates', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
                             ],
                           ),
                         ),
@@ -119,6 +119,7 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
   }
 
   Widget _buildHeader() {
+    final theme = Theme.of(context);
     return SliverToBoxAdapter(
       child: Container(
         padding: EdgeInsets.only(
@@ -151,12 +152,12 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
             const SizedBox(height: 16),
             Text(
               'My Achievements',
-              style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.w800, color: Colors.white),
+              style: theme.textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             Text(
               'View and share your earned certificates',
-              style: GoogleFonts.inter(fontSize: 16, color: Colors.white.withOpacity(0.8)),
+              style: theme.textTheme.bodyMedium),
             ),
             const SizedBox(height: 24),
             Container(
@@ -173,7 +174,7 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
                   const SizedBox(width: 8),
                   Text(
                     '${_certificates.length} Certificates Earned',
-                    style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white),
+                    style: theme.textTheme.bodyMedium,
                   ),
                 ],
               ),
@@ -185,15 +186,16 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
   }
 
   Widget _buildCertificateCard(CertificateModel certificate) {
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.8),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.3)),
+        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF4231C0).withOpacity(0.05),
+            color: theme.colorScheme.primary.withOpacity(0.05),
             blurRadius: 20,
             offset: const Offset(0, 10),
           )
@@ -232,23 +234,23 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
                     children: [
                       Text(
                         certificate.courseName,
-                        style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w700, color: const Color(0xFF121C2A)),
+                        style: theme.textTheme.titleMedium),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Completed: ${_formatDate(certificate.completionDate)}',
-                        style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF474554)),
+                        style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                       ),
                       const SizedBox(height: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFEFF4FF),
+                          color: theme.colorScheme.surfaceVariant,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           'Credential ID: ${certificate.certificateId.length >= 8 ? certificate.certificateId.substring(0, 8) : certificate.certificateId}...',
-                          style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF4231C0)),
+                          style: theme.textTheme.bodyMedium),
                         ),
                       ),
                     ],
@@ -260,13 +262,13 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8F9FF),
+              color: theme.colorScheme.background,
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(24),
                 bottomRight: Radius.circular(24),
               ),
               border: Border(
-                top: BorderSide(color: const Color(0xFFC8C4D7).withOpacity(0.3)),
+                top: BorderSide(color: theme.colorScheme.outline.withOpacity(0.3)),
               ),
             ),
             child: Row(
@@ -284,7 +286,7 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
                     icon: const Icon(Icons.visibility, size: 18),
                     label: const Text('View'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF4231C0),
+                      foregroundColor: theme.colorScheme.primary,
                       side: const BorderSide(color: Color(0xFF4231C0)),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -298,7 +300,7 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
                     icon: const Icon(Icons.share, size: 18),
                     label: const Text('Share'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4231C0),
+                      backgroundColor: theme.colorScheme.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

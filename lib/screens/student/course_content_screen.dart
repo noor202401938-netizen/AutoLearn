@@ -6,7 +6,6 @@ import '../../repository/auth_repository.dart';
 import '../../business_logic/video_manager.dart';
 import '../../model/course_model.dart';
 import '../../model/video_progress_model.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'video_player_screen.dart';
 import 'ai_quiz_screen.dart';
 import 'assignment_screen.dart';
@@ -84,8 +83,9 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFf8f9ff),
+      backgroundColor: theme.colorScheme.background,
       body: _loading
           ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary))
           : _course == null
@@ -150,11 +150,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                                 const SizedBox(width: 8),
                                 Text(
                                   'Continue Learning',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
+                                  style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onPrimary),
                                 ),
                               ],
                             ),
@@ -169,6 +165,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
   }
 
   SliverAppBar _buildSliverAppBar() {
+    final theme = Theme.of(context);
     return SliverAppBar(
       expandedHeight: 0,
       floating: true,
@@ -178,8 +175,8 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
       iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
       title: Text(
         'AutoLearn',
-        style: GoogleFonts.outfit(
-          color: const Color(0xFF4231C0),
+        style: TextStyle(
+          color: theme.colorScheme.primary,
           fontWeight: FontWeight.bold,
           fontSize: 24,
           letterSpacing: -0.5,
@@ -199,6 +196,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
   }
 
   Widget _buildErrorView() {
+    final theme = Theme.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -210,7 +208,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
             Text(
               'Failed to load course content',
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
+              style: theme.textTheme.bodyLarge,
             ),
             const SizedBox(height: 24),
             ElevatedButton(
@@ -224,6 +222,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
   }
 
   Widget _buildCourseContent() {
+    final theme = Theme.of(context);
     if (_course!.syllabus.isEmpty) {
       return Center(
         child: Padding(
@@ -236,7 +235,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
               Text(
                 'No content available yet',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(fontSize: 16, color: Theme.of(context).disabledColor),
+                style: theme.textTheme.bodyLarge?.copyWith(color: theme.disabledColor),
               ),
             ],
           ),
@@ -255,6 +254,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
   }
 
   Widget _buildHeroSection() {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Column(
@@ -269,7 +269,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                 width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                color: const Color(0xFFd9e3f6),
+                color: theme.colorScheme.secondaryContainer,
                 image: _course!.thumbnailURL.isNotEmpty
                     ? DecorationImage(
                         image: NetworkImage(_course!.thumbnailURL),
@@ -347,13 +347,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
           const SizedBox(height: 24),
           Text(
             widget.title,
-            style: GoogleFonts.outfit(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: const Color(0xFF121c2a),
-              height: 1.2,
-              letterSpacing: -0.64, // -0.02em
-            ),
+            style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           Row(
@@ -366,22 +360,14 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
               const SizedBox(width: 12),
               Text(
                 _course!.instructor,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF474554),
-                ),
+                style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
               const SizedBox(width: 8),
               Container(width: 4, height: 4, decoration: const BoxDecoration(color: Color(0xFFc8c4d7), shape: BoxShape.circle)),
               const SizedBox(width: 8),
               Text(
                 'Lead Instructor',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.primary),
               ),
             ],
           ),
@@ -391,16 +377,17 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
   }
 
   Widget _buildProgressSummary() {
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFFeff4ff), // surface-container-low
+        color: theme.colorScheme.surfaceVariant, // surface-container-low
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.transparent),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF5b4ed9).withOpacity(0.08),
+            color: theme.colorScheme.primary.withOpacity(0.08),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
@@ -414,12 +401,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
             children: [
               Text(
                 'OVERALL PROGRESS',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.6, // 0.05em
-                  color: const Color(0xFF474554),
-                ),
+                style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
               Row(
@@ -428,19 +410,12 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                 children: [
                   Text(
                     '${_courseCompletion.toStringAsFixed(0)}%',
-                    style: GoogleFonts.outfit(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF121c2a),
-                    ),
+                    style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(width: 4),
                   Text(
                     'Complete',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: const Color(0xFF474554),
-                    ),
+                    style: theme.textTheme.bodyMedium,
                   ),
                 ],
               ),
@@ -454,18 +429,14 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
               children: [
                 CircularProgressIndicator(
                   value: _courseCompletion / 100,
-                  backgroundColor: const Color(0xFFd9e3f6),
+                  backgroundColor: theme.colorScheme.secondaryContainer,
                   valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
                   strokeWidth: 4,
                 ),
                 Center(
                   child: Text(
                     '${_courseCompletion.toStringAsFixed(0)}%',
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                    style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.primary),
                   ),
                 ),
               ],
@@ -477,6 +448,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
   }
 
   Widget _buildModuleList() {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -487,18 +459,11 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
             children: [
               Text(
                 'Course Modules',
-                style: GoogleFonts.outfit(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF121c2a),
-                ),
+                style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
               ),
               Text(
                 '${_course!.syllabus.length} Modules',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: const Color(0xFF474554),
-                ),
+                style: theme.textTheme.bodyMedium,
               ),
             ],
           ),
@@ -539,6 +504,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
   }
 
   Widget _buildModuleCard(ModuleModel module, int moduleIndex) {
+    final theme = Theme.of(context);
     final bool isCompleted = _isModuleCompleted(module);
     
     // Determine if it is the "current" module (first incomplete module)
@@ -561,10 +527,10 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFc8c4d7)),
+          border: Border.all(color: theme.colorScheme.outline),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF5b4ed9).withOpacity(0.04),
+              color: theme.colorScheme.primary.withOpacity(0.04),
               blurRadius: 10,
               offset: const Offset(0, 4),
             )
@@ -578,7 +544,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color(0xFF00724e).withOpacity(0.1),
+                color: Colors.green.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(Icons.check_circle, color: Color(0xFF00573a)),
@@ -588,21 +554,12 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
               children: [
                 Text(
                   'COMPLETED',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF00573a),
-                    letterSpacing: 0.6,
-                  ),
+                  style: theme.textTheme.labelMedium?.copyWith(color: Colors.green.shade800, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Module ${moduleIndex + 1}: ${module.title}',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF121c2a),
-                  ),
+                  style: theme.textTheme.titleMedium,
                 ),
               ],
             ),
@@ -615,12 +572,12 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
       return Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: const Color(0xFFeff4ff),
+          color: theme.colorScheme.surfaceVariant,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFF4231c0), width: 2),
+          border: Border.all(color: theme.colorScheme.primary, width: 2),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF5b4ed9).withOpacity(0.15),
+              color: theme.colorScheme.primary.withOpacity(0.15),
               blurRadius: 16,
               offset: const Offset(0, 8),
             )
@@ -635,7 +592,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color(0xFF4231c0),
+                color: theme.colorScheme.primary,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(Icons.play_arrow, color: Colors.white),
@@ -645,21 +602,12 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
               children: [
                 Text(
                   'CURRENT MODULE',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF4231c0),
-                    letterSpacing: 0.6,
-                  ),
+                  style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Module ${moduleIndex + 1}: ${module.title}',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF121c2a),
-                  ),
+                  style: theme.textTheme.titleMedium,
                 ),
               ],
             ),
@@ -673,20 +621,11 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                       children: [
                         Text(
                           'Section Progress',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF474554),
-                            letterSpacing: 0.6,
-                          ),
+                          style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold),
                         ),
                         Text(
                           '${modProgress.toStringAsFixed(0)}%',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
+                          style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -695,7 +634,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
                         value: modProgress / 100,
-                        backgroundColor: const Color(0xFFd9e3f6),
+                        backgroundColor: theme.colorScheme.secondaryContainer,
                         valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
                         minHeight: 8,
                       ),
@@ -715,7 +654,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFc8c4d7).withOpacity(0.5)),
+          border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
         ),
         child: Opacity(
           opacity: 0.6,
@@ -725,7 +664,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color(0xFFc8c4d7).withOpacity(0.2),
+                color: theme.colorScheme.outline.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(Icons.lock, color: Color(0xFF787586)),
@@ -735,21 +674,12 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
               children: [
                 Text(
                   'LOCKED',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF787586),
-                    letterSpacing: 0.6,
-                  ),
+                  style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Module ${moduleIndex + 1}: ${module.title}',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF121c2a),
-                  ),
+                  style: theme.textTheme.titleMedium,
                 ),
               ],
             ),
@@ -760,6 +690,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
   }
 
   Widget _buildLessonTile(ModuleModel module, LessonModel lesson) {
+    final theme = Theme.of(context);
     final progress = _progressMap[lesson.lessonId];
     final isCompleted = progress?.isCompleted ?? false;
     final isVideo = lesson.type == 'video' && lesson.videoURL != null && lesson.videoURL!.isNotEmpty;
@@ -779,7 +710,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: const Color(0xFFc8c4d7).withOpacity(0.3))),
+          border: Border(top: BorderSide(color: theme.colorScheme.outline.withOpacity(0.3))),
         ),
         child: Row(
           children: [
@@ -802,10 +733,10 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                 children: [
                   Text(
                     lesson.title,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF121c2a),
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -814,16 +745,13 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                       if (lesson.duration > 0)
                         Text(
                           '${lesson.duration} min',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: const Color(0xFF474554),
-                          ),
+                          style: theme.textTheme.bodySmall,
                         ),
                       if (progress != null && !isCompleted && progress.completionPercentage > 0) ...[
                         const SizedBox(width: 8),
                         Text(
                           '• ${progress.completionPercentage.toStringAsFixed(0)}%',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(
                             fontSize: 12,
                             color: Theme.of(context).colorScheme.primary,
                             fontWeight: FontWeight.w600,

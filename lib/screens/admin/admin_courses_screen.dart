@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../business_logic/course_manager.dart';
 import '../../model/course_model.dart';
@@ -60,6 +59,7 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -74,20 +74,12 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
               // Dashboard Header
               Text(
                 'Course Management',
-                style: GoogleFonts.outfit(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: colorScheme.onSurface,
-                  letterSpacing: -0.01,
-                ),
+                style: theme.textTheme.titleMedium,
               ),
               const SizedBox(height: 4),
               Text(
                 'Manage and organize your learning curriculum.',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: colorScheme.onSurfaceVariant,
-                ),
+                style: theme.textTheme.bodyMedium,
               ),
               const SizedBox(height: 24),
 
@@ -147,12 +139,13 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.all(32.0),
-                    child: Text('No courses found', style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant)),
+                    child: Text('No courses found', style: theme.textTheme.bodyMedium),
                   ),
                 )
               else
                 LayoutBuilder(
                   builder: (context, constraints) {
+      final theme = Theme.of(context);
                     final isDesktop = constraints.maxWidth > 800;
                     return GridView.builder(
                       itemCount: _filteredCourses.length,
@@ -191,6 +184,7 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
   }
 
   Widget _buildFilterChip(BuildContext context, String label) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isSelected = _selectedFilter == label;
@@ -206,11 +200,7 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
         ),
         child: Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
-          ),
+          style: theme.textTheme.bodyMedium,
         ),
       ),
     );
@@ -227,6 +217,7 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
     bool isDraft = false,
     bool isArchived = false,
   }) {
+    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -256,12 +247,7 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
               ),
               child: Text(
                 status,
-                style: GoogleFonts.inter(
-                  fontSize: 8,
-                  fontWeight: FontWeight.w700,
-                  color: statusColor,
-                  letterSpacing: 0.5,
-                ),
+                style: theme.textTheme.bodyMedium,
               ),
             ),
           ),
@@ -278,11 +264,7 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
                     children: [
                       Text(
                         title,
-                        style: GoogleFonts.outfit(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: colorScheme.onSurface,
-                        ),
+                        style: theme.textTheme.titleMedium,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -293,10 +275,7 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
                           const SizedBox(width: 4),
                           Text(
                             '$enrolled Enrolled',
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: colorScheme.onSurfaceVariant,
-                            ),
+                            style: theme.textTheme.bodyMedium,
                           ),
                         ],
                       ),
@@ -306,9 +285,9 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
                     children: [
                       Expanded(
                         child: isDraft
-                            ? Text('Drafting in progress...', style: GoogleFonts.inter(fontSize: 10, color: colorScheme.outline, fontStyle: FontStyle.italic, fontWeight: FontWeight.bold))
+                            ? Text('Drafting in progress...', style: theme.textTheme.bodyMedium)
                             : isArchived
-                                ? Text('Access Restricted', style: GoogleFonts.inter(fontSize: 10, color: colorScheme.outline, fontWeight: FontWeight.bold))
+                                ? Text('Access Restricted', style: theme.textTheme.bodyMedium)
                                 : Container(
                                     height: 6,
                                     decoration: BoxDecoration(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../business_logic/video_manager.dart';
 import '../../business_logic/certificate_manager.dart';
 import '../../model/video_progress_model.dart';
@@ -174,8 +173,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FF),
+      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         backgroundColor: Colors.white.withOpacity(0.8),
         elevation: 1,
@@ -189,12 +189,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         ),
         title: Text(
           'AutoLearn',
-          style: GoogleFonts.outfit(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF4231C0),
-            letterSpacing: -0.5,
-          ),
+          style: theme.textTheme.headlineSmall?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
@@ -208,7 +203,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               height: 32,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFF5B4ED9), width: 2),
+                border: Border.all(color: theme.colorScheme.primary, width: 2),
                 image: const DecorationImage(
                   image: NetworkImage('https://lh3.googleusercontent.com/aida-public/AB6AXuC4wCagtlYgQZ4aUHGGZsVqv55EJUqhoMfsHGVcW8bMjYKtL5UhVQs9MludjJQK8xy3Qv6LUVLKnRetoFONw1wqOTGDJNtmFBzSoC-XavdOjhiwbxWczLbDbRyzMH9o58Xw-B1skueABPWzSThnuOZsMcy5_GJLX3PGWCCJe07QmGITbTQRuPZXdOGXYIaG9LYO40Cyr1oawGOfyuxEr83b4BUI2J5jv0-H-y9wlThHk6z76YAS_T-EHUSGojJFdl9hA1Ful5xqfCFo'),
                   fit: BoxFit.cover,
@@ -243,6 +238,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 
   Widget _buildErrorView() {
+    final theme = Theme.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -254,12 +250,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             Text(
               _errorMessage!,
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(fontSize: 16, color: const Color(0xFF121C2A)),
+              style: theme.textTheme.titleMedium,
             ),
             const SizedBox(height: 24),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4231C0),
+                backgroundColor: theme.colorScheme.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
@@ -273,6 +269,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 
   Widget _buildVideoPlayer() {
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       decoration: BoxDecoration(
@@ -293,7 +290,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 player: YoutubePlayer(
                   controller: _youtubeController!,
                   showVideoProgressIndicator: true,
-                  progressIndicatorColor: const Color(0xFF6B38D4),
+                  progressIndicatorColor: theme.colorScheme.primary,
                   progressColors: const ProgressBarColors(
                     playedColor: Color(0xFF6B38D4),
                     handleColor: Color(0xFF5B4ED9),
@@ -310,6 +307,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 
   Widget _buildContentArea() {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -321,27 +319,27 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF5B4ED9).withOpacity(0.2),
+                  color: theme.colorScheme.primary.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   widget.moduleTitle.toUpperCase(),
-                  style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF3D2ABB)),
+                  style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(width: 8),
-              Text('• 12k Students', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF474554))),
+              Text('• 12k Students', style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 8),
           Text(
             widget.lesson.title,
-            style: GoogleFonts.outfit(fontSize: 32, fontWeight: FontWeight.w700, color: const Color(0xFF121C2A)),
+            style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
             widget.lesson.content ?? '',
-            style: GoogleFonts.inter(fontSize: 16, color: const Color(0xFF474554), height: 1.5),
+            style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 24),
           
@@ -365,6 +363,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 
   Widget _buildTab(String id, String title) {
+    final theme = Theme.of(context);
     final isActive = _activeTab == id;
     return Expanded(
       child: GestureDetector(
@@ -374,7 +373,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: isActive ? const Color(0xFF4231C0) : Colors.transparent,
+                color: isActive ? theme.colorScheme.primary : Colors.transparent,
                 width: 2,
               ),
             ),
@@ -382,10 +381,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           child: Center(
             child: Text(
               title,
-              style: GoogleFonts.inter(
-                fontWeight: FontWeight.bold,
-                color: isActive ? const Color(0xFF4231C0) : const Color(0xFF474554),
-              ),
+              style: isActive 
+                ? theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold) 
+                : theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
           ),
         ),
@@ -394,6 +392,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 
   Widget _buildAboutTab() {
+    final theme = Theme.of(context);
     return Column(
       children: [
         if (_aiSummary != null)
@@ -402,14 +401,14 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.7),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.3)),
+              border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('AI Summary & Key Takeaways', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: const Color(0xFF4231C0))),
+                Text('AI Summary & Key Takeaways', style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
-                Text(_aiSummary!.summary, style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF121C2A), height: 1.5)),
+                Text(_aiSummary!.summary, style: theme.textTheme.bodyMedium),
                 const SizedBox(height: 12),
                 ..._aiSummary!.keyPoints.map((point) => Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
@@ -418,7 +417,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                     children: [
                       const Icon(Icons.check_circle, color: Color(0xFF00573A), size: 16),
                       const SizedBox(width: 8),
-                      Expanded(child: Text(point, style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF121C2A)))),
+                      Expanded(child: Text(point, style: theme.textTheme.bodyMedium)),
                     ],
                   ),
                 )).toList()
@@ -429,9 +428,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFFEFF4FF),
+            color: theme.colorScheme.surfaceVariant,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFC8C4D7)),
+            border: Border.all(color: theme.colorScheme.outline),
           ),
           child: Row(
             children: [
@@ -451,19 +450,19 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Dr. Julian Vance', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: const Color(0xFF121C2A))),
-                    Text('Senior AI Architect @ DeepFlow', style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF474554))),
+                    Text('Dr. Julian Vance', style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold)),
+                    Text('Senior AI Architect @ DeepFlow', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
                   ],
                 ),
               ),
               ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4231C0),
+                  backgroundColor: theme.colorScheme.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: Text('Follow', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14)),
+                child: Text('Follow', style: theme.textTheme.labelLarge),
               )
             ],
           ),
@@ -473,11 +472,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 
   Widget _buildTranscriptTab() {
+    final theme = Theme.of(context);
     if (_captions == null || _captions!.captions.isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Text('No transcript available', style: GoogleFonts.inter(color: const Color(0xFF474554))),
+          child: Text('No transcript available', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
         ),
       );
     }
@@ -497,13 +497,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 width: 60,
                 child: Text(
                   _formatDuration(Duration(seconds: caption.startTime.toInt())),
-                  style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: const Color(0xFF4231C0)),
+                  style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold),
                 ),
               ),
               Expanded(
                 child: Text(
                   caption.text,
-                  style: GoogleFonts.inter(fontSize: 16, color: const Color(0xFF121C2A)),
+                  style: theme.textTheme.titleMedium,
                 ),
               )
             ],
@@ -521,22 +521,24 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 
   Widget _buildResourcesTab() {
+    final theme = Theme.of(context);
     return Column(
       children: [
-        _buildResourceCard(Icons.description, 'Lesson_Handout.pdf', '2.4 MB', const Color(0xFFFFDAD6), const Color(0xFFBA1A1A)),
+        _buildResourceCard(Icons.description, 'Lesson_Handout.pdf', '2.4 MB', theme.colorScheme.errorContainer, theme.colorScheme.error),
         const SizedBox(height: 16),
-        _buildResourceCard(Icons.code, 'Source_Code.ipynb', '156 KB', const Color(0xFFE6EEFF), const Color(0xFF4231C0)),
+        _buildResourceCard(Icons.code, 'Source_Code.ipynb', '156 KB', theme.colorScheme.secondaryContainer, theme.colorScheme.primary),
       ],
     );
   }
   
   Widget _buildResourceCard(IconData icon, String title, String subtitle, Color bgColor, Color iconColor) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC8C4D7)),
+        border: Border.all(color: theme.colorScheme.outline),
       ),
       child: Row(
         children: [
@@ -554,8 +556,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: const Color(0xFF121C2A))),
-                Text(subtitle, style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF474554))),
+                Text(title, style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold)),
+                Text(subtitle, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
               ],
             ),
           ),
@@ -566,6 +568,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 
   Widget _buildUpNext() {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -573,8 +576,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Up Next', style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w700, color: const Color(0xFF121C2A))),
-              Text('View Syllabus', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: const Color(0xFF4231C0), fontSize: 14)),
+              Text('Up Next', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+              Text('View Syllabus', style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 16),
@@ -587,6 +590,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
   
   Widget _buildNextLessonCard(String title, String subtitle, String duration, bool locked) {
+    final theme = Theme.of(context);
     return Opacity(
       opacity: locked ? 0.6 : 1.0,
       child: Container(
@@ -594,7 +598,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFC8C4D7)),
+          border: Border.all(color: theme.colorScheme.outline),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
@@ -608,7 +612,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               width: 96,
               height: 64,
               decoration: BoxDecoration(
-                color: const Color(0xFFD0DBED),
+                color: theme.colorScheme.surfaceVariant,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Stack(
@@ -634,8 +638,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: const Color(0xFF121C2A)), overflow: TextOverflow.ellipsis),
-                  Text(subtitle, style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF474554))),
+                  Text(title, style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
+                  Text(subtitle, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
                 ],
               ),
             ),

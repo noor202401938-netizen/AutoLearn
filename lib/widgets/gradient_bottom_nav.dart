@@ -14,6 +14,7 @@ class GradientBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
 
 
     final isDark = Theme.of(context).brightness == Brightness.dark;

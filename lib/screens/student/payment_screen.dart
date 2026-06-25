@@ -64,14 +64,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final amount = (widget.amountCents / 100).toStringAsFixed(2);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FF),
+      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         title: Text('Complete Enrollment', 
           style: TextStyle(
             fontWeight: FontWeight.bold, 
-            color: const Color(0xFF4231C0),
+            color: theme.colorScheme.primary,
           )
         ),
         backgroundColor: Colors.white.withOpacity(0.9),
@@ -89,7 +90,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
               children: [
                 Text(
                   'Enroll in Course',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: const Color(0xFF121C2A)),
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -101,10 +102,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
+                    border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF4231C0).withOpacity(0.05),
+                        color: theme.colorScheme.primary.withOpacity(0.05),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),
@@ -128,11 +129,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF4231C0),
+                    color: theme.colorScheme.primary,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF4231C0).withOpacity(0.3),
+                        color: theme.colorScheme.primary.withOpacity(0.3),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),

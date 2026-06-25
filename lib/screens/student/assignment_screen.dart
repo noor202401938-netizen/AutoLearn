@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -256,8 +255,9 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FF),
+      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         backgroundColor: Colors.white.withOpacity(0.8),
         elevation: 1,
@@ -271,19 +271,14 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
         ),
         title: Text(
           'AutoLearn',
-          style: GoogleFonts.outfit(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF4231C0),
-            letterSpacing: -0.5,
-          ),
+          style: theme.textTheme.headlineSmall?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold),
         ),
       ),
       body: SafeArea(
         child: _isLoading
             ? const Center(child: CircularProgressIndicator(color: Color(0xFF4231C0)))
             : _assignment == null
-                ? Center(child: Text('Assignment not found', style: GoogleFonts.inter(color: Colors.black)))
+                ? Center(child: Text('Assignment not found', style: theme.textTheme.bodyMedium))
                 : Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 1200),
@@ -291,6 +286,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                         padding: const EdgeInsets.all(20),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
+      final theme = Theme.of(context);
                         final isDesktop = constraints.maxWidth > 800;
                         return Flex(
                           direction: isDesktop ? Axis.horizontal : Axis.vertical,
@@ -329,6 +325,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
   }
 
   Widget _buildAssignmentHeader() {
+    final theme = Theme.of(context);
     final isOverdue = _assignment!.dueDate.isBefore(DateTime.now());
     final daysUntilDue = _assignment!.dueDate.difference(DateTime.now()).inDays;
     
@@ -337,10 +334,10 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.3)),
+        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF4231C0).withOpacity(0.05),
+            color: theme.colorScheme.primary.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           )
@@ -360,15 +357,12 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF4231C0).withOpacity(0.1),
+                        color: theme.colorScheme.primary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(24),
                       ),
                       child: Text(
                         widget.moduleTitle.toUpperCase(),
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF4231C0),
+                        style: theme.textTheme.bodyMedium,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -376,10 +370,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                     const SizedBox(height: 12),
                     Text(
                       _assignment!.title,
-                      style: GoogleFonts.outfit(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF121C2A),
+                      style: theme.textTheme.titleMedium,
                         height: 1.1,
                       ),
                     ),
@@ -389,27 +380,21 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: isOverdue ? const Color(0xFFBA1A1A).withOpacity(0.1) : const Color(0xFF00724E).withOpacity(0.1),
+                  color: isOverdue ? theme.colorScheme.error.withOpacity(0.1) : const Color(0xFF00724E).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: isOverdue ? const Color(0xFFBA1A1A).withOpacity(0.3) : const Color(0xFF00724E).withOpacity(0.3)),
+                  border: Border.all(color: isOverdue ? theme.colorScheme.error.withOpacity(0.3) : const Color(0xFF00724E).withOpacity(0.3)),
                 ),
                 child: Column(
                   children: [
                     Text(
                       isOverdue ? 'Overdue' : 'Due In',
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: isOverdue ? const Color(0xFFBA1A1A) : const Color(0xFF00724E),
+                      style: theme.textTheme.bodyMedium : const Color(0xFF00724E),
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       isOverdue ? '0 Days' : ' Days',
-                      style: GoogleFonts.outfit(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: isOverdue ? const Color(0xFFBA1A1A) : const Color(0xFF00724E),
+                      style: theme.textTheme.titleMedium : const Color(0xFF00724E),
                       ),
                     ),
                   ],
@@ -421,11 +406,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
             const SizedBox(height: 16),
             Text(
               _assignment!.description,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: const Color(0xFF474554),
-                height: 1.5,
-              ),
+              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
           ]
         ],
@@ -434,12 +415,13 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
   }
 
   Widget _buildInstructions() {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.3)),
+        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -450,10 +432,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
               const SizedBox(width: 8),
               Text(
                 'Instructions',
-                style: GoogleFonts.outfit(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF121C2A),
+                style: theme.textTheme.titleMedium,
                 ),
               ),
             ],
@@ -461,11 +440,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
           const SizedBox(height: 16),
           Text(
             _assignment!.instructions,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: const Color(0xFF474554),
-              height: 1.5,
-            ),
+            style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
         ],
       ),
@@ -473,16 +448,14 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
   }
 
   Widget _buildResources() {
+    final theme = Theme.of(context);
     // Placeholder resources grid matching the design
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Required Resources',
-          style: GoogleFonts.outfit(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF121C2A),
+          style: theme.textTheme.titleMedium,
           ),
         ),
         const SizedBox(height: 16),
@@ -494,10 +467,10 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
           crossAxisSpacing: 16,
           childAspectRatio: 2.5,
           children: [
-            _buildResourceCard(Icons.picture_as_pdf, 'Architecture_Spec.pdf', '2.4 MB', const Color(0xFFBA1A1A)),
-            _buildResourceCard(Icons.play_circle, 'Setup_Guide.mp4', '45 MB', const Color(0xFF6B38D4)),
+            _buildResourceCard(Icons.picture_as_pdf, 'Architecture_Spec.pdf', '2.4 MB', theme.colorScheme.error),
+            _buildResourceCard(Icons.play_circle, 'Setup_Guide.mp4', '45 MB', theme.colorScheme.primary),
             _buildResourceCard(Icons.link, 'API_Documentation', 'External Link', const Color(0xFF00724E)),
-            _buildResourceCard(Icons.table_chart, 'Dataset_v2.csv', '12 MB', const Color(0xFF4231C0)),
+            _buildResourceCard(Icons.table_chart, 'Dataset_v2.csv', '12 MB', theme.colorScheme.primary),
           ],
         )
       ],
@@ -505,12 +478,13 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
   }
   
   Widget _buildResourceCard(IconData icon, String title, String subtitle, Color color) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.3)),
+        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
       ),
       child: Row(
         children: [
@@ -529,8 +503,8 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12, color: const Color(0xFF121C2A)), overflow: TextOverflow.ellipsis),
-                Text(subtitle, style: GoogleFonts.inter(fontSize: 10, color: const Color(0xFF787586))),
+                Text(title, style: theme.textTheme.bodyMedium), overflow: TextOverflow.ellipsis),
+                Text(subtitle, style: theme.textTheme.bodyMedium)),
               ],
             ),
           )
@@ -540,12 +514,13 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
   }
 
   Widget _buildSubmissionArea() {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.3)),
+        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -553,14 +528,14 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Status', style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 14)),
+              Text('Status', style: theme.textTheme.labelLarge),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF474554).withOpacity(0.1),
+                  color: theme.colorScheme.onSurfaceVariant.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Text('Not Submitted', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF474554))),
+                child: Text('Not Submitted', style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
               )
             ],
           ),
@@ -568,8 +543,8 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Points', style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 14)),
-              Text('0 / ', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: const Color(0xFF4231C0))),
+              Text('Points', style: theme.textTheme.labelLarge),
+              Text('0 / ', style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 24),
@@ -578,10 +553,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
           
           Text(
             'Upload Work',
-            style: GoogleFonts.outfit(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF121C2A),
+            style: theme.textTheme.titleMedium,
             ),
           ),
           const SizedBox(height: 12),
@@ -592,23 +564,23 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8F9FF),
+                color: theme.colorScheme.background,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFC8C4D7), style: BorderStyle.solid),
+                border: Border.all(color: theme.colorScheme.outline, style: BorderStyle.solid),
               ),
               child: Center(
                 child: Column(
                   children: [
                     Icon(
                        _isFileUploaded ? Icons.check_circle : Icons.cloud_upload, 
-                       color: _isFileUploaded ? const Color(0xFF00724E) : const Color(0xFF4231C0), 
+                       color: _isFileUploaded ? const Color(0xFF00724E) : theme.colorScheme.primary, 
                        size: 32
                     ),
                     const SizedBox(height: 12),
                     Text(
                       _isFileUploaded ? _uploadedFileName : 'Drag & drop files here\nor click to browse',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF474554)),
+                      style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -622,12 +594,12 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
           TextField(
             controller: _submissionController,
             maxLines: 4,
-            style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF121C2A)),
+            style: theme.textTheme.bodyMedium,
             decoration: InputDecoration(
               hintText: 'Add optional comments...',
-              hintStyle: GoogleFonts.inter(color: const Color(0xFF787586)),
+              hintStyle: GoogleFonts.inter(color: theme.colorScheme.onSurfaceVariant),
               filled: true,
-              fillColor: const Color(0xFFF8F9FF),
+              fillColor: theme.colorScheme.background,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(color: Color(0xFFC8C4D7)),
@@ -657,7 +629,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF4231C0).withOpacity(0.3),
+                  color: theme.colorScheme.primary.withOpacity(0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -683,7 +655,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('Submit Work', style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                        Text('Submit Work', style: theme.textTheme.bodyMedium),
                         const SizedBox(width: 8),
                         const Icon(Icons.send, color: Colors.white, size: 20),
                       ],
@@ -696,12 +668,13 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
   }
 
   Widget _buildFeedbackView() {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.3)),
+        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -709,7 +682,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFEFF4FF),
+              color: theme.colorScheme.surfaceVariant,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -728,8 +701,8 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Final Score', style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12, color: const Color(0xFF474554))),
-                      Text(' / ', style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w700, color: const Color(0xFF121C2A))),
+                      Text('Final Score', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                      Text(' / ', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
                     ],
                   ),
                 )
@@ -739,45 +712,39 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
           const SizedBox(height: 24),
           Text(
             'Feedback',
-            style: GoogleFonts.outfit(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF121C2A),
+            style: theme.textTheme.titleMedium,
             ),
           ),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8F9FF),
+              color: theme.colorScheme.background,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
+              border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
             ),
             child: Text(
               _existingSubmission!.feedback ?? 'No feedback available',
-              style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF474554), height: 1.5),
+              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
           ),
           const SizedBox(height: 24),
           Text(
             'Your Submission',
-            style: GoogleFonts.outfit(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF121C2A),
+            style: theme.textTheme.titleMedium,
             ),
           ),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8F9FF),
+              color: theme.colorScheme.background,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFC8C4D7).withOpacity(0.5)),
+              border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
             ),
             child: Text(
               _existingSubmission!.content,
-              style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF474554), height: 1.5),
+              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
           ),
           const SizedBox(height: 32),
@@ -792,7 +759,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 elevation: 0,
               ),
-              child: Text('Back to Course', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 16)),
+              child: Text('Back to Course', style: theme.textTheme.bodyMedium),
             ),
           )
         ],

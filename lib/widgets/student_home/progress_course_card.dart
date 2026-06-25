@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class ProgressCourseCard extends StatelessWidget {
   final String title;
@@ -19,6 +18,7 @@ class ProgressCourseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -64,10 +64,7 @@ class ProgressCourseCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurface,
+                    style: theme.textTheme.bodyMedium.colorScheme.onSurface,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -75,9 +72,7 @@ class ProgressCourseCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     moduleName,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    style: theme.textTheme.bodyMedium.colorScheme.onSurfaceVariant,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -89,18 +84,12 @@ class ProgressCourseCard extends StatelessWidget {
                     children: [
                       Text(
                         'Progress',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        style: theme.textTheme.bodyMedium.colorScheme.onSurfaceVariant,
                         ),
                       ),
                       Text(
                         '${(progressPercent * 100).toInt()}%',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        style: theme.textTheme.bodyMedium.colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -110,7 +99,7 @@ class ProgressCourseCard extends StatelessWidget {
                     height: 8,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE6EEFF),
+                      color: theme.colorScheme.secondaryContainer,
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: FractionallySizedBox(

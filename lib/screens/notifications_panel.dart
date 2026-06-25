@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../business_logic/notification_manager.dart';
 import '../model/notification_model.dart';
 
@@ -74,7 +73,7 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('Notifications', style: GoogleFonts.outfit(fontWeight: FontWeight.w700, color: colorScheme.onSurface)),
+        title: Text('Notifications', style: theme.textTheme.titleMedium),
         backgroundColor: colorScheme.surface.withOpacity(0.8),
         elevation: 0,
         iconTheme: IconThemeData(color: colorScheme.onSurface),
@@ -86,7 +85,7 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
                 onPressed: _markAllAsRead,
                 child: Text(
                   'Mark all read',
-                  style: GoogleFonts.inter(color: colorScheme.primary, fontWeight: FontWeight.w600),
+                  style: theme.textTheme.bodyMedium,
                 ),
               ),
             ),
@@ -106,6 +105,7 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
   }
 
   Widget _buildEmptyState(ColorScheme colorScheme) {
+    final theme = Theme.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -121,12 +121,12 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
           const SizedBox(height: 24),
           Text(
             'No Notifications',
-            style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.w700, color: colorScheme.onSurfaceVariant),
+            style: theme.textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
           Text(
             'You\'re all caught up!',
-            style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant.withOpacity(0.8)),
+            style: theme.textTheme.bodyMedium),
           ),
         ],
       ),
@@ -134,6 +134,7 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
   }
 
   Widget _buildNotificationsList(ColorScheme colorScheme, bool isDark) {
+    final theme = Theme.of(context);
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: _notifications.length,
@@ -174,23 +175,17 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
             ),
             title: Text(
               notification.title,
-              style: GoogleFonts.inter(
-                color: colorScheme.onSurface,
-                fontWeight: notification.isRead ? FontWeight.w500 : FontWeight.bold,
-              ),
+              style: theme.textTheme.bodyMedium,
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 4),
-                Text(notification.body, style: GoogleFonts.inter(color: colorScheme.onSurfaceVariant)),
+                Text(notification.body, style: theme.textTheme.bodyMedium),
                 const SizedBox(height: 8),
                 Text(
                   _formatTime(notification.createdAt),
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: colorScheme.onSurfaceVariant.withOpacity(0.8),
+                  style: theme.textTheme.bodyMedium,
                   ),
                 ),
               ],
