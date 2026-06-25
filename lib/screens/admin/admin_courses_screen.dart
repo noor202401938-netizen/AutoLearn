@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../business_logic/course_manager.dart';
 import '../../model/course_model.dart';

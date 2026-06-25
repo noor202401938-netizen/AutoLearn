@@ -1,6 +1,6 @@
-
 // lib/screens/student/student_home.dart
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import '../../business_logic/auth_manager.dart';
 import '../../repository/auth_repository.dart';
 import '../../repository/user_repository.dart';
@@ -321,8 +321,10 @@ class _StudentHomeState extends State<StudentHome> {
             ),
           ],
         ),
-      ),
-    );
+      ],
+    ),
+  ),
+);
   }
 
   Widget _buildHomeScreen() {
@@ -352,7 +354,6 @@ class _StudentHomeState extends State<StudentHome> {
                         color: theme.colorScheme.onSurface,
                         letterSpacing: -1.0,
                       ),
-                      ),
                     ),
                     Expanded(child: _buildGreetingName()),
                   ],
@@ -360,8 +361,7 @@ class _StudentHomeState extends State<StudentHome> {
                 const SizedBox(height: 12),
                 Text(
                   'You\'re on a $streak-day learning streak! Keep it up.',
-                  style: theme.textTheme.bodyMedium.colorScheme.onSurfaceVariant,
-                  ),
+                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: 24),
                 // Signature Stats Section
@@ -433,8 +433,7 @@ class _StudentHomeState extends State<StudentHome> {
                       },
                       child: Text(
                         'View All',
-                        style: theme.textTheme.bodyMedium.colorScheme.primary,
-                        ),
+                        style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.primary),
                       ),
                     ),
                   ],
@@ -454,8 +453,7 @@ class _StudentHomeState extends State<StudentHome> {
                                 const SizedBox(height: 16),
                                 Text(
                                   'No courses in progress',
-                                  style: theme.textTheme.bodyMedium.colorScheme.onSurfaceVariant,
-                                  ),
+                                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                                 ),
                                 const SizedBox(height: 20),
                                 ElevatedButton(

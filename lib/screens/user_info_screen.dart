@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserInfoPage extends StatefulWidget {
@@ -83,7 +84,7 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
               children: [
                 const Icon(Icons.check_circle_outline, color: Colors.white),
                 const SizedBox(width: 10),
-                Expanded(child: Text('Information saved! Please sign up to continue.', style: theme.textTheme.bodyMedium)),
+                Expanded(child: Text('Information saved! Please sign up to continue.', style: Theme.of(context).textTheme.bodyMedium)),
               ],
             ),
             backgroundColor: const Color(0xFF00724e),
@@ -98,7 +99,7 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}', style: theme.textTheme.bodyMedium),
+            content: Text('Error: ${e.toString()}', style: Theme.of(context).textTheme.bodyMedium),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -122,7 +123,7 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
-      style: theme.textTheme.bodyMedium,
+      style: Theme.of(context).textTheme.bodyMedium,
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: GoogleFonts.inter(color: colorScheme.onSurfaceVariant),
@@ -159,7 +160,7 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
     return DropdownButtonFormField<String>(
       value: value,
       dropdownColor: colorScheme.surface,
-      style: theme.textTheme.bodyMedium,
+      style: Theme.of(context).textTheme.bodyMedium,
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: GoogleFonts.inter(color: colorScheme.onSurfaceVariant),
