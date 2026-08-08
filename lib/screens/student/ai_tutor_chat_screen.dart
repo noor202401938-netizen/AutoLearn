@@ -64,7 +64,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading chat: ')),
+          SnackBar(content: Text('Error loading chat: $e')),
         );
       }
     }
@@ -98,7 +98,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error sending message: '),
+            content: Text('Error sending message: $e'),
             backgroundColor: theme.colorScheme.error,
           ),
         );

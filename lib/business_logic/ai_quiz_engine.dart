@@ -1,5 +1,6 @@
 // lib/business_logic/ai_quiz_engine.dart
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../model/quiz_model.dart';
 import '../repository/quiz_repository.dart';
@@ -7,9 +8,15 @@ import '../repository/quiz_repository.dart';
 class AIQuizEngine {
   final QuizRepository _quizRepository = QuizRepository();
 
-  // OpenAI API Configuration
-  static const String _openAIApiKey =
-      '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';
+  // ⚠️  IMPORTANT: Never hardcode API keys in source code.
+  // This key is read from a compile-time env variable:
+  //   flutter run --dart-define=OPENAI_API_KEY=sk-...
+  // In production, move AI calls to your backend (recommended) so
+  // the key never ships in the client binary at all.
+  static const String _openAIApiKey = String.fromEnvironment(
+    'OPENAI_API_KEY',
+    defaultValue: '',
+  );
   static const String _openAIApiUrl =
       'https://api.openai.com/v1/chat/completions';
 
@@ -24,6 +31,17 @@ class AIQuizEngine {
     QuestionType questionType = QuestionType.multipleChoice,
   }) async {
     try {
+      // Guard: if no API key is configured, fall back to default quiz
+      if (_openAIApiKey.isEmpty) {
+        debugPrint('AIQuizEngine: OPENAI_API_KEY not set — using default quiz.');
+        return _createDefaultQuiz(
+          courseId: courseId,
+          moduleId: moduleId,
+          lessonId: lessonId,
+          lessonTitle: lessonTitle,
+        );
+      }
+
       final quizId = 'quiz_${DateTime.now().millisecondsSinceEpoch}';
 
       // Build prompt for AI
@@ -34,30 +52,32 @@ class AIQuizEngine {
         questionType: questionType,
       );
 
-      // Call OpenAI API
-      final response = await http.post(
-        Uri.parse(_openAIApiUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $_openAIApiKey',
-        },
-        body: json.encode({
-          'model': 'gpt-3.5-turbo',
-          'messages': [
-            {
-              'role': 'system',
-              'content':
-                  'You are an expert educator. Generate educational quizzes in JSON format.',
+      // Call OpenAI API (15s timeout to avoid hanging)
+      final response = await http
+          .post(
+            Uri.parse(_openAIApiUrl),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $_openAIApiKey',
             },
-            {
-              'role': 'user',
-              'content': prompt,
-            },
-          ],
-          'temperature': 0.7,
-          'max_tokens': 2000,
-        }),
-      );
+            body: json.encode({
+              'model': 'gpt-3.5-turbo',
+              'messages': [
+                {
+                  'role': 'system',
+                  'content':
+                      'You are an expert educator. Generate educational quizzes in JSON format.',
+                },
+                {
+                  'role': 'user',
+                  'content': prompt,
+                },
+              ],
+              'temperature': 0.7,
+              'max_tokens': 2000,
+            }),
+          )
+          .timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);

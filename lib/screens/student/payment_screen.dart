@@ -23,11 +23,23 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   void initState() {
     super.initState();
-    _paymentManager.startPendingPayment(
-      courseId: widget.courseId,
-      amountCents: widget.amountCents,
-      currency: widget.currency,
-    );
+    // Schedule the async payment-intent creation after the first frame
+    // so errors are catchable and don't silently fail in initState.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await _paymentManager.startPendingPayment(
+          courseId: widget.courseId,
+          amountCents: widget.amountCents,
+          currency: widget.currency,
+        );
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to initialise payment: $e')),
+          );
+        }
+      }
+    });
   }
 
   Future<void> _simulatePayNow() async {

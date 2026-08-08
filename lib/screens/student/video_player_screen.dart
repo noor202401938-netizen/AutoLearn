@@ -166,7 +166,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         });
       }
     } catch (e) {
-      print('Error showing certificate: $e');
+      debugPrint('Error showing certificate: $e');
     }
   }
 

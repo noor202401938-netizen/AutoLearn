@@ -17,12 +17,14 @@ class AuthManager {
     }
   }
 
-  Future<String?> login(String email, String password) async {
+  Future<String?> login(String email, String password,
+      {bool rememberMe = false}) async {
     try {
-      final user = await _authRepository.loginUser(email, password);
-      return user != null ? null : "Invalid email or password.";
+      final user =
+          await _authRepository.loginUser(email, password, rememberMe: rememberMe);
+      return user != null ? null : 'Invalid email or password.';
     } catch (e) {
-      return "Login failed: ${e.toString()}";
+      return 'Login failed: ${e.toString()}';
     }
   }
 

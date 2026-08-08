@@ -37,8 +37,6 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _loadPreferences();
-    // We will handle auth state changes via our custom ApiClient later
-    _loadPreferences();
     // Listen to preference changes for real-time updates
     _preferenceNotifier.addListener(_onPreferencesChanged);
   }
@@ -76,7 +74,7 @@ class _MyAppState extends State<MyApp> {
     final fontSizeMultiplier = _preferenceNotifier.fontSizeMultiplier;
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(
-        textScaleFactor: fontSizeMultiplier,
+        textScaler: TextScaler.linear(fontSizeMultiplier),
       ),
       child: MaterialApp(
         title: 'AutoLearn',

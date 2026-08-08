@@ -13,6 +13,7 @@ class ApiClient {
   );
 
   static String get baseUrl {
+    assert(_defaultBaseUrl.isNotEmpty, 'API_BASE_URL is not set');
     // If not local development and URL is HTTP, warn or upgrade to HTTPS
     if (!_defaultBaseUrl.contains('localhost') && 
         !_defaultBaseUrl.contains('127.0.0.1') && 
@@ -24,6 +25,7 @@ class ApiClient {
   }
 
   static const _storage = FlutterSecureStorage();
+  static const Duration _timeout = Duration(seconds: 15);
 
   static final ApiClient instance = ApiClient._internal();
 
@@ -59,7 +61,7 @@ class ApiClient {
     return await http.get(
       Uri.parse('$baseUrl$endpoint'),
       headers: headers,
-    );
+    ).timeout(_timeout);
   }
 
   Future<http.Response> post(String endpoint, Map<String, dynamic> body) async {
@@ -68,7 +70,7 @@ class ApiClient {
       Uri.parse('$baseUrl$endpoint'),
       headers: headers,
       body: jsonEncode(body),
-    );
+    ).timeout(_timeout);
   }
 
   Future<http.Response> put(String endpoint, Map<String, dynamic> body) async {
@@ -77,7 +79,16 @@ class ApiClient {
       Uri.parse('$baseUrl$endpoint'),
       headers: headers,
       body: jsonEncode(body),
-    );
+    ).timeout(_timeout);
+  }
+
+  Future<http.Response> patch(String endpoint, Map<String, dynamic> body) async {
+    final headers = await _getHeaders();
+    return await http.patch(
+      Uri.parse('$baseUrl$endpoint'),
+      headers: headers,
+      body: jsonEncode(body),
+    ).timeout(_timeout);
   }
 
   Future<http.Response> delete(String endpoint) async {
@@ -85,6 +96,6 @@ class ApiClient {
     return await http.delete(
       Uri.parse('$baseUrl$endpoint'),
       headers: headers,
-    );
+    ).timeout(_timeout);
   }
 }

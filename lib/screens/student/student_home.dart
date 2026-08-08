@@ -1,7 +1,6 @@
 // lib/screens/student/student_home.dart
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import '../../business_logic/auth_manager.dart';
 import '../../repository/auth_repository.dart';
 import '../../repository/user_repository.dart';
 import 'ai_tutor_chat_screen.dart';
@@ -38,9 +37,14 @@ class _StudentHomeState extends State<StudentHome> {
   List<CourseModel> _recommendedCourses = [];
   List<Map<String, dynamic>> _enrolledCourses = [];
   bool _loadingEnrolled = false;
+
+  // Cache the getCurrentUser future so it isn't recreated on every rebuild
+  late final Future<Map<String, dynamic>?> _currentUserFuture;
+
   @override
   void initState() {
     super.initState();
+    _currentUserFuture = _authRepository.getCurrentUser();
     _loadUserProfile();
     _loadEnrolledCourses();
     _loadRecommendations();
@@ -49,7 +53,7 @@ class _StudentHomeState extends State<StudentHome> {
   Future<void> _loadEnrolledCourses() async {
     setState(() => _loadingEnrolled = true);
     try {
-      final user = await _authRepository.getCurrentUser();
+      final user = await _currentUserFuture;
       final uid = user?['uid'] as String?;
       if (uid == null) {
         setState(() {
@@ -75,65 +79,78 @@ class _StudentHomeState extends State<StudentHome> {
         _recommendedCourses = recommendations;
       });
     } catch (e) {
-      // ignore
+      // ignore — non-critical
     }
   }
 
   Future<void> _loadUserProfile() async {
-    final user = await _authRepository.getCurrentUser();
-    final uid = user?['uid'] as String?;
-    if (uid != null) {
-      final profile = await _authRepository.getUserProfile(uid);
-      setState(() {
-        _userProfile = profile;
-      });
+    try {
+      final user = await _currentUserFuture;
+      final uid = user?['uid'] as String?;
+      if (uid != null) {
+        final profile = await _authRepository.getUserProfile(uid);
+        if (mounted) {
+          setState(() {
+            _userProfile = profile;
+          });
+        }
+      }
+    } catch (e) {
+      // ignore — profile will just show defaults
     }
   }
 
+  /// Builds the user's display name using cached data — no extra API calls.
   Widget _buildGreetingName() {
     final theme = Theme.of(context);
-    return FutureBuilder<Map<String, dynamic>?>(
-      future: _authRepository.getCurrentUser(),
-      builder: (context, userSnapshot) {
-        final user = userSnapshot.data;
-        final uid = user?['uid'] as String?;
 
-        if (uid == null) {
-          return Text(
-            'Student',
-            style: theme.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.w800,
-              color: theme.colorScheme.primary,
-              letterSpacing: -1.0,
-            ),
-          );
+    // Use the cached profile first, then fall back to stream updates
+    String name = _userProfile?['displayName'] as String? ?? '';
+
+    if (name.isEmpty) {
+      // Try email split as fallback
+      final email = _userProfile?['email'] as String?;
+      if (email != null && email.contains('@')) {
+        name = email.split('@')[0];
+      }
+    }
+
+    if (name.isEmpty) name = 'Student';
+
+    final uid = _userProfile?['uid'] as String? ?? _userProfile?['id'] as String?;
+    if (uid == null) {
+      return Text(
+        name,
+        style: theme.textTheme.headlineMedium?.copyWith(
+          fontWeight: FontWeight.w800,
+          color: theme.colorScheme.primary,
+          letterSpacing: -1.0,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+
+    // Stream for real-time displayName updates (no new Future created here)
+    return StreamBuilder<Map<String, dynamic>?>(
+      stream: _userRepository.streamUserProfile(uid),
+      builder: (context, snapshot) {
+        String displayName = name;
+        if (snapshot.hasData && snapshot.data != null) {
+          final streamed = snapshot.data!['displayName'] as String?;
+          if (streamed != null && streamed.isNotEmpty) {
+            displayName = streamed;
+          }
         }
-
-        return StreamBuilder<Map<String, dynamic>?>(
-          stream: _userRepository.streamUserProfile(uid),
-          builder: (context, snapshot) {
-            String name = _userProfile?['displayName'] ??
-                user?['displayName'] ??
-                (user?['email'] as String?)?.split('@')[0] ??
-                'Student';
-            if (snapshot.hasData && snapshot.data != null) {
-              final data = snapshot.data!;
-              if (data['displayName'] != null &&
-                  (data['displayName'] as String).isNotEmpty) {
-                name = data['displayName'];
-              }
-            }
-            return Text(
-              name,
-              style: theme.textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: theme.colorScheme.primary,
-                letterSpacing: -1.0,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            );
-          },
+        return Text(
+          displayName,
+          style: theme.textTheme.headlineMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: theme.colorScheme.primary,
+            letterSpacing: -1.0,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         );
       },
     );
@@ -255,6 +272,7 @@ class _StudentHomeState extends State<StudentHome> {
         color: Colors.transparent,
         child: Stack(
           children: [
+            // Single AmbientBackground — only rendered once at the top level
             const AmbientBackground(),
             Row(
           children: [
@@ -264,9 +282,9 @@ class _StudentHomeState extends State<StudentHome> {
                 onDestinationSelected: _onItemTapped,
                 backgroundColor: Theme.of(context).colorScheme.surface,
                 selectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.primary),
-                unselectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+                 unselectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                 selectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
-                unselectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+                unselectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                 extended: MediaQuery.of(context).size.width >= 800,
                 destinations: const [
                   NavigationRailDestination(
@@ -311,10 +329,14 @@ class _StudentHomeState extends State<StudentHome> {
 
   Widget _buildHomeScreen() {
     final theme = Theme.of(context);
-    int streak = _userProfile?['learningStreak'] ?? 12;
-    int completedCoursesCount = _userProfile?['completedCoursesCount'] ?? 8;
-    int certsCount = _userProfile?['certificationsCount'] ?? 3;
-    int hoursLearned = _userProfile?['hoursLearned'] ?? 45;
+    // Use 0 instead of magic numbers so users aren't misled when data hasn't loaded
+    final int streak = (_userProfile?['learningStreak'] as num?)?.toInt() ?? 0;
+    final int completedCoursesCount =
+        (_userProfile?['completedCoursesCount'] as num?)?.toInt() ?? 0;
+    final int certsCount =
+        (_userProfile?['certificationsCount'] as num?)?.toInt() ?? 0;
+    final int hoursLearned =
+        (_userProfile?['hoursLearned'] as num?)?.toInt() ?? 0;
 
     return SingleChildScrollView(
       child: Column(
@@ -341,13 +363,20 @@ class _StudentHomeState extends State<StudentHome> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                Text(
-                  'You\'re on a $streak-day learning streak! Keep it up.',
-                  style: theme.textTheme.bodyMedium
-                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                ),
+                if (streak > 0)
+                  Text(
+                    'You\'re on a $streak-day learning streak! Keep it up.',
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  )
+                else
+                  Text(
+                    'Start learning today and build your streak!',
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  ),
                 const SizedBox(height: 24),
-                // Signature Stats Section
+                // Stat Cards
                 GridView.count(
                   crossAxisCount:
                       MediaQuery.of(context).size.width < 600 ? 2 : 4,
@@ -365,7 +394,7 @@ class _StudentHomeState extends State<StudentHome> {
                     ),
                     StatCard(
                       icon: Icons.schedule_rounded,
-                      value: '${hoursLearned}h',
+                      value: hoursLearned > 0 ? '${hoursLearned}h' : '0h',
                       label: 'Learning',
                     ),
                     StatCard(
@@ -542,7 +571,8 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Widget _buildCoursesScreen() {
-    return const CourseListScreen();
+    // CourseListScreen is embedded — pass hideAppBar to avoid nested scaffold/appBar issues
+    return const CourseListScreen(embedded: true);
   }
 
   Widget _buildProgressScreen() {
@@ -550,11 +580,11 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Widget _buildProfileScreen() {
+    // Use the already-cached future — no new API call on each tab switch
     return FutureBuilder<Map<String, dynamic>?>(
-      future: _authRepository.getCurrentUser(),
+      future: _currentUserFuture,
       builder: (context, userSnapshot) {
         final user = userSnapshot.data;
-
         return ProfileTab(
           userProfile: _userProfile ?? user,
           onProfileUpdated: _loadUserProfile,

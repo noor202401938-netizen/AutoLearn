@@ -53,7 +53,9 @@ class _LoginPageState extends State<LoginPage>
     final password = _passwordController.text.trim();
 
     try {
-      final result = await _authManager.login(email, password);
+      // Pass rememberMe so auth manager can adjust token TTL / persistence
+      final result =
+          await _authManager.login(email, password, rememberMe: _rememberMe);
 
       if (!mounted) return;
       setState(() => _isLoading = false);

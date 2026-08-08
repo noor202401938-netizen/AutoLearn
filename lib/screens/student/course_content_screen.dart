@@ -30,6 +30,10 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
   CourseModel? _course;
   Map<String, VideoProgressModel> _progressMap = {};
   double _courseCompletion = 0.0;
+  // Cached user ID — fetched once during load, used everywhere
+  String _cachedUserId = '';
+  // Cached user photo URL for AppBar — avoids per-rebuild API calls
+  String? _cachedPhotoUrl;
 
   @override
   void initState() {
@@ -40,11 +44,16 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
   Future<void> _loadCourseContent() async {
     setState(() => _loading = true);
     try {
+      // Resolve user once and cache — avoids redundant API calls below
+      final user = await AuthRepository().getCurrentUser();
+      _cachedUserId = user?['uid'] as String? ?? '';
+      _cachedPhotoUrl = user?['photoUrl'] as String?;
+
       final course = await _courseRepository.getCourseById(widget.courseId);
       if (course != null) {
-        // Load progress for all lessons
+        // Load progress for all lessons using the cached user ID
         final progressList = await _progressRepository.getCourseProgress(
-          userId: await _getUserId(),
+          userId: _cachedUserId,
           courseId: widget.courseId,
         );
 
@@ -60,7 +69,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
         );
         final completion =
             await _progressRepository.getCourseCompletionPercentage(
-          userId: await _getUserId(),
+          userId: _cachedUserId,
           courseId: widget.courseId,
           totalLessons: totalLessons,
         );
@@ -79,10 +88,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
     }
   }
 
-  Future<String> _getUserId() async {
-    final user = await AuthRepository().getCurrentUser();
-    return user?['uid'] as String? ?? '';
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -216,29 +222,24 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 16.0),
-          child: FutureBuilder<Map<String, dynamic>?>(
-            future: AuthRepository().getCurrentUser(),
-            builder: (context, snapshot) {
-              final photoUrl = snapshot.data?['photoUrl'] as String?;
-              return Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                      color: theme.colorScheme.primaryContainer, width: 2),
-                ),
-                child: ClipOval(
-                  child: photoUrl != null && photoUrl.isNotEmpty
-                      ? Image.network(photoUrl, fit: BoxFit.cover)
-                      : Container(
-                          color: theme.colorScheme.primaryContainer,
-                          child: const Icon(Icons.person,
-                              color: Colors.white, size: 20),
-                        ),
-                ),
-              );
-            },
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                  color: theme.colorScheme.primaryContainer, width: 2),
+            ),
+            child: ClipOval(
+              // Use cached photo URL — no per-rebuild API call
+              child: _cachedPhotoUrl != null && _cachedPhotoUrl!.isNotEmpty
+                  ? Image.network(_cachedPhotoUrl!, fit: BoxFit.cover)
+                  : Container(
+                      color: theme.colorScheme.primaryContainer,
+                      child: const Icon(Icons.person,
+                          color: Colors.white, size: 20),
+                    ),
+            ),
           ),
         ),
       ],

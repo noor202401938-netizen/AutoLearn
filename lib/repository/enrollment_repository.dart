@@ -68,11 +68,13 @@ class EnrollmentRepository {
     }
   }
 
-  /// Polls enrollment status every 5s to power a Stream for UI
-  Stream<bool> watchEnrollment({required String uid, required String courseId}) {
-    return Stream.periodic(const Duration(seconds: 5))
-        .asyncMap((_) => isUserEnrolled(uid: uid, courseId: courseId))
-        .distinct();
+  /// Returns enrollment status as a stream.
+  /// Currently emits one value (current state) and completes.
+  /// Replace with a WebSocket/SSE stream when backend supports real-time.
+  Stream<bool> watchEnrollment({required String uid, required String courseId}) async* {
+    // Emit the current state once; avoid the polling anti-pattern that
+    // fires an API call every 5 seconds indefinitely.
+    yield await isUserEnrolled(uid: uid, courseId: courseId);
   }
 
   Future<List<String>> getUserCourseIds({required String uid}) async {

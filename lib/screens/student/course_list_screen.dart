@@ -1,4 +1,5 @@
 // lib/screens/student/course_list_screen.dart
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../business_logic/course_manager.dart';
@@ -12,7 +13,11 @@ import 'course_content_screen.dart';
 import '../../widgets/student_home/ambient_background.dart';
 
 class CourseListScreen extends StatefulWidget {
-  const CourseListScreen({super.key});
+  /// When [embedded] is true the widget is hosted inside another Scaffold
+  /// (e.g. StudentHome). We suppress our own Scaffold/AppBar to avoid the
+  /// nested-Scaffold bug and the double-AppBar UX issue.
+  final bool embedded;
+  const CourseListScreen({super.key, this.embedded = false});
 
   @override
   State<CourseListScreen> createState() => _CourseListScreenState();
@@ -33,6 +38,10 @@ class _CourseListScreenState extends State<CourseListScreen> {
   double? _minRating;
   double? _maxPrice;
   bool _isLoading = true;
+  bool _hasError = false;
+
+  // Debounce timer for search
+  Timer? _searchDebounce;
 
   @override
   void initState() {
@@ -44,16 +53,27 @@ class _CourseListScreenState extends State<CourseListScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _searchDebounce?.cancel();
     super.dispose();
   }
 
   Future<void> _loadCourses() async {
-    setState(() => _isLoading = true);
-    final courses = await _courseManager.getPublishedCourses();
     setState(() {
-      _filteredCourses = courses;
-      _isLoading = false;
+      _isLoading = true;
+      _hasError = false;
     });
+    try {
+      final courses = await _courseManager.getPublishedCourses();
+      setState(() {
+        _filteredCourses = courses;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _hasError = true;
+      });
+    }
   }
 
   Future<void> _loadCategories() async {
@@ -95,9 +115,73 @@ class _CourseListScreenState extends State<CourseListScreen> {
     _filterCourses();
   }
 
+  /// Generic option-picker bottom sheet — replaces ~200 lines of duplicated
+  /// per-filter bottom-sheet boilerplate.
+  void _showOptionPicker({
+    required String title,
+    required List<String> options,
+    required String? selectedValue,
+    required ValueChanged<String?> onSelected,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        final theme = Theme.of(context);
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: theme.textTheme.titleLarge),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    ChoiceChip(
+                      label: const Text('All'),
+                      selected: selectedValue == null,
+                      onSelected: (_) {
+                        onSelected(null);
+                        _filterCourses();
+                        Navigator.pop(ctx);
+                      },
+                    ),
+                    ...options.map((opt) => ChoiceChip(
+                          label: Text(opt),
+                          selected: selectedValue == opt,
+                          onSelected: (_) {
+                            onSelected(opt);
+                            _filterCourses();
+                            Navigator.pop(ctx);
+                          },
+                        )),
+                  ],
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // When embedded inside StudentHome, skip the Scaffold + AppBar to avoid
+    // nested-Scaffold issues and a double AppBar on the Courses tab.
+    // The AmbientBackground is also already rendered by StudentHome.
+    final body = _buildBody(theme);
+    if (widget.embedded) {
+      return body;
+    }
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       extendBodyBehindAppBar: true,
@@ -119,8 +203,13 @@ class _CourseListScreenState extends State<CourseListScreen> {
         elevation: 0,
         iconTheme: IconThemeData(color: theme.colorScheme.onSurfaceVariant),
       ),
-      body: Stack(
-        children: [
+      body: body,
+    );
+  }
+
+  Widget _buildBody(ThemeData theme) {
+    return Stack(
+      children: [
           const AmbientBackground(),
           SafeArea(
             child: Center(
@@ -148,12 +237,14 @@ class _CourseListScreenState extends State<CourseListScreen> {
                               hintText: 'Search courses...',
                               hintStyle: theme.textTheme.bodyMedium
                                   ?.copyWith(color: theme.colorScheme.outline),
-                              prefixIcon: const Icon(Icons.search,
-                                  color: Color(0xFF787586)),
+                            prefixIcon: Icon(
+                                Icons.search,
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
                               suffixIcon: _searchController.text.isNotEmpty
                                   ? IconButton(
-                                      icon: const Icon(Icons.clear,
-                                          color: Color(0xFF474554)),
+                                      icon: Icon(Icons.clear,
+                                          color: theme.colorScheme.onSurfaceVariant),
                                       onPressed: () {
                                         _searchController.clear();
                                         _filterCourses();
@@ -164,7 +255,14 @@ class _CourseListScreenState extends State<CourseListScreen> {
                               contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 16),
                             ),
-                            onChanged: (value) => _filterCourses(),
+                            onChanged: (value) {
+                              // Debounce: wait 400 ms after last keystroke
+                              _searchDebounce?.cancel();
+                              _searchDebounce = Timer(
+                                const Duration(milliseconds: 400),
+                                _filterCourses,
+                              );
+                            },
                           ),
                         ),
                       ),
@@ -183,55 +281,13 @@ class _CourseListScreenState extends State<CourseListScreen> {
                                     _selectedCategory ?? 'All Categories',
                                     style: theme.textTheme.labelLarge),
                                 selected: _selectedCategory != null,
-                                onSelected: (selected) {
-                                  showModalBottomSheet(
-                                    context: context,
-                                    builder: (context) => Container(
-                                      padding: const EdgeInsets.all(16),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Select Category',
-                                            style: theme.textTheme.titleLarge,
-                                          ),
-                                          const SizedBox(height: 16),
-                                          Wrap(
-                                            spacing: 8,
-                                            runSpacing: 8,
-                                            children: [
-                                              ChoiceChip(
-                                                label: const Text('All'),
-                                                selected:
-                                                    _selectedCategory == null,
-                                                onSelected: (selected) {
-                                                  setState(() =>
-                                                      _selectedCategory = null);
-                                                  _filterCourses();
-                                                  Navigator.pop(context);
-                                                },
-                                              ),
-                                              ..._categories.map((category) {
-                                                return ChoiceChip(
-                                                  label: Text(category),
-                                                  selected: _selectedCategory ==
-                                                      category,
-                                                  onSelected: (selected) {
-                                                    setState(() =>
-                                                        _selectedCategory =
-                                                            category);
-                                                    _filterCourses();
-                                                    Navigator.pop(context);
-                                                  },
-                                                );
-                                              }),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
+                                onSelected: (_) {
+                                  _showOptionPicker(
+                                    title: 'Select Category',
+                                    options: _categories,
+                                    selectedValue: _selectedCategory,
+                                    onSelected: (v) =>
+                                        setState(() => _selectedCategory = v),
                                   );
                                 },
                                 selectedColor:
@@ -256,77 +312,22 @@ class _CourseListScreenState extends State<CourseListScreen> {
                               label: Text(_selectedLevel ?? 'All Levels',
                                   style: theme.textTheme.labelLarge),
                               selected: _selectedLevel != null,
-                              onSelected: (selected) {
-                                showModalBottomSheet(
-                                  context: context,
-                                  builder: (context) => Container(
-                                    padding: const EdgeInsets.all(16),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Select Level',
-                                          style: theme.textTheme.titleLarge,
-                                        ),
-                                        const SizedBox(height: 16),
-                                        Wrap(
-                                          spacing: 8,
-                                          runSpacing: 8,
-                                          children: [
-                                            ChoiceChip(
-                                              label: const Text('All'),
-                                              selected: _selectedLevel == null,
-                                              onSelected: (selected) {
-                                                setState(() =>
-                                                    _selectedLevel = null);
-                                                _filterCourses();
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                            ChoiceChip(
-                                              label: const Text('Beginner'),
-                                              selected:
-                                                  _selectedLevel == 'beginner',
-                                              onSelected: (selected) {
-                                                setState(() => _selectedLevel =
-                                                    'beginner');
-                                                _filterCourses();
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                            ChoiceChip(
-                                              label: const Text('Intermediate'),
-                                              selected: _selectedLevel ==
-                                                  'intermediate',
-                                              onSelected: (selected) {
-                                                setState(() => _selectedLevel =
-                                                    'intermediate');
-                                                _filterCourses();
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                            ChoiceChip(
-                                              label: const Text('Advanced'),
-                                              selected:
-                                                  _selectedLevel == 'advanced',
-                                              onSelected: (selected) {
-                                                setState(() => _selectedLevel =
-                                                    'advanced');
-                                                _filterCourses();
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                              onSelected: (_) {
+                                _showOptionPicker(
+                                  title: 'Select Level',
+                                  options: const [
+                                    'beginner',
+                                    'intermediate',
+                                    'advanced'
+                                  ],
+                                  selectedValue: _selectedLevel,
+                                  onSelected: (v) =>
+                                      setState(() => _selectedLevel = v),
                                 );
                               },
                               selectedColor: theme.colorScheme.primaryContainer,
-                              backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                              backgroundColor:
+                                  theme.colorScheme.surfaceContainerHighest,
                               side: BorderSide(
                                   color: _selectedLevel != null
                                       ? theme.colorScheme.primary
@@ -344,88 +345,23 @@ class _CourseListScreenState extends State<CourseListScreen> {
                               label: Text(_selectedSortBy ?? 'Sort',
                                   style: theme.textTheme.labelLarge),
                               selected: _selectedSortBy != null,
-                              onSelected: (selected) {
-                                showModalBottomSheet(
-                                  context: context,
-                                  builder: (context) => Container(
-                                    padding: const EdgeInsets.all(16),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Sort By',
-                                          style: theme.textTheme.titleLarge,
-                                        ),
-                                        const SizedBox(height: 16),
-                                        Wrap(
-                                          spacing: 8,
-                                          runSpacing: 8,
-                                          children: [
-                                            ChoiceChip(
-                                              label: const Text('Default'),
-                                              selected: _selectedSortBy == null,
-                                              onSelected: (selected) {
-                                                setState(() =>
-                                                    _selectedSortBy = null);
-                                                _filterCourses();
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                            ChoiceChip(
-                                              label: const Text('Rating'),
-                                              selected:
-                                                  _selectedSortBy == 'rating',
-                                              onSelected: (selected) {
-                                                setState(() =>
-                                                    _selectedSortBy = 'rating');
-                                                _filterCourses();
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                            ChoiceChip(
-                                              label: const Text('Price'),
-                                              selected:
-                                                  _selectedSortBy == 'price',
-                                              onSelected: (selected) {
-                                                setState(() =>
-                                                    _selectedSortBy = 'price');
-                                                _filterCourses();
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                            ChoiceChip(
-                                              label: const Text('Newest'),
-                                              selected:
-                                                  _selectedSortBy == 'newest',
-                                              onSelected: (selected) {
-                                                setState(() =>
-                                                    _selectedSortBy = 'newest');
-                                                _filterCourses();
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                            ChoiceChip(
-                                              label: const Text('Popular'),
-                                              selected:
-                                                  _selectedSortBy == 'popular',
-                                              onSelected: (selected) {
-                                                setState(() => _selectedSortBy =
-                                                    'popular');
-                                                _filterCourses();
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                              onSelected: (_) {
+                                _showOptionPicker(
+                                  title: 'Sort By',
+                                  options: const [
+                                    'rating',
+                                    'price',
+                                    'newest',
+                                    'popular'
+                                  ],
+                                  selectedValue: _selectedSortBy,
+                                  onSelected: (v) =>
+                                      setState(() => _selectedSortBy = v),
                                 );
                               },
                               selectedColor: theme.colorScheme.primaryContainer,
-                              backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                              backgroundColor:
+                                  theme.colorScheme.surfaceContainerHighest,
                               side: BorderSide(
                                   color: _selectedSortBy != null
                                       ? theme.colorScheme.primary
@@ -436,7 +372,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
                                     : theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
-                            const SizedBox(width: 8),
+                             const SizedBox(width: 8),
 
                             // Advanced Filters
                             Flexible(
@@ -454,8 +390,9 @@ class _CourseListScreenState extends State<CourseListScreen> {
                                         _buildAdvancedFiltersSheet(),
                                   );
                                 },
-                                avatar: const Icon(Icons.tune,
-                                    size: 18, color: Color(0xFF474554)),
+                                avatar: Icon(Icons.tune,
+                                    size: 18,
+                                    color: theme.colorScheme.onSurfaceVariant),
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -473,11 +410,12 @@ class _CourseListScreenState extends State<CourseListScreen> {
                                       style: theme.textTheme.labelLarge),
                                   backgroundColor:
                                       theme.colorScheme.errorContainer,
-                                  side: const BorderSide(
-                                      color: Color(0xFFffdad6)),
+                                  side: BorderSide(
+                                      color: theme.colorScheme.errorContainer),
                                   onPressed: _clearFilters,
-                                  avatar: const Icon(Icons.clear,
-                                      size: 18, color: Color(0xFFba1a1a)),
+                                  avatar: Icon(Icons.clear,
+                                      size: 18,
+                                      color: theme.colorScheme.error),
                                 ),
                               ),
                           ],
@@ -507,7 +445,29 @@ class _CourseListScreenState extends State<CourseListScreen> {
                                   color: Theme.of(context).colorScheme.primary,
                                 ),
                               )
-                            : _filteredCourses.isEmpty
+                            : _hasError
+                                ? Center(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.wifi_off_rounded,
+                                            size: 64,
+                                            color: theme.colorScheme.outline),
+                                        const SizedBox(height: 16),
+                                        Text(
+                                          'Failed to load courses',
+                                          style: theme.textTheme.bodyLarge,
+                                        ),
+                                        const SizedBox(height: 16),
+                                        ElevatedButton.icon(
+                                          onPressed: _loadCourses,
+                                          icon: const Icon(Icons.refresh),
+                                          label: const Text('Retry'),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : _filteredCourses.isEmpty
                                 ? Center(
                                     child: Column(
                                       mainAxisAlignment:
@@ -584,8 +544,7 @@ class _CourseListScreenState extends State<CourseListScreen> {
             ),
           ),
         ],
-      ),
-    );
+      );
   }
 
   Widget _buildCourseCard(CourseModel course) {
@@ -636,28 +595,28 @@ class _CourseListScreenState extends State<CourseListScreen> {
                 Expanded(
                   child: Container(
                     width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFe6eeff),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
                     ),
                     child: course.thumbnailURL.isNotEmpty
                         ? Image.network(
                             course.thumbnailURL,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
-                              return const Center(
+                              return Center(
                                 child: Icon(
                                   Icons.school,
                                   size: 60,
-                                  color: Color(0xFFc5c0ff),
+                                  color: theme.colorScheme.primaryContainer,
                                 ),
                               );
                             },
                           )
-                        : const Center(
+                        : Center(
                             child: Icon(
                               Icons.school,
                               size: 60,
-                              color: Color(0xFFc5c0ff),
+                              color: theme.colorScheme.primaryContainer,
                             ),
                           ),
                   ),
@@ -695,13 +654,13 @@ class _CourseListScreenState extends State<CourseListScreen> {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.green.withValues(alpha: 0.1),
+                              color: theme.colorScheme.tertiaryContainer,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
                               course.level.toUpperCase(),
                               style: theme.textTheme.labelSmall
-                                  ?.copyWith(color: Colors.green.shade800),
+                                  ?.copyWith(color: theme.colorScheme.tertiary),
                             ),
                           ),
                         ],
