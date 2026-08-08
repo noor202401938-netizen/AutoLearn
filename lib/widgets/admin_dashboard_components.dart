@@ -26,14 +26,15 @@ class MetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.05),
+            color: theme.shadowColor.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -52,7 +53,7 @@ class MetricCard extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      color: colorScheme.onSurfaceVariant,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -61,7 +62,7 @@ class MetricCard extends StatelessWidget {
                   Text(
                     value,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
+                      color: colorScheme.onSurface,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
@@ -82,7 +83,9 @@ class MetricCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: isPositive ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+              color: isPositive
+                  ? colorScheme.secondaryContainer.withValues(alpha: 0.3)
+                  : colorScheme.errorContainer.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
@@ -90,14 +93,15 @@ class MetricCard extends StatelessWidget {
               children: [
                 Icon(
                   isPositive ? Icons.arrow_upward : Icons.arrow_downward,
-                  color: isPositive ? Colors.green : Colors.red,
+                  color: isPositive ? colorScheme.secondary : colorScheme.error,
                   size: 12,
                 ),
                 const SizedBox(width: 4),
                 Text(
                   percentage,
                   style: TextStyle(
-                    color: isPositive ? Colors.green : Colors.red,
+                    color:
+                        isPositive ? colorScheme.secondary : colorScheme.error,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                   ),
@@ -118,6 +122,7 @@ class RevenueLineChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Container(
       height: 300,
       padding: const EdgeInsets.all(20),
@@ -126,7 +131,7 @@ class RevenueLineChart extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.05),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -140,14 +145,14 @@ class RevenueLineChart extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSurface,
+              color: colorScheme.onSurface,
             ),
           ),
           Text(
             'Last 6 months',
             style: TextStyle(
               fontSize: 12,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 20),
@@ -159,33 +164,51 @@ class RevenueLineChart extends StatelessWidget {
                   drawVerticalLine: false,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: Theme.of(context).dividerColor,
+                      color: theme.dividerColor,
                       strokeWidth: 1,
                     );
                   },
                 ),
                 titlesData: FlTitlesData(
                   show: true,
-                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
                       reservedSize: 30,
                       interval: 1,
                       getTitlesWidget: (value, meta) {
-                        const style = TextStyle(color: Colors.black54, fontSize: 12);
+                        final style = TextStyle(
+                            color: colorScheme.onSurfaceVariant, fontSize: 12);
                         Widget text;
                         switch (value.toInt()) {
-                          case 0: text = const Text('Jan', style: style); break;
-                          case 1: text = const Text('Feb', style: style); break;
-                          case 2: text = const Text('Mar', style: style); break;
-                          case 3: text = const Text('Apr', style: style); break;
-                          case 4: text = const Text('May', style: style); break;
-                          case 5: text = const Text('Jun', style: style); break;
-                          default: text = const Text('', style: style); break;
+                          case 0:
+                            text = Text('Jan', style: style);
+                            break;
+                          case 1:
+                            text = Text('Feb', style: style);
+                            break;
+                          case 2:
+                            text = Text('Mar', style: style);
+                            break;
+                          case 3:
+                            text = Text('Apr', style: style);
+                            break;
+                          case 4:
+                            text = Text('May', style: style);
+                            break;
+                          case 5:
+                            text = Text('Jun', style: style);
+                            break;
+                          default:
+                            text = Text('', style: style);
+                            break;
                         }
-                        return SideTitleWidget(axisSide: meta.axisSide, child: text);
+                        return SideTitleWidget(
+                            axisSide: meta.axisSide, child: text);
                       },
                     ),
                   ),
@@ -196,7 +219,9 @@ class RevenueLineChart extends StatelessWidget {
                       getTitlesWidget: (value, meta) {
                         return Text(
                           value.toInt().toString(),
-                          style: const TextStyle(color: Colors.black54, fontSize: 10),
+                          style: TextStyle(
+                              color: colorScheme.onSurfaceVariant,
+                              fontSize: 10),
                         );
                       },
                       reservedSize: 28,
@@ -212,13 +237,13 @@ class RevenueLineChart extends StatelessWidget {
                   LineChartBarData(
                     spots: const [],
                     isCurved: true,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: colorScheme.primary,
                     barWidth: 3,
                     isStrokeCapRound: true,
                     dotData: const FlDotData(show: true),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      color: colorScheme.primary.withValues(alpha: 0.1),
                     ),
                   ),
                 ],
@@ -238,7 +263,6 @@ class CategoryBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Container(
       height: 300,
       padding: const EdgeInsets.all(20),
@@ -247,7 +271,7 @@ class CategoryBarChart extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.05),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -273,62 +297,71 @@ class CategoryBarChart extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Expanded(
-            child: courses.isEmpty 
-              ? const Center(child: Text('No data yet'))
-              : BarChart(
-              BarChartData(
-                alignment: BarChartAlignment.spaceAround,
-                maxY: 100,
-                barTouchData: BarTouchData(enabled: false),
-                titlesData: FlTitlesData(
-                  show: true,
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (double value, TitleMeta meta) {
-                        const style = TextStyle(color: Colors.black54, fontSize: 10);
-                        Widget text = const Text('', style: style);
-                        
-                        // We will show top 4 courses or categories
-                        final int index = value.toInt();
-                        if (index >= 0 && index < courses.length && index < 4) {
-                          final title = courses[index].title;
-                          // truncate title if too long
-                          final shortTitle = title.length > 10 ? '${title.substring(0, 8)}..' : title;
-                          text = Text(shortTitle, style: style);
-                        }
-                        return SideTitleWidget(axisSide: meta.axisSide, child: text);
-                      },
-                    ),
-                  ),
-                  leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                ),
-                gridData: const FlGridData(show: false),
-                borderData: FlBorderData(show: false),
-                barGroups: List.generate(
-                  courses.length > 4 ? 4 : courses.length,
-                  (index) {
-                    final course = courses[index];
-                    return BarChartGroupData(
-                      x: index,
-                      barRods: [
-                        BarChartRodData(
-                          toY: (course.enrollmentCount ?? 0).toDouble(),
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 16,
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(4),
-                            topRight: Radius.circular(4),
+            child: courses.isEmpty
+                ? const Center(child: Text('No data yet'))
+                : BarChart(
+                    BarChartData(
+                      alignment: BarChartAlignment.spaceAround,
+                      maxY: 100,
+                      barTouchData: BarTouchData(enabled: false),
+                      titlesData: FlTitlesData(
+                        show: true,
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            getTitlesWidget: (double value, TitleMeta meta) {
+                              const style = TextStyle(
+                                  color: Colors.black54, fontSize: 10);
+                              Widget text = const Text('', style: style);
+
+                              // We will show top 4 courses or categories
+                              final int index = value.toInt();
+                              if (index >= 0 &&
+                                  index < courses.length &&
+                                  index < 4) {
+                                final title = courses[index].title;
+                                // truncate title if too long
+                                final shortTitle = title.length > 10
+                                    ? '${title.substring(0, 8)}..'
+                                    : title;
+                                text = Text(shortTitle, style: style);
+                              }
+                              return SideTitleWidget(
+                                  axisSide: meta.axisSide, child: text);
+                            },
                           ),
                         ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ),
+                        leftTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
+                        topTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
+                        rightTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
+                      ),
+                      gridData: const FlGridData(show: false),
+                      borderData: FlBorderData(show: false),
+                      barGroups: List.generate(
+                        courses.length > 4 ? 4 : courses.length,
+                        (index) {
+                          final course = courses[index];
+                          return BarChartGroupData(
+                            x: index,
+                            barRods: [
+                              BarChartRodData(
+                                toY: (course.enrollmentCount ?? 0).toDouble(),
+                                color: Theme.of(context).colorScheme.primary,
+                                width: 16,
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(4),
+                                  topRight: Radius.circular(4),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ),
           ),
         ],
       ),
@@ -345,15 +378,16 @@ class RecentOrdersTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Container(
-      width: double.infinity,
+      height: 300,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.05),
+            color: theme.shadowColor.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -381,8 +415,12 @@ class RecentOrdersTable extends StatelessWidget {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
-              headingTextStyle: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
-              dataTextStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 13),
+              headingTextStyle: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 12),
+              dataTextStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface, fontSize: 13),
               dividerThickness: 0.5,
               columns: const [
                 DataColumn(label: Text('Order ID')),
@@ -393,62 +431,71 @@ class RecentOrdersTable extends StatelessWidget {
                 DataColumn(label: Text('Status')),
               ],
               rows: orders.isEmpty
-                ? const [
-                    DataRow(cells: [
-                      DataCell(Text('-')),
-                      DataCell(Text('No recent orders')),
-                      DataCell(Text('-')),
-                      DataCell(Text('-')),
-                      DataCell(Text('-')),
-                      DataCell(Text('-')),
-                    ])
-                  ]
-                : orders.map((order) {
-                Color statusColor;
-                Color statusBg;
-                switch (order['status']) {
-                  case 'Delivered':
-                    statusColor = Colors.green;
-                    statusBg = Colors.green.withOpacity(0.1);
-                    break;
-                  case 'Shipped':
-                    statusColor = Colors.blue;
-                    statusBg = Colors.blue.withOpacity(0.1);
-                    break;
-                  case 'Processing':
-                    statusColor = Colors.orange;
-                    statusBg = Colors.orange.withOpacity(0.1);
-                    break;
-                  case 'Cancelled':
-                    statusColor = Colors.red;
-                    statusBg = Colors.red.withOpacity(0.1);
-                    break;
-                  default:
-                    statusColor = Colors.grey;
-                    statusBg = Colors.grey.withOpacity(0.1);
-                }
+                  ? const [
+                      DataRow(cells: [
+                        DataCell(Text('-')),
+                        DataCell(Text('No recent orders')),
+                        DataCell(Text('-')),
+                        DataCell(Text('-')),
+                        DataCell(Text('-')),
+                        DataCell(Text('-')),
+                      ])
+                    ]
+                  : orders.map((order) {
+                      Color statusColor;
+                      Color statusBg;
+                      switch (order['status']) {
+                        case 'Delivered':
+                          statusColor = colorScheme.secondary;
+                          statusBg = colorScheme.secondaryContainer
+                              .withValues(alpha: 0.3);
+                          break;
+                        case 'Shipped':
+                          statusColor = colorScheme.primary;
+                          statusBg = colorScheme.primaryContainer
+                              .withValues(alpha: 0.3);
+                          break;
+                        case 'Processing':
+                          statusColor = colorScheme.tertiary;
+                          statusBg = colorScheme.tertiaryContainer
+                              .withValues(alpha: 0.3);
+                          break;
+                        case 'Cancelled':
+                          statusColor = colorScheme.error;
+                          statusBg =
+                              colorScheme.errorContainer.withValues(alpha: 0.3);
+                          break;
+                        default:
+                          statusColor = colorScheme.onSurfaceVariant;
+                          statusBg = colorScheme.surfaceContainerHighest
+                              .withValues(alpha: 0.3);
+                      }
 
-                return DataRow(cells: [
-                  DataCell(Text(order['id'])),
-                  DataCell(Text(order['customer'])),
-                  DataCell(Text(order['product'])),
-                  DataCell(Text('\$${order['amount']}')),
-                  DataCell(Text(order['date'])),
-                  DataCell(
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: statusBg,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        order['status'],
-                        style: TextStyle(color: statusColor, fontSize: 11, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ]);
-              }).toList(),
+                      return DataRow(cells: [
+                        DataCell(Text(order['id'])),
+                        DataCell(Text(order['customer'])),
+                        DataCell(Text(order['product'])),
+                        DataCell(Text('\$${order['amount']}')),
+                        DataCell(Text(order['date'])),
+                        DataCell(
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: statusBg,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              order['status'],
+                              style: TextStyle(
+                                  color: statusColor,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ]);
+                    }).toList(),
             ),
           ),
         ],

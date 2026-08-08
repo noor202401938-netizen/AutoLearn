@@ -1,4 +1,3 @@
-// lib/screens/student/about_screen.dart
 import 'package:flutter/material.dart';
 
 class AboutScreen extends StatelessWidget {
@@ -8,104 +7,109 @@ class AboutScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        title: const Text('About', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-        backgroundColor: Colors.transparent,
+        title: const Text('About'),
+        backgroundColor: theme.colorScheme.surface,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        centerTitle: false,
       ),
-      body: Container(
-        
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 20),
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withOpacity(0.2)),
-                  ),
-                  child: const Icon(
-                    Icons.school,
-                    size: 80,
-                    color: Colors.white,
-                  ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer,
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(height: 24),
-                const Text(
-                  'AutoLearn',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                child: Icon(
+                  Icons.school,
+                  size: 64,
+                  color: theme.colorScheme.primary,
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Version 1.0.0',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white.withOpacity(0.5),
-                  ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'AutoLearn',
+                style: theme.textTheme.headlineLarge,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Version 1.0.0',
+                style: theme.textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 32),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: theme.colorScheme.outlineVariant),
                 ),
-                const SizedBox(height: 32),
-                const Text(
-                  'About',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'About',
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'AutoLearn is an AI-powered educational platform designed to help students master concepts through interactive courses, personalized learning, and intelligent tutoring.',
+                      style: theme.textTheme.bodyLarge,
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  'AutoLearn is an AI-powered educational platform designed to help students master concepts through interactive courses, personalized learning, and intelligent tutoring.',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white.withOpacity(0.7),
-                    height: 1.5,
-                  ),
-                  textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: theme.colorScheme.outlineVariant),
                 ),
-                const SizedBox(height: 32),
-                const Text(
-                  'Features',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Features',
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildFeatureItem(
+                        context, Icons.auto_awesome, 'AI-Powered Tutoring'),
+                    _buildFeatureItem(
+                        context, Icons.school, 'Comprehensive Courses'),
+                    _buildFeatureItem(
+                        context, Icons.analytics, 'Progress Tracking'),
+                    _buildFeatureItem(
+                        context, Icons.workspace_premium, 'Certificates'),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                _buildFeatureItem(context, Icons.auto_awesome, 'AI-Powered Tutoring'),
-                _buildFeatureItem(context, Icons.school, 'Comprehensive Courses'),
-                _buildFeatureItem(context, Icons.analytics, 'Progress Tracking'),
-                _buildFeatureItem(context, Icons.workspace_premium, 'Certificates'),
-                const SizedBox(height: 32),
-                const Text(
-                  'Developed with ❤️',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontStyle: FontStyle.italic,
-                    color: Colors.white,
-                  ),
+              ),
+              const SizedBox(height: 32),
+              Text(
+                'Developed with care',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontStyle: FontStyle.italic,
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  '© 2024 AutoLearn. All rights reserved.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white.withOpacity(0.5),
-                  ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '© 2024 AutoLearn. All rights reserved.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -113,20 +117,32 @@ class AboutScreen extends StatelessWidget {
   }
 
   Widget _buildFeatureItem(BuildContext context, IconData icon, String text) {
+    final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.only(bottom: 12),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: Theme.of(context).colorScheme.secondary),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: theme.colorScheme.primary,
+            ),
+          ),
           const SizedBox(width: 12),
-          Text(
-            text,
-            style: const TextStyle(fontSize: 16, color: Colors.white),
+          Expanded(
+            child: Text(
+              text,
+              style: theme.textTheme.bodyLarge,
+            ),
           ),
         ],
       ),
     );
   }
 }
-

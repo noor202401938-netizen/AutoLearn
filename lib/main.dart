@@ -56,29 +56,24 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _loadPreferences() async {
-      try {
-        final prefs = await _preferencesRepository.getUserPreferences('local_preferences');
-        _preferenceNotifier.loadPreferences(
-          theme: prefs['theme'] as String? ?? 'system',
-          fontSize: prefs['fontSize'] as String? ?? 'normal',
-          highContrast: prefs['highContrast'] as bool? ?? false,
-          reduceMotion: prefs['reduceMotion'] as bool? ?? false,
-        );
-      } catch (e) {
-        debugPrint('Error loading preferences: $e');
-      }
+    try {
+      final prefs =
+          await _preferencesRepository.getUserPreferences('local_preferences');
+      _preferenceNotifier.loadPreferences(
+        theme: prefs['theme'] as String? ?? 'system',
+        fontSize: prefs['fontSize'] as String? ?? 'normal',
+        highContrast: prefs['highContrast'] as bool? ?? false,
+        reduceMotion: prefs['reduceMotion'] as bool? ?? false,
+      );
+    } catch (e) {
+      debugPrint('Error loading preferences: $e');
     }
+  }
 
   @override
   Widget build(BuildContext context) {
     final themeMode = _preferenceNotifier.themeMode;
     final fontSizeMultiplier = _preferenceNotifier.fontSizeMultiplier;
-    final highContrast = _preferenceNotifier.highContrast;
-
-    // Build theme with high contrast support
-    final lightTheme = _buildTheme(Brightness.light, highContrast);
-    final darkTheme = _buildTheme(Brightness.dark, highContrast);
-
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(
         textScaleFactor: fontSizeMultiplier,
@@ -124,40 +119,6 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
-
-  ThemeData _buildTheme(Brightness brightness, bool highContrast) {
-    final baseTheme = ThemeData(
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xFF4169E1), // Royal Blue
-        brightness: brightness,
-      ),
-      useMaterial3: true,
-    );
-
-    if (highContrast) {
-      // Apply high contrast modifications
-      return baseTheme.copyWith(
-        colorScheme: baseTheme.colorScheme.copyWith(
-          primary: brightness == Brightness.light
-              ? Colors.blue.shade900
-              : Colors.blue.shade100,
-          secondary: brightness == Brightness.light
-              ? Colors.teal.shade900
-              : Colors.teal.shade100,
-          surface: brightness == Brightness.light ? Colors.white : Colors.black,
-          onSurface:
-              brightness == Brightness.light ? Colors.black : Colors.white,
-        ),
-        scaffoldBackgroundColor:
-            brightness == Brightness.light ? Colors.white : Colors.black,
-        cardColor: brightness == Brightness.light
-            ? Colors.grey.shade100
-            : Colors.grey.shade900,
-      );
-    }
-
-    return baseTheme;
-  }
 }
 
 // Splash Screen to decide where to navigate
@@ -168,7 +129,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
@@ -176,10 +138,13 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 1));
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
-    
+    _controller =
+        AnimationController(vsync: this, duration: const Duration(seconds: 1));
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+        CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0)
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
+
     _controller.forward();
     _checkFirstLaunch();
   }
@@ -222,7 +187,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       body: Center(
@@ -233,33 +199,38 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo
                 Container(
-                  padding: const EdgeInsets.all(30),
+                  padding: const EdgeInsets.all(28),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    color: colorScheme.primaryContainer,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.school_rounded,
-                    size: 80,
-                    color: theme.colorScheme.primary,
+                    size: 64,
+                    color: colorScheme.primary,
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 32),
                 Text(
                   'AutoLearn',
-                  style: theme.textTheme.titleMedium,
+                  style: theme.textTheme.headlineLarge?.copyWith(
+                    color: colorScheme.primary,
+                  ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
                 Text(
                   'Your Personal Learning Assistant',
                   style: theme.textTheme.bodyMedium,
                 ),
-                const SizedBox(height: 50),
-                CircularProgressIndicator(
-                  color: theme.colorScheme.primary,
-                  strokeWidth: 3,
+                const SizedBox(height: 60),
+                SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: CircularProgressIndicator(
+                    color: colorScheme.primary,
+                    strokeWidth: 3,
+                  ),
                 ),
               ],
             ),

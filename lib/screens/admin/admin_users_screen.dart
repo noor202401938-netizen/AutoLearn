@@ -47,9 +47,13 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       if (tab == 'All') {
         _filteredUsers = List.from(_allUsers);
       } else if (tab == 'Instructor') {
-        _filteredUsers = _allUsers.where((u) => (u['role'] ?? '').toString().toLowerCase() == 'instructor').toList();
+        _filteredUsers = _allUsers
+            .where((u) =>
+                (u['role'] ?? '').toString().toLowerCase() == 'instructor')
+            .toList();
       } else if (tab == 'Inactive') {
-        _filteredUsers = _allUsers.where((u) => u['isActive'] == false).toList();
+        _filteredUsers =
+            _allUsers.where((u) => u['isActive'] == false).toList();
       }
     });
   }
@@ -69,27 +73,48 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Summary Cards
-              LayoutBuilder(
-                builder: (context, constraints) {
-      final theme = Theme.of(context);
-                  final isDesktop = constraints.maxWidth > 600;
-                  return Flex(
-                    direction: isDesktop ? Axis.horizontal : Axis.vertical,
-                    children: [
-                      Expanded(flex: isDesktop ? 1 : 0, child: _buildStatCard(context, 'Active Now', '${_allUsers.length}', Icons.pause, const Color(0xFF00724e), const [Color(0xFF4edea3), Color(0xFF00724e)], 0.75)),
-                      if (isDesktop) const SizedBox(width: 16),
-                      if (!isDesktop) const SizedBox(height: 16),
-                      Expanded(flex: isDesktop ? 1 : 0, child: _buildStatCard(context, 'Retention', '94.2%', Icons.trending_up, colorScheme.primary, [colorScheme.primary, colorScheme.tertiary], 0.94)),
-                    ],
-                  );
-                }
-              ),
+              LayoutBuilder(builder: (context, constraints) {
+                final isDesktop = constraints.maxWidth > 600;
+                return Flex(
+                  direction: isDesktop ? Axis.horizontal : Axis.vertical,
+                  children: [
+                    Expanded(
+                        flex: isDesktop ? 1 : 0,
+                        child: _buildStatCard(
+                            context,
+                            'Active Now',
+                            '${_allUsers.length}',
+                            Icons.pause,
+                            colorScheme.secondary,
+                            [
+                              colorScheme.secondaryContainer,
+                              colorScheme.secondary
+                            ],
+                            0.75)),
+                    if (isDesktop) const SizedBox(width: 16),
+                    if (!isDesktop) const SizedBox(height: 16),
+                    Expanded(
+                        flex: isDesktop ? 1 : 0,
+                        child: _buildStatCard(
+                            context,
+                            'Retention',
+                            '94.2%',
+                            Icons.trending_up,
+                            colorScheme.primary,
+                            [colorScheme.primary, colorScheme.tertiary],
+                            0.94)),
+                  ],
+                );
+              }),
               const SizedBox(height: 24),
 
               // Search
               Container(
                 decoration: BoxDecoration(
-                  color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.3) : const Color(0xFFeff4ff),
+                  color: isDark
+                      ? colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.3)
+                      : colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: TextField(
@@ -99,7 +124,15 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         _applyFilter(_selectedTab);
                       } else {
                         _filteredUsers = _allUsers
-                            .where((u) => (u['email'] ?? '').toString().toLowerCase().contains(value.toLowerCase()) || (u['displayName'] ?? '').toString().toLowerCase().contains(value.toLowerCase()))
+                            .where((u) =>
+                                (u['email'] ?? '')
+                                    .toString()
+                                    .toLowerCase()
+                                    .contains(value.toLowerCase()) ||
+                                (u['displayName'] ?? '')
+                                    .toString()
+                                    .toLowerCase()
+                                    .contains(value.toLowerCase()))
                             .toList();
                       }
                     });
@@ -107,9 +140,11 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                   decoration: InputDecoration(
                     hintText: 'Search members...',
                     hintStyle: GoogleFonts.inter(color: colorScheme.outline),
-                    prefixIcon: Icon(Icons.search, color: colorScheme.onSurfaceVariant),
+                    prefixIcon:
+                        Icon(Icons.search, color: colorScheme.onSurfaceVariant),
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
                   ),
                 ),
               ),
@@ -145,7 +180,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               const SizedBox(height: 12),
 
               if (_isLoading)
-                const Center(child: Padding(
+                const Center(
+                    child: Padding(
                   padding: EdgeInsets.all(32.0),
                   child: CircularProgressIndicator(),
                 ))
@@ -153,7 +189,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.all(32.0),
-                    child: Text('No users found', style: theme.textTheme.bodyMedium),
+                    child: Text('No users found',
+                        style: theme.textTheme.bodyMedium),
                   ),
                 )
               else
@@ -168,8 +205,18 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                       context: context,
                       name: user['displayName'] ?? user['email'] ?? 'Unknown',
                       role: role.isEmpty ? 'Free' : role,
-                      roleColor: isInstructor ? colorScheme.tertiary : (isPremium ? colorScheme.primary : colorScheme.onSurfaceVariant),
-                      roleBg: isInstructor ? colorScheme.tertiary.withOpacity(0.1) : (isPremium ? colorScheme.primary.withOpacity(0.1) : (isDark ? colorScheme.surfaceContainer : const Color(0xFFd9e3f6))),
+                      roleColor: isInstructor
+                          ? colorScheme.tertiary
+                          : (isPremium
+                              ? colorScheme.primary
+                              : colorScheme.onSurfaceVariant),
+                      roleBg: isInstructor
+                          ? colorScheme.tertiary.withValues(alpha: 0.1)
+                          : (isPremium
+                              ? colorScheme.primary.withValues(alpha: 0.1)
+                              : (isDark
+                                  ? colorScheme.surfaceContainer
+                                  : colorScheme.primaryContainer)),
                       subtitle: user['email'] ?? 'No email',
                     ),
                   );
@@ -183,7 +230,14 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     );
   }
 
-  Widget _buildStatCard(BuildContext context, String title, String value, IconData icon, Color iconColor, List<Color> gradientColors, double progress) {
+  Widget _buildStatCard(
+      BuildContext context,
+      String title,
+      String value,
+      IconData icon,
+      Color iconColor,
+      List<Color> gradientColors,
+      double progress) {
     final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -191,9 +245,12 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
+        color: isDark
+            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+            : colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+        border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,7 +275,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
             height: 4,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: isDark ? colorScheme.surfaceContainerHigh : Colors.grey[100],
+              color: isDark
+                  ? colorScheme.surfaceContainerHigh
+                  : colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(2),
             ),
             child: FractionallySizedBox(
@@ -257,7 +316,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                 height: 2,
                 width: 24,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [colorScheme.primary, colorScheme.tertiary]),
+                  gradient: LinearGradient(
+                      colors: [colorScheme.primary, colorScheme.tertiary]),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -285,9 +345,12 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
+        color: isDark
+            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+            : colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.2)),
+        border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -295,7 +358,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: isDark ? colorScheme.surfaceContainer : const Color(0xFFd9e3f6),
+              color: isDark
+                  ? colorScheme.surfaceContainer
+                  : colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(Icons.person, color: colorScheme.onSurfaceVariant),
@@ -313,7 +378,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     ),
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                         color: roleBg,
                         borderRadius: BorderRadius.circular(12),

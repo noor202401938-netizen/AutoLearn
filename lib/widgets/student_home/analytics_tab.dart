@@ -113,7 +113,8 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
         const SizedBox(height: 4),
         Text(
           'Tracking your growth since Jan 2024',
-          style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          style: theme.textTheme.bodyMedium
+              ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
       ],
     );
@@ -121,17 +122,19 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
 
   Widget _buildProgressWheelCard() {
     final theme = Theme.of(context);
-    final progressPercent = (_learningGoal.currentHours / _learningGoal.goalHours).clamp(0.0, 1.0);
-    
+    final colorScheme = theme.colorScheme;
+    final progressPercent =
+        (_learningGoal.currentHours / _learningGoal.goalHours).clamp(0.0, 1.0);
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFFffffff),
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFc8c4d7)),
+        border: Border.all(color: colorScheme.outlineVariant),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF5b4ed9).withOpacity(0.05),
+            color: colorScheme.primary.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -143,7 +146,8 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
             alignment: Alignment.centerLeft,
             child: Text(
               'Weekly Goal Progress',
-              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodyMedium
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
           ),
           const SizedBox(height: 16),
@@ -156,12 +160,12 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                 CircularProgressIndicator(
                   value: 1.0,
                   strokeWidth: 12,
-                  color: const Color(0xFFd9e3f6),
+                  color: colorScheme.primaryContainer,
                 ),
                 CircularProgressIndicator(
                   value: progressPercent,
                   strokeWidth: 12,
-                  color: const Color(0xFF4231c0),
+                  color: colorScheme.primary,
                   strokeCap: StrokeCap.round,
                 ),
                 Center(
@@ -174,7 +178,8 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                       ),
                       Text(
                         '${_learningGoal.currentHours.toInt()}/${_learningGoal.goalHours.toInt()} HOURS',
-                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -186,7 +191,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: const Color(0xFFe6eeff),
+              color: colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
@@ -194,7 +199,8 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.local_fire_department, color: Color(0xFF4edea3), size: 20),
+                    Icon(Icons.local_fire_department,
+                        color: colorScheme.secondary, size: 20),
                     const SizedBox(width: 4),
                     Text(
                       '5 Day Streak',
@@ -224,18 +230,21 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
 
   Widget _buildHoursLearnedChart() {
     final theme = Theme.of(context);
-    final maxHours = _learningGoal.weeklyHours.isEmpty ? 1.0 : _learningGoal.weeklyHours.reduce(math.max);
+    final colorScheme = theme.colorScheme;
+    final maxHours = _learningGoal.weeklyHours.isEmpty
+        ? 1.0
+        : _learningGoal.weeklyHours.reduce(math.max);
     final days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-    
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFFffffff),
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFc8c4d7)),
+        border: Border.all(color: colorScheme.outlineVariant),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF5b4ed9).withOpacity(0.05),
+            color: colorScheme.primary.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -248,15 +257,16 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
             children: [
               Text(
                 'Hours Learned',
-                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
               Row(
                 children: [
                   Container(
                     width: 8,
                     height: 8,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF4231c0),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -276,11 +286,13 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: List.generate(7, (index) {
-                final val = index < _learningGoal.weeklyHours.length ? _learningGoal.weeklyHours[index] : 0;
+                final val = index < _learningGoal.weeklyHours.length
+                    ? _learningGoal.weeklyHours[index]
+                    : 0;
                 final heightFactor = maxHours > 0 ? val / maxHours : 0.0;
                 // Hardcoding today to be Thursday (index 3) for design matching
                 final isToday = index == 3;
-                
+
                 return Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -289,8 +301,11 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                       child: Container(
                         height: 128 * heightFactor,
                         decoration: BoxDecoration(
-                          color: isToday ? const Color(0xFF4231c0) : const Color(0xFF5b4ed9).withOpacity(0.2),
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(2)),
+                          color: isToday
+                              ? colorScheme.primary
+                              : colorScheme.primary.withValues(alpha: 0.2),
+                          borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(2)),
                         ),
                       ),
                     ),
@@ -309,7 +324,9 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                   days[index],
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: isToday ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
+                    color: isToday
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
               );
@@ -322,15 +339,16 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
 
   Widget _buildQuizPerformance() {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFFffffff),
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFc8c4d7)),
+        border: Border.all(color: colorScheme.outlineVariant),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF5b4ed9).withOpacity(0.05),
+            color: colorScheme.primary.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -341,7 +359,8 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
         children: [
           Text(
             'Quiz Performance',
-            style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodyMedium
+                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 16),
           // Simplified graph representation
@@ -351,14 +370,14 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  const Color(0xFF5b4ed9).withOpacity(0.1),
-                  const Color(0xFFffffff).withOpacity(0),
+                  colorScheme.primary.withValues(alpha: 0.1),
+                  colorScheme.surface.withValues(alpha: 0),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
-              border: const Border(
-                bottom: BorderSide(color: Color(0xFFc8c4d7)),
+              border: Border(
+                bottom: BorderSide(color: colorScheme.outlineVariant),
               ),
             ),
             child: Stack(
@@ -366,16 +385,17 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                 Center(
                   child: Text(
                     'Performance graph placeholder',
-                    style: TextStyle(color: Colors.grey.withOpacity(0.5)),
+                    style: TextStyle(color: Colors.grey.withValues(alpha: 0.5)),
                   ),
                 ),
                 Positioned(
                   top: 8,
                   right: 16,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFe3dfff),
+                      color: colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -393,7 +413,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.verified, color: Color(0xFF6b38d4), size: 18),
+                  Icon(Icons.verified, color: colorScheme.primary, size: 18),
                   const SizedBox(width: 4),
                   Text(
                     'Top 5% this month',
@@ -414,12 +434,14 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
 
   Widget _buildStrengthsSection() {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Top Learning Strengths',
-          style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          style: theme.textTheme.bodyMedium
+              ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
         const SizedBox(height: 12),
         GridView.builder(
@@ -437,9 +459,10 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
             return Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFeff4ff), // surface-container-low
+                color: colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFF00573a).withOpacity(0.2)),
+                border: Border.all(
+                    color: colorScheme.secondary.withValues(alpha: 0.2)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -450,7 +473,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                     children: [
                       Icon(
                         _getIconData(strength.icon),
-                        color: const Color(0xFF00573a), // tertiary
+                        color: colorScheme.secondary,
                         size: 20,
                       ),
                       Text(
@@ -467,17 +490,17 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                     height: 6,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFd9e3f6),
+                      color: colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(3),
                     ),
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Container(
-                        width: MediaQuery.of(context).size.width * 0.4 * strength.progress, // Approximated
+                        width: MediaQuery.of(context).size.width *
+                            0.4 *
+                            strength.progress, // Approximated
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF00573a), Color(0xFF4edea3)],
-                          ),
+                          color: colorScheme.secondary,
                           borderRadius: BorderRadius.circular(3),
                         ),
                       ),
@@ -494,12 +517,13 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
 
   Widget _buildCourseSuggestion() {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFF4231c0).withOpacity(0.05),
+        color: colorScheme.primary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF4231c0).withOpacity(0.1)),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.1)),
       ),
       child: Row(
         children: [
@@ -514,27 +538,20 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                 const SizedBox(height: 4),
                 Text(
                   'Deep dive into Information Architecture to boost your research score.',
-                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  style: theme.textTheme.bodyMedium
+                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: 12),
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF4231c0), Color(0xFF6b38d4)],
-                    ),
-                    borderRadius: BorderRadius.circular(8),
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colorScheme.primary,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                   ),
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                    ),
-                    child: Text(
-                      'Start Module',
-                      style: theme.textTheme.bodyMedium,
-                    ),
+                  child: Text(
+                    'Start Module',
+                    style: theme.textTheme.bodyMedium,
                   ),
                 ),
               ],
@@ -545,12 +562,12 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: const Color(0xFFc5c0ff), // primary-fixed-dim
+              color: colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.school,
-              color: Color(0xFF4231c0),
+              color: colorScheme.primary,
               size: 40,
             ),
           ),

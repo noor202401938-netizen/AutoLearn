@@ -9,7 +9,7 @@ class PoliciesScreen extends StatelessWidget {
     final textTheme = theme.textTheme;
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         title: Text('Policies & Terms', 
           style: TextStyle(
@@ -17,10 +17,9 @@ class PoliciesScreen extends StatelessWidget {
             color: theme.colorScheme.primary,
           )
         ),
-        backgroundColor: Colors.white.withOpacity(0.9),
-        elevation: 1,
-        shadowColor: Colors.black12,
-        iconTheme: const IconThemeData(color: Color(0xFF4231C0)),
+        backgroundColor: theme.colorScheme.surface,
+        elevation: 0,
+        iconTheme: IconThemeData(color: theme.colorScheme.primary),
       ),
       body: Container(
         
@@ -102,12 +101,12 @@ class PoliciesScreen extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
+          border: Border.all(color: theme.colorScheme.outlineVariant),
           boxShadow: [
             BoxShadow(
-              color: theme.colorScheme.primary.withOpacity(0.05),
+              color: theme.colorScheme.primary.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
@@ -124,7 +123,7 @@ class PoliciesScreen extends StatelessWidget {
               ),
             ),
             iconColor: theme.colorScheme.primary,
-            collapsedIconColor: theme.colorScheme.primary.withOpacity(0.5),
+            collapsedIconColor: theme.colorScheme.primary.withValues(alpha: 0.5),
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),

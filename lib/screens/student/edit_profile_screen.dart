@@ -1,4 +1,3 @@
-// lib/screens/student/edit_profile_screen.dart
 import 'package:flutter/material.dart';
 import '../../repository/user_repository.dart';
 import '../../repository/auth_repository.dart';
@@ -11,17 +10,15 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  ThemeData get theme => Theme.of(context);
-
   final _formKey = GlobalKey<FormState>();
   final UserRepository _userRepository = UserRepository();
   final AuthRepository _authRepository = AuthRepository();
-  
+
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _gradeController = TextEditingController();
   final TextEditingController _interestController = TextEditingController();
-  
+
   bool _isLoading = false;
   Map<String, dynamic>? _userProfile;
 
@@ -92,7 +89,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User not found'), backgroundColor: Colors.red),
+          SnackBar(
+              content: const Text('User not found'),
+              backgroundColor: Theme.of(context).colorScheme.error),
         );
       }
       return;
@@ -100,8 +99,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     try {
       final displayName = _nameController.text.trim();
-      
-      // Update profile via API
+
       await _userRepository.updateUserProfile(
         uid: uid,
         displayName: displayName,
@@ -111,12 +109,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       );
 
       setState(() => _isLoading = false);
-      
+
       if (mounted) {
+        final theme = Theme.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Profile updated successfully'),
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+            content: const Text('Profile updated successfully'),
+            backgroundColor: theme.colorScheme.primaryContainer,
           ),
         );
         Navigator.pop(context, true);
@@ -138,179 +137,164 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        title: Text('Edit Profile', 
-          style: TextStyle(
-            fontWeight: FontWeight.bold, 
-            color: theme.colorScheme.primary,
-          )
-        ),
-        backgroundColor: Colors.white.withOpacity(0.9),
-        elevation: 1,
-        shadowColor: Colors.black12,
-        iconTheme: const IconThemeData(color: Color(0xFF4231C0)),
+        title: Text('Edit Profile',
+            style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold, color: theme.colorScheme.primary)),
+        backgroundColor: theme.colorScheme.surface,
+        elevation: 0,
+        iconTheme: IconThemeData(color: theme.colorScheme.primary),
       ),
-      body: Container(
-        child: SafeArea(
-          child: _isLoading && _userProfile == null
-              ? const Center(child: CircularProgressIndicator(color: Color(0xFF4231C0)))
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: 20),
-                    // Profile Picture Placeholder
-                    Center(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Theme.of(context).colorScheme.secondary.withOpacity(0.5), width: 2),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
-                              blurRadius: 10,
-                              spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                        child: CircleAvatar(
-                          radius: 60,
-                          backgroundColor: theme.colorScheme.secondaryContainer,
-                          child: Text(
-                            (_nameController.text.isNotEmpty
-                                    ? _nameController.text
-                                    : (_userProfile?['email'] ?? 'U'))[0]
-                                .toUpperCase(),
-                            style: const TextStyle(
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF4231C0),
-                            ),
+      body: SafeArea(
+        child: _isLoading && _userProfile == null
+            ? Center(
+                child:
+                    CircularProgressIndicator(color: theme.colorScheme.primary))
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const SizedBox(height: 20),
+                      Center(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                                color: theme.colorScheme.secondary
+                                    .withValues(alpha: 0.5),
+                                width: 2),
                           ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    
-                    // Display Name
-                    _buildTextField(
-                      controller: _nameController,
-                      label: 'Full Name',
-                      hint: 'Enter your full name',
-                      icon: Icons.person_outline,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Please enter your name';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) => setState(() {}),
-                    ),
-                    const SizedBox(height: 16),
-                    
-                    // Email (read-only)
-                    _buildTextField(
-                      controller: TextEditingController(text: _userProfile?['email'] ?? ''),
-                      label: 'Email',
-                      hint: '',
-                      icon: Icons.email_outlined,
-                      readOnly: true,
-                    ),
-                    const SizedBox(height: 16),
-                    
-                    // Phone
-                    _buildTextField(
-                      controller: _phoneController,
-                      label: 'Phone Number',
-                      hint: 'Enter your phone number',
-                      icon: Icons.phone_outlined,
-                      keyboardType: TextInputType.phone,
-                    ),
-                    const SizedBox(height: 16),
-                    
-                    // Grade Dropdown
-                    _buildDropdown(
-                      value: _gradeController.text.isEmpty ? null : _gradeController.text,
-                      label: 'Grade/Level',
-                      icon: Icons.school_outlined,
-                      items: _grades,
-                      onChanged: (value) {
-                        setState(() {
-                          _gradeController.text = value ?? '';
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    
-                    // Interest Dropdown
-                    _buildDropdown(
-                      value: _interestController.text.isEmpty ? null : _interestController.text,
-                      label: 'Interest',
-                      icon: Icons.favorite_outline,
-                      items: _interests,
-                      onChanged: (value) {
-                        setState(() {
-                          _interestController.text = value ?? '';
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 32),
-                    
-                    // Save Button
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primary,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: theme.colorScheme.primary.withOpacity(0.3),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _saveProfile,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        ),
-                        child: _isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                ),
-                              )
-                            : const Text(
-                                'Save Changes',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                          child: CircleAvatar(
+                            radius: 60,
+                            backgroundColor:
+                                theme.colorScheme.secondaryContainer,
+                            child: Text(
+                              (_nameController.text.isNotEmpty
+                                      ? _nameController.text
+                                      : (_userProfile?['email'] ?? 'U'))[0]
+                                  .toUpperCase(),
+                              style: theme.textTheme.headlineLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: theme.colorScheme.primary,
                               ),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 32),
+                      _buildTextField(
+                        theme: theme,
+                        controller: _nameController,
+                        label: 'Full Name',
+                        hint: 'Enter your full name',
+                        icon: Icons.person_outline,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Please enter your name';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) => setState(() {}),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                        theme: theme,
+                        controller: TextEditingController(
+                            text: _userProfile?['email'] ?? ''),
+                        label: 'Email',
+                        hint: '',
+                        icon: Icons.email_outlined,
+                        readOnly: true,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                        theme: theme,
+                        controller: _phoneController,
+                        label: 'Phone Number',
+                        hint: 'Enter your phone number',
+                        icon: Icons.phone_outlined,
+                        keyboardType: TextInputType.phone,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildDropdown(
+                        theme: theme,
+                        value: _gradeController.text.isEmpty
+                            ? null
+                            : _gradeController.text,
+                        label: 'Grade/Level',
+                        icon: Icons.school_outlined,
+                        items: _grades,
+                        onChanged: (value) {
+                          setState(() {
+                            _gradeController.text = value ?? '';
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      _buildDropdown(
+                        theme: theme,
+                        value: _interestController.text.isEmpty
+                            ? null
+                            : _interestController.text,
+                        label: 'Interest',
+                        icon: Icons.favorite_outline,
+                        items: _interests,
+                        onChanged: (value) {
+                          setState(() {
+                            _interestController.text = value ?? '';
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 32),
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _saveProfile,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            foregroundColor: theme.colorScheme.onPrimary,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: _isLoading
+                              ? SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        theme.colorScheme.onPrimary),
+                                  ),
+                                )
+                              : Text(
+                                  'Save Changes',
+                                  style: theme.textTheme.labelLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: theme.colorScheme.onPrimary,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-        ),
       ),
     );
   }
 
   Widget _buildTextField({
+    required ThemeData theme,
     required TextEditingController controller,
     required String label,
     required String hint,
@@ -322,27 +306,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
-        boxShadow: [
-          BoxShadow(
-            color: theme.colorScheme.primary.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: TextFormField(
         controller: controller,
         readOnly: readOnly,
         keyboardType: keyboardType,
-        style: TextStyle(color: readOnly ? theme.colorScheme.onSurface.withOpacity(0.5) : theme.colorScheme.onSurface),
+        style: theme.textTheme.bodyLarge?.copyWith(
+          color: readOnly
+              ? theme.colorScheme.onSurface.withValues(alpha: 0.5)
+              : theme.colorScheme.onSurface,
+        ),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+          labelStyle: theme.textTheme.bodyMedium
+              ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           hintText: hint,
-          hintStyle: TextStyle(color: theme.colorScheme.outline),
+          hintStyle: theme.textTheme.bodyMedium
+              ?.copyWith(color: theme.colorScheme.outline),
           prefixIcon: Icon(icon, color: theme.colorScheme.primary),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(20),
@@ -354,6 +337,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _buildDropdown({
+    required ThemeData theme,
     required String? value,
     required String label,
     required IconData icon,
@@ -362,24 +346,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
-        boxShadow: [
-          BoxShadow(
-            color: theme.colorScheme.primary.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: DropdownButtonFormField<String>(
-        value: value,
-        dropdownColor: Colors.white,
-        style: const TextStyle(color: Color(0xFF121C2A)),
+        initialValue: value,
+        dropdownColor: theme.colorScheme.surface,
+        style: theme.textTheme.bodyLarge
+            ?.copyWith(color: theme.colorScheme.onSurface),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+          labelStyle: theme.textTheme.bodyMedium
+              ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           prefixIcon: Icon(icon, color: theme.colorScheme.primary),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(20),
@@ -395,4 +374,3 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 }
-

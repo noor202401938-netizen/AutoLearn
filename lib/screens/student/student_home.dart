@@ -4,22 +4,12 @@ import 'dart:ui';
 import '../../business_logic/auth_manager.dart';
 import '../../repository/auth_repository.dart';
 import '../../repository/user_repository.dart';
-import 'my_courses_screen.dart';
 import 'ai_tutor_chat_screen.dart';
-import '../notifications_panel.dart';
-import 'certificates_list_screen.dart';
-import '../theme_accessibility_screen.dart';
 import '../../business_logic/recommendation_engine.dart';
 import '../../model/course_model.dart';
 import 'course_list_screen.dart';
 import 'course_content_screen.dart';
 import '../../repository/enrollment_repository.dart';
-import '../../repository/course_repository.dart';
-import 'edit_profile_screen.dart';
-import 'change_password_screen.dart';
-import 'help_support_screen.dart';
-import 'about_screen.dart';
-import 'policies_screen.dart';
 import '../../utils/preference_notifier.dart';
 import '../../widgets/gradient_bottom_nav.dart';
 import '../../widgets/student_home/stat_card.dart';
@@ -30,6 +20,7 @@ import '../../widgets/student_home/ambient_background.dart';
 
 import '../../widgets/student_home/profile_tab.dart';
 import '../../widgets/student_home/analytics_tab.dart';
+
 class StudentHome extends StatefulWidget {
   const StudentHome({super.key});
 
@@ -38,19 +29,15 @@ class StudentHome extends StatefulWidget {
 }
 
 class _StudentHomeState extends State<StudentHome> {
-  final AuthManager _authManager = AuthManager();
   final AuthRepository _authRepository = AuthRepository();
   final UserRepository _userRepository = UserRepository();
   final RecommendationEngine _recommendationEngine = RecommendationEngine();
   final EnrollmentRepository _enrollmentRepository = EnrollmentRepository();
-  final CourseRepository _courseRepository = CourseRepository();
   int _selectedIndex = 0;
   Map<String, dynamic>? _userProfile;
   List<CourseModel> _recommendedCourses = [];
   List<Map<String, dynamic>> _enrolledCourses = [];
   bool _loadingEnrolled = false;
-  bool _isLoadingRecommendations = false;
-
   @override
   void initState() {
     super.initState();
@@ -82,15 +69,13 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Future<void> _loadRecommendations() async {
-    setState(() => _isLoadingRecommendations = true);
     try {
       final recommendations = await _recommendationEngine.getRecommendations();
       setState(() {
         _recommendedCourses = recommendations;
-        _isLoadingRecommendations = false;
       });
     } catch (e) {
-      setState(() => _isLoadingRecommendations = false);
+      // ignore
     }
   }
 
@@ -161,7 +146,6 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Widget _getSelectedScreen() {
-    final theme = Theme.of(context);
     switch (_selectedIndex) {
       case 0:
         return _buildHomeScreen();
@@ -178,9 +162,8 @@ class _StudentHomeState extends State<StudentHome> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final isMobile = MediaQuery.of(context).size.width < 600;
-    
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       extendBody: true,
@@ -193,7 +176,8 @@ class _StudentHomeState extends State<StudentHome> {
             letterSpacing: -1.0,
           ),
         ),
-        backgroundColor: Theme.of(context).colorScheme.surface.withOpacity(0.8),
+        backgroundColor:
+            Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
         elevation: 0,
         flexibleSpace: ClipRect(
           child: BackdropFilter(
@@ -229,15 +213,17 @@ class _StudentHomeState extends State<StudentHome> {
                   ),
                 ),
                 child: CircleAvatar(
-                  backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-                  child: Icon(Icons.person, color: Theme.of(context).colorScheme.primary),
+                  backgroundColor:
+                      Theme.of(context).colorScheme.surfaceContainerHighest,
+                  child: Icon(Icons.person,
+                      color: Theme.of(context).colorScheme.primary),
                 ),
               ),
             ),
           ),
         ],
       ),
-      bottomNavigationBar: isMobile 
+      bottomNavigationBar: isMobile
           ? GradientBottomNav(
               selectedIndex: _selectedIndex,
               onItemSelected: _onItemTapped,
@@ -246,25 +232,21 @@ class _StudentHomeState extends State<StudentHome> {
                   'title': 'Home',
                   'icon': Icons.home_outlined,
                   'selectedIcon': Icons.home,
-                  'colors': [const Color(0xFFa955ff), const Color(0xFFea51ff)],
                 },
                 {
                   'title': 'Courses',
                   'icon': Icons.school_outlined,
                   'selectedIcon': Icons.school,
-                  'colors': [const Color(0xFF56CCF2), const Color(0xFF2F80ED)],
                 },
                 {
                   'title': 'Progress',
                   'icon': Icons.show_chart_outlined,
                   'selectedIcon': Icons.show_chart,
-                  'colors': [const Color(0xFFFF9966), const Color(0xFFFF5E62)],
                 },
                 {
                   'title': 'Profile',
                   'icon': Icons.person_outline,
                   'selectedIcon': Icons.person,
-                  'colors': [const Color(0xFF80FF72), const Color(0xFF7EE8FA)],
                 },
               ],
             )
@@ -274,57 +256,73 @@ class _StudentHomeState extends State<StudentHome> {
         child: Stack(
           children: [
             const AmbientBackground(),
-            Row(
-          children: [
-            if (!isMobile) ...[
-              NavigationRail(
-                selectedIndex: _selectedIndex,
-                onDestinationSelected: _onItemTapped,
-                backgroundColor: Theme.of(context).colorScheme.surface,
-                selectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.primary),
-                unselectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
-                selectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
-                unselectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
-                extended: MediaQuery.of(context).size.width >= 800,
-                destinations: const [
-                  NavigationRailDestination(
-                    icon: Icon(Icons.home_outlined),
-                    selectedIcon: Icon(Icons.home),
-                    label: Text('Home'),
-                  ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.school_outlined),
-                    selectedIcon: Icon(Icons.school),
-                    label: Text('Courses'),
-                  ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.show_chart_outlined),
-                    selectedIcon: Icon(Icons.show_chart),
-                    label: Text('Progress'),
-                  ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.person_outline),
-                    selectedIcon: Icon(Icons.person),
-                    label: Text('Profile'),
+            SafeArea(
+              child: Row(
+                children: [
+                  if (!isMobile) ...[
+                    NavigationRail(
+                      selectedIndex: _selectedIndex,
+                      onDestinationSelected: _onItemTapped,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      selectedIconTheme: IconThemeData(
+                          color: Theme.of(context).colorScheme.primary),
+                      unselectedIconTheme: IconThemeData(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.6)),
+                      selectedLabelTextStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold),
+                      unselectedLabelTextStyle: TextStyle(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.6)),
+                      extended: MediaQuery.of(context).size.width >= 800,
+                      destinations: const [
+                        NavigationRailDestination(
+                          icon: Icon(Icons.home_outlined),
+                          selectedIcon: Icon(Icons.home),
+                          label: Text('Home'),
+                        ),
+                        NavigationRailDestination(
+                          icon: Icon(Icons.school_outlined),
+                          selectedIcon: Icon(Icons.school),
+                          label: Text('Courses'),
+                        ),
+                        NavigationRailDestination(
+                          icon: Icon(Icons.show_chart_outlined),
+                          selectedIcon: Icon(Icons.show_chart),
+                          label: Text('Progress'),
+                        ),
+                        NavigationRailDestination(
+                          icon: Icon(Icons.person_outline),
+                          selectedIcon: Icon(Icons.person),
+                          label: Text('Profile'),
+                        ),
+                      ],
+                    ),
+                    VerticalDivider(
+                        thickness: 1,
+                        width: 1,
+                        color: Theme.of(context).dividerColor),
+                  ],
+                  Expanded(
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 1200),
+                        child: _getSelectedScreen(),
+                      ),
+                    ),
                   ),
                 ],
-              ),
-              VerticalDivider(thickness: 1, width: 1, color: Theme.of(context).dividerColor),
-            ],
-            Expanded(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1200),
-                  child: _getSelectedScreen(),
-                ),
               ),
             ),
           ],
         ),
-      ],
-    ),
-  ),
-);
+      ),
+    );
   }
 
   Widget _buildHomeScreen() {
@@ -361,12 +359,14 @@ class _StudentHomeState extends State<StudentHome> {
                 const SizedBox(height: 12),
                 Text(
                   'You\'re on a $streak-day learning streak! Keep it up.',
-                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  style: theme.textTheme.bodyMedium
+                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: 24),
                 // Signature Stats Section
                 GridView.count(
-                  crossAxisCount: MediaQuery.of(context).size.width < 600 ? 2 : 4,
+                  crossAxisCount:
+                      MediaQuery.of(context).size.width < 600 ? 2 : 4,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   mainAxisSpacing: 16,
@@ -375,7 +375,8 @@ class _StudentHomeState extends State<StudentHome> {
                   children: [
                     StatCard(
                       icon: Icons.school_outlined,
-                      value: '${_enrolledCourses.length + completedCoursesCount}',
+                      value:
+                          '${_enrolledCourses.length + completedCoursesCount}',
                       label: 'Courses',
                     ),
                     StatCard(
@@ -433,7 +434,8 @@ class _StudentHomeState extends State<StudentHome> {
                       },
                       child: Text(
                         'View All',
-                        style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.primary),
+                        style: theme.textTheme.bodyMedium
+                            ?.copyWith(color: theme.colorScheme.primary),
                       ),
                     ),
                   ],
@@ -448,16 +450,22 @@ class _StudentHomeState extends State<StudentHome> {
                                 Icon(
                                   Icons.auto_stories_outlined,
                                   size: 80,
-                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.2),
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
                                   'No courses in progress',
-                                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                      color:
+                                          theme.colorScheme.onSurfaceVariant),
                                 ),
                                 const SizedBox(height: 20),
                                 ElevatedButton(
-                                  onPressed: () => setState(() => _selectedIndex = 1),
+                                  onPressed: () =>
+                                      setState(() => _selectedIndex = 1),
                                   child: const Text('Browse Courses'),
                                 ),
                               ],
@@ -466,12 +474,16 @@ class _StudentHomeState extends State<StudentHome> {
                         : ListView.separated(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount: _enrolledCourses.length > 3 ? 3 : _enrolledCourses.length,
-                            separatorBuilder: (context, index) => const SizedBox(height: 16),
+                            itemCount: _enrolledCourses.length > 3
+                                ? 3
+                                : _enrolledCourses.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 16),
                             itemBuilder: (context, index) {
                               final enrollment = _enrolledCourses[index];
                               final course = enrollment['course'] ?? {};
-                              final progress = enrollment['progressPercent'] ?? 0.0;
+                              final progress =
+                                  enrollment['progressPercent'] ?? 0.0;
                               return ProgressCourseCard(
                                 title: course['title'] ?? 'Course',
                                 moduleName: 'Continue learning',
@@ -517,7 +529,8 @@ class _StudentHomeState extends State<StudentHome> {
                     padding: const EdgeInsets.only(right: 16),
                     child: RecommendedCourseCard(
                       title: course.title,
-                      description: 'Master the subject with this interactive course.',
+                      description:
+                          'Master the subject with this interactive course.',
                       thumbnailUrl: course.thumbnailURL,
                       tag: 'RECOMMENDED',
                       rating: course.rating,
@@ -545,24 +558,19 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Widget _buildCoursesScreen() {
-    final theme = Theme.of(context);
     return const CourseListScreen();
   }
 
-
   Widget _buildProgressScreen() {
-    final theme = Theme.of(context);
     return const AnalyticsTab();
   }
 
   Widget _buildProfileScreen() {
-    final theme = Theme.of(context);
     return FutureBuilder<Map<String, dynamic>?>(
       future: _authRepository.getCurrentUser(),
       builder: (context, userSnapshot) {
-      final theme = Theme.of(context);
         final user = userSnapshot.data;
-        
+
         return ProfileTab(
           userProfile: _userProfile ?? user,
           onProfileUpdated: _loadUserProfile,
@@ -571,4 +579,3 @@ class _StudentHomeState extends State<StudentHome> {
     );
   }
 }
-

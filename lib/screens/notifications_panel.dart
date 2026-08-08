@@ -25,7 +25,8 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
     try {
       final user = null /* was FirebaseAuth.instance.currentUser */;
       if (user != null) {
-        _notifications = await _notificationManager.getUserNotifications(user.uid);
+        _notifications =
+            await _notificationManager.getUserNotifications(user.uid);
       }
       setState(() => _isLoading = false);
     } catch (e) {
@@ -74,7 +75,7 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text('Notifications', style: theme.textTheme.titleMedium),
-        backgroundColor: colorScheme.surface.withOpacity(0.8),
+        backgroundColor: colorScheme.surface.withValues(alpha: 0.8),
         elevation: 0,
         iconTheme: IconThemeData(color: colorScheme.onSurface),
         actions: [
@@ -95,7 +96,8 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
         color: colorScheme.surface,
         child: SafeArea(
           child: _isLoading
-              ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
+              ? Center(
+                  child: CircularProgressIndicator(color: colorScheme.primary))
               : _notifications.isEmpty
                   ? _buildEmptyState(colorScheme)
                   : _buildNotificationsList(colorScheme, isDark),
@@ -113,10 +115,12 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: colorScheme.onSurfaceVariant.withOpacity(0.05),
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.05),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.notifications_none_rounded, size: 64, color: colorScheme.onSurfaceVariant.withOpacity(0.5)),
+            child: Icon(Icons.notifications_none_rounded,
+                size: 64,
+                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
           ),
           const SizedBox(height: 24),
           Text(
@@ -143,34 +147,43 @@ class _NotificationsPanelState extends State<NotificationsPanel> {
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: notification.isRead 
-                ? (isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.3) : Colors.white)
-                : colorScheme.primary.withOpacity(0.05),
+            color: notification.isRead
+                ? (isDark
+                    ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)
+                    : Colors.white)
+                : colorScheme.primary.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: notification.isRead 
-                  ? colorScheme.outlineVariant.withOpacity(0.3)
-                  : colorScheme.primary.withOpacity(0.3),
+              color: notification.isRead
+                  ? colorScheme.outlineVariant.withValues(alpha: 0.3)
+                  : colorScheme.primary.withValues(alpha: 0.3),
             ),
-            boxShadow: notification.isRead ? null : [
-              BoxShadow(
-                color: colorScheme.primary.withOpacity(0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            boxShadow: notification.isRead
+                ? null
+                : [
+                    BoxShadow(
+                      color: colorScheme.primary.withValues(alpha: 0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
           ),
           child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             leading: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: notification.isRead ? colorScheme.onSurfaceVariant.withOpacity(0.1) : colorScheme.primary.withOpacity(0.1),
+                color: notification.isRead
+                    ? colorScheme.onSurfaceVariant.withValues(alpha: 0.1)
+                    : colorScheme.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 _getNotificationIcon(notification.type),
-                color: notification.isRead ? colorScheme.onSurfaceVariant : colorScheme.primary,
+                color: notification.isRead
+                    ? colorScheme.onSurfaceVariant
+                    : colorScheme.primary,
               ),
             ),
             title: Text(

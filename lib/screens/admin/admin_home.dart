@@ -57,7 +57,7 @@ class _AdminHomeState extends State<AdminHome> {
               height: 32,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: colorScheme.primary.withOpacity(0.2), width: 2),
+                border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2), width: 2),
                 color: colorScheme.primaryContainer,
               ),
               child: Icon(Icons.person, color: colorScheme.onPrimaryContainer, size: 18),

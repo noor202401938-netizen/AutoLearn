@@ -13,109 +13,83 @@ class GradientMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final items = [
       {
         'title': 'Home',
         'icon': Icons.home_outlined,
-        'colors': const [Color(0xFFa955ff), Color(0xFFea51ff)],
+        'activeIcon': Icons.home_rounded,
       },
       {
         'title': 'Courses',
         'icon': Icons.school_outlined,
-        'colors': const [Color(0xFF56CCF2), Color(0xFF2F80ED)],
+        'activeIcon': Icons.school_rounded,
       },
       {
         'title': 'Progress',
         'icon': Icons.show_chart_outlined,
-        'colors': const [Color(0xFFFF9966), Color(0xFFFF5E62)],
+        'activeIcon': Icons.show_chart_rounded,
       },
       {
         'title': 'Profile',
         'icon': Icons.person_outline,
-        'colors': const [Color(0xFF80FF72), Color(0xFF7EE8FA)],
+        'activeIcon': Icons.person_rounded,
       },
     ];
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.background,
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
-          ),
-        ],
+        color: colorScheme.surface,
+        border: Border(
+          top: BorderSide(color: colorScheme.outlineVariant, width: 1),
+        ),
       ),
       child: SafeArea(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(items.length, (index) {
-            final item = items[index];
-            final isSelected = selectedIndex == index;
-            
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0), // Minimized gap
-              child: GestureDetector(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(items.length, (index) {
+              final item = items[index];
+              final isSelected = selectedIndex == index;
+
+              return GestureDetector(
                 onTap: () => onItemSelected(index),
+                behavior: HitTestBehavior.opaque,
                 child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
+                  duration: const Duration(milliseconds: 250),
                   curve: Curves.easeOutCubic,
-                  width: isSelected ? 130.0 : 60.0,
-                  height: 60.0,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.transparent : Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: isSelected
-                        ? [
-                            BoxShadow(
-                              color: (item['colors'] as List<Color>)[0].withOpacity(0.5),
-                              blurRadius: 15,
-                              offset: const Offset(0, 5),
-                            )
-                          ]
-                        : [
-                            BoxShadow(
-                              color: Theme.of(context).shadowColor.withOpacity(0.05),
-                              blurRadius: 5,
-                              offset: const Offset(0, 2),
-                            )
-                          ],
-                    gradient: isSelected
-                        ? LinearGradient(
-                            colors: item['colors'] as List<Color>,
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          )
-                        : null,
+                    color: isSelected ? colorScheme.primaryContainer : Colors.transparent,
+                    borderRadius: BorderRadius.circular(24),
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        item['icon'] as IconData,
-                        color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
-                        size: 24,
+                        isSelected ? (item['activeIcon'] as IconData) : (item['icon'] as IconData),
+                        color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                        size: 22,
                       ),
                       if (isSelected) ...[
                         const SizedBox(width: 8),
                         Text(
-                          (item['title'] as String).toUpperCase(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                            letterSpacing: 1.0,
+                          item['title'] as String,
+                          style: TextStyle(
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                            letterSpacing: 0.26,
                           ),
                         ),
-                      ]
+                      ],
                     ],
                   ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+          ),
         ),
       ),
     );

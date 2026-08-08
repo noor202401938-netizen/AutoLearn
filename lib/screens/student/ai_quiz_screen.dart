@@ -33,7 +33,6 @@ class AIQuizScreen extends StatefulWidget {
 
 class _AIQuizScreenState extends State<AIQuizScreen> {
   final AIQuizEngine _quizEngine = AIQuizEngine();
-  final AIFeedbackEngine _feedbackEngine = AIFeedbackEngine();
   final QuizRepository _quizRepository = QuizRepository();
   final CertificateManager _certificateManager = CertificateManager();
   bool _certificateShown = false;
@@ -153,7 +152,8 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
 
       if (autoSubmit && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Time\'s up! Quiz submitted automatically.')),
+          const SnackBar(
+              content: Text('Time\'s up! Quiz submitted automatically.')),
         );
       }
     } catch (e) {
@@ -176,12 +176,10 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white.withOpacity(0.8),
-        elevation: 1,
-        shadowColor: Colors.black12,
-        scrolledUnderElevation: 1,
+        backgroundColor: theme.colorScheme.surface,
+        elevation: 0,
         centerTitle: false,
         automaticallyImplyLeading: false,
         titleSpacing: 0,
@@ -190,7 +188,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
           child: Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.close, color: Color(0xFF474554)),
+                icon: Icon(Icons.close, color: theme.colorScheme.onSurface),
                 onPressed: () => Navigator.pop(context),
               ),
               const SizedBox(width: 8),
@@ -215,15 +213,18 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
               ),
               if (_quiz != null && _quiz!.timeLimit > 0 && !_showResults)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFDEE9FC),
+                    color: theme.colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
+                    border: Border.all(
+                        color:
+                            theme.colorScheme.outline.withValues(alpha: 0.3)),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.timer, size: 16, color: Color(0xFF4231C0)),
+                      const Icon(Icons.timer, size: 16),
                       const SizedBox(width: 6),
                       Text(
                         _formatTime(_timeRemaining),
@@ -238,9 +239,13 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
       ),
       body: SafeArea(
         child: _isLoading
-            ? Center(child: CircularProgressIndicator(color: theme.colorScheme.primary))
+            ? Center(
+                child:
+                    CircularProgressIndicator(color: theme.colorScheme.primary))
             : _quiz == null
-                ? const Center(child: Text('Quiz not found', style: TextStyle(color: Colors.black)))
+                ? Center(
+                    child: Text('Quiz not found',
+                        style: theme.textTheme.bodyLarge))
                 : _showResults
                     ? _buildResultsView()
                     : _buildQuizView(),
@@ -258,12 +263,14 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
     }
 
     final question = _quiz!.questions[_currentQuestionIndex];
-    final progressPercent = (_currentQuestionIndex + 1) / _quiz!.questions.length;
+    final progressPercent =
+        (_currentQuestionIndex + 1) / _quiz!.questions.length;
 
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 20, right: 20, top: 24, bottom: 24),
+          padding:
+              const EdgeInsets.only(left: 20, right: 20, top: 24, bottom: 24),
           child: Column(
             children: [
               Row(
@@ -273,7 +280,8 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                   RichText(
                     text: TextSpan(
                       text: 'Question ${_currentQuestionIndex + 1} ',
-                      style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                      style: theme.textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
                       children: [
                         TextSpan(
                           text: 'of ${_quiz!.questions.length}',
@@ -293,12 +301,11 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                 height: 8,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFD9E3F6),
+                  color: theme.colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
-      final theme = Theme.of(context);
                     return Align(
                       alignment: Alignment.centerLeft,
                       child: AnimatedContainer(
@@ -307,11 +314,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                         height: 8,
                         width: constraints.maxWidth * progressPercent,
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF00724E), Color(0xFF4EDEA3)],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          ),
+                          color: theme.colorScheme.secondary,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -322,7 +325,6 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
             ],
           ),
         ),
-
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -331,10 +333,10 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
               children: [
                 Text(
                   question.questionText,
-                  style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.headlineSmall
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 32),
-
                 if (question.type == QuestionType.multipleChoice ||
                     question.type == QuestionType.trueFalse)
                   ...question.options.asMap().entries.map((entry) {
@@ -355,17 +357,21 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                           duration: const Duration(milliseconds: 200),
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
-                            color: isSelected ? const Color(0xFFeff4ff) : Colors.white.withOpacity(0.8),
+                            color: isSelected
+                                ? theme.colorScheme.primaryContainer
+                                : theme.colorScheme.surface,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
                               color: isSelected
                                   ? theme.colorScheme.primary
-                                  : theme.colorScheme.outline.withOpacity(0.5),
+                                  : theme.colorScheme.outline
+                                      .withValues(alpha: 0.5),
                             ),
                             boxShadow: [
                               if (isSelected)
                                 BoxShadow(
-                                  color: theme.colorScheme.primary.withOpacity(0.15),
+                                  color: theme.colorScheme.primary
+                                      .withValues(alpha: 0.15),
                                   blurRadius: 20,
                                   offset: const Offset(0, 10),
                                 ),
@@ -394,8 +400,8 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                                     child: Container(
                                       width: 10,
                                       height: 10,
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFF4231C0),
+                                      decoration: BoxDecoration(
+                                        color: theme.colorScheme.primary,
                                         shape: BoxShape.circle,
                                       ),
                                     ),
@@ -420,13 +426,14 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                       ),
                     );
                   }),
-
                 if (question.type == QuestionType.shortAnswer)
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.8),
+                      color: theme.colorScheme.surface,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
+                      border: Border.all(
+                          color:
+                              theme.colorScheme.outline.withValues(alpha: 0.5)),
                     ),
                     child: TextField(
                       onChanged: (value) {
@@ -436,13 +443,14 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                       style: theme.textTheme.bodyMedium,
                       decoration: InputDecoration(
                         hintText: 'Type your answer here...',
-                        hintStyle: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                        hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.all(24),
                       ),
                     ),
                   ),
-                ],
+              ],
             ),
           ),
         ),
@@ -456,8 +464,9 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: theme.colorScheme.outline.withOpacity(0.2))),
+        color: theme.colorScheme.surface,
+        border:
+            Border(top: BorderSide(color: theme.colorScheme.outlineVariant)),
       ),
       padding: const EdgeInsets.all(20),
       child: SafeArea(
@@ -472,11 +481,14 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                           _currentQuestionIndex--;
                         });
                       }
-                    : () { Navigator.pop(context); },
+                    : () {
+                        Navigator.pop(context);
+                      },
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: const BorderSide(color: Color(0xFF4231C0)),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  side: BorderSide(color: theme.colorScheme.primary),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   foregroundColor: theme.colorScheme.primary,
                 ),
                 child: Row(
@@ -495,62 +507,50 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
             const SizedBox(width: 16),
             Expanded(
               flex: 2,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF4231C0), Color(0xFF6B38D4)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: theme.colorScheme.primary.withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+              child: ElevatedButton(
+                onPressed: _isSubmitting
+                    ? null
+                    : () {
+                        if (isLastQuestion) {
+                          _submitQuiz();
+                        } else {
+                          setState(() {
+                            _currentQuestionIndex++;
+                          });
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.primary,
+                  foregroundColor: theme.colorScheme.onPrimary,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
-                child: ElevatedButton(
-                  onPressed: _isSubmitting
-                      ? null
-                      : () {
-                          if (isLastQuestion) {
-                            _submitQuiz();
-                          } else {
-                            setState(() {
-                              _currentQuestionIndex++;
-                            });
-                          }
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: _isSubmitting
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              isLastQuestion ? 'Submit Quiz' : 'Next',
-                              style: theme.textTheme.labelLarge,
-                            ),
-                            const SizedBox(width: 8),
-                            Icon(isLastQuestion ? Icons.check : Icons.arrow_forward, size: 18),
-                          ],
+                child: _isSubmitting
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              theme.colorScheme.onPrimary),
                         ),
-                ),
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            isLastQuestion ? 'Submit Quiz' : 'Next',
+                            style: theme.textTheme.labelLarge,
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(
+                              isLastQuestion
+                                  ? Icons.check
+                                  : Icons.arrow_forward,
+                              size: 18),
+                        ],
+                      ),
               ),
             ),
           ],
@@ -573,12 +573,15 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
           Container(
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: theme.colorScheme.surface,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
+              border: Border.all(color: theme.colorScheme.outlineVariant),
               boxShadow: [
                 BoxShadow(
-                  color: (passed ? Colors.green : Colors.orange).withOpacity(0.2),
+                  color: (passed
+                          ? theme.colorScheme.secondary
+                          : theme.colorScheme.error)
+                      .withValues(alpha: 0.15),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -589,7 +592,9 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                 Icon(
                   passed ? Icons.check_circle : Icons.error_outline,
                   size: 64,
-                  color: passed ? Colors.green : Colors.orange,
+                  color: passed
+                      ? theme.colorScheme.secondary
+                      : theme.colorScheme.error,
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -599,7 +604,9 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                 const SizedBox(height: 8),
                 Text(
                   passed ? 'Passed!' : 'Not Passed',
-                  style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold),
+                  style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.onSurface,
+                      fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -609,9 +616,7 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
               ],
             ),
           ),
-
           const SizedBox(height: 24),
-
           ..._quiz!.questions.asMap().entries.map((entry) {
             final index = entry.key;
             final question = entry.value;
@@ -624,9 +629,9 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
             return Container(
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: theme.colorScheme.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
+                border: Border.all(color: theme.colorScheme.outlineVariant),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
@@ -637,12 +642,16 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                       children: [
                         Icon(
                           isCorrect ? Icons.check_circle : Icons.cancel,
-                          color: isCorrect ? Colors.green : Colors.red,
+                          color: isCorrect
+                              ? theme.colorScheme.secondary
+                              : theme.colorScheme.error,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           'Question ${index + 1}',
-                          style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold),
+                          style: theme.textTheme.labelMedium?.copyWith(
+                              color: theme.colorScheme.onSurface,
+                              fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -656,51 +665,33 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.surfaceVariant,
+                          color: theme.colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: theme.colorScheme.primary.withOpacity(0.2)),
+                          border: Border.all(
+                              color: theme.colorScheme.primary
+                                  .withValues(alpha: 0.2)),
                         ),
-                        child: Text(
-                          question.explanation!,
-                          style: theme.textTheme.bodyMedium),
+                        child: Text(question.explanation!,
+                            style: theme.textTheme.bodyMedium),
                       ),
                   ],
                 ),
               ),
             );
           }),
-
           const SizedBox(height: 24),
-
-          Container(
+          SizedBox(
             width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF4231C0), Color(0xFF6B38D4)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.colorScheme.primary.withOpacity(0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
             child: ElevatedButton(
               onPressed: () => Navigator.pop(context),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor: theme.colorScheme.onPrimary,
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
               ),
-              child: Text(
-                'Done', 
-                style: theme.textTheme.bodyMedium
-              ),
+              child: Text('Done', style: theme.textTheme.bodyMedium),
             ),
           ),
         ],
@@ -729,7 +720,8 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => CertificateScreen(certificate: certificate),
+                builder: (context) =>
+                    CertificateScreen(certificate: certificate),
               ),
             );
           }

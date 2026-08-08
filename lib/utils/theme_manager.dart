@@ -13,14 +13,16 @@ final ThemeData lightTheme = ThemeData(
   ),
 );
 
+final ColorScheme darkColorScheme = const ColorScheme.dark(
+  primary: Colors.tealAccent,
+  secondary: Colors.amber,
+);
+
 final ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
   primaryColor: Colors.tealAccent,
-  colorScheme: const ColorScheme.dark(
-    primary: Colors.tealAccent,
-    secondary: Colors.amber,
-  ),
-  scaffoldBackgroundColor: const Color(0xFF121212),
+  colorScheme: darkColorScheme,
+  scaffoldBackgroundColor: darkColorScheme.surface,
   textTheme: const TextTheme(
     bodyMedium: TextStyle(color: Colors.white70),
   ),

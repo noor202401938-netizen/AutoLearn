@@ -39,7 +39,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   String? _errorMessage;
   final CertificateManager _certificateManager = CertificateManager();
   bool _certificateShown = false;
-  
+
   String _activeTab = 'about';
 
   @override
@@ -58,7 +58,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         return;
       }
 
-      final videoId = widget.videoManager.extractVideoId(widget.lesson.videoURL!);
+      final videoId =
+          widget.videoManager.extractVideoId(widget.lesson.videoURL!);
       if (videoId == null) {
         setState(() {
           _errorMessage = 'Invalid YouTube URL';
@@ -83,10 +84,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       );
 
       if (_progress != null && _progress!.currentPosition > 0) {
-        _youtubeController?.seekTo(Duration(seconds: _progress!.currentPosition));
+        _youtubeController
+            ?.seekTo(Duration(seconds: _progress!.currentPosition));
       }
 
-      _captions = await widget.videoManager.getVideoCaptions(widget.lesson.videoURL!);
+      _captions =
+          await widget.videoManager.getVideoCaptions(widget.lesson.videoURL!);
       _aiSummary = await widget.videoManager.generateAISummary(
         widget.lesson.videoURL!,
         widget.lesson.title,
@@ -109,7 +112,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     _progressTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
       if (_youtubeController != null && _youtubeController!.value.isReady) {
         final currentPosition = _youtubeController!.value.position.inSeconds;
-        final totalDuration = _youtubeController!.value.metaData.duration.inSeconds;
+        final totalDuration =
+            _youtubeController!.value.metaData.duration.inSeconds;
         if (totalDuration == 0) return;
 
         widget.videoManager.saveProgress(
@@ -122,13 +126,14 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           isCompleted: currentPosition >= totalDuration * 0.95,
         );
 
-        if (currentPosition >= totalDuration * 0.95 && _progress?.isCompleted != true) {
+        if (currentPosition >= totalDuration * 0.95 &&
+            _progress?.isCompleted != true) {
           widget.videoManager.markVideoCompleted(
             courseId: widget.courseId,
             moduleId: widget.moduleId,
             lessonId: widget.lesson.lessonId,
           );
-          
+
           if (!_certificateShown) {
             _certificateShown = true;
             _showCertificate();
@@ -153,7 +158,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => CertificateScreen(certificate: certificate),
+                builder: (context) =>
+                    CertificateScreen(certificate: certificate),
               ),
             );
           }
@@ -175,25 +181,24 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white.withOpacity(0.8),
-        elevation: 1,
-        shadowColor: Colors.black12,
-        scrolledUnderElevation: 1,
+        backgroundColor: theme.colorScheme.surface,
+        elevation: 0,
         centerTitle: false,
         titleSpacing: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF4231C0)),
+          icon: Icon(Icons.arrow_back, color: theme.colorScheme.primary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'AutoLearn',
-          style: theme.textTheme.headlineSmall?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold),
+          style: theme.textTheme.headlineSmall?.copyWith(
+              color: theme.colorScheme.primary, fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.share, color: Color(0xFF474554)),
+            icon: Icon(Icons.share, color: theme.colorScheme.onSurface),
             onPressed: () {},
           ),
           Padding(
@@ -205,7 +210,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 shape: BoxShape.circle,
                 border: Border.all(color: theme.colorScheme.primary, width: 2),
                 image: const DecorationImage(
-                  image: NetworkImage('https://lh3.googleusercontent.com/aida-public/AB6AXuC4wCagtlYgQZ4aUHGGZsVqv55EJUqhoMfsHGVcW8bMjYKtL5UhVQs9MludjJQK8xy3Qv6LUVLKnRetoFONw1wqOTGDJNtmFBzSoC-XavdOjhiwbxWczLbDbRyzMH9o58Xw-B1skueABPWzSThnuOZsMcy5_GJLX3PGWCCJe07QmGITbTQRuPZXdOGXYIaG9LYO40Cyr1oawGOfyuxEr83b4BUI2J5jv0-H-y9wlThHk6z76YAS_T-EHUSGojJFdl9hA1Ful5xqfCFo'),
+                  image: NetworkImage(
+                      'https://lh3.googleusercontent.com/aida-public/AB6AXuC4wCagtlYgQZ4aUHGGZsVqv55EJUqhoMfsHGVcW8bMjYKtL5UhVQs9MludjJQK8xy3Qv6LUVLKnRetoFONw1wqOTGDJNtmFBzSoC-XavdOjhiwbxWczLbDbRyzMH9o58Xw-B1skueABPWzSThnuOZsMcy5_GJLX3PGWCCJe07QmGITbTQRuPZXdOGXYIaG9LYO40Cyr1oawGOfyuxEr83b4BUI2J5jv0-H-y9wlThHk6z76YAS_T-EHUSGojJFdl9hA1Ful5xqfCFo'),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -215,7 +221,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       ),
       body: SafeArea(
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: Color(0xFF4231C0)))
+            ? Center(
+                child:
+                    CircularProgressIndicator(color: theme.colorScheme.primary))
             : _errorMessage != null
                 ? _buildErrorView()
                 : Center(
@@ -245,7 +253,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: Color(0xFFBA1A1A)),
+            Icon(Icons.error_outline, size: 64, color: theme.colorScheme.error),
             const SizedBox(height: 16),
             Text(
               _errorMessage!,
@@ -256,8 +264,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: theme.colorScheme.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                foregroundColor: theme.colorScheme.onPrimary,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
               ),
               onPressed: () => Navigator.pop(context),
               child: const Text('Go Back'),
@@ -277,7 +286,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF5b4ed9).withOpacity(0.15),
+            color: theme.colorScheme.primaryContainer,
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -291,16 +300,18 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   controller: _youtubeController!,
                   showVideoProgressIndicator: true,
                   progressIndicatorColor: theme.colorScheme.primary,
-                  progressColors: const ProgressBarColors(
-                    playedColor: Color(0xFF6B38D4),
-                    handleColor: Color(0xFF5B4ED9),
+                  progressColors: ProgressBarColors(
+                    playedColor: theme.colorScheme.primary,
+                    handleColor: theme.colorScheme.primary,
                   ),
                 ),
                 builder: (context, player) => player,
               )
-            : const AspectRatio(
+            : AspectRatio(
                 aspectRatio: 16 / 9,
-                child: Center(child: Text('Video Not Available', style: TextStyle(color: Colors.white))),
+                child: Center(
+                    child: Text('Video Not Available',
+                        style: TextStyle(color: theme.colorScheme.surface))),
               ),
       ),
     );
@@ -319,30 +330,37 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withOpacity(0.2),
+                  color: theme.colorScheme.primary.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   widget.moduleTitle.toUpperCase(),
-                  style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold),
+                  style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(width: 8),
-              Text('• 12k Students', style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
+              Text('• 12k Students',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 8),
           Text(
             widget.lesson.title,
-            style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+            style: theme.textTheme.headlineMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
             widget.lesson.content ?? '',
-            style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodyLarge
+                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 24),
-          
+
           // Tabs
           Row(
             children: [
@@ -352,7 +370,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             ],
           ),
           const SizedBox(height: 24),
-          
+
           // Tab Content
           if (_activeTab == 'about') _buildAboutTab(),
           if (_activeTab == 'transcript') _buildTranscriptTab(),
@@ -373,7 +391,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: isActive ? theme.colorScheme.primary : Colors.transparent,
+                color: isActive
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.surfaceContainerHighest,
                 width: 2,
               ),
             ),
@@ -381,9 +401,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           child: Center(
             child: Text(
               title,
-              style: isActive 
-                ? theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold) 
-                : theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: isActive
+                  ? theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.bold)
+                  : theme.textTheme.bodyMedium
+                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
           ),
         ),
@@ -399,28 +422,37 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.7),
+              color: theme.colorScheme.surface.withValues(alpha: 0.7),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
+              border: Border.all(
+                  color: theme.colorScheme.outline.withValues(alpha: 0.3)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('AI Summary & Key Takeaways', style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
+                Text('AI Summary & Key Takeaways',
+                    style: theme.textTheme.labelMedium?.copyWith(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
                 Text(_aiSummary!.summary, style: theme.textTheme.bodyMedium),
                 const SizedBox(height: 12),
-                ..._aiSummary!.keyPoints.map((point) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Icon(Icons.check_circle, color: Color(0xFF00573A), size: 16),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(point, style: theme.textTheme.bodyMedium)),
-                    ],
-                  ),
-                )).toList()
+                ..._aiSummary!.keyPoints
+                    .map((point) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(Icons.check_circle,
+                                  color: theme.colorScheme.secondary, size: 16),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                  child: Text(point,
+                                      style: theme.textTheme.bodyMedium)),
+                            ],
+                          ),
+                        ))
+                    .toList()
               ],
             ),
           ),
@@ -428,7 +460,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceVariant,
+            color: theme.colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: theme.colorScheme.outline),
           ),
@@ -440,7 +472,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   image: DecorationImage(
-                    image: NetworkImage('https://lh3.googleusercontent.com/aida-public/AB6AXuDEU2cObnezz6wy6A_Ne8mkAbvFV69v2Suz83oXOEDZN6bGvooNB8xVYvv2Lod_hp7OjLU7wzHTJAFaJakF17fr68RTkAdYHqGHWFVPLTm3wcQaY4br98ELbQ0aobLwvMPg9o5ZA1_W8U-N_LQVyHqVCF2-eW5xjSTwIIQA8RhGyp_JRy07-i_0kqqu8u-cMI6lkHjUa_q5lg_iyBeSkUXB5ewzJRniJAyb3F23mcEdECgTOpl9NfMlssTiEtAqmIKqRM1tNT9r394f'),
+                    image: NetworkImage(
+                        'https://lh3.googleusercontent.com/aida-public/AB6AXuDEU2cObnezz6wy6A_Ne8mkAbvFV69v2Suz83oXOEDZN6bGvooNB8xVYvv2Lod_hp7OjLU7wzHTJAFaJakF17fr68RTkAdYHqGHWFVPLTm3wcQaY4br98ELbQ0aobLwvMPg9o5ZA1_W8U-N_LQVyHqVCF2-eW5xjSTwIIQA8RhGyp_JRy07-i_0kqqu8u-cMI6lkHjUa_q5lg_iyBeSkUXB5ewzJRniJAyb3F23mcEdECgTOpl9NfMlssTiEtAqmIKqRM1tNT9r394f'),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -450,8 +483,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Dr. Julian Vance', style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold)),
-                    Text('Senior AI Architect @ DeepFlow', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                    Text('Dr. Julian Vance',
+                        style: theme.textTheme.labelMedium?.copyWith(
+                            color: theme.colorScheme.onSurface,
+                            fontWeight: FontWeight.bold)),
+                    Text('Senior AI Architect @ DeepFlow',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant)),
                   ],
                 ),
               ),
@@ -459,8 +497,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: theme.colorScheme.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  foregroundColor: theme.colorScheme.onPrimary,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
                 ),
                 child: Text('Follow', style: theme.textTheme.labelLarge),
               )
@@ -477,11 +516,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Text('No transcript available', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+          child: Text('No transcript available',
+              style: theme.textTheme.bodyMedium
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
         ),
       );
     }
-    
+
     return Column(
       children: _captions!.captions.map((caption) {
         return Container(
@@ -497,7 +538,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 width: 60,
                 child: Text(
                   _formatDuration(Duration(seconds: caption.startTime.toInt())),
-                  style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold),
+                  style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
               Expanded(
@@ -512,11 +555,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       }).toList(),
     );
   }
-  
+
   String _formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
-    final minutes = twoDigits(duration.inMinutes.remainder(60));
-    final seconds = twoDigits(duration.inSeconds.remainder(60));
     return '\$minutes:\$seconds';
   }
 
@@ -524,19 +565,22 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     final theme = Theme.of(context);
     return Column(
       children: [
-        _buildResourceCard(Icons.description, 'Lesson_Handout.pdf', '2.4 MB', theme.colorScheme.errorContainer, theme.colorScheme.error),
+        _buildResourceCard(Icons.description, 'Lesson_Handout.pdf', '2.4 MB',
+            theme.colorScheme.errorContainer, theme.colorScheme.error),
         const SizedBox(height: 16),
-        _buildResourceCard(Icons.code, 'Source_Code.ipynb', '156 KB', theme.colorScheme.secondaryContainer, theme.colorScheme.primary),
+        _buildResourceCard(Icons.code, 'Source_Code.ipynb', '156 KB',
+            theme.colorScheme.secondaryContainer, theme.colorScheme.primary),
       ],
     );
   }
-  
-  Widget _buildResourceCard(IconData icon, String title, String subtitle, Color bgColor, Color iconColor) {
+
+  Widget _buildResourceCard(IconData icon, String title, String subtitle,
+      Color bgColor, Color iconColor) {
     final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: theme.colorScheme.outline),
       ),
@@ -556,12 +600,17 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold)),
-                Text(subtitle, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                Text(title,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                        color: theme.colorScheme.onSurface,
+                        fontWeight: FontWeight.bold)),
+                Text(subtitle,
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
               ],
             ),
           ),
-          const Icon(Icons.download, color: Color(0xFF787586)),
+          Icon(Icons.download, color: theme.colorScheme.onSurfaceVariant),
         ],
       ),
     );
@@ -576,58 +625,69 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Up Next', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-              Text('View Syllabus', style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
+              Text('Up Next',
+                  style: theme.textTheme.headlineSmall
+                      ?.copyWith(fontWeight: FontWeight.bold)),
+              Text('View Syllabus',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 16),
-          _buildNextLessonCard('05. Production Deployment', 'Deployment Patterns', '12:40', false),
+          _buildNextLessonCard('05. Production Deployment',
+              'Deployment Patterns', '12:40', false),
           const SizedBox(height: 16),
-          _buildNextLessonCard('06. Security in AI Ops', 'Privacy & Ethics', '08:15', true),
+          _buildNextLessonCard(
+              '06. Security in AI Ops', 'Privacy & Ethics', '08:15', true),
         ],
       ),
     );
   }
-  
-  Widget _buildNextLessonCard(String title, String subtitle, String duration, bool locked) {
+
+  Widget _buildNextLessonCard(
+      String title, String subtitle, String duration, bool locked) {
     final theme = Theme.of(context);
     return Opacity(
       opacity: locked ? 0.6 : 1.0,
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: theme.colorScheme.outline),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 5,
-            )
-          ]
-        ),
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: theme.colorScheme.outline),
+            boxShadow: [
+              BoxShadow(
+                color: theme.colorScheme.shadow.withValues(alpha: 0.05),
+              )
+            ]),
         child: Row(
           children: [
             Container(
               width: 96,
               height: 64,
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceVariant,
+                color: theme.colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Stack(
                 children: [
-                  const Center(child: Icon(Icons.play_circle_outline, color: Colors.white)),
+                  Center(
+                      child: Icon(Icons.play_circle_outline,
+                          color: theme.colorScheme.onPrimary)),
                   Positioned(
                     bottom: 4,
                     right: 4,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 2),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.6),
+                        color: Colors.black.withValues(alpha: 0.6),
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: Text(duration, style: const TextStyle(color: Colors.white, fontSize: 10)),
+                      child: Text(duration,
+                          style: TextStyle(
+                              color: theme.colorScheme.surface, fontSize: 10)),
                     ),
                   )
                 ],
@@ -638,12 +698,19 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
-                  Text(subtitle, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                  Text(title,
+                      style: theme.textTheme.labelMedium?.copyWith(
+                          color: theme.colorScheme.onSurface,
+                          fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis),
+                  Text(subtitle,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant)),
                 ],
               ),
             ),
-            if (locked) const Icon(Icons.lock, color: Color(0xFF787586)),
+            if (locked)
+              Icon(Icons.lock, color: theme.colorScheme.onSurfaceVariant),
           ],
         ),
       ),

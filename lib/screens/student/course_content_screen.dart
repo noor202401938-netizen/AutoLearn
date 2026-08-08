@@ -1,5 +1,4 @@
 // lib/screens/student/course_content_screen.dart
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../repository/course_repository.dart';
 import '../../repository/progress_repository.dart';
@@ -15,7 +14,8 @@ import 'project_screen.dart';
 class CourseContentScreen extends StatefulWidget {
   final String courseId;
   final String title;
-  const CourseContentScreen({super.key, required this.courseId, required this.title});
+  const CourseContentScreen(
+      {super.key, required this.courseId, required this.title});
 
   @override
   State<CourseContentScreen> createState() => _CourseContentScreenState();
@@ -58,7 +58,8 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
           0,
           (sum, module) => sum + module.lessons.length,
         );
-        final completion = await _progressRepository.getCourseCompletionPercentage(
+        final completion =
+            await _progressRepository.getCourseCompletionPercentage(
           userId: await _getUserId(),
           courseId: widget.courseId,
           totalLessons: totalLessons,
@@ -87,9 +88,11 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
       body: _loading
-          ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary))
+          ? Center(
+              child: CircularProgressIndicator(
+                  color: Theme.of(context).colorScheme.primary))
           : _course == null
               ? _buildErrorView()
               : Center(
@@ -97,44 +100,44 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                     constraints: const BoxConstraints(maxWidth: 1200),
                     child: Stack(
                       children: [
-                    // Main Content
-                    RefreshIndicator(
-                      onRefresh: _loadCourseContent,
-                      child: CustomScrollView(
-                        slivers: [
-                          _buildSliverAppBar(),
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 100),
-                              child: _buildCourseContent(),
-                            ),
+                        // Main Content
+                        RefreshIndicator(
+                          onRefresh: _loadCourseContent,
+                          child: CustomScrollView(
+                            slivers: [
+                              _buildSliverAppBar(),
+                              SliverToBoxAdapter(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(bottom: 100),
+                                  child: _buildCourseContent(),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
-                    
-                    // Fixed Bottom CTA
-                    if (_course!.syllabus.isNotEmpty)
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: ClipRect(
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                        ),
+
+                        // Fixed Bottom CTA
+                        if (_course!.syllabus.isNotEmpty)
+                          Positioned(
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
                             child: Container(
                               padding: EdgeInsets.only(
-                                bottom: MediaQuery.of(context).padding.bottom + 20,
+                                bottom:
+                                    MediaQuery.of(context).padding.bottom + 20,
                                 top: 20,
                                 left: 20,
                                 right: 20,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.7),
+                                color: theme.colorScheme.surface
+                                    .withValues(alpha: 0.9),
                               ),
                               child: Center(
                                 child: ConstrainedBox(
-                                  constraints: const BoxConstraints(maxWidth: 1200),
+                                  constraints:
+                                      const BoxConstraints(maxWidth: 1200),
                                   child: Material(
                                     color: Colors.transparent,
                                     child: InkWell(
@@ -142,31 +145,36 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                                       borderRadius: BorderRadius.circular(16),
                                       child: Ink(
                                         decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [theme.colorScheme.primary, theme.colorScheme.secondary],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                          borderRadius: BorderRadius.circular(16),
+                                          color: theme.colorScheme.primary,
+                                          borderRadius:
+                                              BorderRadius.circular(16),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                                              color: theme.colorScheme.primary
+                                                  .withValues(alpha: 0.3),
                                               blurRadius: 10,
                                               offset: const Offset(0, 4),
                                             ),
                                           ],
                                         ),
                                         child: Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 16),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 16),
                                           child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
-                                              const Icon(Icons.play_circle_fill, color: Colors.white),
+                                              Icon(Icons.play_circle_fill,
+                                                  color: theme
+                                                      .colorScheme.onPrimary),
                                               const SizedBox(width: 8),
                                               Text(
                                                 'Continue Learning',
-                                                style: theme.textTheme.titleMedium?.copyWith(
-                                                  color: Colors.white,
+                                                style: theme
+                                                    .textTheme.titleMedium
+                                                    ?.copyWith(
+                                                  color: theme
+                                                      .colorScheme.onPrimary,
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
@@ -180,8 +188,6 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                               ),
                             ),
                           ),
-                        ),
-                      ),
                       ],
                     ),
                   ),
@@ -195,14 +201,9 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
       expandedHeight: 0,
       floating: true,
       pinned: true,
-      backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.8),
-      flexibleSpace: ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: Container(color: Colors.transparent),
-        ),
-      ),
+      backgroundColor: theme.colorScheme.surface,
       elevation: 0,
+      centerTitle: false,
       iconTheme: IconThemeData(color: theme.colorScheme.onSurfaceVariant),
       title: Text(
         'AutoLearn',
@@ -224,14 +225,16 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                 height: 40,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: theme.colorScheme.primaryContainer, width: 2),
+                  border: Border.all(
+                      color: theme.colorScheme.primaryContainer, width: 2),
                 ),
                 child: ClipOval(
                   child: photoUrl != null && photoUrl.isNotEmpty
                       ? Image.network(photoUrl, fit: BoxFit.cover)
                       : Container(
                           color: theme.colorScheme.primaryContainer,
-                          child: const Icon(Icons.person, color: Colors.white, size: 20),
+                          child: const Icon(Icons.person,
+                              color: Colors.white, size: 20),
                         ),
                 ),
               );
@@ -250,7 +253,8 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Theme.of(context).colorScheme.error),
+            Icon(Icons.error_outline,
+                size: 64, color: Theme.of(context).colorScheme.error),
             const SizedBox(height: 16),
             Text(
               'Failed to load course content',
@@ -277,12 +281,14 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.menu_book, size: 64, color: Theme.of(context).disabledColor),
+              Icon(Icons.menu_book,
+                  size: 64, color: Theme.of(context).disabledColor),
               const SizedBox(height: 16),
               Text(
                 'No content available yet',
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodyLarge?.copyWith(color: theme.disabledColor),
+                style: theme.textTheme.bodyLarge
+                    ?.copyWith(color: theme.disabledColor),
               ),
             ],
           ),
@@ -370,17 +376,17 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                         height: 4,
                         decoration: BoxDecoration(
                           color: theme.colorScheme.surfaceContainerHighest,
-                          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+                          borderRadius: const BorderRadius.vertical(
+                              bottom: Radius.circular(16)),
                         ),
                         child: FractionallySizedBox(
                           alignment: Alignment.centerLeft,
                           widthFactor: _courseCompletion / 100,
                           child: Container(
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Color(0xFF10b981), Color(0xFF14b8a6)],
-                              ),
-                              borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primary,
+                              borderRadius: const BorderRadius.vertical(
+                                  bottom: Radius.circular(16)),
                             ),
                           ),
                         ),
@@ -414,7 +420,8 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                 child: ClipOval(
                   child: Container(
                     color: theme.colorScheme.primaryContainer,
-                    child: const Icon(Icons.person, color: Colors.white, size: 20),
+                    child:
+                        const Icon(Icons.person, color: Colors.white, size: 20),
                   ),
                 ),
               ),
@@ -476,7 +483,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
               Text(
                 'OVERALL PROGRESS',
                 style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant, 
+                  color: theme.colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.2,
                 ),
@@ -496,7 +503,8 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                   const SizedBox(width: 4),
                   Text(
                     'Complete',
-                    style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    style: theme.textTheme.bodySmall
+                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -510,13 +518,15 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
               children: [
                 CircularProgressIndicator(
                   value: 1.0,
-                  valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.surfaceContainerHighest),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      theme.colorScheme.surfaceContainerHighest),
                   strokeWidth: 4,
                 ),
                 CircularProgressIndicator(
                   value: _courseCompletion / 100,
                   backgroundColor: Colors.transparent,
-                  valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
                   strokeWidth: 4,
                 ),
                 Center(
@@ -549,7 +559,8 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
             children: [
               Text(
                 'Course Modules',
-                style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.textTheme.headlineSmall
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
               Text(
                 '${_course!.syllabus.length} Modules',
@@ -596,7 +607,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
   Widget _buildModuleCard(ModuleModel module, int moduleIndex) {
     final theme = Theme.of(context);
     final bool isCompleted = _isModuleCompleted(module);
-    
+
     // Determine if it is the "current" module (first incomplete module)
     bool isCurrent = false;
     if (!isCompleted) {
@@ -622,15 +633,18 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
         child: Theme(
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
           child: ExpansionTile(
-            tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            tilePadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             leading: Container(
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: theme.colorScheme.tertiaryContainer.withValues(alpha: 0.1),
+                color:
+                    theme.colorScheme.tertiaryContainer.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(Icons.check_circle, color: theme.colorScheme.tertiary),
+              child:
+                  Icon(Icons.check_circle, color: theme.colorScheme.tertiary),
             ),
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -653,7 +667,9 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                 ),
               ],
             ),
-            children: module.lessons.map((lesson) => _buildLessonTile(module, lesson)).toList(),
+            children: module.lessons
+                .map((lesson) => _buildLessonTile(module, lesson))
+                .toList(),
           ),
         ),
       );
@@ -670,7 +686,8 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
           child: ExpansionTile(
             initiallyExpanded: true,
-            tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            tilePadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             leading: Container(
               width: 40,
               height: 40,
@@ -729,15 +746,18 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
                         value: modProgress / 100,
-                        backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                        valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
+                        backgroundColor:
+                            theme.colorScheme.surfaceContainerHighest,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            theme.colorScheme.primary),
                         minHeight: 8,
                       ),
                     ),
                   ],
                 ),
               ),
-              ...module.lessons.map((lesson) => _buildLessonTile(module, lesson)),
+              ...module.lessons
+                  .map((lesson) => _buildLessonTile(module, lesson)),
             ],
           ),
         ),
@@ -749,12 +769,14 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
         decoration: BoxDecoration(
           color: theme.colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3)),
+          border: Border.all(
+              color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3)),
         ),
         child: Opacity(
           opacity: 0.6,
           child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             leading: Container(
               width: 40,
               height: 40,
@@ -795,7 +817,9 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
     final theme = Theme.of(context);
     final progress = _progressMap[lesson.lessonId];
     final isCompleted = progress?.isCompleted ?? false;
-    final isVideo = lesson.type == 'video' && lesson.videoURL != null && lesson.videoURL!.isNotEmpty;
+    final isVideo = lesson.type == 'video' &&
+        lesson.videoURL != null &&
+        lesson.videoURL!.isNotEmpty;
 
     return InkWell(
       onTap: () {
@@ -814,19 +838,25 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: theme.colorScheme.outline.withOpacity(0.3))),
+          border: Border(
+              top: BorderSide(
+                  color: theme.colorScheme.outline.withValues(alpha: 0.3))),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: isCompleted ? Colors.green.withOpacity(0.1) : Theme.of(context).colorScheme.primaryContainer.withOpacity(0.1),
+                color: isCompleted
+                    ? theme.colorScheme.secondaryContainer
+                    : theme.colorScheme.primaryContainer,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 _getLessonIcon(lesson.type),
-                color: isCompleted ? Colors.green : Theme.of(context).colorScheme.primary,
+                color: isCompleted
+                    ? theme.colorScheme.secondary
+                    : theme.colorScheme.primary,
                 size: 20,
               ),
             ),
@@ -851,7 +881,9 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                           '${lesson.duration} min',
                           style: theme.textTheme.bodySmall,
                         ),
-                      if (progress != null && !isCompleted && progress.completionPercentage > 0) ...[
+                      if (progress != null &&
+                          !isCompleted &&
+                          progress.completionPercentage > 0) ...[
                         const SizedBox(width: 8),
                         Text(
                           '• ${progress.completionPercentage.toStringAsFixed(0)}%',
@@ -868,8 +900,9 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
               ),
             ),
             isCompleted
-                ? const Icon(Icons.check_circle, color: Colors.green)
-                : const Icon(Icons.chevron_right, color: Color(0xFF787586)),
+                ? Icon(Icons.check_circle, color: theme.colorScheme.secondary)
+                : Icon(Icons.chevron_right,
+                    color: theme.colorScheme.onSurfaceVariant),
           ],
         ),
       ),
@@ -878,12 +911,14 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
 
   void _handleContinueLearning() {
     if (_course == null || _course!.syllabus.isEmpty) return;
-    
+
     // Find first incomplete lesson
     for (var module in _course!.syllabus) {
       for (var lesson in module.lessons) {
         if (!(_progressMap[lesson.lessonId]?.isCompleted ?? false)) {
-          if (lesson.type == 'video' && lesson.videoURL != null && lesson.videoURL!.isNotEmpty) {
+          if (lesson.type == 'video' &&
+              lesson.videoURL != null &&
+              lesson.videoURL!.isNotEmpty) {
             _navigateToVideoPlayer(module, lesson);
           } else if (lesson.type == 'quiz') {
             _navigateToQuiz(module, lesson);
@@ -900,28 +935,71 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
 
   IconData _getLessonIcon(String type) {
     switch (type) {
-      case 'video': return Icons.play_circle_outline;
-      case 'quiz': return Icons.quiz_outlined;
-      case 'assignment': return Icons.assignment_outlined;
-      case 'reading': return Icons.article_outlined;
-      default: return Icons.circle_outlined;
+      case 'video':
+        return Icons.play_circle_outline;
+      case 'quiz':
+        return Icons.quiz_outlined;
+      case 'assignment':
+        return Icons.assignment_outlined;
+      case 'reading':
+        return Icons.article_outlined;
+      default:
+        return Icons.circle_outlined;
     }
   }
 
   void _navigateToVideoPlayer(ModuleModel module, LessonModel lesson) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => VideoPlayerScreen(courseId: widget.courseId, courseTitle: widget.title, moduleId: module.moduleId, moduleTitle: module.title, lesson: lesson, videoManager: _videoManager,))).then((_) => _loadCourseContent());
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => VideoPlayerScreen(
+                  courseId: widget.courseId,
+                  courseTitle: widget.title,
+                  moduleId: module.moduleId,
+                  moduleTitle: module.title,
+                  lesson: lesson,
+                  videoManager: _videoManager,
+                ))).then((_) => _loadCourseContent());
   }
 
   void _navigateToQuiz(ModuleModel module, LessonModel lesson) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => AIQuizScreen(courseId: widget.courseId, courseTitle: widget.title, moduleId: module.moduleId, moduleTitle: module.title, lessonId: lesson.lessonId, lessonTitle: lesson.title,))).then((_) => _loadCourseContent());
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => AIQuizScreen(
+                  courseId: widget.courseId,
+                  courseTitle: widget.title,
+                  moduleId: module.moduleId,
+                  moduleTitle: module.title,
+                  lessonId: lesson.lessonId,
+                  lessonTitle: lesson.title,
+                ))).then((_) => _loadCourseContent());
   }
 
   void _navigateToAssignment(ModuleModel module, LessonModel lesson) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => AssignmentScreen(courseId: widget.courseId, courseTitle: widget.title, moduleId: module.moduleId, moduleTitle: module.title, lessonId: lesson.lessonId, lessonTitle: lesson.title,))).then((_) => _loadCourseContent());
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => AssignmentScreen(
+                  courseId: widget.courseId,
+                  courseTitle: widget.title,
+                  moduleId: module.moduleId,
+                  moduleTitle: module.title,
+                  lessonId: lesson.lessonId,
+                  lessonTitle: lesson.title,
+                ))).then((_) => _loadCourseContent());
   }
 
   void _navigateToProject(ModuleModel module, LessonModel lesson) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => ProjectScreen(courseId: widget.courseId, courseTitle: widget.title, lessonId: lesson.lessonId, lessonTitle: lesson.title,))).then((_) => _loadCourseContent());
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ProjectScreen(
+                  courseId: widget.courseId,
+                  courseTitle: widget.title,
+                  lessonId: lesson.lessonId,
+                  lessonTitle: lesson.title,
+                ))).then((_) => _loadCourseContent());
   }
 
   void _showLessonInfo(LessonModel lesson) {
@@ -934,21 +1012,23 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Type: ${lesson.type}'),
-            if (lesson.duration > 0) Text('Duration: ${lesson.duration} minutes'),
+            if (lesson.duration > 0)
+              Text('Duration: ${lesson.duration} minutes'),
             if (lesson.content != null && lesson.content!.isNotEmpty) ...[
               const SizedBox(height: 16),
-              const Text('Content:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text('Content:',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Text(lesson.content!),
             ],
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close')),
         ],
       ),
     );
   }
 }
-
-

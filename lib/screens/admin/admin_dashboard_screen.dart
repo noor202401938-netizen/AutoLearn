@@ -20,7 +20,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   bool _isLoading = true;
   double _totalRevenue = 0.0;
   int _activeUsers = 0;
-  double _completionRate = 0.842; // Fallback since we don't have global completion rate
+  double _completionRate =
+      0.842; // Fallback since we don't have global completion rate
   List<CourseModel> _recentCourses = [];
   List<Map<String, dynamic>> _recentUsers = [];
 
@@ -34,14 +35,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     setState(() => _isLoading = true);
     try {
       final users = await _userRepository.getAllUsers();
-      final stats = await _courseManager.getCourseStats();
       final finance = await _paymentManager.getFinancialStats();
       final courses = await _courseManager.getPublishedCourses();
-      
+
       if (mounted) {
         setState(() {
           _activeUsers = users.length;
-          _totalRevenue = (finance['totalRevenue'] as num?)?.toDouble() ?? 124592.00;
+          _totalRevenue =
+              (finance['totalRevenue'] as num?)?.toDouble() ?? 124592.00;
           _recentCourses = courses.take(3).toList();
           _recentUsers = users.take(3).toList();
           _isLoading = false;
@@ -57,8 +58,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = theme.colorScheme;
 
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -83,39 +83,36 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 style: theme.textTheme.bodyMedium,
               ),
               const SizedBox(height: 24),
-              
+
               // Executive Stats Bento Grid
-              LayoutBuilder(
-                builder: (context, constraints) {
-      final theme = Theme.of(context);
-                  final isDesktop = constraints.maxWidth > 800;
-                  return Flex(
-                    direction: isDesktop ? Axis.horizontal : Axis.vertical,
-                    children: [
-                      // Revenue Card
-                      Expanded(
-                        flex: isDesktop ? 2 : 0,
-                        child: _buildRevenueCard(context),
+              LayoutBuilder(builder: (context, constraints) {
+                final isDesktop = constraints.maxWidth > 800;
+                return Flex(
+                  direction: isDesktop ? Axis.horizontal : Axis.vertical,
+                  children: [
+                    // Revenue Card
+                    Expanded(
+                      flex: isDesktop ? 2 : 0,
+                      child: _buildRevenueCard(context),
+                    ),
+                    if (isDesktop) const SizedBox(width: 16),
+                    if (!isDesktop) const SizedBox(height: 16),
+                    // Row of Active Users and Completion Rate
+                    Expanded(
+                      flex: isDesktop ? 3 : 0,
+                      child: Row(
+                        children: [
+                          Expanded(child: _buildActiveUsersCard(context)),
+                          const SizedBox(width: 16),
+                          Expanded(child: _buildCompletionRateCard(context)),
+                        ],
                       ),
-                      if (isDesktop) const SizedBox(width: 16),
-                      if (!isDesktop) const SizedBox(height: 16),
-                      // Row of Active Users and Completion Rate
-                      Expanded(
-                        flex: isDesktop ? 3 : 0,
-                        child: Row(
-                          children: [
-                            Expanded(child: _buildActiveUsersCard(context)),
-                            const SizedBox(width: 16),
-                            Expanded(child: _buildCompletionRateCard(context)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                }
-              ),
+                    ),
+                  ],
+                );
+              }),
               const SizedBox(height: 32),
-              
+
               // System Activity Feed
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -134,33 +131,38 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ],
               ),
               const SizedBox(height: 12),
-              
-              ..._recentCourses.map((course) => Padding(
-                padding: const EdgeInsets.only(bottom: 12.0),
-                child: _buildActivityItem(
-                  context,
-                  icon: Icons.school,
-                  iconColor: const Color(0xFF6b38d4),
-                  iconBg: const Color(0xFF6b38d4).withOpacity(0.1),
-                  title: 'Course Updated',
-                  subtitle: course.title,
-                  time: 'JUST NOW',
-                ),
-              )).toList(),
 
-              ..._recentUsers.map((user) => Padding(
-                padding: const EdgeInsets.only(bottom: 12.0),
-                child: _buildActivityItem(
-                  context,
-                  icon: Icons.person_add,
-                  iconColor: const Color(0xFF00573a),
-                  iconBg: const Color(0xFF00573a).withOpacity(0.1),
-                  title: 'New Member',
-                  subtitle: user['email'] ?? user['displayName'] ?? 'Unknown',
-                  time: 'RECENT',
-                ),
-              )).toList(),
-              
+              ..._recentCourses
+                  .map((course) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12.0),
+                        child: _buildActivityItem(
+                          context,
+                          icon: Icons.school,
+                          iconColor: colorScheme.primary,
+                          iconBg: colorScheme.primary.withValues(alpha: 0.1),
+                          title: 'Course Updated',
+                          subtitle: course.title,
+                          time: 'JUST NOW',
+                        ),
+                      ))
+                  .toList(),
+
+              ..._recentUsers
+                  .map((user) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12.0),
+                        child: _buildActivityItem(
+                          context,
+                          icon: Icons.person_add,
+                          iconColor: colorScheme.secondary,
+                          iconBg: colorScheme.secondary.withValues(alpha: 0.1),
+                          title: 'New Member',
+                          subtitle:
+                              user['email'] ?? user['displayName'] ?? 'Unknown',
+                          time: 'RECENT',
+                        ),
+                      ))
+                  .toList(),
+
               const SizedBox(height: 100), // Space for FAB/BottomNav
             ],
           ),
@@ -176,9 +178,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white.withOpacity(0.8),
+        color: isDark
+            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+            : colorScheme.surface.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+        border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,14 +207,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF4edea3).withOpacity(0.2),
+                  color: colorScheme.secondaryContainer.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.trending_up, size: 16, color: Color(0xFF00573a)),
+                    Icon(Icons.trending_up,
+                        size: 16, color: colorScheme.secondary),
                     const SizedBox(width: 4),
                     Text(
                       '12%',
@@ -226,7 +233,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             height: 100,
             width: double.infinity,
             child: CustomPaint(
-              painter: _ChartPainter(),
+              painter: _ChartPainter(colorScheme: colorScheme),
             ),
           ),
         ],
@@ -241,9 +248,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white.withOpacity(0.8),
+        color: isDark
+            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+            : colorScheme.surface.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+        border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,10 +283,33 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           const SizedBox(height: 12),
           Row(
             children: [
-              _buildOverlapAvatar(context, isDark ? colorScheme.surfaceContainer : Colors.grey[200]!, null),
-              Transform.translate(offset: const Offset(-8, 0), child: _buildOverlapAvatar(context, isDark ? colorScheme.surfaceContainerHigh : Colors.grey[300]!, null)),
-              Transform.translate(offset: const Offset(-16, 0), child: _buildOverlapAvatar(context, isDark ? colorScheme.surfaceContainerHighest : Colors.grey[400]!, null)),
-              Transform.translate(offset: const Offset(-24, 0), child: _buildOverlapAvatar(context, colorScheme.primary, '+12', textColor: colorScheme.onPrimary)),
+              _buildOverlapAvatar(
+                  context,
+                  isDark
+                      ? colorScheme.surfaceContainer
+                      : colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
+                  null),
+              Transform.translate(
+                  offset: const Offset(-8, 0),
+                  child: _buildOverlapAvatar(
+                      context,
+                      isDark
+                          ? colorScheme.surfaceContainerHigh
+                          : colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
+                      null)),
+              Transform.translate(
+                  offset: const Offset(-16, 0),
+                  child: _buildOverlapAvatar(
+                      context,
+                      isDark
+                          ? colorScheme.surfaceContainerHighest
+                          : colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                      null)),
+              Transform.translate(
+                  offset: const Offset(-24, 0),
+                  child: _buildOverlapAvatar(
+                      context, colorScheme.primary, '+12',
+                      textColor: colorScheme.onPrimary)),
             ],
           ),
         ],
@@ -291,9 +324,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white.withOpacity(0.8),
+        color: isDark
+            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+            : colorScheme.surface.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+        border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -325,7 +361,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             height: 8,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: isDark ? colorScheme.surfaceContainerHigh : const Color(0xFFe6eeff),
+              color: isDark
+                  ? colorScheme.surfaceContainerHigh
+                  : colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(4),
             ),
             child: FractionallySizedBox(
@@ -333,9 +371,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               alignment: Alignment.centerLeft,
               child: Container(
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF4edea3), Color(0xFF00724e)],
-                  ),
+                  color: colorScheme.secondary,
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
@@ -346,7 +382,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildOverlapAvatar(BuildContext context, Color color, String? text, {Color? textColor}) {
+  Widget _buildOverlapAvatar(BuildContext context, Color color, String? text,
+      {Color? textColor}) {
     final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
@@ -382,9 +419,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
+        color: isDark
+            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+            : colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+        border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -424,20 +464,26 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 }
 
 class _ChartPainter extends CustomPainter {
+  _ChartPainter({required this.colorScheme});
+  final ColorScheme colorScheme;
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFF5b4ed9)
+      ..color = colorScheme.primary
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
-      
+
     final path = Path();
     path.moveTo(0, size.height * 0.8);
-    path.quadraticBezierTo(size.width * 0.125, size.height * 0.4, size.width * 0.25, size.height * 0.6);
-    path.quadraticBezierTo(size.width * 0.5, size.height * 0.3, size.width * 0.75, size.height * 0.7);
-    path.quadraticBezierTo(size.width * 0.9, size.height * 0.2, size.width, size.height * 0.2);
-    
+    path.quadraticBezierTo(size.width * 0.125, size.height * 0.4,
+        size.width * 0.25, size.height * 0.6);
+    path.quadraticBezierTo(size.width * 0.5, size.height * 0.3,
+        size.width * 0.75, size.height * 0.7);
+    path.quadraticBezierTo(
+        size.width * 0.9, size.height * 0.2, size.width, size.height * 0.2);
+
     canvas.drawPath(path, paint);
 
     final fillPaint = Paint()
@@ -445,17 +491,17 @@ class _ChartPainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          const Color(0xFF5b4ed9).withOpacity(0.2),
-          const Color(0xFF5b4ed9).withOpacity(0.0),
+          colorScheme.primary.withValues(alpha: 0.2),
+          colorScheme.primary.withValues(alpha: 0.0),
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
       ..style = PaintingStyle.fill;
-      
+
     final fillPath = Path.from(path);
     fillPath.lineTo(size.width, size.height);
     fillPath.lineTo(0, size.height);
     fillPath.close();
-    
+
     canvas.drawPath(fillPath, fillPaint);
   }
 

@@ -9,9 +9,9 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin {
+class _LoginPageState extends State<LoginPage>
+    with SingleTickerProviderStateMixin {
   final AuthManager _authManager = AuthManager();
-  final UserRepository _userRepository = UserRepository();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -82,7 +82,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         ),
         backgroundColor: Theme.of(context).colorScheme.error,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
       ),
     );
@@ -91,7 +91,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   void _showForgotPasswordDialog() {
     final emailController = TextEditingController();
     final theme = Theme.of(context);
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -116,11 +116,12 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
             ),
           ],
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: TextStyle(color: theme.colorScheme.onSurfaceVariant)),
+            child: Text('Cancel',
+                style: TextStyle(color: theme.colorScheme.onSurfaceVariant)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -137,14 +138,17 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
               Navigator.pop(context);
               final result = await _authManager.sendPasswordResetEmail(email);
-              
+
               if (!mounted) return;
-              
+
               if (result == null) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Password reset email sent!', style: TextStyle(color: theme.colorScheme.onTertiaryContainer)),
-                    backgroundColor: theme.colorScheme.tertiaryContainer,
+                    content: Text('Password reset email sent!',
+                        style: TextStyle(
+                            color: theme.colorScheme.onSecondaryContainer ??
+                                Colors.white)),
+                    backgroundColor: theme.colorScheme.secondary,
                   ),
                 );
               } else {
@@ -162,9 +166,9 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isDesktop = constraints.maxWidth > 800;
@@ -173,19 +177,20 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
             opacity: _fadeAnimation,
             child: Center(
               child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: isDesktop ? 60 : 20, vertical: 40),
+                padding: EdgeInsets.symmetric(
+                    horizontal: isDesktop ? 60 : 24, vertical: 40),
                 child: Container(
-                  constraints: const BoxConstraints(maxWidth: 480),
-                  padding: EdgeInsets.all(isDesktop ? 40 : 24),
+                  constraints: const BoxConstraints(maxWidth: 440),
+                  padding: EdgeInsets.all(isDesktop ? 40 : 28),
                   decoration: BoxDecoration(
                     color: colorScheme.surface,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: colorScheme.outlineVariant, width: 1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: colorScheme.outlineVariant),
                     boxShadow: [
                       BoxShadow(
-                        color: colorScheme.onSurface.withOpacity(0.05),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 24,
+                        offset: const Offset(0, 8),
                       ),
                     ],
                   ),
@@ -197,19 +202,20 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                       children: [
                         Center(
                           child: Container(
-                            padding: const EdgeInsets.all(12),
+                            padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
-                              color: colorScheme.primary.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
+                              color: colorScheme.primaryContainer,
+                              borderRadius: BorderRadius.circular(16),
                             ),
-                            child: Icon(Icons.school_rounded, size: 32, color: colorScheme.primary),
+                            child: Icon(Icons.school_rounded,
+                                size: 32, color: colorScheme.primary),
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 28),
                         Text(
                           "Welcome Back",
                           textAlign: TextAlign.center,
-                          style: theme.textTheme.headlineMedium,
+                          style: theme.textTheme.headlineSmall,
                         ),
                         const SizedBox(height: 8),
                         Text(
@@ -218,8 +224,6 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                           style: theme.textTheme.bodyMedium,
                         ),
                         const SizedBox(height: 32),
-
-                        // Email Field
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
@@ -229,14 +233,14 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                             prefixIcon: Icon(Icons.email_outlined),
                           ),
                           validator: (value) {
-                            if (value == null || value.isEmpty) return 'Please enter your email';
-                            if (!value.contains('@')) return 'Please enter a valid email';
+                            if (value == null || value.isEmpty)
+                              return 'Please enter your email';
+                            if (!value.contains('@'))
+                              return 'Please enter a valid email';
                             return null;
                           },
                         ),
-                        const SizedBox(height: 20),
-
-                        // Password Field
+                        const SizedBox(height: 16),
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
@@ -246,34 +250,41 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                             prefixIcon: const Icon(Icons.lock_outline),
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                                color: colorScheme.outline,
+                                _obscurePassword
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
+                                color: colorScheme.onSurfaceVariant,
                               ),
-                              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                              onPressed: () => setState(
+                                  () => _obscurePassword = !_obscurePassword),
                             ),
                           ),
                           validator: (value) {
-                            if (value == null || value.isEmpty) return 'Please enter your password';
-                            if (value.length < 6) return 'Password must be at least 6 characters';
+                            if (value == null || value.isEmpty)
+                              return 'Please enter your password';
+                            if (value.length < 6)
+                              return 'Password must be at least 6 characters';
                             return null;
                           },
                         ),
                         const SizedBox(height: 16),
-
-                        // Remember Me & Forgot Password
                         Row(
                           children: [
                             SizedBox(
-                              width: 24,
-                              height: 24,
+                              width: 22,
+                              height: 22,
                               child: Checkbox(
                                 value: _rememberMe,
-                                onChanged: (v) => setState(() => _rememberMe = v ?? false),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                                onChanged: (v) =>
+                                    setState(() => _rememberMe = v ?? false),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6)),
+                                activeColor: colorScheme.primary,
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            Text("Remember me", style: theme.textTheme.bodySmall),
+                            const SizedBox(width: 10),
+                            Text("Remember me",
+                                style: theme.textTheme.bodySmall),
                             const Spacer(),
                             TextButton(
                               onPressed: _showForgotPasswordDialog,
@@ -281,49 +292,52 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                                 padding: EdgeInsets.zero,
                                 minimumSize: const Size(0, 0),
                               ),
-                              child: Text("Forgot Password?", style: theme.textTheme.labelLarge?.copyWith(color: colorScheme.primary)),
+                              child: Text("Forgot Password?",
+                                  style: theme.textTheme.labelMedium
+                                      ?.copyWith(color: colorScheme.primary)),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 32),
-
-                        // Login Button with Gradient
+                        const SizedBox(height: 28),
                         _isLoading
                             ? const Center(child: CircularProgressIndicator())
-                            : Container(
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [colorScheme.primary, colorScheme.secondary],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
+                            : SizedBox(
+                                height: 52,
                                 child: ElevatedButton(
                                   onPressed: _loginUser,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.transparent,
-                                    shadowColor: Colors.transparent,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    backgroundColor: colorScheme.primary,
+                                    foregroundColor: colorScheme.onPrimary,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(14)),
+                                    elevation: 0,
                                   ),
-                                  child: const Text("Sign In"),
+                                  child: Text(
+                                    "Sign In",
+                                    style: theme.textTheme.labelLarge?.copyWith(
+                                      color: colorScheme.onPrimary,
+                                      fontSize: 15,
+                                    ),
+                                  ),
                                 ),
                               ),
-                        const SizedBox(height: 24),
-
-                        // Sign Up Link
+                        const SizedBox(height: 28),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text("Don't have an account? ", style: theme.textTheme.bodyMedium),
+                            Text("Don't have an account? ",
+                                style: theme.textTheme.bodyMedium),
                             TextButton(
-                              onPressed: () => Navigator.pushReplacementNamed(context, '/signup'),
+                              onPressed: () => Navigator.pushReplacementNamed(
+                                  context, '/signup'),
                               style: TextButton.styleFrom(
                                 padding: EdgeInsets.zero,
                                 minimumSize: const Size(0, 0),
                               ),
-                              child: Text("Sign up", style: theme.textTheme.labelLarge?.copyWith(color: colorScheme.primary)),
+                              child: Text("Sign up",
+                                  style: theme.textTheme.labelLarge
+                                      ?.copyWith(color: colorScheme.primary)),
                             ),
                           ],
                         ),
@@ -349,41 +363,45 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                   flex: 6,
                   child: Container(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [colorScheme.primary.withOpacity(0.05), colorScheme.secondary.withOpacity(0.05)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+                      color: colorScheme.surface,
                     ),
                     child: Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(24),
+                            width: 96,
+                            height: 96,
                             decoration: BoxDecoration(
-                              color: colorScheme.surface,
+                              color: colorScheme.primary,
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: colorScheme.primary.withOpacity(0.1),
+                                  color: colorScheme.primary
+                                      .withValues(alpha: 0.3),
                                   blurRadius: 32,
-                                  offset: const Offset(0, 16),
+                                  offset: const Offset(0, 12),
                                 )
                               ],
                             ),
-                            child: Icon(Icons.school_rounded, size: 64, color: colorScheme.primary),
+                            child: Icon(Icons.school_rounded,
+                                size: 48, color: colorScheme.onPrimary),
                           ),
                           const SizedBox(height: 32),
                           Text(
                             "AutoLearn",
-                            style: theme.textTheme.displayLarge?.copyWith(color: colorScheme.primary),
+                            style: theme.textTheme.displayMedium
+                                ?.copyWith(color: colorScheme.primary),
                           ),
                           const SizedBox(height: 16),
-                          Text(
-                            "Master the future with AI-driven\npersonalized learning paths.",
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.bodyLarge,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 48),
+                            child: Text(
+                              "Master the future with AI-driven\npersonalized learning paths.",
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: colorScheme.onSurfaceVariant),
+                            ),
                           ),
                         ],
                       ),
@@ -400,4 +418,3 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     );
   }
 }
-

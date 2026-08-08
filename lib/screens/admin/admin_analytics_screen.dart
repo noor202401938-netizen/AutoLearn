@@ -11,7 +11,8 @@ class AdminAnalyticsScreen extends StatefulWidget {
 class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
   ThemeData get theme => Theme.of(context);
 
-  final AnalyticsMonitoringManager _analyticsManager = AnalyticsMonitoringManager();
+  final AnalyticsMonitoringManager _analyticsManager =
+      AnalyticsMonitoringManager();
   bool _isLoading = true;
   double _totalRevenue = 0.0;
   int _activeEnrollments = 0;
@@ -30,9 +31,12 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
       final stats = await _analyticsManager.getPlatformAnalytics();
       if (mounted) {
         setState(() {
-          _totalRevenue = (stats['totalRevenue'] as num?)?.toDouble() ?? 2482900.0;
-          _activeEnrollments = (stats['activeEnrollments'] as num?)?.toInt() ?? 45120;
-          _completionRate = (stats['completionRate'] as num?)?.toDouble() ?? 0.784;
+          _totalRevenue =
+              (stats['totalRevenue'] as num?)?.toDouble() ?? 2482900.0;
+          _activeEnrollments =
+              (stats['activeEnrollments'] as num?)?.toInt() ?? 45120;
+          _completionRate =
+              (stats['completionRate'] as num?)?.toDouble() ?? 0.784;
           _nps = (stats['nps'] as num?)?.toInt() ?? 72;
           _isLoading = false;
         });
@@ -48,7 +52,6 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -83,9 +86,11 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                   ),
                   Row(
                     children: [
-                      _buildControlButton(context, 'Last 30 Days', Icons.calendar_today),
+                      _buildControlButton(
+                          context, 'Last 30 Days', Icons.calendar_today),
                       const SizedBox(width: 12),
-                      _buildControlButton(context, 'Export Reports', Icons.file_download),
+                      _buildControlButton(
+                          context, 'Export Reports', Icons.file_download),
                     ],
                   )
                 ],
@@ -93,87 +98,84 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
               const SizedBox(height: 32),
 
               // Key Metrics Grid
-              LayoutBuilder(
-                builder: (context, constraints) {
-      final theme = Theme.of(context);
-                  final isDesktop = constraints.maxWidth > 800;
-                  return GridView.count(
-                    crossAxisCount: isDesktop ? 4 : 2,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 16,
-                    childAspectRatio: isDesktop ? 1.5 : 1.2,
-                    children: [
-                      _buildMetricCard(
-                        context: context,
-                        title: 'Total Revenue',
-                        value: '\$${_totalRevenue.toStringAsFixed(2)}',
-                        badgeText: '12.5%',
-                        badgeIcon: Icons.trending_up,
-                        badgeColor: const Color(0xFF00724e),
-                        badgeBg: const Color(0xFF6ffbbe),
-                        bottomWidget: Text('Total platform revenue', style: theme.textTheme.bodyMedium),
-                      ),
-                      _buildMetricCard(
-                        context: context,
-                        title: 'Active Enrollments',
-                        value: '$_activeEnrollments',
-                        badgeText: '8.2%',
-                        badgeIcon: Icons.trending_up,
-                        badgeColor: const Color(0xFF00724e),
-                        badgeBg: const Color(0xFF6ffbbe),
-                        bottomWidget: Text('Across all courses', style: theme.textTheme.bodyMedium),
-                      ),
-                      _buildMetricCard(
-                        context: context,
-                        title: 'Completion Rate',
-                        value: '${(_completionRate * 100).toStringAsFixed(1)}%',
-                        badgeText: '0.4%',
-                        badgeIcon: Icons.trending_down,
-                        badgeColor: const Color(0xFFba1a1a),
-                        badgeBg: const Color(0xFFffdad6),
-                        bottomWidget: _buildProgressBar(context, _completionRate),
-                      ),
-                      _buildMetricCard(
-                        context: context,
-                        title: 'Net Promoter Score',
-                        value: '$_nps / 100',
-                        badgeText: 'Target Met',
-                        badgeIcon: Icons.check_circle,
-                        badgeColor: const Color(0xFF00724e),
-                        badgeBg: const Color(0xFF6ffbbe),
-                        bottomWidget: Text('Calculated from reviews', style: theme.textTheme.bodyMedium),
-                      ),
-                    ],
-                  );
-                }
-              ),
+              LayoutBuilder(builder: (context, constraints) {
+                final isDesktop = constraints.maxWidth > 800;
+                return GridView.count(
+                  crossAxisCount: isDesktop ? 4 : 2,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  childAspectRatio: isDesktop ? 1.5 : 1.2,
+                  children: [
+                    _buildMetricCard(
+                      context: context,
+                      title: 'Total Revenue',
+                      value: '\$${_totalRevenue.toStringAsFixed(2)}',
+                      badgeText: '12.5%',
+                      badgeIcon: Icons.trending_up,
+                      badgeColor: colorScheme.secondary,
+                      badgeBg: colorScheme.secondaryContainer,
+                      bottomWidget: Text('Total platform revenue',
+                          style: theme.textTheme.bodyMedium),
+                    ),
+                    _buildMetricCard(
+                      context: context,
+                      title: 'Active Enrollments',
+                      value: '$_activeEnrollments',
+                      badgeText: '8.2%',
+                      badgeIcon: Icons.trending_up,
+                      badgeColor: colorScheme.secondary,
+                      badgeBg: colorScheme.secondaryContainer,
+                      bottomWidget: Text('Across all courses',
+                          style: theme.textTheme.bodyMedium),
+                    ),
+                    _buildMetricCard(
+                      context: context,
+                      title: 'Completion Rate',
+                      value: '${(_completionRate * 100).toStringAsFixed(1)}%',
+                      badgeText: '0.4%',
+                      badgeIcon: Icons.trending_down,
+                      badgeColor: colorScheme.error,
+                      badgeBg: colorScheme.errorContainer,
+                      bottomWidget: _buildProgressBar(context, _completionRate),
+                    ),
+                    _buildMetricCard(
+                      context: context,
+                      title: 'Net Promoter Score',
+                      value: '$_nps / 100',
+                      badgeText: 'Target Met',
+                      badgeIcon: Icons.check_circle,
+                      badgeColor: colorScheme.secondary,
+                      badgeBg: colorScheme.secondaryContainer,
+                      bottomWidget: Text('Calculated from reviews',
+                          style: theme.textTheme.bodyMedium),
+                    ),
+                  ],
+                );
+              }),
               const SizedBox(height: 24),
 
               // Main Analytics Visualization & Side Panel
-              LayoutBuilder(
-                builder: (context, constraints) {
-      final theme = Theme.of(context);
-                  final isDesktop = constraints.maxWidth > 900;
-                  return Flex(
-                    direction: isDesktop ? Axis.horizontal : Axis.vertical,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        flex: isDesktop ? 2 : 0,
-                        child: _buildBarChartSection(context, isDesktop),
-                      ),
-                      if (isDesktop) const SizedBox(width: 24),
-                      if (!isDesktop) const SizedBox(height: 24),
-                      Expanded(
-                        flex: isDesktop ? 1 : 0,
-                        child: _buildTopCoursesSection(context, isDesktop),
-                      ),
-                    ],
-                  );
-                }
-              ),
+              LayoutBuilder(builder: (context, constraints) {
+                final isDesktop = constraints.maxWidth > 900;
+                return Flex(
+                  direction: isDesktop ? Axis.horizontal : Axis.vertical,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      flex: isDesktop ? 2 : 0,
+                      child: _buildBarChartSection(context, isDesktop),
+                    ),
+                    if (isDesktop) const SizedBox(width: 24),
+                    if (!isDesktop) const SizedBox(height: 24),
+                    Expanded(
+                      flex: isDesktop ? 1 : 0,
+                      child: _buildTopCoursesSection(context, isDesktop),
+                    ),
+                  ],
+                );
+              }),
               const SizedBox(height: 24),
 
               // Detailed Reports Table
@@ -195,7 +197,9 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : const Color(0xFFdee9fc),
+        color: isDark
+            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+            : colorScheme.primaryContainer,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -228,9 +232,12 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
+        color: isDark
+            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+            : colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+        border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -239,13 +246,13 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-               Expanded(
-                 child: Text(
+              Expanded(
+                child: Text(
                   title.toUpperCase(),
                   style: theme.textTheme.bodyMedium,
                   overflow: TextOverflow.ellipsis,
-                               ),
-               ),
+                ),
+              ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
@@ -279,27 +286,16 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
     );
   }
 
-  Widget _buildMockLineChart(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-    return SizedBox(
-      height: 32,
-      child: CustomPaint(
-        size: const Size(double.infinity, 32),
-        painter: _LineChartPainter(color: colorScheme.primary),
-      ),
-    );
-  }
-
   Widget _buildProgressBar(BuildContext context, double progress) {
-    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Container(
       height: 8,
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHigh : const Color(0xFFd9e3f6),
+        color: isDark
+            ? colorScheme.surfaceContainerHigh
+            : colorScheme.primaryContainer,
         borderRadius: BorderRadius.circular(4),
       ),
       child: FractionallySizedBox(
@@ -307,7 +303,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
         widthFactor: progress.clamp(0.0, 1.0),
         child: Container(
           decoration: BoxDecoration(
-            gradient: const LinearGradient(colors: [Color(0xFF00724e), Color(0xFF4edea3)]),
+            color: colorScheme.secondary,
             borderRadius: BorderRadius.circular(4),
           ),
         ),
@@ -324,9 +320,12 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
       height: 450,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
+        color: isDark
+            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+            : colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+        border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
@@ -379,7 +378,6 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
 
   Widget _buildLegendItem(BuildContext context, String label, Color color) {
     final theme = Theme.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
     return Row(
       children: [
         Container(
@@ -399,7 +397,8 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
     );
   }
 
-  Widget _buildDoubleBar(BuildContext context, String label, double fill1, double fill2) {
+  Widget _buildDoubleBar(
+      BuildContext context, String label, double fill1, double fill2) {
     final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     return Column(
@@ -415,7 +414,8 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                   width: 16,
                   decoration: BoxDecoration(
                     color: colorScheme.primary,
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(4)),
                   ),
                 ),
               ),
@@ -426,7 +426,8 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                   width: 16,
                   decoration: BoxDecoration(
                     color: colorScheme.tertiary,
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(4)),
                   ),
                 ),
               ),
@@ -451,9 +452,12 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
       height: isDesktop ? 450 : null,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
+        color: isDark
+            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+            : colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+        border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -472,15 +476,45 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
             flex: isDesktop ? 1 : 0,
             child: ListView(
               shrinkWrap: !isDesktop,
-              physics: isDesktop ? const AlwaysScrollableScrollPhysics() : const NeverScrollableScrollPhysics(),
+              physics: isDesktop
+                  ? const AlwaysScrollableScrollPhysics()
+                  : const NeverScrollableScrollPhysics(),
               children: [
-                _buildCourseItem(context, 'Full-Stack Dev Mastery', '14.2%', '2.4k Students', Icons.terminal, const Color(0xFFc5c0ff), const Color(0xFF4231c0)),
+                _buildCourseItem(
+                    context,
+                    'Full-Stack Dev Mastery',
+                    '14.2%',
+                    '2.4k Students',
+                    Icons.terminal,
+                    colorScheme.primaryContainer,
+                    colorScheme.primary),
                 const SizedBox(height: 16),
-                _buildCourseItem(context, 'AI Ethics & Implementation', '12.8%', '1.9k Students', Icons.psychology, const Color(0xFFe9ddff), const Color(0xFF6b38d4)),
+                _buildCourseItem(
+                    context,
+                    'AI Ethics & Implementation',
+                    '12.8%',
+                    '1.9k Students',
+                    Icons.psychology,
+                    colorScheme.primaryContainer,
+                    colorScheme.primary),
                 const SizedBox(height: 16),
-                _buildCourseItem(context, 'Advanced UI Design Systems', '11.5%', '3.1k Students', Icons.design_services, const Color(0xFF4edea3), const Color(0xFF00573a)),
+                _buildCourseItem(
+                    context,
+                    'Advanced UI Design Systems',
+                    '11.5%',
+                    '3.1k Students',
+                    Icons.design_services,
+                    colorScheme.secondaryContainer,
+                    colorScheme.secondary),
                 const SizedBox(height: 16),
-                _buildCourseItem(context, 'Data Science Foundations', '9.8%', '1.2k Students', Icons.bar_chart, const Color(0xFFd9e3f6), theme.colorScheme.onSurfaceVariant),
+                _buildCourseItem(
+                    context,
+                    'Data Science Foundations',
+                    '9.8%',
+                    '1.2k Students',
+                    Icons.bar_chart,
+                    colorScheme.primaryContainer,
+                    colorScheme.onSurfaceVariant),
               ],
             ),
           )
@@ -489,7 +523,8 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
     );
   }
 
-  Widget _buildCourseItem(BuildContext context, String title, String conversion, String students, IconData icon, Color iconBg, Color iconColor) {
+  Widget _buildCourseItem(BuildContext context, String title, String conversion,
+      String students, IconData icon, Color iconBg, Color iconColor) {
     final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
@@ -527,7 +562,8 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Icon(Icons.circle, size: 4, color: colorScheme.outlineVariant),
+                      child: Icon(Icons.circle,
+                          size: 4, color: colorScheme.outlineVariant),
                     ),
                     Text(
                       students,
@@ -551,9 +587,12 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
+        color: isDark
+            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+            : colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+        border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -577,22 +616,58 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
               ],
             ),
           ),
-          Divider(height: 1, color: colorScheme.outlineVariant.withOpacity(0.5)),
+          Divider(
+              height: 1,
+              color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
-              headingRowColor: WidgetStateProperty.all(isDark ? colorScheme.surfaceContainer : const Color(0xFFeff4ff)),
+              headingRowColor: WidgetStateProperty.all(isDark
+                  ? colorScheme.surfaceContainer
+                  : colorScheme.primaryContainer),
               columns: [
-                DataColumn(label: Text('STUDENT', style: theme.textTheme.bodyMedium)),
-                DataColumn(label: Text('COURSE', style: theme.textTheme.bodyMedium)),
-                DataColumn(label: Text('DATE', style: theme.textTheme.bodyMedium)),
-                DataColumn(label: Text('AMOUNT', style: theme.textTheme.bodyMedium)),
-                DataColumn(label: Text('STATUS', style: theme.textTheme.bodyMedium)),
+                DataColumn(
+                    label: Text('STUDENT', style: theme.textTheme.bodyMedium)),
+                DataColumn(
+                    label: Text('COURSE', style: theme.textTheme.bodyMedium)),
+                DataColumn(
+                    label: Text('DATE', style: theme.textTheme.bodyMedium)),
+                DataColumn(
+                    label: Text('AMOUNT', style: theme.textTheme.bodyMedium)),
+                DataColumn(
+                    label: Text('STATUS', style: theme.textTheme.bodyMedium)),
               ],
               rows: [
-                _buildDataRow(context, 'JD', 'James D.', 'Mastering React 18', 'Oct 24, 2023', '\$149.00', 'COMPLETED', const Color(0xFF00724e), const Color(0xFF6ffbbe)),
-                _buildDataRow(context, 'MS', 'Maria S.', 'UX Strategy Workshop', 'Oct 24, 2023', '\$299.00', 'COMPLETED', const Color(0xFF00724e), const Color(0xFF6ffbbe)),
-                _buildDataRow(context, 'AL', 'Alex L.', 'Python for Analytics', 'Oct 23, 2023', '\$89.00', 'PROCESSING', const Color(0xFF5516be), const Color(0xFFe9ddff)),
+                _buildDataRow(
+                    context,
+                    'JD',
+                    'James D.',
+                    'Mastering React 18',
+                    'Oct 24, 2023',
+                    '\$149.00',
+                    'COMPLETED',
+                    colorScheme.secondary,
+                    colorScheme.secondaryContainer),
+                _buildDataRow(
+                    context,
+                    'MS',
+                    'Maria S.',
+                    'UX Strategy Workshop',
+                    'Oct 24, 2023',
+                    '\$299.00',
+                    'COMPLETED',
+                    colorScheme.secondary,
+                    colorScheme.secondaryContainer),
+                _buildDataRow(
+                    context,
+                    'AL',
+                    'Alex L.',
+                    'Python for Analytics',
+                    'Oct 23, 2023',
+                    '\$89.00',
+                    'PROCESSING',
+                    colorScheme.primary,
+                    colorScheme.primaryContainer),
               ],
             ),
           )
@@ -601,7 +676,16 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
     );
   }
 
-  DataRow _buildDataRow(BuildContext context, String initials, String name, String course, String date, String amount, String status, Color statusColor, Color statusBg) {
+  DataRow _buildDataRow(
+      BuildContext context,
+      String initials,
+      String name,
+      String course,
+      String date,
+      String amount,
+      String status,
+      Color statusColor,
+      Color statusBg) {
     final colorScheme = Theme.of(context).colorScheme;
     return DataRow(
       cells: [
@@ -609,7 +693,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
           children: [
             CircleAvatar(
               radius: 16,
-              backgroundColor: colorScheme.primary.withOpacity(0.1),
+              backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
               child: Text(initials, style: theme.textTheme.bodyMedium),
             ),
             const SizedBox(width: 12),
@@ -619,19 +703,17 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
         DataCell(Text(course, style: theme.textTheme.bodyMedium)),
         DataCell(Text(date, style: theme.textTheme.bodyMedium)),
         DataCell(Text(amount, style: theme.textTheme.bodyMedium)),
-        DataCell(
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: statusBg,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              status,
-              style: theme.textTheme.bodyMedium,
-            ),
-          )
-        ),
+        DataCell(Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: statusBg,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            status,
+            style: theme.textTheme.bodyMedium,
+          ),
+        )),
       ],
     );
   }
@@ -650,10 +732,14 @@ class _LineChartPainter extends CustomPainter {
 
     final path = Path();
     path.moveTo(0, size.height);
-    path.quadraticBezierTo(size.width * 0.1, size.height * 0.75, size.width * 0.2, size.height * 0.9);
-    path.quadraticBezierTo(size.width * 0.3, size.height * 1.1, size.width * 0.4, size.height * 0.6);
-    path.quadraticBezierTo(size.width * 0.5, size.height * 0.1, size.width * 0.6, size.height * 0.25);
-    path.quadraticBezierTo(size.width * 0.7, size.height * 0.4, size.width * 0.8, size.height * 0.5);
+    path.quadraticBezierTo(size.width * 0.1, size.height * 0.75,
+        size.width * 0.2, size.height * 0.9);
+    path.quadraticBezierTo(size.width * 0.3, size.height * 1.1,
+        size.width * 0.4, size.height * 0.6);
+    path.quadraticBezierTo(size.width * 0.5, size.height * 0.1,
+        size.width * 0.6, size.height * 0.25);
+    path.quadraticBezierTo(size.width * 0.7, size.height * 0.4,
+        size.width * 0.8, size.height * 0.5);
     path.quadraticBezierTo(size.width * 0.9, size.height * 0.6, size.width, 0);
 
     canvas.drawPath(path, paint);

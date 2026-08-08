@@ -36,7 +36,8 @@ class _AdminPaymentManagementState extends State<AdminPaymentManagement> {
         });
       } else {
         setState(() {
-          _errorMessage = 'Failed to load payments. Status: ${response.statusCode}';
+          _errorMessage =
+              'Failed to load payments. Status: ${response.statusCode}';
           _isLoading = false;
         });
       }
@@ -49,21 +50,25 @@ class _AdminPaymentManagementState extends State<AdminPaymentManagement> {
   }
 
   Future<void> _refundPayment(String paymentId) async {
+    final colorScheme = Theme.of(context).colorScheme;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        title: Text('Confirm Refund', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-        content: Text('Are you sure you want to refund this payment?', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        backgroundColor: colorScheme.surface,
+        title: Text('Confirm Refund',
+            style: TextStyle(color: colorScheme.onSurface)),
+        content: Text('Are you sure you want to refund this payment?',
+            style: TextStyle(color: colorScheme.onSurfaceVariant)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            child: Text('Cancel',
+                style: TextStyle(color: colorScheme.onSurfaceVariant)),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: colorScheme.error),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Refund', style: TextStyle(color: Colors.white)),
+            child: Text('Refund', style: TextStyle(color: colorScheme.onError)),
           ),
         ],
       ),
@@ -75,7 +80,9 @@ class _AdminPaymentManagementState extends State<AdminPaymentManagement> {
       final response = await _apiClient.post('/payments/$paymentId/refund', {});
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Refund processed successfully'), backgroundColor: Colors.green),
+          SnackBar(
+              content: Text('Refund processed successfully'),
+              backgroundColor: Theme.of(context).colorScheme.secondary),
         );
         _fetchPayments();
       } else {
@@ -85,28 +92,36 @@ class _AdminPaymentManagementState extends State<AdminPaymentManagement> {
           if (body['error'] != null) errorMsg = body['error'];
         } catch (_) {}
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to refund: $errorMsg'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Failed to refund: $errorMsg'),
+              backgroundColor: Theme.of(context).colorScheme.error),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error),
       );
     }
   }
 
   Color _getStatusColor(String status) {
+    final colorScheme = Theme.of(context).colorScheme;
     switch (status.toLowerCase()) {
-      case 'succeeded': return Colors.green;
-      case 'refunded': return Colors.redAccent;
-      case 'pending': return Colors.orange;
-      default: return Colors.grey;
+      case 'succeeded':
+        return colorScheme.secondary;
+      case 'refunded':
+        return colorScheme.error;
+      case 'pending':
+        return colorScheme.tertiary;
+      default:
+        return colorScheme.onSurfaceVariant;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -119,7 +134,8 @@ class _AdminPaymentManagementState extends State<AdminPaymentManagement> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(_errorMessage, style: const TextStyle(color: Colors.red, fontSize: 16)),
+            Text(_errorMessage,
+                style: TextStyle(color: colorScheme.error, fontSize: 16)),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _fetchPayments,
@@ -131,7 +147,10 @@ class _AdminPaymentManagementState extends State<AdminPaymentManagement> {
     }
 
     if (_payments.isEmpty) {
-      return Center(child: Text('No payments found.', style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 18)));
+      return Center(
+          child: Text('No payments found.',
+              style: TextStyle(
+                  color: colorScheme.onSurfaceVariant, fontSize: 18)));
     }
 
     return Padding(
@@ -144,7 +163,10 @@ class _AdminPaymentManagementState extends State<AdminPaymentManagement> {
             children: [
               Text(
                 'Payment Management',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: colorScheme.onSurface),
+                style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface),
               ),
               IconButton(
                 icon: Icon(Icons.refresh, color: colorScheme.onSurface),
@@ -162,26 +184,37 @@ class _AdminPaymentManagementState extends State<AdminPaymentManagement> {
                 final status = payment['status'] ?? 'unknown';
                 final amount = payment['amount'] ?? 0.0;
                 final currency = payment['currency'] ?? 'USD';
-                final date = payment['createdAt'] != null ? DateTime.parse(payment['createdAt']) : null;
+                final date = payment['createdAt'] != null
+                    ? DateTime.parse(payment['createdAt'])
+                    : null;
                 final userEmail = payment['user']?['email'] ?? 'Unknown User';
 
                 return Card(
-                  color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.3) : colorScheme.surfaceContainerHigh,
+                  color: isDark
+                      ? colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.3)
+                      : colorScheme.surfaceContainerHigh,
                   margin: const EdgeInsets.only(bottom: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: _getStatusColor(status).withOpacity(0.2),
+                      backgroundColor:
+                          _getStatusColor(status).withValues(alpha: 0.2),
                       child: Icon(
-                        status == 'succeeded' ? Icons.check_circle :
-                        status == 'refunded' ? Icons.replay :
-                        Icons.hourglass_empty,
+                        status == 'succeeded'
+                            ? Icons.check_circle
+                            : status == 'refunded'
+                                ? Icons.replay
+                                : Icons.hourglass_empty,
                         color: _getStatusColor(status),
                       ),
                     ),
                     title: Text(
                       '$amount $currency - $userEmail',
-                      style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                          color: colorScheme.onSurface,
+                          fontWeight: FontWeight.w600),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,21 +222,27 @@ class _AdminPaymentManagementState extends State<AdminPaymentManagement> {
                         const SizedBox(height: 4),
                         Text(
                           'Status: ${status.toUpperCase()}',
-                          style: TextStyle(color: _getStatusColor(status), fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              color: _getStatusColor(status),
+                              fontWeight: FontWeight.bold),
                         ),
                         if (date != null)
                           Text(
                             'Date: ${DateFormat('MMM d, yyyy - h:mm a').format(date.toLocal())}',
-                            style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
+                            style: TextStyle(
+                                color: colorScheme.onSurfaceVariant,
+                                fontSize: 12),
                           ),
                       ],
                     ),
                     trailing: status.toLowerCase() == 'succeeded'
                         ? ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red.withOpacity(0.8),
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              backgroundColor:
+                                  colorScheme.error.withValues(alpha: 0.8),
+                              foregroundColor: colorScheme.onError,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)),
                             ),
                             icon: const Icon(Icons.undo, size: 16),
                             label: const Text('Refund'),

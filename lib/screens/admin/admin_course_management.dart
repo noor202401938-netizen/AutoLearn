@@ -135,7 +135,7 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : colorScheme.surfaceContainer,
+                  color: isDark ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5) : colorScheme.surfaceContainer,
                   border: Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
                 ),
                 child: Column(
@@ -191,13 +191,13 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                       _buildStatChip(
                         'Total',
                         _courses.length.toString(),
-                        Colors.blue,
+                        theme.colorScheme.primary,
                       ),
                       const SizedBox(width: 8),
                       _buildStatChip(
                         'Published',
                         _courses.where((c) => c.isPublished).length.toString(),
-                        Colors.green,
+                        theme.colorScheme.secondary,
                       ),
                       const SizedBox(width: 8),
                       _buildStatChip(
@@ -206,7 +206,7 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                             .where((c) => !c.isPublished)
                             .length
                             .toString(),
-                        Colors.orange,
+                        theme.colorScheme.tertiary,
                       ),
                     ],
                   ),
@@ -221,7 +221,7 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                      color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.3) : colorScheme.surfaceContainerHigh,
+                      color: isDark ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.3) : colorScheme.surfaceContainerHigh,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: colorScheme.outlineVariant),
                     ),
@@ -316,7 +316,7 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.primary.withOpacity(0.3),
+            color: colorScheme.primary.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -361,7 +361,7 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? colorScheme.primary.withOpacity(0.1) : (isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.3) : colorScheme.surfaceContainerHigh),
+          color: isSelected ? colorScheme.primary.withValues(alpha: 0.1) : (isDark ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.3) : colorScheme.surfaceContainerHigh),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? colorScheme.primary : colorScheme.outlineVariant,
@@ -384,9 +384,9 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -395,7 +395,7 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
             label,
             style: TextStyle(
               fontSize: 12,
-              color: color.withOpacity(0.9),
+              color: color.withValues(alpha: 0.9),
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -420,12 +420,12 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : colorScheme.surfaceContainer,
+        color: isDark ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5) : colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: colorScheme.outlineVariant),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+            color: colorScheme.shadow.withValues(alpha: isDark ? 0.2 : 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -485,12 +485,12 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                   ),
                   decoration: BoxDecoration(
                     color: course.isPublished
-                        ? Colors.greenAccent.withOpacity(0.1)
-                        : Colors.orangeAccent.withOpacity(0.1),
+                        ? colorScheme.secondaryContainer.withValues(alpha: 0.3)
+                        : colorScheme.tertiaryContainer.withValues(alpha: 0.3),
                     border: Border.all(
                       color: course.isPublished
-                          ? Colors.greenAccent.withOpacity(0.5)
-                          : Colors.orangeAccent.withOpacity(0.5),
+                          ? colorScheme.secondary.withValues(alpha: 0.5)
+                          : colorScheme.tertiary.withValues(alpha: 0.5),
                     ),
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -499,7 +499,7 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
-                      color: course.isPublished ? Colors.greenAccent : Colors.orangeAccent,
+                      color: course.isPublished ? colorScheme.secondary : colorScheme.tertiary,
                       letterSpacing: 1,
                     ),
                   ),
@@ -513,7 +513,7 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                 const SizedBox(width: 6),
                 Text('${course.enrollmentCount} enrolled', style: TextStyle(color: colorScheme.onSurfaceVariant)),
                 const SizedBox(width: 20),
-                const Icon(Icons.star, size: 16, color: Colors.amberAccent),
+                Icon(Icons.star, size: 16, color: colorScheme.tertiaryFixed),
                 const SizedBox(width: 6),
                 Text(course.rating.toStringAsFixed(1), style: TextStyle(color: colorScheme.onSurfaceVariant)),
                 const SizedBox(width: 20),
@@ -529,14 +529,14 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
               children: [
                 _buildActionButton(
                   icon: course.isPublished ? Icons.visibility_off : Icons.visibility,
-                  color: course.isPublished ? Colors.orangeAccent : Colors.greenAccent,
+                  color: course.isPublished ? colorScheme.tertiary : colorScheme.secondary,
                   tooltip: course.isPublished ? 'Unpublish' : 'Publish',
                   onPressed: () => _togglePublishStatus(course),
                 ),
                 const SizedBox(width: 8),
                 _buildActionButton(
                   icon: Icons.edit,
-                  color: Colors.blueAccent,
+                  color: colorScheme.primary,
                   tooltip: 'Edit',
                   onPressed: () async {
                     final result = await Navigator.push(
@@ -553,7 +553,7 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                 const SizedBox(width: 8),
                 _buildActionButton(
                   icon: Icons.folder,
-                  color: Colors.purpleAccent,
+                  color: colorScheme.tertiaryFixed,
                   tooltip: 'Manage Content',
                   onPressed: () {
                     Navigator.push(
@@ -567,7 +567,7 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
                 const SizedBox(width: 8),
                 _buildActionButton(
                   icon: Icons.delete,
-                  color: Colors.redAccent,
+                  color: colorScheme.error,
                   tooltip: 'Delete',
                   onPressed: () => _deleteCourse(course),
                 ),
@@ -582,9 +582,9 @@ class _AdminCourseManagementState extends State<AdminCourseManagement> {
   Widget _buildActionButton({required IconData icon, required Color color, required String tooltip, required VoidCallback onPressed}) {
     return Container(
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         shape: BoxShape.circle,
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: IconButton(
         icon: Icon(icon, color: color, size: 20),

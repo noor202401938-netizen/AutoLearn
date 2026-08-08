@@ -1,5 +1,3 @@
-import 'dart:ui';
-// lib/screens/student/ai_tutor_chat_screen.dart
 import 'package:flutter/material.dart';
 import '../../business_logic/ai_tutor_engine.dart';
 import '../../model/chat_message_model.dart';
@@ -8,7 +6,7 @@ import '../../repository/auth_repository.dart';
 class AITutorChatScreen extends StatefulWidget {
   final String? courseId;
   final String? lessonId;
-  
+
   const AITutorChatScreen({
     super.key,
     this.courseId,
@@ -23,7 +21,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
   final AITutorEngine _aiTutorEngine = AITutorEngine();
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  
+
   String? _currentSessionId;
   List<ChatMessageModel> _messages = [];
   bool _isLoading = false;
@@ -46,10 +44,11 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
       }
 
       _currentSessionId = await _aiTutorEngine.getOrCreateSession(uid);
-      
+
       if (_currentSessionId != null) {
-        _messages = await _aiTutorEngine.getConversationHistory(_currentSessionId!);
-        
+        _messages =
+            await _aiTutorEngine.getConversationHistory(_currentSessionId!);
+
         _aiTutorEngine.watchConversation(_currentSessionId!).listen((messages) {
           if (mounted) {
             setState(() {
@@ -72,6 +71,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
   }
 
   Future<void> _sendMessage() async {
+    final theme = Theme.of(context);
     final message = _messageController.text.trim();
     if (message.isEmpty || _isSending) return;
 
@@ -99,7 +99,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error sending message: '),
-            backgroundColor: Colors.red,
+            backgroundColor: theme.colorScheme.error,
           ),
         );
       }
@@ -153,12 +153,10 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white.withOpacity(0.9),
-        elevation: 1,
-        shadowColor: Colors.black12,
-        scrolledUnderElevation: 1,
+        backgroundColor: theme.colorScheme.surface,
+        elevation: 0,
         centerTitle: false,
         title: Text(
           'AI Tutor',
@@ -166,7 +164,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, color: Color(0xFF474554)),
+            icon: Icon(Icons.refresh, color: theme.colorScheme.onSurface),
             tooltip: 'New Conversation',
             onPressed: _startNewConversation,
           ),
@@ -176,12 +174,12 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color(0xFFDEE9FC),
+                color: theme.colorScheme.primaryContainer,
                 shape: BoxShape.circle,
                 border: Border.all(color: theme.colorScheme.outline),
               ),
-              child: const ClipOval(
-                child: Icon(Icons.person, color: Color(0xFF5548D3)),
+              child: ClipOval(
+                child: Icon(Icons.person, color: theme.colorScheme.primary),
               ),
             ),
           ),
@@ -190,7 +188,8 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
       body: SafeArea(
         child: _isLoading
             ? Center(
-                child: CircularProgressIndicator(color: theme.colorScheme.primary))
+                child:
+                    CircularProgressIndicator(color: theme.colorScheme.primary))
             : Stack(
                 children: [
                   Column(
@@ -210,7 +209,8 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
                                 itemBuilder: (context, index) {
                                   if (index == 0) {
                                     return Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         _buildContextHeader(),
                                         const SizedBox(height: 24),
@@ -269,21 +269,21 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
               child: Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE9DDFF),
+                  color: theme.colorScheme.primaryContainer,
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFD0BCFF)),
+                  border: Border.all(color: theme.colorScheme.primaryContainer),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF8455EF).withOpacity(0.2),
+                      color: theme.colorScheme.primary.withValues(alpha: 0.2),
                       blurRadius: 20,
                       spreadRadius: 5,
                     ),
                   ],
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.auto_awesome,
                   size: 64,
-                  color: Color(0xFF6B38D4),
+                  color: theme.colorScheme.primary,
                 ),
               ),
             ),
@@ -299,7 +299,8 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
               child: Text(
                 'Ask me anything about your subjects!\nI\'m here to help you learn.',
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                style: theme.textTheme.bodyLarge
+                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
             ),
           ],
@@ -309,9 +310,8 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
   }
 
   Widget _buildMessageBubble(ChatMessageModel message) {
-    final theme = Theme.of(context);
     final isUser = message.isUser;
-    
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
       child: isUser ? _buildUserMessage(message) : _buildAIMessage(message),
@@ -329,7 +329,8 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
           children: [
             Flexible(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.primary,
                   borderRadius: const BorderRadius.only(
@@ -340,7 +341,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: theme.colorScheme.primary.withOpacity(0.2),
+                      color: theme.colorScheme.primary.withValues(alpha: 0.2),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -381,13 +382,13 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: const Color(0xFF8455EF),
+                color: theme.colorScheme.primary,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.auto_awesome,
                 size: 20,
-                color: Colors.white,
+                color: theme.colorScheme.onPrimary,
               ),
             ),
             const SizedBox(width: 8),
@@ -402,31 +403,25 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
           width: double.infinity,
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: theme.colorScheme.surface,
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(4),
               topRight: Radius.circular(16),
               bottomLeft: Radius.circular(16),
               bottomRight: Radius.circular(16),
             ),
-            border: Border.all(color: theme.colorScheme.outline),
-            boxShadow: [
-              BoxShadow(
-                color: theme.colorScheme.primary.withOpacity(0.08),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
-              ),
-            ],
+            border: Border.all(color: theme.colorScheme.outlineVariant),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 message.content,
-                style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                style: theme.textTheme.bodyLarge
+                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
               const SizedBox(height: 16),
-              const Divider(color: Color(0xFFC8C4D7)),
+              Divider(color: theme.colorScheme.outlineVariant),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -466,86 +461,73 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
 
   Widget _buildFloatingInputArea() {
     final theme = Theme.of(context);
-    return ClipRRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-        child: Container(
-          color: Colors.white.withOpacity(0.8),
-          padding: const EdgeInsets.only(top: 12, left: 20, right: 20, bottom: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildSuggestedPrompts(),
-              const SizedBox(height: 12),
-              Container(
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.secondaryContainer,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 4,
+    return Container(
+      color: theme.colorScheme.surface.withValues(alpha: 0.95),
+      padding: const EdgeInsets.only(top: 12, left: 20, right: 20, bottom: 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSuggestedPrompts(),
+          const SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              color: theme.colorScheme.secondaryContainer,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: theme.colorScheme.outlineVariant),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Icon(Icons.auto_awesome, color: theme.colorScheme.primary),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: TextField(
+                    controller: _messageController,
+                    style: theme.textTheme.bodyMedium,
+                    decoration: InputDecoration(
+                      hintText: 'Ask AI Tutor anything...',
+                      hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant
+                              .withValues(alpha: 0.5)),
+                      border: InputBorder.none,
+                      isDense: true,
                     ),
-                  ],
+                    maxLines: null,
+                    textCapitalization: TextCapitalization.sentences,
+                    onSubmitted: (_) => _sendMessage(),
+                  ),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Row(
-                  children: [
-                    const Icon(Icons.auto_awesome, color: Color(0xFF4231C0)),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextField(
-                        controller: _messageController,
-                        style: theme.textTheme.bodyMedium,
-                        decoration: InputDecoration(
-                          hintText: 'Ask AI Tutor anything...',
-                          hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5)),
-                          border: InputBorder.none,
-                          isDense: true,
-                        ),
-                        maxLines: null,
-                        textCapitalization: TextCapitalization.sentences,
-                        onSubmitted: (_) => _sendMessage(),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF4231C0), Color(0xFF6B38D4)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: IconButton(
-                        icon: _isSending
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor:
-                                      AlwaysStoppedAnimation<Color>(Colors.white),
-                                ),
-                              )
-                            : const Icon(Icons.arrow_upward, color: Colors.white),
-                        onPressed: _isSending ? null : _sendMessage,
-                        padding: const EdgeInsets.all(8),
-                        constraints: const BoxConstraints(),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+                const SizedBox(width: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: IconButton(
+                    icon: _isSending
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  theme.colorScheme.onPrimary),
+                            ),
+                          )
+                        : Icon(Icons.arrow_upward,
+                            color: theme.colorScheme.onPrimary),
+                    onPressed: _isSending ? null : _sendMessage,
+                    padding: const EdgeInsets.all(8),
+                    constraints: const BoxConstraints(),
+                  ), // IconButton
+                ), // send Container
+              ], // Row children
+            ), // Row
+          ), // inner Container
+        ], // Column children
+      ), // Column
+    ); // return
   }
 
   Widget _buildSuggestedPrompts() {
@@ -586,9 +568,10 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceVariant,
+          color: theme.colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: theme.colorScheme.primary.withOpacity(0.2)),
+          border: Border.all(
+              color: theme.colorScheme.primary.withValues(alpha: 0.2)),
         ),
         child: Text(
           text,

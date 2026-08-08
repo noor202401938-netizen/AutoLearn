@@ -67,7 +67,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     final theme = Theme.of(context);
     final amount = (widget.amountCents / 100).toStringAsFixed(2);
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         title: Text('Complete Enrollment', 
           style: TextStyle(
@@ -75,10 +75,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
             color: theme.colorScheme.primary,
           )
         ),
-        backgroundColor: Colors.white.withOpacity(0.9),
-        elevation: 1,
-        shadowColor: Colors.black12,
-        iconTheme: const IconThemeData(color: Color(0xFF4231C0)),
+        backgroundColor: theme.colorScheme.surface,
+        elevation: 0,
+        iconTheme: IconThemeData(color: theme.colorScheme.primary),
       ),
       body: Container(
         
@@ -95,17 +94,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 const SizedBox(height: 8),
                 Text(
                   'Complete payment to enroll in this course and get full access to all lessons.',
-                  style: const TextStyle(color: Color(0xFF787586)),
+                  style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: 16),
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: theme.colorScheme.surface,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
+                    border: Border.all(color: theme.colorScheme.outlineVariant),
                     boxShadow: [
                       BoxShadow(
-                        color: theme.colorScheme.primary.withOpacity(0.05),
+                        color: theme.colorScheme.primary.withValues(alpha: 0.05),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),
@@ -116,41 +115,30 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Course', style: TextStyle(color: Color(0xFF787586))),
-                        Text(widget.courseTitle, style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF121C2A))),
+                        Text('Course', style: TextStyle(color: theme.colorScheme.onSurfaceVariant)),
+                        Text(widget.courseTitle, style: TextStyle(fontWeight: FontWeight.w600, color: theme.colorScheme.onSurface)),
                         const SizedBox(height: 12),
-                        const Text('Amount', style: TextStyle(color: Color(0xFF787586))),
-                        Text('${widget.currency} $amount', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 18, color: Color(0xFF4231C0))),
+                        Text('Amount', style: TextStyle(color: theme.colorScheme.onSurfaceVariant)),
+                        Text('${widget.currency} $amount', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18, color: theme.colorScheme.primary)),
                       ],
                     ),
                   ),
                 ),
                 const Spacer(),
-                Container(
+                SizedBox(
                   width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: theme.colorScheme.primary.withOpacity(0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
                   child: ElevatedButton(
                     onPressed: _isProcessing ? null : _simulatePayNow,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
+                      backgroundColor: theme.colorScheme.primary,
                       shadowColor: Colors.transparent,
-                      foregroundColor: Colors.white,
+                      foregroundColor: theme.colorScheme.onPrimary,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     ),
                     child: _isProcessing
-                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                        : const Text('Pay Now', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        ? SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: theme.colorScheme.onPrimary, strokeWidth: 2))
+                        : Text('Pay Now', style: theme.textTheme.bodyLarge?.copyWith(fontSize: 16, fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],

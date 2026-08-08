@@ -22,7 +22,7 @@ class _StatCardState extends State<StatCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
@@ -35,13 +35,13 @@ class _StatCardState extends State<StatCard> {
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: theme.colorScheme.outlineVariant.withOpacity(0.5),
+            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
           ),
           boxShadow: [
             BoxShadow(
-              color: _isHovered 
-                  ? theme.colorScheme.primary.withOpacity(0.15)
-                  : theme.shadowColor.withOpacity(0.05),
+              color: _isHovered
+                  ? theme.colorScheme.primary.withValues(alpha: 0.15)
+                  : theme.shadowColor.withValues(alpha: 0.05),
               blurRadius: _isHovered ? 20 : 10,
               offset: Offset(0, _isHovered ? 10 : 4),
             ),
@@ -60,8 +60,8 @@ class _StatCardState extends State<StatCard> {
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOutCubic,
                 child: Icon(
-                  widget.icon, 
-                  color: theme.colorScheme.primary, 
+                  widget.icon,
+                  color: theme.colorScheme.primary,
                   size: 32,
                 ),
               ),
@@ -70,18 +70,20 @@ class _StatCardState extends State<StatCard> {
             Text(
               widget.value,
               style: theme.textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: theme.colorScheme.onSurface,
-              ) ?? const TextStyle(fontWeight: FontWeight.bold, fontSize: 32),
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
+                  ) ??
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 32),
             ),
             const SizedBox(height: 4),
             Text(
               widget.label.toUpperCase(),
               style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-                letterSpacing: 0.5,
-                fontWeight: FontWeight.bold,
-              ) ?? const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    color: theme.colorScheme.onSurfaceVariant,
+                    letterSpacing: 0.5,
+                    fontWeight: FontWeight.bold,
+                  ) ??
+                  const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
             ),
           ],
         ),

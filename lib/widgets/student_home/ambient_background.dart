@@ -29,6 +29,7 @@ class _AmbientBackgroundState extends State<AmbientBackground> with SingleTicker
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     
     return Stack(
       children: [
@@ -68,9 +69,9 @@ class _AmbientBackgroundState extends State<AmbientBackground> with SingleTicker
               child: Container(
                 width: 192,
                 height: 192,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0xFF6b38d4), // secondary color
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: colorScheme.primary,
                 ),
               ),
             ),

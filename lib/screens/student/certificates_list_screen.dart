@@ -23,6 +23,7 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
   }
 
   Future<void> _loadCertificates() async {
+    final theme = Theme.of(context);
     setState(() => _isLoading = true);
     try {
       final user = await AuthRepository().getCurrentUser();
@@ -45,7 +46,7 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error loading certificates: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: theme.colorScheme.error,
           ),
         );
       }
@@ -56,26 +57,24 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
-      extendBodyBehindAppBar: true,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: theme.colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.help_outline, color: Colors.white),
+            icon: Icon(Icons.help_outline, color: theme.colorScheme.onSurfaceVariant),
             onPressed: () {},
           )
         ],
       ),
       body: SafeArea(
-        top: false,
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: Color(0xFF4231C0)))
+            ? Center(child: CircularProgressIndicator(color: theme.colorScheme.primary))
             : Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 1200),
@@ -90,7 +89,7 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.workspace_premium_outlined, size: 80, color: Colors.grey.withOpacity(0.5)),
+                              Icon(Icons.workspace_premium_outlined, size: 80, color: Colors.grey.withValues(alpha: 0.5)),
                               const SizedBox(height: 16),
                               Text('No Certificates Yet', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                               const SizedBox(height: 8),
@@ -122,19 +121,14 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
     final theme = Theme.of(context);
     return SliverToBoxAdapter(
       child: Container(
-        padding: EdgeInsets.only(
-          top: MediaQuery.of(context).padding.top + 56,
+        padding: const EdgeInsets.only(
           left: 20,
           right: 20,
           bottom: 40,
         ),
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF4231C0), Color(0xFF6B38D4)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.only(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.primary,
+          borderRadius: const BorderRadius.only(
             bottomLeft: Radius.circular(32),
             bottomRight: Radius.circular(32),
           ),
@@ -144,37 +138,37 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.workspace_premium, color: Color(0xFFFFD700), size: 48),
+              color: theme.colorScheme.onPrimary.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.workspace_premium, color: theme.colorScheme.tertiary, size: 48),
             ),
             const SizedBox(height: 16),
             Text(
               'My Achievements',
-              style: theme.textTheme.titleMedium,
+              style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onPrimary),
             ),
             const SizedBox(height: 8),
             Text(
               'View and share your earned certificates',
-              style: theme.textTheme.bodyMedium,
+              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onPrimary),
             ),
             const SizedBox(height: 24),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: theme.colorScheme.onPrimary.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withOpacity(0.3)),
+                border: Border.all(color: theme.colorScheme.onPrimary.withValues(alpha: 0.3)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.star, color: Color(0xFFFFD700), size: 16),
+                  Icon(Icons.star, color: theme.colorScheme.tertiary, size: 16),
                   const SizedBox(width: 8),
                   Text(
                     '${_certificates.length} Certificates Earned',
-                    style: theme.textTheme.bodyMedium,
+                    style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onPrimary),
                   ),
                 ],
               ),
@@ -190,12 +184,12 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.8),
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.3)),
+        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
-            color: theme.colorScheme.primary.withOpacity(0.05),
+            color: theme.colorScheme.primary.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, 10),
           )
@@ -211,21 +205,10 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF22C55E), Color(0xFF16A34A)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                    color: theme.colorScheme.secondary,
                     borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF22C55E).withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      )
-                    ],
                   ),
-                  child: const Icon(Icons.verified, color: Colors.white, size: 32),
+                  child: Icon(Icons.verified, color: theme.colorScheme.onSecondary, size: 32),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -245,7 +228,7 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.surfaceVariant,
+                          color: theme.colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -262,13 +245,13 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: BoxDecoration(
-              color: theme.colorScheme.background,
+              color: theme.colorScheme.surface,
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(24),
                 bottomRight: Radius.circular(24),
               ),
               border: Border(
-                top: BorderSide(color: theme.colorScheme.outline.withOpacity(0.3)),
+                top: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
               ),
             ),
             child: Row(
@@ -287,7 +270,7 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
                     label: const Text('View'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: theme.colorScheme.primary,
-                      side: const BorderSide(color: Color(0xFF4231C0)),
+                      side: BorderSide(color: theme.colorScheme.primary),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
@@ -301,7 +284,7 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
                     label: const Text('Share'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: theme.colorScheme.primary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: theme.colorScheme.onPrimary,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       elevation: 0,

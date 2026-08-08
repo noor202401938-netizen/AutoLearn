@@ -1,4 +1,3 @@
-// lib/screens/student/help_support_screen.dart
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -13,9 +12,6 @@ class HelpSupportScreen extends StatelessWidget {
     );
     if (await canLaunchUrl(emailUri)) {
       await launchUrl(emailUri);
-    } else {
-      // Fallback: show email address
-      // In a real app, you might want to copy to clipboard
     }
   }
 
@@ -30,174 +26,148 @@ class HelpSupportScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        title: Text('Help & Support', 
-          style: TextStyle(
-            fontWeight: FontWeight.bold, 
-            color: theme.colorScheme.primary,
-          )
-        ),
-        backgroundColor: Colors.white.withOpacity(0.9),
-        elevation: 1,
-        shadowColor: Colors.black12,
-        iconTheme: const IconThemeData(color: Color(0xFF4231C0)),
+        title: Text('Help & Support',
+            style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold, color: theme.colorScheme.primary)),
+        backgroundColor: theme.colorScheme.surface,
+        elevation: 0,
+        iconTheme: IconThemeData(color: theme.colorScheme.primary),
       ),
-      body: Container(
-        
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.help_outline,
-                  size: 80,
-                  color: theme.colorScheme.primary.withOpacity(0.5),
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'How can we help you?',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF121C2A),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: CircleAvatar(
+                  radius: 44,
+                  backgroundColor: theme.colorScheme.primaryContainer,
+                  child: Icon(
+                    Icons.help_outline,
+                    size: 44,
+                    color: theme.colorScheme.primary,
                   ),
                 ),
-                const SizedBox(height: 32),
-                
-                // Contact Support
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: theme.colorScheme.primary.withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: ListTile(
-                    leading: const Icon(Icons.email, color: Color(0xFF4231C0)),
-                    title: const Text('Contact Support', style: TextStyle(color: Color(0xFF121C2A))),
-                    subtitle: const Text('Email us at support@autolearn.com', style: TextStyle(color: Color(0xFF787586))),
-                    trailing: const Icon(Icons.chevron_right, color: Color(0xFF4231C0)),
-                    onTap: _launchEmail,
-                  ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'How can we help you?',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onSurface,
                 ),
-                const SizedBox(height: 12),
-                
-                // FAQ
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: theme.colorScheme.primary.withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: ExpansionTile(
-                    leading: const Icon(Icons.help, color: Color(0xFF4231C0)),
-                    title: const Text('Frequently Asked Questions', style: TextStyle(color: Color(0xFF121C2A))),
-                    iconColor: theme.colorScheme.primary,
-                    collapsedIconColor: theme.colorScheme.primary.withOpacity(0.5),
-                    children: [
-                      _buildFAQItem(
-                        context,
-                        'How do I enroll in a course?',
-                        'Browse courses from the Courses tab, select a course, and click the Enroll button. For paid courses, you\'ll need to complete payment first.',
-                      ),
-                      _buildFAQItem(
-                        context,
-                        'Can I access courses offline?',
-                        'Currently, courses require an internet connection. We\'re working on offline support for future updates.',
-                      ),
-                      _buildFAQItem(
-                        context,
-                        'How do I reset my password?',
-                        'On the login screen, click "Forgot Password?" and enter your email address. You\'ll receive a password reset link.',
-                      ),
-                      _buildFAQItem(
-                        context,
-                        'How do I change my profile information?',
-                        'Go to Profile > Edit Profile to update your name, phone, grade, and interests.',
-                      ),
-                    ],
-                  ),
+              ),
+              const SizedBox(height: 32),
+              Container(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: theme.colorScheme.outlineVariant),
                 ),
-                const SizedBox(height: 12),
-                
-                // Privacy Policy
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: theme.colorScheme.primary.withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: ListTile(
-                    leading: const Icon(Icons.privacy_tip, color: Color(0xFF4231C0)),
-                    title: const Text('Privacy Policy', style: TextStyle(color: Color(0xFF121C2A))),
-                    trailing: const Icon(Icons.chevron_right, color: Color(0xFF4231C0)),
-                    onTap: () {
-                      _launchURL('https://autolearn.com/privacy');
-                    },
-                  ),
+                child: ListTile(
+                  leading: Icon(Icons.email, color: theme.colorScheme.primary),
+                  title: Text('Contact Support',
+                      style: theme.textTheme.bodyLarge
+                          ?.copyWith(color: theme.colorScheme.onSurface)),
+                  subtitle: Text('Email us at support@autolearn.com',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant)),
+                  trailing: Icon(Icons.chevron_right,
+                      color: theme.colorScheme.primary),
+                  onTap: _launchEmail,
                 ),
-                const SizedBox(height: 12),
-                
-                // Terms of Service
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: theme.colorScheme.outline.withOpacity(0.5)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: theme.colorScheme.primary.withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: ListTile(
-                    leading: const Icon(Icons.description, color: Color(0xFF4231C0)),
-                    title: const Text('Terms of Service', style: TextStyle(color: Color(0xFF121C2A))),
-                    trailing: const Icon(Icons.chevron_right, color: Color(0xFF4231C0)),
-                    onTap: () {
-                      _launchURL('https://autolearn.com/terms');
-                    },
-                  ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: theme.colorScheme.outlineVariant),
                 ),
-                const SizedBox(height: 32),
-                
-                // App Version
-                Center(
-                  child: Text(
-                    'App Version 1.0.0',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: theme.colorScheme.outline,
+                child: ExpansionTile(
+                  leading: Icon(Icons.help, color: theme.colorScheme.primary),
+                  title: Text('Frequently Asked Questions',
+                      style: theme.textTheme.bodyLarge
+                          ?.copyWith(color: theme.colorScheme.onSurface)),
+                  iconColor: theme.colorScheme.primary,
+                  collapsedIconColor: theme.colorScheme.primary,
+                  children: [
+                    _buildFAQItem(
+                      context,
+                      'How do I enroll in a course?',
+                      'Browse courses from the Courses tab, select a course, and click the Enroll button. For paid courses, you\'ll need to complete payment first.',
                     ),
+                    _buildFAQItem(
+                      context,
+                      'Can I access courses offline?',
+                      'Currently, courses require an internet connection. We\'re working on offline support for future updates.',
+                    ),
+                    _buildFAQItem(
+                      context,
+                      'How do I reset my password?',
+                      'On the login screen, click "Forgot Password?" and enter your email address. You\'ll receive a password reset link.',
+                    ),
+                    _buildFAQItem(
+                      context,
+                      'How do I change my profile information?',
+                      'Go to Profile > Edit Profile to update your name, phone, grade, and interests.',
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: theme.colorScheme.outlineVariant),
+                ),
+                child: ListTile(
+                  leading:
+                      Icon(Icons.privacy_tip, color: theme.colorScheme.primary),
+                  title: Text('Privacy Policy',
+                      style: theme.textTheme.bodyLarge
+                          ?.copyWith(color: theme.colorScheme.onSurface)),
+                  trailing: Icon(Icons.chevron_right,
+                      color: theme.colorScheme.primary),
+                  onTap: () {
+                    _launchURL('https://autolearn.com/privacy');
+                  },
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: theme.colorScheme.outlineVariant),
+                ),
+                child: ListTile(
+                  leading:
+                      Icon(Icons.description, color: theme.colorScheme.primary),
+                  title: Text('Terms of Service',
+                      style: theme.textTheme.bodyLarge
+                          ?.copyWith(color: theme.colorScheme.onSurface)),
+                  trailing: Icon(Icons.chevron_right,
+                      color: theme.colorScheme.primary),
+                  onTap: () {
+                    _launchURL('https://autolearn.com/terms');
+                  },
+                ),
+              ),
+              const SizedBox(height: 32),
+              Center(
+                child: Text(
+                  'App Version 1.0.0',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -205,6 +175,7 @@ class HelpSupportScreen extends StatelessWidget {
   }
 
   Widget _buildFAQItem(BuildContext context, String question, String answer) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -212,18 +183,16 @@ class HelpSupportScreen extends StatelessWidget {
         children: [
           Text(
             question,
-            style: const TextStyle(
+            style: theme.textTheme.bodyLarge?.copyWith(
               fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Color(0xFF121C2A),
+              color: theme.colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             answer,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Color(0xFF787586),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -231,4 +200,3 @@ class HelpSupportScreen extends StatelessWidget {
     );
   }
 }
-

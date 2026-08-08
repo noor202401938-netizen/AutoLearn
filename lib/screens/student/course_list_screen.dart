@@ -24,7 +24,6 @@ class _CourseListScreenState extends State<CourseListScreen> {
   final EnrollmentManager _enrollmentManager = EnrollmentManager();
   final TextEditingController _searchController = TextEditingController();
 
-  List<CourseModel> _allCourses = [];
   List<CourseModel> _filteredCourses = [];
   List<String> _categories = [];
 
@@ -52,7 +51,6 @@ class _CourseListScreenState extends State<CourseListScreen> {
     setState(() => _isLoading = true);
     final courses = await _courseManager.getPublishedCourses();
     setState(() {
-      _allCourses = courses;
       _filteredCourses = courses;
       _isLoading = false;
     });
@@ -129,372 +127,463 @@ class _CourseListScreenState extends State<CourseListScreen> {
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 1200),
                 child: RefreshIndicator(
-              onRefresh: _loadCourses,
-              child: Column(
-            children: [
-              // Search Bar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceVariant, // surface-container-low
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.transparent),
-                  ),
-                  child: TextField(
-                    controller: _searchController,
-                    style: theme.textTheme.bodyLarge,
-                    decoration: InputDecoration(
-                      hintText: 'Search courses...',
-                      hintStyle: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.outline),
-                      prefixIcon: const Icon(Icons.search, color: Color(0xFF787586)),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear, color: Color(0xFF474554)),
-                              onPressed: () {
-                                _searchController.clear();
-                                _filterCourses();
-                              },
-                            )
-                          : null,
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                    ),
-                    onChanged: (value) => _filterCourses(),
-                  ),
-                ),
-              ),
+                  onRefresh: _loadCourses,
+                  child: Column(
+                    children: [
+                      // Search Bar
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 16),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme
+                                .surfaceContainerHighest, // surface-container-low
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.transparent),
+                          ),
+                          child: TextField(
+                            controller: _searchController,
+                            style: theme.textTheme.bodyLarge,
+                            decoration: InputDecoration(
+                              hintText: 'Search courses...',
+                              hintStyle: theme.textTheme.bodyMedium
+                                  ?.copyWith(color: theme.colorScheme.outline),
+                              prefixIcon: const Icon(Icons.search,
+                                  color: Color(0xFF787586)),
+                              suffixIcon: _searchController.text.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(Icons.clear,
+                                          color: Color(0xFF474554)),
+                                      onPressed: () {
+                                        _searchController.clear();
+                                        _filterCourses();
+                                      },
+                                    )
+                                  : null,
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 16),
+                            ),
+                            onChanged: (value) => _filterCourses(),
+                          ),
+                        ),
+                      ),
 
-            // Filter Chips
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Category Filter
-                  if (_categories.isNotEmpty) ...[
-                      ChoiceChip(
-                        label: Text(_selectedCategory ?? 'All Categories', style: theme.textTheme.labelLarge),
-                        selected: _selectedCategory != null,
-                        onSelected: (selected) {
-                          showModalBottomSheet(
-                            context: context,
-                            builder: (context) => Container(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Select Category',
-                                    style: theme.textTheme.titleLarge,
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Wrap(
-                                    spacing: 8,
-                                    runSpacing: 8,
-                                    children: [
-                                      ChoiceChip(
-                                        label: const Text('All'),
-                                        selected: _selectedCategory == null,
-                                        onSelected: (selected) {
-                                          setState(() => _selectedCategory = null);
-                                          _filterCourses();
-                                          Navigator.pop(context);
-                                        },
+                      // Filter Chips
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Category Filter
+                            if (_categories.isNotEmpty) ...[
+                              ChoiceChip(
+                                label: Text(
+                                    _selectedCategory ?? 'All Categories',
+                                    style: theme.textTheme.labelLarge),
+                                selected: _selectedCategory != null,
+                                onSelected: (selected) {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    builder: (context) => Container(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Select Category',
+                                            style: theme.textTheme.titleLarge,
+                                          ),
+                                          const SizedBox(height: 16),
+                                          Wrap(
+                                            spacing: 8,
+                                            runSpacing: 8,
+                                            children: [
+                                              ChoiceChip(
+                                                label: const Text('All'),
+                                                selected:
+                                                    _selectedCategory == null,
+                                                onSelected: (selected) {
+                                                  setState(() =>
+                                                      _selectedCategory = null);
+                                                  _filterCourses();
+                                                  Navigator.pop(context);
+                                                },
+                                              ),
+                                              ..._categories.map((category) {
+                                                return ChoiceChip(
+                                                  label: Text(category),
+                                                  selected: _selectedCategory ==
+                                                      category,
+                                                  onSelected: (selected) {
+                                                    setState(() =>
+                                                        _selectedCategory =
+                                                            category);
+                                                    _filterCourses();
+                                                    Navigator.pop(context);
+                                                  },
+                                                );
+                                              }),
+                                            ],
+                                          ),
+                                        ],
                                       ),
-                                      ..._categories.map((category) {
-                                        return ChoiceChip(
-                                          label: Text(category),
-                                          selected: _selectedCategory == category,
-                                          onSelected: (selected) {
-                                            setState(() => _selectedCategory = category);
-                                            _filterCourses();
-                                            Navigator.pop(context);
-                                          },
-                                        );
-                                      }),
-                                    ],
+                                    ),
+                                  );
+                                },
+                                selectedColor:
+                                    theme.colorScheme.primaryContainer,
+                                backgroundColor:
+                                    theme.colorScheme.surfaceContainerHighest,
+                                side: BorderSide(
+                                    color: _selectedCategory != null
+                                        ? theme.colorScheme.primary
+                                        : theme.colorScheme.outline),
+                                labelStyle: TextStyle(
+                                  color: _selectedCategory != null
+                                      ? theme.colorScheme.primary
+                                      : theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                            ],
+
+                            // Level Filter
+                            ChoiceChip(
+                              label: Text(_selectedLevel ?? 'All Levels',
+                                  style: theme.textTheme.labelLarge),
+                              selected: _selectedLevel != null,
+                              onSelected: (selected) {
+                                showModalBottomSheet(
+                                  context: context,
+                                  builder: (context) => Container(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Select Level',
+                                          style: theme.textTheme.titleLarge,
+                                        ),
+                                        const SizedBox(height: 16),
+                                        Wrap(
+                                          spacing: 8,
+                                          runSpacing: 8,
+                                          children: [
+                                            ChoiceChip(
+                                              label: const Text('All'),
+                                              selected: _selectedLevel == null,
+                                              onSelected: (selected) {
+                                                setState(() =>
+                                                    _selectedLevel = null);
+                                                _filterCourses();
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                            ChoiceChip(
+                                              label: const Text('Beginner'),
+                                              selected:
+                                                  _selectedLevel == 'beginner',
+                                              onSelected: (selected) {
+                                                setState(() => _selectedLevel =
+                                                    'beginner');
+                                                _filterCourses();
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                            ChoiceChip(
+                                              label: const Text('Intermediate'),
+                                              selected: _selectedLevel ==
+                                                  'intermediate',
+                                              onSelected: (selected) {
+                                                setState(() => _selectedLevel =
+                                                    'intermediate');
+                                                _filterCourses();
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                            ChoiceChip(
+                                              label: const Text('Advanced'),
+                                              selected:
+                                                  _selectedLevel == 'advanced',
+                                              onSelected: (selected) {
+                                                setState(() => _selectedLevel =
+                                                    'advanced');
+                                                _filterCourses();
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ],
+                                );
+                              },
+                              selectedColor: theme.colorScheme.primaryContainer,
+                              backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                              side: BorderSide(
+                                  color: _selectedLevel != null
+                                      ? theme.colorScheme.primary
+                                      : theme.colorScheme.outline),
+                              labelStyle: TextStyle(
+                                color: _selectedLevel != null
+                                    ? theme.colorScheme.primary
+                                    : theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
-                          );
-                        },
-                        selectedColor: theme.colorScheme.primaryContainer,
-                        backgroundColor: theme.colorScheme.surfaceVariant,
-                        side: BorderSide(color: _selectedCategory != null ? theme.colorScheme.primary : theme.colorScheme.outline),
-                        labelStyle: TextStyle(
-                          color: _selectedCategory != null ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
+                            const SizedBox(width: 8),
+
+                            // Sort Filter
+                            ChoiceChip(
+                              label: Text(_selectedSortBy ?? 'Sort',
+                                  style: theme.textTheme.labelLarge),
+                              selected: _selectedSortBy != null,
+                              onSelected: (selected) {
+                                showModalBottomSheet(
+                                  context: context,
+                                  builder: (context) => Container(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Sort By',
+                                          style: theme.textTheme.titleLarge,
+                                        ),
+                                        const SizedBox(height: 16),
+                                        Wrap(
+                                          spacing: 8,
+                                          runSpacing: 8,
+                                          children: [
+                                            ChoiceChip(
+                                              label: const Text('Default'),
+                                              selected: _selectedSortBy == null,
+                                              onSelected: (selected) {
+                                                setState(() =>
+                                                    _selectedSortBy = null);
+                                                _filterCourses();
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                            ChoiceChip(
+                                              label: const Text('Rating'),
+                                              selected:
+                                                  _selectedSortBy == 'rating',
+                                              onSelected: (selected) {
+                                                setState(() =>
+                                                    _selectedSortBy = 'rating');
+                                                _filterCourses();
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                            ChoiceChip(
+                                              label: const Text('Price'),
+                                              selected:
+                                                  _selectedSortBy == 'price',
+                                              onSelected: (selected) {
+                                                setState(() =>
+                                                    _selectedSortBy = 'price');
+                                                _filterCourses();
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                            ChoiceChip(
+                                              label: const Text('Newest'),
+                                              selected:
+                                                  _selectedSortBy == 'newest',
+                                              onSelected: (selected) {
+                                                setState(() =>
+                                                    _selectedSortBy = 'newest');
+                                                _filterCourses();
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                            ChoiceChip(
+                                              label: const Text('Popular'),
+                                              selected:
+                                                  _selectedSortBy == 'popular',
+                                              onSelected: (selected) {
+                                                setState(() => _selectedSortBy =
+                                                    'popular');
+                                                _filterCourses();
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                              selectedColor: theme.colorScheme.primaryContainer,
+                              backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                              side: BorderSide(
+                                  color: _selectedSortBy != null
+                                      ? theme.colorScheme.primary
+                                      : theme.colorScheme.outline),
+                              labelStyle: TextStyle(
+                                color: _selectedSortBy != null
+                                    ? theme.colorScheme.primary
+                                    : theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+
+                            // Advanced Filters
+                            Flexible(
+                              child: ActionChip(
+                                label: Text('More Filters',
+                                    style: theme.textTheme.labelLarge),
+                                backgroundColor:
+                                    theme.colorScheme.surfaceContainerHighest,
+                                side:
+                                    BorderSide(color: theme.colorScheme.outlineVariant),
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    builder: (context) =>
+                                        _buildAdvancedFiltersSheet(),
+                                  );
+                                },
+                                avatar: const Icon(Icons.tune,
+                                    size: 18, color: Color(0xFF474554)),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+
+                            // Clear Filters
+                            if (_selectedCategory != null ||
+                                _selectedLevel != null ||
+                                _selectedSortBy != null ||
+                                _minRating != null ||
+                                _maxPrice != null ||
+                                _searchController.text.isNotEmpty)
+                              Flexible(
+                                child: ActionChip(
+                                  label: Text('Clear',
+                                      style: theme.textTheme.labelLarge),
+                                  backgroundColor:
+                                      theme.colorScheme.errorContainer,
+                                  side: const BorderSide(
+                                      color: Color(0xFFffdad6)),
+                                  onPressed: _clearFilters,
+                                  avatar: const Icon(Icons.clear,
+                                      size: 18, color: Color(0xFFba1a1a)),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 8),
-                  ],
+                      const SizedBox(height: 8),
 
-                  // Level Filter
-                  ChoiceChip(
-                    label: Text(_selectedLevel ?? 'All Levels', style: theme.textTheme.labelLarge),
-                    selected: _selectedLevel != null,
-                    onSelected: (selected) {
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (context) => Container(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Select Level',
-                                style: theme.textTheme.titleLarge,
-                              ),
-                              const SizedBox(height: 16),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: [
-                                  ChoiceChip(
-                                    label: const Text('All'),
-                                    selected: _selectedLevel == null,
-                                    onSelected: (selected) {
-                                      setState(() => _selectedLevel = null);
-                                      _filterCourses();
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                  ChoiceChip(
-                                    label: const Text('Beginner'),
-                                    selected: _selectedLevel == 'beginner',
-                                    onSelected: (selected) {
-                                      setState(() => _selectedLevel = 'beginner');
-                                      _filterCourses();
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                  ChoiceChip(
-                                    label: const Text('Intermediate'),
-                                    selected: _selectedLevel == 'intermediate',
-                                    onSelected: (selected) {
-                                      setState(() => _selectedLevel = 'intermediate');
-                                      _filterCourses();
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                  ChoiceChip(
-                                    label: const Text('Advanced'),
-                                    selected: _selectedLevel == 'advanced',
-                                    onSelected: (selected) {
-                                      setState(() => _selectedLevel = 'advanced');
-                                      _filterCourses();
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                      // Results Count
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          children: [
+                            Text(
+                              '${_filteredCourses.length} course${_filteredCourses.length != 1 ? 's' : ''} found',
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                          ],
                         ),
-                      );
-                    },
-                    selectedColor: theme.colorScheme.primaryContainer,
-                    backgroundColor: theme.colorScheme.surfaceVariant,
-                    side: BorderSide(color: _selectedLevel != null ? theme.colorScheme.primary : theme.colorScheme.outline),
-                    labelStyle: TextStyle(
-                      color: _selectedLevel != null ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-
-                  // Sort Filter
-                  ChoiceChip(
-                    label: Text(_selectedSortBy ?? 'Sort', style: theme.textTheme.labelLarge),
-                    selected: _selectedSortBy != null,
-                    onSelected: (selected) {
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (context) => Container(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Sort By',
-                                style: theme.textTheme.titleLarge,
-                              ),
-                              const SizedBox(height: 16),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: [
-                                  ChoiceChip(
-                                    label: const Text('Default'),
-                                    selected: _selectedSortBy == null,
-                                    onSelected: (selected) {
-                                      setState(() => _selectedSortBy = null);
-                                      _filterCourses();
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                  ChoiceChip(
-                                    label: const Text('Rating'),
-                                    selected: _selectedSortBy == 'rating',
-                                    onSelected: (selected) {
-                                      setState(() => _selectedSortBy = 'rating');
-                                      _filterCourses();
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                  ChoiceChip(
-                                    label: const Text('Price'),
-                                    selected: _selectedSortBy == 'price',
-                                    onSelected: (selected) {
-                                      setState(() => _selectedSortBy = 'price');
-                                      _filterCourses();
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                  ChoiceChip(
-                                    label: const Text('Newest'),
-                                    selected: _selectedSortBy == 'newest',
-                                    onSelected: (selected) {
-                                      setState(() => _selectedSortBy = 'newest');
-                                      _filterCourses();
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                  ChoiceChip(
-                                    label: const Text('Popular'),
-                                    selected: _selectedSortBy == 'popular',
-                                    onSelected: (selected) {
-                                      setState(() => _selectedSortBy = 'popular');
-                                      _filterCourses();
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                    selectedColor: theme.colorScheme.primaryContainer,
-                    backgroundColor: theme.colorScheme.surfaceVariant,
-                    side: BorderSide(color: _selectedSortBy != null ? theme.colorScheme.primary : theme.colorScheme.outline),
-                    labelStyle: TextStyle(
-                      color: _selectedSortBy != null ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-
-                  // Advanced Filters
-                  Flexible(
-                    child: ActionChip(
-                      label: Text('More Filters', style: theme.textTheme.labelLarge),
-                      backgroundColor: theme.colorScheme.surfaceVariant,
-                      side: const BorderSide(color: Color(0xFFc8c4d7)),
-                      onPressed: () {
-                        showModalBottomSheet(
-                          context: context,
-                          builder: (context) => _buildAdvancedFiltersSheet(),
-                        );
-                      },
-                      avatar: const Icon(Icons.tune, size: 18, color: Color(0xFF474554)),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-
-                  // Clear Filters
-                  if (_selectedCategory != null || _selectedLevel != null || _selectedSortBy != null || _minRating != null || _maxPrice != null || _searchController.text.isNotEmpty)
-                    Flexible(
-                      child: ActionChip(
-                        label: Text('Clear', style: theme.textTheme.labelLarge),
-                        backgroundColor: theme.colorScheme.errorContainer,
-                        side: const BorderSide(color: Color(0xFFffdad6)),
-                        onPressed: _clearFilters,
-                        avatar: const Icon(Icons.clear, size: 18, color: Color(0xFFba1a1a)),
                       ),
-                    ),
-                ],
+                      const SizedBox(height: 8),
+
+                      // Course List
+                      Expanded(
+                        child: _isLoading
+                            ? Center(
+                                child: CircularProgressIndicator(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              )
+                            : _filteredCourses.isEmpty
+                                ? Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.search_off,
+                                          size: 80,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .surfaceContainerHighest,
+                                        ),
+                                        const SizedBox(height: 16),
+                                        Text(
+                                          'No courses found',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurfaceVariant,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Try adjusting your filters',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurfaceVariant,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : GridView.builder(
+                                    padding: const EdgeInsets.only(
+                                        left: 16,
+                                        right: 16,
+                                        top: 8,
+                                        bottom: 100),
+                                    gridDelegate:
+                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: MediaQuery.of(context)
+                                                  .size
+                                                  .width >
+                                              1200
+                                          ? 4
+                                          : MediaQuery.of(context).size.width >
+                                                  800
+                                              ? 3
+                                              : MediaQuery.of(context)
+                                                          .size
+                                                          .width >
+                                                      600
+                                                  ? 2
+                                                  : 1,
+                                      childAspectRatio: 0.65,
+                                      crossAxisSpacing: 12,
+                                      mainAxisSpacing: 12,
+                                    ),
+                                    itemCount: _filteredCourses.length,
+                                    itemBuilder: (context, index) {
+                                      return _buildCourseCard(
+                                          _filteredCourses[index]);
+                                    },
+                                  ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 8),
-
-            // Results Count
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Text(
-                    '${_filteredCourses.length} course${_filteredCourses.length != 1 ? 's' : ''} found',
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // Course List
-            Expanded(
-              child: _isLoading
-                  ? Center(
-                child: CircularProgressIndicator(
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              )
-                  : _filteredCourses.isEmpty
-                  ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.search_off,
-                      size: 80,
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No courses found',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Try adjusting your filters',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              )
-                  : GridView.builder(
-                padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 100),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: MediaQuery.of(context).size.width > 1200 ? 4 : MediaQuery.of(context).size.width > 800 ? 3 : MediaQuery.of(context).size.width > 600 ? 2 : 1,
-                  childAspectRatio: 0.65,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                ),
-                itemCount: _filteredCourses.length,
-                itemBuilder: (context, index) {
-                  return _buildCourseCard(_filteredCourses[index]);
-                },
-              ),
-            ),
-          ],
           ),
-        ),
-      ),
-    ),
-  ),
-      ],
+        ],
       ),
     );
   }
@@ -506,7 +595,8 @@ class _CourseListScreenState extends State<CourseListScreen> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
+        border: Border.all(
+            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -524,7 +614,8 @@ class _CourseListScreenState extends State<CourseListScreen> {
               // Check enrollment and navigate
               final token = await ApiClient.instance.getToken();
               if (token != null && mounted) {
-                final isEnrolled = await _enrollmentManager.isEnrolled(course.courseId);
+                final isEnrolled =
+                    await _enrollmentManager.isEnrolled(course.courseId);
                 if (isEnrolled && mounted) {
                   Navigator.push(
                     context,
@@ -545,30 +636,30 @@ class _CourseListScreenState extends State<CourseListScreen> {
                 Expanded(
                   child: Container(
                     width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFe6eeff),
-                  ),
-                  child: course.thumbnailURL.isNotEmpty
-                      ? Image.network(
-                          course.thumbnailURL,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Center(
-                              child: Icon(
-                                Icons.school,
-                                size: 60,
-                                color: Color(0xFFc5c0ff),
-                              ),
-                            );
-                          },
-                        )
-                      : const Center(
-                          child: Icon(
-                            Icons.school,
-                            size: 60,
-                            color: Color(0xFFc5c0ff),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFe6eeff),
+                    ),
+                    child: course.thumbnailURL.isNotEmpty
+                        ? Image.network(
+                            course.thumbnailURL,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Center(
+                                child: Icon(
+                                  Icons.school,
+                                  size: 60,
+                                  color: Color(0xFFc5c0ff),
+                                ),
+                              );
+                            },
+                          )
+                        : const Center(
+                            child: Icon(
+                              Icons.school,
+                              size: 60,
+                              color: Color(0xFFc5c0ff),
+                            ),
                           ),
-                        ),
                   ),
                 ),
 
@@ -594,7 +685,8 @@ class _CourseListScreenState extends State<CourseListScreen> {
                             ),
                             child: Text(
                               course.category,
-                              style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.primary),
+                              style: theme.textTheme.labelSmall
+                                  ?.copyWith(color: theme.colorScheme.primary),
                             ),
                           ),
                           Container(
@@ -603,12 +695,13 @@ class _CourseListScreenState extends State<CourseListScreen> {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.green.withOpacity(0.1),
+                              color: Colors.green.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
                               course.level.toUpperCase(),
-                              style: theme.textTheme.labelSmall?.copyWith(color: Colors.green.shade800),
+                              style: theme.textTheme.labelSmall
+                                  ?.copyWith(color: Colors.green.shade800),
                             ),
                           ),
                         ],
@@ -642,11 +735,13 @@ class _CourseListScreenState extends State<CourseListScreen> {
                           const SizedBox(width: 4),
                           Text(
                             course.rating.toStringAsFixed(1),
-                            style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
+                            style: theme.textTheme.labelLarge
+                                ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           Text(
                             ' (${course.ratingCount})',
-                            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant),
                           ),
                           const SizedBox(width: 12),
                           Icon(
@@ -657,7 +752,8 @@ class _CourseListScreenState extends State<CourseListScreen> {
                           const SizedBox(width: 4),
                           Text(
                             '${course.duration}h',
-                            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant),
                           ),
                           const Spacer(),
                           Text(
@@ -696,11 +792,13 @@ class _CourseListScreenState extends State<CourseListScreen> {
           return SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
+              onPressed: () =>
+                  Navigator.pushReplacementNamed(context, '/login'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: theme.colorScheme.primary,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
               ),
               child: Text('Login to Enroll', style: theme.textTheme.labelLarge),
             ),
@@ -730,9 +828,10 @@ class _CourseListScreenState extends State<CourseListScreen> {
                         // Check if course is free or user has already paid
                         final isFree = course.price == 0;
                         final paymentManager = PaymentManager();
-                        
+
                         if (!isFree) {
-                          final hasPaid = await paymentManager.hasUserPaidForCourse(course.courseId);
+                          final hasPaid = await paymentManager
+                              .hasUserPaidForCourse(course.courseId);
                           if (!hasPaid) {
                             // Convert price (double) to cents (int) for payment
                             final amountCents = (course.price * 100).round();
@@ -751,7 +850,8 @@ class _CourseListScreenState extends State<CourseListScreen> {
                           }
                         }
 
-                        final err = await _enrollmentManager.enrollInCourse(course.courseId);
+                        final err = await _enrollmentManager
+                            .enrollInCourse(course.courseId);
                         if (!mounted) return;
                         if (err == null) {
                           Navigator.push(
@@ -765,18 +865,27 @@ class _CourseListScreenState extends State<CourseListScreen> {
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(err), backgroundColor: Theme.of(context).colorScheme.error),
+                            SnackBar(
+                                content: Text(err),
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.error),
                           );
                         }
                       },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: enrolled ? theme.colorScheme.secondaryContainer : theme.colorScheme.primary,
-                  foregroundColor: enrolled ? theme.colorScheme.onSurfaceVariant : Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  backgroundColor: enrolled
+                      ? theme.colorScheme.secondaryContainer
+                      : theme.colorScheme.primary,
+                  foregroundColor: enrolled
+                      ? theme.colorScheme.onSurfaceVariant
+                      : Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   elevation: enrolled ? 0 : 4,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
-                child: Text(enrolled ? 'Open' : 'Enroll', style: theme.textTheme.labelLarge),
+                child: Text(enrolled ? 'Open' : 'Enroll',
+                    style: theme.textTheme.labelLarge),
               ),
             );
           },
@@ -802,9 +911,10 @@ class _CourseListScreenState extends State<CourseListScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Rating Filter
-              const Text('Minimum Rating', style: TextStyle(fontWeight: FontWeight.w600)),
+              const Text('Minimum Rating',
+                  style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -814,7 +924,9 @@ class _CourseListScreenState extends State<CourseListScreen> {
                       min: 0.0,
                       max: 5.0,
                       divisions: 10,
-                      label: _minRating != null ? _minRating!.toStringAsFixed(1) : 'Any',
+                      label: _minRating != null
+                          ? _minRating!.toStringAsFixed(1)
+                          : 'Any',
                       onChanged: (value) {
                         setModalState(() {
                           _minRating = value > 0 ? value : null;
@@ -822,14 +934,17 @@ class _CourseListScreenState extends State<CourseListScreen> {
                       },
                     ),
                   ),
-                  Text(_minRating != null ? _minRating!.toStringAsFixed(1) : 'Any'),
+                  Text(_minRating != null
+                      ? _minRating!.toStringAsFixed(1)
+                      : 'Any'),
                 ],
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Price Filter
-              const Text('Maximum Price', style: TextStyle(fontWeight: FontWeight.w600)),
+              const Text('Maximum Price',
+                  style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -839,7 +954,8 @@ class _CourseListScreenState extends State<CourseListScreen> {
                       min: 0.0,
                       max: 1000.0,
                       divisions: 20,
-                      label: _maxPrice != null ? '\$${_maxPrice!.toInt()}' : 'Any',
+                      label:
+                          _maxPrice != null ? '\$${_maxPrice!.toInt()}' : 'Any',
                       onChanged: (value) {
                         setModalState(() {
                           _maxPrice = value < 1000 ? value : null;
@@ -850,9 +966,9 @@ class _CourseListScreenState extends State<CourseListScreen> {
                   Text(_maxPrice != null ? '\$${_maxPrice!.toInt()}' : 'Any'),
                 ],
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Action Buttons
               Row(
                 children: [
@@ -877,7 +993,8 @@ class _CourseListScreenState extends State<CourseListScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onPrimary,
                       ),
                       child: const Text('Apply Filters'),
                     ),

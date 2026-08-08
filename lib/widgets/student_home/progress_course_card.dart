@@ -26,6 +26,7 @@ class _ProgressCourseCardState extends State<ProgressCourseCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -41,13 +42,13 @@ class _ProgressCourseCardState extends State<ProgressCourseCard> {
             color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: theme.colorScheme.outlineVariant.withOpacity(0.5),
+              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
             ),
             boxShadow: [
               BoxShadow(
                 color: _isHovered 
-                    ? theme.colorScheme.primary.withOpacity(0.15)
-                    : theme.shadowColor.withOpacity(0.05),
+                    ? colorScheme.primary.withValues(alpha: 0.15)
+                    : theme.shadowColor.withValues(alpha: 0.05),
                 blurRadius: _isHovered ? 20 : 15,
                 offset: Offset(0, _isHovered ? 10 : 5),
               ),
@@ -61,7 +62,7 @@ class _ProgressCourseCardState extends State<ProgressCourseCard> {
                 height: 80,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  color: theme.colorScheme.surfaceVariant,
+                  color: colorScheme.surfaceContainerHighest,
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: widget.thumbnailUrl.isNotEmpty
@@ -125,7 +126,7 @@ class _ProgressCourseCardState extends State<ProgressCourseCard> {
                       height: 8,
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+                        color: colorScheme.primaryContainer.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: FractionallySizedBox(
@@ -133,9 +134,7 @@ class _ProgressCourseCardState extends State<ProgressCourseCard> {
                         widthFactor: widget.progressPercent.clamp(0.0, 1.0),
                         child: Container(
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF10B981), Color(0xFF14B8A6)],
-                            ),
+                            color: colorScheme.secondary,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),

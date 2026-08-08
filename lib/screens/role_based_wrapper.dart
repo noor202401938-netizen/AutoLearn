@@ -11,7 +11,8 @@ class RoleBasedWrapper extends StatefulWidget {
   State<RoleBasedWrapper> createState() => _RoleBasedWrapperState();
 }
 
-class _RoleBasedWrapperState extends State<RoleBasedWrapper> with SingleTickerProviderStateMixin {
+class _RoleBasedWrapperState extends State<RoleBasedWrapper>
+    with SingleTickerProviderStateMixin {
   final AuthRepository _authRepository = AuthRepository();
   String? _role;
   bool _isLoading = true;
@@ -70,7 +71,8 @@ class _RoleBasedWrapperState extends State<RoleBasedWrapper> with SingleTickerPr
     );
   }
 
-  Widget _buildContent(BuildContext context, ColorScheme colorScheme, bool isDark) {
+  Widget _buildContent(
+      BuildContext context, ColorScheme colorScheme, bool isDark) {
     final theme = Theme.of(context);
     if (_isLoading) {
       return Scaffold(
@@ -81,9 +83,9 @@ class _RoleBasedWrapperState extends State<RoleBasedWrapper> with SingleTickerPr
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.1),
+                  color: colorScheme.primaryContainer,
                   shape: BoxShape.circle,
                 ),
                 child: CircularProgressIndicator(

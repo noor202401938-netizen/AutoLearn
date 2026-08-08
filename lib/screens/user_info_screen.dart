@@ -11,7 +11,7 @@ class UserInfoPage extends StatefulWidget {
 
 class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  
+
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
 
@@ -47,10 +47,10 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 800),
     );
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
     _animationController.forward();
   }
@@ -67,6 +67,7 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
+    final colorScheme = Theme.of(context).colorScheme;
 
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -87,9 +88,9 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
                 Expanded(child: Text('Information saved! Please sign up to continue.', style: Theme.of(context).textTheme.bodyMedium)),
               ],
             ),
-            backgroundColor: const Color(0xFF00724e),
+            backgroundColor: colorScheme.secondary,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             margin: const EdgeInsets.all(16),
           ),
         );
@@ -128,15 +129,15 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
         labelText: labelText,
         labelStyle: GoogleFonts.inter(color: colorScheme.onSurfaceVariant),
         hintText: hintText,
-        hintStyle: GoogleFonts.inter(color: colorScheme.onSurfaceVariant.withOpacity(0.5)),
+        hintStyle: GoogleFonts.inter(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
         prefixIcon: Icon(prefixIcon, color: colorScheme.primary),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).dividerColor),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).dividerColor),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -158,7 +159,7 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
   }) {
     final colorScheme = Theme.of(context).colorScheme;
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
       dropdownColor: colorScheme.surface,
       style: Theme.of(context).textTheme.bodyMedium,
       decoration: InputDecoration(
@@ -167,11 +168,11 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
         prefixIcon: Icon(prefixIcon, color: colorScheme.primary),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).dividerColor),
+          borderSide: BorderSide(color: colorScheme.outline),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).dividerColor),
+          borderSide: BorderSide(color: colorScheme.outline),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -198,43 +199,38 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
+            constraints: const BoxConstraints(maxWidth: 520),
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
               child: FadeTransition(
                 opacity: _fadeAnimation,
                 child: Column(
                   children: [
-                    // Logo
-                    Hero(
-                      tag: 'app_logo',
-                      child: Container(
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: colorScheme.primary.withOpacity(0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.person_add_rounded,
-                          size: 60,
-                          color: colorScheme.primary,
-                        ),
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primaryContainer,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.person_add_rounded,
+                        size: 48,
+                        color: colorScheme.primary,
                       ),
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 32),
 
-                    // Glassmorphic Card Container
                     Container(
-                      padding: const EdgeInsets.all(40),
+                      padding: const EdgeInsets.all(32),
                       decoration: BoxDecoration(
-                        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+                        color: colorScheme.surface,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: colorScheme.outlineVariant),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-                            blurRadius: 40,
-                            offset: const Offset(0, 20),
+                            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.04),
+                            blurRadius: 24,
+                            offset: const Offset(0, 8),
                           ),
                         ],
                       ),
@@ -246,7 +242,7 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
                             Text(
                               "Tell Us About Yourself",
                               textAlign: TextAlign.center,
-                              style: theme.textTheme.titleMedium,
+                              style: theme.textTheme.headlineSmall,
                             ),
                             const SizedBox(height: 8),
                             Text(
@@ -254,9 +250,8 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
                               textAlign: TextAlign.center,
                               style: theme.textTheme.bodyMedium,
                             ),
-                            const SizedBox(height: 32),
+                            const SizedBox(height: 28),
 
-                            // Full Name
                             _buildTextField(
                               controller: _nameController,
                               labelText: "Full Name",
@@ -271,7 +266,6 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
                             ),
                             const SizedBox(height: 16),
 
-                            // Phone Number (Optional)
                             _buildTextField(
                               controller: _phoneController,
                               keyboardType: TextInputType.phone,
@@ -281,7 +275,6 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
                             ),
                             const SizedBox(height: 16),
 
-                            // Education Level Dropdown
                             _buildDropdown(
                               value: _selectedGrade,
                               labelText: "Education Level",
@@ -293,7 +286,6 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
                             ),
                             const SizedBox(height: 16),
 
-                            // Interest Dropdown
                             _buildDropdown(
                               value: _selectedInterest,
                               labelText: "Primary Interest",
@@ -303,34 +295,35 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
                                 setState(() => _selectedInterest = value!);
                               },
                             ),
-                            const SizedBox(height: 32),
+                            const SizedBox(height: 28),
 
-                            // Continue Button
                             _isLoading
                                 ? Center(
                                     child: CircularProgressIndicator(color: colorScheme.primary),
                                   )
                                 : SizedBox(
-                                    height: 56,
+                                    height: 52,
                                     child: ElevatedButton(
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: colorScheme.primary,
                                         foregroundColor: colorScheme.onPrimary,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(14),
                                         ),
                                         elevation: 0,
                                       ),
                                       onPressed: _saveUserInfo,
                                       child: Text(
                                         "Continue",
-                                        style: theme.textTheme.bodyMedium,
+                                        style: theme.textTheme.labelLarge?.copyWith(
+                                          color: colorScheme.onPrimary,
+                                          fontSize: 15,
+                                        ),
                                       ),
                                     ),
                                   ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 12),
 
-                            // Skip Button
                             TextButton(
                               onPressed: () async {
                                 final prefs = await SharedPreferences.getInstance();
@@ -341,12 +334,13 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
                               },
                               child: Text(
                                 "Skip for now",
-                                style: theme.textTheme.bodyMedium,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 8),
 
-                            // Already have account link
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -362,7 +356,12 @@ class _UserInfoPageState extends State<UserInfoPage> with SingleTickerProviderSt
                                       Navigator.pushReplacementNamed(context, '/login');
                                     }
                                   },
-                                  child: Text("Login", style: theme.textTheme.bodyMedium),
+                                  child: Text(
+                                    "Login",
+                                    style: theme.textTheme.labelLarge?.copyWith(
+                                      color: colorScheme.primary,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),

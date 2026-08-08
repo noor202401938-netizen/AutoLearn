@@ -6,7 +6,8 @@ class AdminAnnouncementsScreen extends StatefulWidget {
   const AdminAnnouncementsScreen({super.key});
 
   @override
-  State<AdminAnnouncementsScreen> createState() => _AdminAnnouncementsScreenState();
+  State<AdminAnnouncementsScreen> createState() =>
+      _AdminAnnouncementsScreenState();
 }
 
 class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
@@ -30,7 +31,9 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
         setState(() {
           _broadcasts = broadcasts;
           _totalSent = broadcasts.length;
-          _avgOpenRate = broadcasts.isEmpty ? 0.0 : 0.942; // Mocking open rate as it's typically not returned as a list simple stat
+          _avgOpenRate = broadcasts.isEmpty
+              ? 0.0
+              : 0.942; // Mocking open rate as it's typically not returned as a list simple stat
           _isLoading = false;
         });
       }
@@ -45,7 +48,6 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -75,11 +77,16 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: _buildStatCard(context, 'Total Sent', '$_totalSent', colorScheme.primary),
+                    child: _buildStatCard(context, 'Total Sent', '$_totalSent',
+                        colorScheme.primary),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: _buildStatCard(context, 'Avg. Open Rate', '${(_avgOpenRate * 100).toStringAsFixed(1)}%', const Color(0xFF00724e)),
+                    child: _buildStatCard(
+                        context,
+                        'Avg. Open Rate',
+                        '${(_avgOpenRate * 100).toStringAsFixed(1)}%',
+                        colorScheme.secondary),
                   ),
                 ],
               ),
@@ -90,7 +97,8 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.all(32.0),
-                    child: Text('No announcements found', style: theme.textTheme.bodyMedium),
+                    child: Text('No announcements found',
+                        style: theme.textTheme.bodyMedium),
                   ),
                 )
               else
@@ -105,9 +113,9 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
                       date = DateFormat('MMM dd, HH:mm').format(dt);
                     } catch (_) {}
                   }
-                  
+
                   final isScheduled = broadcast['status'] == 'scheduled';
-                  
+
                   if (isScheduled) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 16.0),
@@ -128,8 +136,9 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
                         date: date,
                         status: 'Sent',
                         statusIcon: Icons.check_circle,
-                        statusColor: const Color(0xFF005236),
-                        statusBg: const Color(0xFF4edea3).withOpacity(0.2),
+                        statusColor: colorScheme.onSecondaryContainer,
+                        statusBg: colorScheme.secondaryContainer
+                            .withValues(alpha: 0.2),
                         delivered: '${broadcast['delivered'] ?? '1,240'}',
                         opened: '${broadcast['opened'] ?? '1,102'}',
                       ),
@@ -145,7 +154,8 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
     );
   }
 
-  Widget _buildStatCard(BuildContext context, String label, String value, Color valueColor) {
+  Widget _buildStatCard(
+      BuildContext context, String label, String value, Color valueColor) {
     final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -153,12 +163,15 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
+        color: isDark
+            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+            : colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+        border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.2 : 0.02),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           )
@@ -200,9 +213,12 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
+        color: isDark
+            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+            : colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+        border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,7 +227,8 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
                   color: statusBg,
                   borderRadius: BorderRadius.circular(24),
@@ -246,7 +263,9 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 16),
-          Divider(height: 1, color: colorScheme.outlineVariant.withOpacity(0.5)),
+          Divider(
+              height: 1,
+              color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -268,7 +287,8 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
               Expanded(
                 child: Row(
                   children: [
-                    Icon(Icons.visibility, color: colorScheme.outline, size: 20),
+                    Icon(Icons.visibility,
+                        color: colorScheme.outline, size: 20),
                     const SizedBox(width: 8),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,9 +320,12 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
+        color: isDark
+            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+            : colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.3)),
+        border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -311,14 +334,15 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFe9ddff),
+                  color: colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.schedule, size: 14, color: Color(0xFF5516be)),
+                    Icon(Icons.schedule, size: 14, color: colorScheme.primary),
                     const SizedBox(width: 4),
                     Text(
                       'Scheduled',
@@ -346,7 +370,9 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 16),
-          Divider(height: 1, color: colorScheme.outlineVariant.withOpacity(0.5)),
+          Divider(
+              height: 1,
+              color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -363,7 +389,8 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
                       'Edit',
                       style: theme.textTheme.bodyMedium,
                     ),
-                    Icon(Icons.chevron_right, size: 18, color: colorScheme.primary),
+                    Icon(Icons.chevron_right,
+                        size: 18, color: colorScheme.primary),
                   ],
                 ),
               )

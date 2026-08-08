@@ -12,22 +12,27 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
+  late Animation<double> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1200),
     )..forward();
-    
+
     _scaleAnimation = CurvedAnimation(
       parent: _controller,
       curve: Curves.easeOutBack,
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: const Interval(0.2, 1.0, curve: Curves.easeIn)),
+      CurvedAnimation(parent: _controller, curve: const Interval(0.15, 0.65, curve: Curves.easeOut)),
+    );
+
+    _slideAnimation = Tween<double>(begin: 30.0, end: 0.0).animate(
+      CurvedAnimation(parent: _controller, curve: const Interval(0.25, 0.75, curve: Curves.easeOutCubic)),
     );
   }
 
@@ -50,9 +55,9 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -65,36 +70,26 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
                 children: [
                   const Spacer(flex: 2),
 
-                  // Animated Logo
                   ScaleTransition(
                     scale: _scaleAnimation,
                     child: Container(
-                      width: 120,
-                      height: 120,
-                      alignment: Alignment.center,
+                      width: 96,
+                      height: 96,
                       decoration: BoxDecoration(
-                        color: colorScheme.primary.withOpacity(0.1),
+                        color: colorScheme.primary,
                         shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: colorScheme.primary.withValues(alpha: 0.35),
+                            blurRadius: 32,
+                            offset: const Offset(0, 12),
+                          ),
+                        ],
                       ),
-                      child: Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: colorScheme.primary,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: colorScheme.primary.withOpacity(0.3),
-                              blurRadius: 24,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                        ),
-                        child: Icon(
-                          Icons.school_rounded,
-                          size: 40,
-                          color: colorScheme.onPrimary,
-                        ),
+                      child: Icon(
+                        Icons.school_rounded,
+                        size: 44,
+                        color: colorScheme.onPrimary,
                       ),
                     ),
                   ),
@@ -103,69 +98,89 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
 
                   FadeTransition(
                     opacity: _fadeAnimation,
-                    child: Column(
-                      children: [
-                        // Welcome Text
-                        Text(
-                          'Welcome to\nAutoLearn',
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.displayLarge?.copyWith(
-                            fontSize: 48,
+                    child: AnimatedBuilder(
+                      animation: _slideAnimation,
+                      builder: (context, child) {
+                        return Transform.translate(
+                          offset: Offset(0, _slideAnimation.value),
+                          child: child,
+                        );
+                      },
+                      child: Column(
+                        children: [
+                          Text(
+                            'Welcome to\nAutoLearn',
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.displayLarge,
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Unlock your potential with personalized, AI-powered learning paths designed just for you.',
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.bodyLarge,
-                        ),
-                      ],
+                          const SizedBox(height: 20),
+                          Text(
+                            'Unlock your potential with personalized, AI-powered learning paths designed just for you.',
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 
                   const Spacer(flex: 3),
 
-                  // Get Started Button
                   FadeTransition(
                     opacity: _fadeAnimation,
-                    child: Container(
-                      height: 64,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(32),
-                        gradient: LinearGradient(
-                          colors: [colorScheme.primary, colorScheme.secondary],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: colorScheme.primary.withOpacity(0.2),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
+                    child: AnimatedBuilder(
+                      animation: _slideAnimation,
+                      builder: (context, child) {
+                        return Transform.translate(
+                          offset: Offset(0, _slideAnimation.value * 0.5),
+                          child: child,
+                        );
+                      },
+                      child: Container(
+                        height: 56,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          gradient: LinearGradient(
+                            colors: [colorScheme.primary, colorScheme.tertiary],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
                           ),
-                        ],
-                      ),
-                      child: ElevatedButton(
-                        onPressed: () => _onGetStarted(context),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          foregroundColor: colorScheme.onPrimary,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(32),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Get Started",
-                              style: theme.textTheme.labelLarge?.copyWith(fontSize: 18, color: colorScheme.onPrimary),
+                          boxShadow: [
+                            BoxShadow(
+                              color: colorScheme.primary.withValues(alpha: 0.3),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
                             ),
-                            const SizedBox(width: 12),
-                            const Icon(Icons.arrow_forward_rounded, size: 24),
                           ],
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () => _onGetStarted(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            foregroundColor: colorScheme.onPrimary,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Get Started",
+                                style: theme.textTheme.labelLarge?.copyWith(
+                                  fontSize: 16,
+                                  color: colorScheme.onPrimary,
+                                  letterSpacing: 0.32,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              const Icon(Icons.arrow_forward_rounded, size: 20),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -180,4 +195,3 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
     );
   }
 }
-

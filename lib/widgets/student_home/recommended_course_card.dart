@@ -28,6 +28,7 @@ class _RecommendedCourseCardState extends State<RecommendedCourseCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -43,13 +44,13 @@ class _RecommendedCourseCardState extends State<RecommendedCourseCard> {
             color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: theme.colorScheme.outlineVariant.withOpacity(0.5),
+              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
             ),
             boxShadow: [
               BoxShadow(
                 color: _isHovered 
-                    ? theme.colorScheme.primary.withOpacity(0.15)
-                    : theme.shadowColor.withOpacity(0.05),
+                    ? colorScheme.primary.withValues(alpha: 0.15)
+                    : theme.shadowColor.withValues(alpha: 0.05),
                 blurRadius: _isHovered ? 20 : 15,
                 offset: Offset(0, _isHovered ? 10 : 5),
               ),
@@ -75,13 +76,13 @@ class _RecommendedCourseCardState extends State<RecommendedCourseCard> {
                               widget.thumbnailUrl,
                               fit: BoxFit.cover,
                               errorBuilder: (_, __, ___) => Container(
-                                color: theme.colorScheme.surfaceVariant,
+                                color: colorScheme.surfaceContainerHighest,
                                 child: const Icon(Icons.school, size: 60),
                               ),
                             ),
                           )
                         : Container(
-                            color: theme.colorScheme.surfaceVariant,
+                            color: colorScheme.surfaceContainerHighest,
                             child: const Icon(Icons.school, size: 60),
                           ),
                     if (widget.tag.isNotEmpty)
@@ -91,13 +92,13 @@ class _RecommendedCourseCardState extends State<RecommendedCourseCard> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.primary.withOpacity(0.9),
+                            color: colorScheme.primary.withValues(alpha: 0.9),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
                             widget.tag.toUpperCase(),
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: colorScheme.onPrimary,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 0.5,

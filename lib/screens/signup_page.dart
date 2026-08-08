@@ -9,13 +9,14 @@ class SignupPage extends StatefulWidget {
   State<SignupPage> createState() => _SignupPageState();
 }
 
-class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateMixin {
+class _SignupPageState extends State<SignupPage>
+    with SingleTickerProviderStateMixin {
   final AuthManager _authManager = AuthManager();
-  final UserRepository _userRepository = UserRepository();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   bool _isLoading = false;
@@ -94,7 +95,7 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
         ),
         backgroundColor: Theme.of(context).colorScheme.error,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
       ),
     );
@@ -104,9 +105,9 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      backgroundColor: colorScheme.surface,
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isDesktop = constraints.maxWidth > 800;
@@ -115,19 +116,20 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
             opacity: _fadeAnimation,
             child: Center(
               child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: isDesktop ? 60 : 20, vertical: 40),
+                padding: EdgeInsets.symmetric(
+                    horizontal: isDesktop ? 60 : 24, vertical: 40),
                 child: Container(
-                  constraints: const BoxConstraints(maxWidth: 480),
-                  padding: EdgeInsets.all(isDesktop ? 40 : 24),
+                  constraints: const BoxConstraints(maxWidth: 440),
+                  padding: EdgeInsets.all(isDesktop ? 40 : 28),
                   decoration: BoxDecoration(
                     color: colorScheme.surface,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: colorScheme.outlineVariant, width: 1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: colorScheme.outlineVariant),
                     boxShadow: [
                       BoxShadow(
-                        color: colorScheme.onSurface.withOpacity(0.05),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 24,
+                        offset: const Offset(0, 8),
                       ),
                     ],
                   ),
@@ -139,19 +141,20 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                       children: [
                         Center(
                           child: Container(
-                            padding: const EdgeInsets.all(12),
+                            padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
-                              color: colorScheme.primary.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
+                              color: colorScheme.primaryContainer,
+                              borderRadius: BorderRadius.circular(16),
                             ),
-                            child: Icon(Icons.school_rounded, size: 32, color: colorScheme.primary),
+                            child: Icon(Icons.school_rounded,
+                                size: 32, color: colorScheme.primary),
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 28),
                         Text(
                           "Create Account",
                           textAlign: TextAlign.center,
-                          style: theme.textTheme.headlineMedium,
+                          style: theme.textTheme.headlineSmall,
                         ),
                         const SizedBox(height: 8),
                         Text(
@@ -160,8 +163,6 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                           style: theme.textTheme.bodyMedium,
                         ),
                         const SizedBox(height: 32),
-
-                        // Name Field
                         TextFormField(
                           controller: _nameController,
                           decoration: const InputDecoration(
@@ -170,13 +171,12 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                             prefixIcon: Icon(Icons.person_outline),
                           ),
                           validator: (value) {
-                            if (value == null || value.isEmpty) return 'Please enter your name';
+                            if (value == null || value.isEmpty)
+                              return 'Please enter your name';
                             return null;
                           },
                         ),
                         const SizedBox(height: 16),
-
-                        // Email Field
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
@@ -186,14 +186,14 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                             prefixIcon: Icon(Icons.email_outlined),
                           ),
                           validator: (value) {
-                            if (value == null || value.isEmpty) return 'Please enter your email';
-                            if (!value.contains('@')) return 'Please enter a valid email';
+                            if (value == null || value.isEmpty)
+                              return 'Please enter your email';
+                            if (!value.contains('@'))
+                              return 'Please enter a valid email';
                             return null;
                           },
                         ),
                         const SizedBox(height: 16),
-
-                        // Password Field
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
@@ -203,24 +203,28 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                             prefixIcon: const Icon(Icons.lock_outline),
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                                color: colorScheme.outline,
+                                _obscurePassword
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
+                                color: colorScheme.onSurfaceVariant,
                               ),
-                              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                              onPressed: () => setState(
+                                  () => _obscurePassword = !_obscurePassword),
                             ),
                           ),
                           validator: (value) {
-                            if (value == null || value.isEmpty) return 'Please enter a password';
-                            if (value.length < 8) return 'Password must be at least 8 characters';
-                            if (!RegExp(r'^(?=.*[A-Za-z])(?=.*\d)').hasMatch(value)) {
+                            if (value == null || value.isEmpty)
+                              return 'Please enter a password';
+                            if (value.length < 8)
+                              return 'Password must be at least 8 characters';
+                            if (!RegExp(r'^(?=.*[A-Za-z])(?=.*\d)')
+                                .hasMatch(value)) {
                               return 'Password must be alphanumeric';
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: 16),
-
-                        // Confirm Password Field
                         TextFormField(
                           controller: _confirmPasswordController,
                           obscureText: _obscureConfirmPassword,
@@ -230,36 +234,44 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                             prefixIcon: const Icon(Icons.lock_outline),
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _obscureConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                                color: colorScheme.outline,
+                                _obscureConfirmPassword
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
+                                color: colorScheme.onSurfaceVariant,
                               ),
-                              onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+                              onPressed: () => setState(() =>
+                                  _obscureConfirmPassword =
+                                      !_obscureConfirmPassword),
                             ),
                           ),
                           validator: (value) {
-                            if (value == null || value.isEmpty) return 'Please confirm your password';
-                            if (value != _passwordController.text) return 'Passwords do not match';
+                            if (value == null || value.isEmpty)
+                              return 'Please confirm your password';
+                            if (value != _passwordController.text)
+                              return 'Passwords do not match';
                             return null;
                           },
                         ),
                         const SizedBox(height: 16),
-
-                        // Terms & Conditions
                         Row(
                           children: [
                             SizedBox(
-                              width: 24,
-                              height: 24,
+                              width: 22,
+                              height: 22,
                               child: Checkbox(
                                 value: _agreeToTerms,
-                                onChanged: (v) => setState(() => _agreeToTerms = v ?? false),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                                onChanged: (v) =>
+                                    setState(() => _agreeToTerms = v ?? false),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6)),
+                                activeColor: colorScheme.primary,
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: GestureDetector(
-                                onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
+                                onTap: () => setState(
+                                    () => _agreeToTerms = !_agreeToTerms),
                                 child: RichText(
                                   text: TextSpan(
                                     style: theme.textTheme.bodySmall,
@@ -280,44 +292,45 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                           ],
                         ),
                         const SizedBox(height: 24),
-
-                        // Sign Up Button with Gradient
                         _isLoading
                             ? const Center(child: CircularProgressIndicator())
-                            : Container(
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [colorScheme.primary, colorScheme.secondary],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
+                            : SizedBox(
+                                height: 52,
                                 child: ElevatedButton(
                                   onPressed: _registerUser,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.transparent,
-                                    shadowColor: Colors.transparent,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    backgroundColor: colorScheme.primary,
+                                    foregroundColor: colorScheme.onPrimary,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(14)),
+                                    elevation: 0,
                                   ),
-                                  child: const Text("Sign Up"),
+                                  child: Text(
+                                    "Sign Up",
+                                    style: theme.textTheme.labelLarge?.copyWith(
+                                      color: colorScheme.onPrimary,
+                                      fontSize: 15,
+                                    ),
+                                  ),
                                 ),
                               ),
-                        const SizedBox(height: 20),
-
-                        // Login Link
+                        const SizedBox(height: 24),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text("Already have an account? ", style: theme.textTheme.bodyMedium),
+                            Text("Already have an account? ",
+                                style: theme.textTheme.bodyMedium),
                             TextButton(
-                              onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
+                              onPressed: () => Navigator.pushReplacementNamed(
+                                  context, '/login'),
                               style: TextButton.styleFrom(
                                 padding: EdgeInsets.zero,
                                 minimumSize: const Size(0, 0),
                               ),
-                              child: Text("Sign in", style: theme.textTheme.labelLarge?.copyWith(color: colorScheme.primary)),
+                              child: Text("Sign in",
+                                  style: theme.textTheme.labelLarge
+                                      ?.copyWith(color: colorScheme.primary)),
                             ),
                           ],
                         ),
@@ -342,42 +355,44 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
                 Expanded(
                   flex: 6,
                   child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [colorScheme.primary.withOpacity(0.05), colorScheme.secondary.withOpacity(0.05)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
+                    color: colorScheme.surface,
                     child: Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(24),
+                            width: 96,
+                            height: 96,
                             decoration: BoxDecoration(
-                              color: colorScheme.surface,
+                              color: colorScheme.primary,
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: colorScheme.primary.withOpacity(0.1),
+                                  color: colorScheme.primary
+                                      .withValues(alpha: 0.3),
                                   blurRadius: 32,
-                                  offset: const Offset(0, 16),
+                                  offset: const Offset(0, 12),
                                 )
                               ],
                             ),
-                            child: Icon(Icons.school_rounded, size: 64, color: colorScheme.primary),
+                            child: Icon(Icons.school_rounded,
+                                size: 48, color: colorScheme.onPrimary),
                           ),
                           const SizedBox(height: 32),
                           Text(
                             "AutoLearn",
-                            style: theme.textTheme.displayLarge?.copyWith(color: colorScheme.primary),
+                            style: theme.textTheme.displayMedium
+                                ?.copyWith(color: colorScheme.primary),
                           ),
                           const SizedBox(height: 16),
-                          Text(
-                            "Create an account and start\nunlocking your potential today.",
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.bodyLarge,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 48),
+                            child: Text(
+                              "Create an account and start\nunlocking your potential today.",
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: colorScheme.onSurfaceVariant),
+                            ),
                           ),
                         ],
                       ),
@@ -394,4 +409,3 @@ class _SignupPageState extends State<SignupPage> with SingleTickerProviderStateM
     );
   }
 }
-

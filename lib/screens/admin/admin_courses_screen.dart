@@ -87,7 +87,10 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
               // Search Bar
               Container(
                 decoration: BoxDecoration(
-                  color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.3) : const Color(0xFFeff4ff),
+                  color: isDark
+                      ? colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.3)
+                      : colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: TextField(
@@ -97,7 +100,9 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
                         _applyFilter(_selectedFilter);
                       } else {
                         _filteredCourses = _allCourses
-                            .where((c) => c.title.toLowerCase().contains(value.toLowerCase()))
+                            .where((c) => c.title
+                                .toLowerCase()
+                                .contains(value.toLowerCase()))
                             .toList();
                       }
                     });
@@ -105,9 +110,11 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
                   decoration: InputDecoration(
                     hintText: 'Search courses...',
                     hintStyle: GoogleFonts.inter(color: colorScheme.outline),
-                    prefixIcon: Icon(Icons.search, color: colorScheme.onSurfaceVariant),
+                    prefixIcon:
+                        Icon(Icons.search, color: colorScheme.onSurfaceVariant),
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
                   ),
                 ),
               ),
@@ -132,7 +139,8 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
 
               // Courses List Grid for Desktop / List for Mobile
               if (_isLoading)
-                const Center(child: Padding(
+                const Center(
+                    child: Padding(
                   padding: EdgeInsets.all(32.0),
                   child: CircularProgressIndicator(),
                 ))
@@ -140,41 +148,43 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.all(32.0),
-                    child: Text('No courses found', style: theme.textTheme.bodyMedium),
+                    child: Text('No courses found',
+                        style: theme.textTheme.bodyMedium),
                   ),
                 )
               else
-                LayoutBuilder(
-                  builder: (context, constraints) {
-      final theme = Theme.of(context);
-                    final isDesktop = constraints.maxWidth > 800;
-                    return GridView.builder(
-                      itemCount: _filteredCourses.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: isDesktop ? 2 : 1,
-                        mainAxisSpacing: 16,
-                        crossAxisSpacing: 16,
-                        childAspectRatio: isDesktop ? 3 : 2.5,
-                      ),
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        final course = _filteredCourses[index];
-                        final isPublished = course.isPublished;
-                        return _buildCourseCard(
-                          context: context,
-                          title: course.title,
-                          status: isPublished ? 'PUBLISHED' : 'DRAFT',
-                          statusBg: isPublished ? const Color(0xFF6ffbbe) : const Color(0xFFe9ddff),
-                          statusColor: isPublished ? const Color(0xFF002113) : const Color(0xFF23005c),
-                          enrolled: '${course.enrollmentCount}',
-                          progress: isPublished ? 1.0 : 0.0,
-                          isDraft: !isPublished,
-                        );
-                      },
-                    );
-                  }
-                ),
+                LayoutBuilder(builder: (context, constraints) {
+                  final isDesktop = constraints.maxWidth > 800;
+                  return GridView.builder(
+                    itemCount: _filteredCourses.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: isDesktop ? 2 : 1,
+                      mainAxisSpacing: 16,
+                      crossAxisSpacing: 16,
+                      childAspectRatio: isDesktop ? 3 : 2.5,
+                    ),
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      final course = _filteredCourses[index];
+                      final isPublished = course.isPublished;
+                      return _buildCourseCard(
+                        context: context,
+                        title: course.title,
+                        status: isPublished ? 'PUBLISHED' : 'DRAFT',
+                        statusBg: isPublished
+                            ? colorScheme.secondaryContainer
+                            : colorScheme.primaryContainer,
+                        statusColor: isPublished
+                            ? colorScheme.onSecondaryContainer
+                            : colorScheme.onPrimaryContainer,
+                        enrolled: '${course.enrollmentCount}',
+                        progress: isPublished ? 1.0 : 0.0,
+                        isDraft: !isPublished,
+                      );
+                    },
+                  );
+                }),
 
               const SizedBox(height: 100), // Space for FAB/Nav
             ],
@@ -189,15 +199,22 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isSelected = _selectedFilter == label;
-    
+
     return GestureDetector(
       onTap: () => _applyFilter(label),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? colorScheme.primary : (isDark ? colorScheme.surfaceContainerHighest : Colors.white),
+          color: isSelected
+              ? colorScheme.primary
+              : (isDark
+                  ? colorScheme.surfaceContainerHighest
+                  : colorScheme.surface),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: isSelected ? colorScheme.primary : colorScheme.outlineVariant),
+          border: Border.all(
+              color: isSelected
+                  ? colorScheme.primary
+                  : colorScheme.outlineVariant),
         ),
         child: Text(
           label,
@@ -224,9 +241,12 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : Colors.white,
+        color: isDark
+            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+            : colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.5)),
+        border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Row(
         children: [
@@ -235,8 +255,11 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
             width: 100,
             height: double.infinity,
             decoration: BoxDecoration(
-              color: isDark ? colorScheme.surfaceContainer : const Color(0xFFd9e3f6),
-              borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
+              color: isDark
+                  ? colorScheme.surfaceContainer
+                  : colorScheme.primaryContainer,
+              borderRadius:
+                  const BorderRadius.horizontal(left: Radius.circular(16)),
             ),
             padding: const EdgeInsets.all(8),
             alignment: Alignment.topLeft,
@@ -272,7 +295,8 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(Icons.person, size: 14, color: colorScheme.onSurfaceVariant),
+                          Icon(Icons.person,
+                              size: 14, color: colorScheme.onSurfaceVariant),
                           const SizedBox(width: 4),
                           Text(
                             '$enrolled Enrolled',
@@ -286,13 +310,17 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
                     children: [
                       Expanded(
                         child: isDraft
-                            ? Text('Drafting in progress...', style: theme.textTheme.bodyMedium)
+                            ? Text('Drafting in progress...',
+                                style: theme.textTheme.bodyMedium)
                             : isArchived
-                                ? Text('Access Restricted', style: theme.textTheme.bodyMedium)
+                                ? Text('Access Restricted',
+                                    style: theme.textTheme.bodyMedium)
                                 : Container(
                                     height: 6,
                                     decoration: BoxDecoration(
-                                      color: isDark ? colorScheme.surfaceContainerHigh : const Color(0xFFe6eeff),
+                                      color: isDark
+                                          ? colorScheme.surfaceContainerHigh
+                                          : colorScheme.primaryContainer,
                                       borderRadius: BorderRadius.circular(3),
                                     ),
                                     child: FractionallySizedBox(
@@ -300,8 +328,9 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
                                       widthFactor: progress,
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          gradient: const LinearGradient(colors: [Color(0xFF4edea3), Color(0xFF00724e)]),
-                                          borderRadius: BorderRadius.circular(3),
+                                          color: colorScheme.secondary,
+                                          borderRadius:
+                                              BorderRadius.circular(3),
                                         ),
                                       ),
                                     ),

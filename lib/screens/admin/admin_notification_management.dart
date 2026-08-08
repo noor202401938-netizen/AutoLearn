@@ -6,15 +6,18 @@ class AdminNotificationManagement extends StatefulWidget {
   const AdminNotificationManagement({super.key});
 
   @override
-  State<AdminNotificationManagement> createState() => _AdminNotificationManagementState();
+  State<AdminNotificationManagement> createState() =>
+      _AdminNotificationManagementState();
 }
 
-class _AdminNotificationManagementState extends State<AdminNotificationManagement> {
-  final NotificationRepository _notificationRepository = NotificationRepository();
+class _AdminNotificationManagementState
+    extends State<AdminNotificationManagement> {
+  final NotificationRepository _notificationRepository =
+      NotificationRepository();
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _messageController = TextEditingController();
-  
+
   String _selectedType = 'system';
   bool _isSending = false;
   List<dynamic> _history = [];
@@ -58,10 +61,11 @@ class _AdminNotificationManagementState extends State<AdminNotificationManagemen
       );
 
       if (mounted) {
+        final colorScheme = Theme.of(context).colorScheme;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Broadcast notification sent successfully!'),
-            backgroundColor: Colors.green,
+            backgroundColor: colorScheme.secondary,
           ),
         );
         _titleController.clear();
@@ -73,10 +77,11 @@ class _AdminNotificationManagementState extends State<AdminNotificationManagemen
       }
     } catch (e) {
       if (mounted) {
+        final colorScheme = Theme.of(context).colorScheme;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to send broadcast: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: colorScheme.error,
           ),
         );
       }
@@ -98,7 +103,6 @@ class _AdminNotificationManagementState extends State<AdminNotificationManagemen
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -127,7 +131,9 @@ class _AdminNotificationManagementState extends State<AdminNotificationManagemen
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.5) : colorScheme.surfaceContainer,
+              color: isDark
+                  ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+                  : colorScheme.surfaceContainer,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: colorScheme.outlineVariant),
             ),
@@ -141,18 +147,22 @@ class _AdminNotificationManagementState extends State<AdminNotificationManagemen
                     style: TextStyle(color: colorScheme.onSurface),
                     decoration: InputDecoration(
                       labelText: 'Notification Title',
-                      labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+                      labelStyle:
+                          TextStyle(color: colorScheme.onSurfaceVariant),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: colorScheme.outlineVariant),
+                        borderSide:
+                            BorderSide(color: colorScheme.outlineVariant),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: colorScheme.outlineVariant),
+                        borderSide:
+                            BorderSide(color: colorScheme.outlineVariant),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+                        borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary),
                       ),
                     ),
                     validator: (value) {
@@ -169,19 +179,23 @@ class _AdminNotificationManagementState extends State<AdminNotificationManagemen
                     maxLines: 4,
                     decoration: InputDecoration(
                       labelText: 'Message Body',
-                      labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+                      labelStyle:
+                          TextStyle(color: colorScheme.onSurfaceVariant),
                       alignLabelWithHint: true,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: colorScheme.outlineVariant),
+                        borderSide:
+                            BorderSide(color: colorScheme.outlineVariant),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: colorScheme.outlineVariant),
+                        borderSide:
+                            BorderSide(color: colorScheme.outlineVariant),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+                        borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary),
                       ),
                     ),
                     validator: (value) {
@@ -193,26 +207,33 @@ class _AdminNotificationManagementState extends State<AdminNotificationManagemen
                   ),
                   const SizedBox(height: 20),
                   DropdownButtonFormField<String>(
-                    value: _selectedType,
+                    initialValue: _selectedType,
                     dropdownColor: Theme.of(context).colorScheme.surface,
                     style: TextStyle(color: colorScheme.onSurface),
                     decoration: InputDecoration(
                       labelText: 'Notification Type',
-                      labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+                      labelStyle:
+                          TextStyle(color: colorScheme.onSurfaceVariant),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: colorScheme.outlineVariant),
+                        borderSide:
+                            BorderSide(color: colorScheme.outlineVariant),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: colorScheme.outlineVariant),
+                        borderSide:
+                            BorderSide(color: colorScheme.outlineVariant),
                       ),
                     ),
                     items: const [
-                      DropdownMenuItem(value: 'system', child: Text('System Update')),
-                      DropdownMenuItem(value: 'alert', child: Text('Alert / Urgent')),
-                      DropdownMenuItem(value: 'course', child: Text('Course Update')),
-                      DropdownMenuItem(value: 'promotional', child: Text('Promotional')),
+                      DropdownMenuItem(
+                          value: 'system', child: Text('System Update')),
+                      DropdownMenuItem(
+                          value: 'alert', child: Text('Alert / Urgent')),
+                      DropdownMenuItem(
+                          value: 'course', child: Text('Course Update')),
+                      DropdownMenuItem(
+                          value: 'promotional', child: Text('Promotional')),
                     ],
                     onChanged: (value) {
                       if (value != null) {
@@ -229,17 +250,20 @@ class _AdminNotificationManagementState extends State<AdminNotificationManagemen
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onPrimary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                       onPressed: _isSending ? null : _sendBroadcastNotification,
                       child: _isSending
-                          ? const CircularProgressIndicator(color: Colors.white)
+                          ? CircularProgressIndicator(
+                              color: colorScheme.onPrimary)
                           : const Text(
                               'Send Broadcast to All Students',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                     ),
                   ),
@@ -272,16 +296,27 @@ class _AdminNotificationManagementState extends State<AdminNotificationManagemen
               itemBuilder: (context, index) {
                 final item = _history[index];
                 return Card(
-                  color: isDark ? colorScheme.surfaceContainerHighest.withOpacity(0.3) : colorScheme.surfaceContainerHigh,
+                  color: isDark
+                      ? colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.3)
+                      : colorScheme.surfaceContainerHigh,
                   margin: const EdgeInsets.only(bottom: 8),
                   child: ListTile(
-                    title: Text(item['title'] ?? 'No Title', style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold)),
+                    title: Text(item['title'] ?? 'No Title',
+                        style: TextStyle(
+                            color: colorScheme.onSurface,
+                            fontWeight: FontWeight.bold)),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(item['message'] ?? '', style: TextStyle(color: colorScheme.onSurfaceVariant)),
+                        Text(item['message'] ?? '',
+                            style:
+                                TextStyle(color: colorScheme.onSurfaceVariant)),
                         const SizedBox(height: 4),
-                        Text('Type: ${item['type']} | Sent: ${item['sentAt']}', style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12)),
+                        Text('Type: ${item['type']} | Sent: ${item['sentAt']}',
+                            style: TextStyle(
+                                color: colorScheme.onSurfaceVariant,
+                                fontSize: 12)),
                       ],
                     ),
                   ),

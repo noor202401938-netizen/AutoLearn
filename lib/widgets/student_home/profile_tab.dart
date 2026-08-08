@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../model/user_stats_model.dart';
 import '../../business_logic/auth_manager.dart';
-import '../../screens/student/edit_profile_screen.dart';
 import '../../screens/student/change_password_screen.dart';
 import '../../screens/notifications_panel.dart';
-import '../../screens/student/certificates_list_screen.dart';
 
 class ProfileTab extends StatefulWidget {
   final Map<String, dynamic>? userProfile;
@@ -83,35 +81,33 @@ class _ProfileTabState extends State<ProfileTab> {
   Color _getThemeColor(String theme, ColorScheme colorScheme) {
     switch (theme) {
       case 'tertiary':
-        return const Color(0xFF00573a);
+        return colorScheme.secondary;
       case 'secondary':
-        return const Color(0xFF6b38d4);
+        return colorScheme.primary;
       case 'primary':
-        return const Color(0xFF4231c0);
+        return colorScheme.primary;
       default:
         return colorScheme.primary;
     }
   }
 
-  Color _getThemeBgColor(String theme) {
+  Color _getThemeBgColor(String theme, ColorScheme colorScheme) {
     switch (theme) {
       case 'tertiary':
-        return const Color(0xFF6ffbbe); // tertiary-fixed
+        return colorScheme.secondaryContainer;
       case 'secondary':
-        return const Color(0xFFe9ddff); // secondary-fixed
+        return colorScheme.primaryContainer;
       case 'primary':
-        return const Color(0xFFe3dfff); // primary-fixed
+        return colorScheme.primaryContainer;
       default:
-        return const Color(0xFFe3dfff);
+        return colorScheme.primaryContainer;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
     final displayName = widget.userProfile?['displayName'] ?? 'Student';
-    
+
     return SingleChildScrollView(
       padding: const EdgeInsets.only(top: 24, left: 20, right: 20, bottom: 100),
       child: Center(
@@ -137,6 +133,7 @@ class _ProfileTabState extends State<ProfileTab> {
 
   Widget _buildProfileHeader(String displayName) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Column(
       children: [
         Stack(
@@ -147,10 +144,11 @@ class _ProfileTabState extends State<ProfileTab> {
               height: 128,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFe6eeff), width: 4),
+                border:
+                    Border.all(color: colorScheme.primaryContainer, width: 4),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   ),
@@ -159,10 +157,12 @@ class _ProfileTabState extends State<ProfileTab> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(64),
                 child: Container(
-                  color: const Color(0xFFe3dfff),
+                  color: colorScheme.primaryContainer,
                   child: Center(
                     child: Text(
-                      displayName.isNotEmpty ? displayName[0].toUpperCase() : 'U',
+                      displayName.isNotEmpty
+                          ? displayName[0].toUpperCase()
+                          : 'U',
                       style: theme.textTheme.titleMedium,
                     ),
                   ),
@@ -173,17 +173,14 @@ class _ProfileTabState extends State<ProfileTab> {
               bottom: -8,
               right: -8,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF5b4ed9), Color(0xFF6b38d4)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  color: colorScheme.primary,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
+                      color: Colors.black.withValues(alpha: 0.15),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -192,7 +189,8 @@ class _ProfileTabState extends State<ProfileTab> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.verified, color: Color(0xFFe2deff), size: 14),
+                    Icon(Icons.verified,
+                        color: colorScheme.onPrimary, size: 14),
                     const SizedBox(width: 4),
                     Text(
                       'Premium',
@@ -212,7 +210,8 @@ class _ProfileTabState extends State<ProfileTab> {
         const SizedBox(height: 4),
         Text(
           'Premium Learner • Level ${_userStats.level}',
-          style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          style: theme.textTheme.bodyLarge
+              ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
       ],
     );
@@ -220,6 +219,7 @@ class _ProfileTabState extends State<ProfileTab> {
 
   Widget _buildStatsGrid() {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Column(
       children: [
         // Points Earned full width card
@@ -227,12 +227,12 @@ class _ProfileTabState extends State<ProfileTab> {
           width: double.infinity,
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: const Color(0xFFffffff),
+            color: colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFc8c4d7)),
+            border: Border.all(color: colorScheme.outlineVariant),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF5b4ed9).withOpacity(0.05),
+                color: colorScheme.primary.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -246,9 +246,10 @@ class _ProfileTabState extends State<ProfileTab> {
                 children: [
                   Text(
                     'POINTS EARNED',
-                    style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    style: theme.textTheme.bodySmall
+                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   ),
-                  const Icon(Icons.stars, color: Color(0xFF6b38d4)),
+                  Icon(Icons.stars, color: colorScheme.primary),
                 ],
               ),
               const SizedBox(height: 12),
@@ -261,20 +262,18 @@ class _ProfileTabState extends State<ProfileTab> {
                 height: 8,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFd9e3f6),
+                  color: colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
-      final theme = Theme.of(context);
                     return Align(
                       alignment: Alignment.centerLeft,
                       child: Container(
-                        width: constraints.maxWidth * 0.75, // 75% hardcoded for layout, can be calculated
+                        width: constraints.maxWidth *
+                            0.75, // 75% hardcoded for layout, can be calculated
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF4edea3), Color(0xFF00724e)],
-                          ),
+                          color: colorScheme.secondary,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -285,7 +284,8 @@ class _ProfileTabState extends State<ProfileTab> {
               const SizedBox(height: 8),
               Text(
                 '${_userStats.pointsToNextLevel} pts until next level',
-                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
             ],
           ),
@@ -298,12 +298,12 @@ class _ProfileTabState extends State<ProfileTab> {
               child: Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFffffff),
+                  color: colorScheme.surface,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFc8c4d7)),
+                  border: Border.all(color: colorScheme.outlineVariant),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF5b4ed9).withOpacity(0.05),
+                      color: colorScheme.primary.withValues(alpha: 0.05),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -312,7 +312,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.school, color: Color(0xFF00573a)),
+                    Icon(Icons.school, color: colorScheme.secondary),
                     const SizedBox(height: 8),
                     Text(
                       '${_userStats.certificates}',
@@ -320,7 +320,8 @@ class _ProfileTabState extends State<ProfileTab> {
                     ),
                     Text(
                       'Certificates',
-                      style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.bodyMedium
+                          ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -331,12 +332,12 @@ class _ProfileTabState extends State<ProfileTab> {
               child: Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFffffff),
+                  color: colorScheme.surface,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFc8c4d7)),
+                  border: Border.all(color: colorScheme.outlineVariant),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF5b4ed9).withOpacity(0.05),
+                      color: colorScheme.primary.withValues(alpha: 0.05),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -345,7 +346,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.leaderboard, color: Color(0xFFba1a1a)),
+                    Icon(Icons.leaderboard, color: colorScheme.error),
                     const SizedBox(height: 8),
                     Text(
                       _userStats.globalRank,
@@ -353,7 +354,8 @@ class _ProfileTabState extends State<ProfileTab> {
                     ),
                     Text(
                       'Global Rank',
-                      style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.bodyMedium
+                          ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -367,6 +369,7 @@ class _ProfileTabState extends State<ProfileTab> {
 
   Widget _buildAchievementsSection() {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Column(
       children: [
         Row(
@@ -398,12 +401,12 @@ class _ProfileTabState extends State<ProfileTab> {
                 width: 160,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFffffff),
+                  color: colorScheme.surface,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFc8c4d7)),
+                  border: Border.all(color: colorScheme.outlineVariant),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF5b4ed9).withOpacity(0.05),
+                      color: colorScheme.primary.withValues(alpha: 0.05),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -416,12 +419,14 @@ class _ProfileTabState extends State<ProfileTab> {
                       width: 64,
                       height: 64,
                       decoration: BoxDecoration(
-                        color: _getThemeBgColor(achievement.colorTheme),
+                        color: _getThemeBgColor(achievement.colorTheme,
+                            Theme.of(context).colorScheme),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         _getIconData(achievement.icon),
-                        color: _getThemeColor(achievement.colorTheme, Theme.of(context).colorScheme),
+                        color: _getThemeColor(achievement.colorTheme,
+                            Theme.of(context).colorScheme),
                         size: 32,
                       ),
                     ),
@@ -434,7 +439,8 @@ class _ProfileTabState extends State<ProfileTab> {
                     const SizedBox(height: 4),
                     Text(
                       achievement.description,
-                      style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.bodyMedium
+                          ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -449,6 +455,7 @@ class _ProfileTabState extends State<ProfileTab> {
 
   Widget _buildSettingsList(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -461,9 +468,9 @@ class _ProfileTabState extends State<ProfileTab> {
         ),
         Container(
           decoration: BoxDecoration(
-            color: const Color(0xFFffffff),
+            color: colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFc8c4d7)),
+            border: Border.all(color: colorScheme.outlineVariant),
           ),
           child: Column(
             children: [
@@ -519,12 +526,15 @@ class _ProfileTabState extends State<ProfileTab> {
     required bool showBorder,
   }) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return InkWell(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          border: showBorder ? const Border(bottom: BorderSide(color: Color(0xFFc8c4d7))) : null,
+          border: showBorder
+              ? Border(bottom: BorderSide(color: colorScheme.outlineVariant))
+              : null,
         ),
         child: Row(
           children: [
@@ -532,10 +542,10 @@ class _ProfileTabState extends State<ProfileTab> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color(0xFFd9e3f6),
+                color: colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(icon, color: const Color(0xFF4231c0)),
+              child: Icon(icon, color: colorScheme.primary),
             ),
             const SizedBox(width: 24),
             Expanded(
@@ -548,12 +558,13 @@ class _ProfileTabState extends State<ProfileTab> {
                   ),
                   Text(
                     subtitle,
-                    style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Color(0xFF787586)),
+            Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
           ],
         ),
       ),
@@ -562,6 +573,7 @@ class _ProfileTabState extends State<ProfileTab> {
 
   Widget _buildSignOutButton(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return OutlinedButton(
       onPressed: () async {
         await _authManager.logout();
@@ -570,8 +582,8 @@ class _ProfileTabState extends State<ProfileTab> {
         }
       },
       style: OutlinedButton.styleFrom(
-        foregroundColor: const Color(0xFFba1a1a),
-        side: BorderSide(color: const Color(0xFFba1a1a).withOpacity(0.2)),
+        foregroundColor: colorScheme.error,
+        side: BorderSide(color: colorScheme.error.withValues(alpha: 0.2)),
         minimumSize: const Size(double.infinity, 56),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
