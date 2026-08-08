@@ -256,73 +256,57 @@ class _StudentHomeState extends State<StudentHome> {
         child: Stack(
           children: [
             const AmbientBackground(),
-            SafeArea(
-              child: Row(
-                children: [
-                  if (!isMobile) ...[
-                    NavigationRail(
-                      selectedIndex: _selectedIndex,
-                      onDestinationSelected: _onItemTapped,
-                      backgroundColor: Theme.of(context).colorScheme.surface,
-                      selectedIconTheme: IconThemeData(
-                          color: Theme.of(context).colorScheme.primary),
-                      unselectedIconTheme: IconThemeData(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.6)),
-                      selectedLabelTextStyle: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.bold),
-                      unselectedLabelTextStyle: TextStyle(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withValues(alpha: 0.6)),
-                      extended: MediaQuery.of(context).size.width >= 800,
-                      destinations: const [
-                        NavigationRailDestination(
-                          icon: Icon(Icons.home_outlined),
-                          selectedIcon: Icon(Icons.home),
-                          label: Text('Home'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.school_outlined),
-                          selectedIcon: Icon(Icons.school),
-                          label: Text('Courses'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.show_chart_outlined),
-                          selectedIcon: Icon(Icons.show_chart),
-                          label: Text('Progress'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.person_outline),
-                          selectedIcon: Icon(Icons.person),
-                          label: Text('Profile'),
-                        ),
-                      ],
-                    ),
-                    VerticalDivider(
-                        thickness: 1,
-                        width: 1,
-                        color: Theme.of(context).dividerColor),
-                  ],
-                  Expanded(
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 1200),
-                        child: _getSelectedScreen(),
-                      ),
-                    ),
+            Row(
+          children: [
+            if (!isMobile) ...[
+              NavigationRail(
+                selectedIndex: _selectedIndex,
+                onDestinationSelected: _onItemTapped,
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                selectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.primary),
+                unselectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+                selectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
+                unselectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+                extended: MediaQuery.of(context).size.width >= 800,
+                destinations: const [
+                  NavigationRailDestination(
+                    icon: Icon(Icons.home_outlined),
+                    selectedIcon: Icon(Icons.home),
+                    label: Text('Home'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.school_outlined),
+                    selectedIcon: Icon(Icons.school),
+                    label: Text('Courses'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.show_chart_outlined),
+                    selectedIcon: Icon(Icons.show_chart),
+                    label: Text('Progress'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.person_outline),
+                    selectedIcon: Icon(Icons.person),
+                    label: Text('Profile'),
                   ),
                 ],
+              ),
+              VerticalDivider(thickness: 1, width: 1, color: Theme.of(context).dividerColor),
+            ],
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1200),
+                  child: _getSelectedScreen(),
+                ),
               ),
             ),
           ],
         ),
-      ),
-    );
+      ],
+    ),
+  ),
+);
   }
 
   Widget _buildHomeScreen() {
