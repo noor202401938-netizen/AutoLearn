@@ -368,14 +368,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
             height: 160,
             width: double.infinity,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  colorScheme.primary.withValues(alpha: 0.1),
-                  colorScheme.surface.withValues(alpha: 0),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
+              color: colorScheme.primary.withValues(alpha: 0.04),
               border: Border(
                 bottom: BorderSide(color: colorScheme.outlineVariant),
               ),

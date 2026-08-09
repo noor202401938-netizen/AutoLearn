@@ -348,14 +348,14 @@ class _SignupPageState extends State<SignupPage>
                 Expanded(
                   flex: 5,
                   child: Container(
-                    color: colorScheme.surface,
+                    color: colorScheme.surfaceVariant,
                     child: formContent,
                   ),
                 ),
                 Expanded(
                   flex: 6,
                   child: Container(
-                    color: colorScheme.surface,
+                    color: colorScheme.primary,
                     child: Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -364,25 +364,24 @@ class _SignupPageState extends State<SignupPage>
                             width: 96,
                             height: 96,
                             decoration: BoxDecoration(
-                              color: colorScheme.primary,
+                              color: colorScheme.onPrimary,
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: colorScheme.primary
-                                      .withValues(alpha: 0.3),
+                                  color: Colors.black.withValues(alpha: 0.15),
                                   blurRadius: 32,
                                   offset: const Offset(0, 12),
                                 )
                               ],
                             ),
                             child: Icon(Icons.school_rounded,
-                                size: 48, color: colorScheme.onPrimary),
+                                size: 48, color: colorScheme.primary),
                           ),
                           const SizedBox(height: 32),
                           Text(
                             "AutoLearn",
                             style: theme.textTheme.displayMedium
-                                ?.copyWith(color: colorScheme.primary),
+                                ?.copyWith(color: colorScheme.onPrimary, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 16),
                           Padding(
@@ -391,7 +390,7 @@ class _SignupPageState extends State<SignupPage>
                               "Create an account and start\nunlocking your potential today.",
                               textAlign: TextAlign.center,
                               style: theme.textTheme.bodyLarge?.copyWith(
-                                  color: colorScheme.onSurfaceVariant),
+                                  color: colorScheme.onPrimary.withValues(alpha: 0.85)),
                             ),
                           ),
                         ],

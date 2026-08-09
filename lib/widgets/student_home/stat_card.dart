@@ -35,13 +35,13 @@ class _StatCardState extends State<StatCard> {
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+            color: theme.colorScheme.outlineVariant,
           ),
           boxShadow: [
             BoxShadow(
               color: _isHovered
                   ? theme.colorScheme.primary.withValues(alpha: 0.15)
-                  : theme.shadowColor.withValues(alpha: 0.05),
+                  : theme.shadowColor.withValues(alpha: 0.08),
               blurRadius: _isHovered ? 20 : 10,
               offset: Offset(0, _isHovered ? 10 : 4),
             ),

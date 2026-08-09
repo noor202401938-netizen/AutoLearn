@@ -45,14 +45,19 @@ class AITutorBanner extends StatelessWidget {
                 children: [
                   Text(
                     'Ask AI Tutor',
-                    style: theme.textTheme.titleMedium,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: colorScheme.onPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.6,
                     child: Text(
                       'Instant answers and personalized practice for your current modules.',
-                      style: theme.textTheme.bodyMedium,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onPrimary.withValues(alpha: 0.85),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -71,7 +76,10 @@ class AITutorBanner extends StatelessWidget {
                     ),
                     child: Text(
                       'Start Chat',
-                      style: theme.textTheme.bodyMedium,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],

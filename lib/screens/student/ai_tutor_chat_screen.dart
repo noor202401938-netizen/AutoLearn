@@ -6,11 +6,13 @@ import '../../repository/auth_repository.dart';
 class AITutorChatScreen extends StatefulWidget {
   final String? courseId;
   final String? lessonId;
+  final bool embedded;
 
   const AITutorChatScreen({
     super.key,
     this.courseId,
     this.lessonId,
+    this.embedded = false,
   });
 
   @override
@@ -152,6 +154,59 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final bodyContent = SafeArea(
+      child: _isLoading
+          ? Center(
+              child:
+                  CircularProgressIndicator(color: theme.colorScheme.primary))
+          : Stack(
+              children: [
+                Column(
+                  children: [
+                    Expanded(
+                      child: _messages.isEmpty
+                          ? _buildEmptyState()
+                          : ListView.builder(
+                              controller: _scrollController,
+                              padding: const EdgeInsets.only(
+                                left: 20,
+                                right: 20,
+                                top: 24,
+                                bottom: 160,
+                              ),
+                              itemCount: _messages.length,
+                              itemBuilder: (context, index) {
+                                if (index == 0) {
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      _buildContextHeader(),
+                                      const SizedBox(height: 24),
+                                      _buildMessageBubble(_messages[index]),
+                                    ],
+                                  );
+                                }
+                                return _buildMessageBubble(_messages[index]);
+                              },
+                            ),
+                    ),
+                  ],
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: _buildFloatingInputArea(),
+                ),
+              ],
+            ),
+    );
+
+    if (widget.embedded) {
+      return bodyContent;
+    }
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
@@ -185,54 +240,7 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: _isLoading
-            ? Center(
-                child:
-                    CircularProgressIndicator(color: theme.colorScheme.primary))
-            : Stack(
-                children: [
-                  Column(
-                    children: [
-                      Expanded(
-                        child: _messages.isEmpty
-                            ? _buildEmptyState()
-                            : ListView.builder(
-                                controller: _scrollController,
-                                padding: const EdgeInsets.only(
-                                  left: 20,
-                                  right: 20,
-                                  top: 24,
-                                  bottom: 160,
-                                ),
-                                itemCount: _messages.length,
-                                itemBuilder: (context, index) {
-                                  if (index == 0) {
-                                    return Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        _buildContextHeader(),
-                                        const SizedBox(height: 24),
-                                        _buildMessageBubble(_messages[index]),
-                                      ],
-                                    );
-                                  }
-                                  return _buildMessageBubble(_messages[index]);
-                                },
-                              ),
-                      ),
-                    ],
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: _buildFloatingInputArea(),
-                  ),
-                ],
-              ),
-      ),
+      body: bodyContent,
     );
   }
 

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
 
 class GradientBottomNav extends StatelessWidget {
   final int selectedIndex;
@@ -25,58 +24,53 @@ class GradientBottomNav extends StatelessWidget {
           top: BorderSide(color: colorScheme.outlineVariant, width: 1),
         ),
       ),
-      child: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: List.generate(menuItems.length, (index) {
-                  final isSelected = selectedIndex == index;
-                  final item = menuItems[index];
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(menuItems.length, (index) {
+              final isSelected = selectedIndex == index;
+              final item = menuItems[index];
 
-                  return GestureDetector(
-                    onTap: () => onItemSelected(index),
-                    behavior: HitTestBehavior.opaque,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeOutCubic,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: isSelected ? colorScheme.primaryContainer : Colors.transparent,
-                        borderRadius: BorderRadius.circular(24),
+              return GestureDetector(
+                onTap: () => onItemSelected(index),
+                behavior: HitTestBehavior.opaque,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeOutCubic,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isSelected ? colorScheme.primaryContainer : Colors.transparent,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        isSelected ? item['selectedIcon'] : item['icon'],
+                        color: isSelected
+                            ? colorScheme.primary
+                            : colorScheme.onSurfaceVariant,
+                        size: 22,
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            isSelected ? item['selectedIcon'] : item['icon'],
-                            color: isSelected
-                                ? colorScheme.primary
-                                : colorScheme.onSurfaceVariant,
-                            size: 22,
+                      if (isSelected) ...[
+                        const SizedBox(width: 8),
+                        Text(
+                          item['title'],
+                          style: TextStyle(
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                            letterSpacing: 0.26,
                           ),
-                          if (isSelected) ...[
-                            const SizedBox(width: 8),
-                            Text(
-                              item['title'],
-                              style: TextStyle(
-                                color: colorScheme.primary,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 13,
-                                letterSpacing: 0.26,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  );
-                }),
-              ),
-            ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              );
+            }),
           ),
         ),
       ),

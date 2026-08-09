@@ -44,13 +44,13 @@ class _RecommendedCourseCardState extends State<RecommendedCourseCard> {
             color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+              color: colorScheme.outlineVariant,
             ),
             boxShadow: [
               BoxShadow(
                 color: _isHovered 
                     ? colorScheme.primary.withValues(alpha: 0.15)
-                    : theme.shadowColor.withValues(alpha: 0.05),
+                    : theme.shadowColor.withValues(alpha: 0.08),
                 blurRadius: _isHovered ? 20 : 15,
                 offset: Offset(0, _isHovered ? 10 : 5),
               ),

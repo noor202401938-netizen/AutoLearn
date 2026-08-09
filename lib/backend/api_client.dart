@@ -14,14 +14,21 @@ class ApiClient {
 
   static String get baseUrl {
     assert(_defaultBaseUrl.isNotEmpty, 'API_BASE_URL is not set');
-    // If not local development and URL is HTTP, warn or upgrade to HTTPS
-    if (!_defaultBaseUrl.contains('localhost') && 
-        !_defaultBaseUrl.contains('127.0.0.1') && 
-        _defaultBaseUrl.startsWith('http://')) {
-      // Security enforcement: upgrading to https
-      return _defaultBaseUrl.replaceFirst('http://', 'https://');
+    String url = _defaultBaseUrl;
+
+    // Automatically append /api prefix if missing
+    if (!url.endsWith('/api') && !url.endsWith('/api/')) {
+      url = url.endsWith('/') ? '${url}api' : '$url/api';
     }
-    return _defaultBaseUrl;
+
+    // If not local development and URL is HTTP, warn or upgrade to HTTPS
+    if (!url.contains('localhost') && 
+        !url.contains('127.0.0.1') && 
+        url.startsWith('http://')) {
+      // Security enforcement: upgrading to https
+      return url.replaceFirst('http://', 'https://');
+    }
+    return url;
   }
 
   static const _storage = FlutterSecureStorage();

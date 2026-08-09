@@ -142,11 +142,7 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
                         height: 56,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
-                          gradient: LinearGradient(
-                            colors: [colorScheme.primary, colorScheme.tertiary],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          ),
+                          color: colorScheme.primary,
                           boxShadow: [
                             BoxShadow(
                               color: colorScheme.primary.withValues(alpha: 0.3),

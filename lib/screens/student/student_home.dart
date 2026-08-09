@@ -1,9 +1,9 @@
 // lib/screens/student/student_home.dart
 import 'package:flutter/material.dart';
-import 'dart:ui';
 import '../../repository/auth_repository.dart';
 import '../../repository/user_repository.dart';
 import 'ai_tutor_chat_screen.dart';
+import 'certificates_list_screen.dart';
 import '../../business_logic/recommendation_engine.dart';
 import '../../model/course_model.dart';
 import 'course_list_screen.dart';
@@ -18,7 +18,6 @@ import '../../widgets/student_home/recommended_course_card.dart';
 import '../../widgets/student_home/ambient_background.dart';
 
 import '../../widgets/student_home/profile_tab.dart';
-import '../../widgets/student_home/analytics_tab.dart';
 
 class StudentHome extends StatefulWidget {
   const StudentHome({super.key});
@@ -169,80 +168,88 @@ class _StudentHomeState extends State<StudentHome> {
       case 1:
         return _buildCoursesScreen();
       case 2:
-        return _buildProgressScreen();
+        return _buildLearningPathsScreen();
       case 3:
+        return const AITutorChatScreen(embedded: true);
+      case 4:
+        return const CertificatesListScreen(embedded: true);
+      case 5:
+        return _buildBookmarksScreen();
+      case 6:
+        return _buildAssignmentsScreen();
+      case 7:
+        return _buildCommunityScreen();
+      case 8:
         return _buildProfileScreen();
       default:
         return _buildHomeScreen();
     }
   }
 
+  Widget _buildLearningPathsScreen() {
+    return _buildPlaceholderScreen('Learning Paths', Icons.map_outlined);
+  }
+
+  Widget _buildBookmarksScreen() {
+    return _buildPlaceholderScreen('Bookmarks', Icons.bookmark_border_rounded);
+  }
+
+  Widget _buildAssignmentsScreen() {
+    return _buildPlaceholderScreen('Assignments', Icons.assignment_outlined);
+  }
+
+  Widget _buildCommunityScreen() {
+    return _buildPlaceholderScreen('Community', Icons.people_outline_rounded);
+  }
+
+  Widget _buildPlaceholderScreen(String title, IconData icon) {
+    final theme = Theme.of(context);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 80,
+              color: theme.colorScheme.primary.withValues(alpha: 0.15),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              title,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'This feature is coming soon to your AutoLearn study journey. Stay tuned!',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       extendBody: true,
-      appBar: AppBar(
-        title: Text(
-          'AutoLearn',
-          style: TextStyle(
-            fontWeight: FontWeight.w800,
-            color: Theme.of(context).colorScheme.primary,
-            letterSpacing: -1.0,
-          ),
-        ),
-        backgroundColor:
-            Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
-        elevation: 0,
-        flexibleSpace: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(color: Colors.transparent),
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              Theme.of(context).brightness == Brightness.light
-                  ? Icons.dark_mode_outlined
-                  : Icons.light_mode_outlined,
-            ),
-            onPressed: () {
-              final newTheme = Theme.of(context).brightness == Brightness.light
-                  ? 'dark'
-                  : 'light';
-              PreferenceNotifier.instance.updateTheme(newTheme);
-            },
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0, left: 8.0),
-            child: Center(
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    width: 2,
-                  ),
-                ),
-                child: CircleAvatar(
-                  backgroundColor:
-                      Theme.of(context).colorScheme.surfaceContainerHighest,
-                  child: Icon(Icons.person,
-                      color: Theme.of(context).colorScheme.primary),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+      appBar: null, // Completely removed top AppBar to merge action controls into the dashboard welcome card
       bottomNavigationBar: isMobile
           ? GradientBottomNav(
-              selectedIndex: _selectedIndex,
+              selectedIndex: _selectedIndex > 3 ? 0 : _selectedIndex,
               onItemSelected: _onItemTapped,
               menuItems: [
                 {
@@ -275,61 +282,190 @@ class _StudentHomeState extends State<StudentHome> {
             // Single AmbientBackground — only rendered once at the top level
             const AmbientBackground(),
             Row(
-          children: [
-            if (!isMobile) ...[
-              NavigationRail(
-                selectedIndex: _selectedIndex,
-                onDestinationSelected: _onItemTapped,
-                backgroundColor: Theme.of(context).colorScheme.surface,
-                selectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.primary),
-                 unselectedIconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
-                selectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
-                unselectedLabelTextStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
-                extended: MediaQuery.of(context).size.width >= 800,
-                destinations: const [
-                  NavigationRailDestination(
-                    icon: Icon(Icons.home_outlined),
-                    selectedIcon: Icon(Icons.home),
-                    label: Text('Home'),
+              children: [
+                if (!isMobile) _buildSidebar(colorScheme, theme),
+                Expanded(
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1200),
+                      child: SafeArea(
+                        child: _getSelectedScreen(),
+                      ),
+                    ),
                   ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.school_outlined),
-                    selectedIcon: Icon(Icons.school),
-                    label: Text('Courses'),
-                  ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.show_chart_outlined),
-                    selectedIcon: Icon(Icons.show_chart),
-                    label: Text('Progress'),
-                  ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.person_outline),
-                    selectedIcon: Icon(Icons.person),
-                    label: Text('Profile'),
-                  ),
-                ],
-              ),
-              VerticalDivider(thickness: 1, width: 1, color: Theme.of(context).dividerColor),
-            ],
-            Expanded(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1200),
-                  child: _getSelectedScreen(),
                 ),
-              ),
+              ],
             ),
           ],
         ),
-      ],
-    ),
-  ),
-);
+      ),
+    );
+  }
+
+  Widget _buildSidebar(ColorScheme colorScheme, ThemeData theme) {
+    final List<Map<String, dynamic>> menuItems = [
+      {'title': 'Dashboard', 'icon': Icons.dashboard_outlined, 'selectedIcon': Icons.dashboard},
+      {'title': 'My Courses', 'icon': Icons.school_outlined, 'selectedIcon': Icons.school},
+      {'title': 'Learning Paths', 'icon': Icons.map_outlined, 'selectedIcon': Icons.map},
+      {'title': 'AI Assistant', 'icon': Icons.smart_toy_outlined, 'selectedIcon': Icons.smart_toy},
+      {'title': 'Certificates', 'icon': Icons.workspace_premium_outlined, 'selectedIcon': Icons.workspace_premium},
+      {'title': 'Bookmarks', 'icon': Icons.bookmark_border_rounded, 'selectedIcon': Icons.bookmark},
+      {'title': 'Assignments', 'icon': Icons.assignment_outlined, 'selectedIcon': Icons.assignment},
+      {'title': 'Community', 'icon': Icons.people_outline_rounded, 'selectedIcon': Icons.people},
+      {'title': 'Settings', 'icon': Icons.settings_outlined, 'selectedIcon': Icons.settings},
+    ];
+
+    return Container(
+      width: 260,
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceVariant,
+        border: Border(
+          right: BorderSide(color: colorScheme.outline),
+        ),
+      ),
+      child: Column(
+        children: [
+          // Logo Header
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(Icons.school_rounded, color: colorScheme.primary, size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'AutoLearn',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.primary,
+                      fontSize: 18,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          // Navigation Menu List
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: menuItems.length,
+              itemBuilder: (context, index) {
+                final item = menuItems[index];
+                final isSelected = _selectedIndex == index;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        _selectedIndex = index;
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: isSelected ? colorScheme.primaryContainer : Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            isSelected ? item['selectedIcon'] : item['icon'],
+                            color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 16),
+                          Text(
+                            item['title'],
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              color: isSelected ? colorScheme.primary : colorScheme.onSurface,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          // Upgrade to Pro Card
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: colorScheme.outlineVariant),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  )
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Upgrade to Pro',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Unlock unlimited access to all courses and premium features.',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 38,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Action placeholder
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: colorScheme.onPrimary,
+                        padding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('Upgrade Now', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildHomeScreen() {
     final theme = Theme.of(context);
-    // Use 0 instead of magic numbers so users aren't misled when data hasn't loaded
+    final colorScheme = theme.colorScheme;
     final int streak = (_userProfile?['learningStreak'] as num?)?.toInt() ?? 0;
     final int completedCoursesCount =
         (_userProfile?['completedCoursesCount'] as num?)?.toInt() ?? 0;
@@ -342,40 +478,97 @@ class _StudentHomeState extends State<StudentHome> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Section
+          // Header Section with Merged Actions
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Welcome back, ',
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: theme.colorScheme.onSurface,
-                        letterSpacing: -1.0,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                'Welcome back, ',
+                                style: theme.textTheme.headlineMedium?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  color: theme.colorScheme.onSurface,
+                                  letterSpacing: -1.0,
+                                ),
+                              ),
+                              Expanded(child: _buildGreetingName()),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          if (streak > 0)
+                            Text(
+                              'You\'re on a $streak-day learning streak! Keep it up.',
+                              style: theme.textTheme.bodyMedium
+                                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                            )
+                          else
+                            Text(
+                              'Start learning today and build your streak!',
+                              style: theme.textTheme.bodyMedium
+                                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                            ),
+                        ],
                       ),
                     ),
-                    Expanded(child: _buildGreetingName()),
+                    
+                    // Merged Profile and Theme Controls
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            theme.brightness == Brightness.light
+                                ? Icons.dark_mode_outlined
+                                : Icons.light_mode_outlined,
+                          ),
+                          onPressed: () {
+                            final newTheme = theme.brightness == Brightness.light
+                                ? 'dark'
+                                : 'light';
+                            PreferenceNotifier.instance.updateTheme(newTheme);
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              _selectedIndex = 8; // Switches to the Settings/Profile tab
+                            });
+                          },
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: colorScheme.primaryContainer,
+                                width: 2,
+                              ),
+                            ),
+                            child: CircleAvatar(
+                              backgroundColor: colorScheme.surfaceContainerHighest,
+                              child: Icon(Icons.person, color: colorScheme.primary),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                if (streak > 0)
-                  Text(
-                    'You\'re on a $streak-day learning streak! Keep it up.',
-                    style: theme.textTheme.bodyMedium
-                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                  )
-                else
-                  Text(
-                    'Start learning today and build your streak!',
-                    style: theme.textTheme.bodyMedium
-                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                  ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
+                
                 // Stat Cards
                 GridView.count(
                   crossAxisCount:
@@ -418,12 +611,9 @@ class _StudentHomeState extends State<StudentHome> {
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
             child: AITutorBanner(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AITutorChatScreen(),
-                  ),
-                );
+                setState(() {
+                  _selectedIndex = 3;
+                });
               },
             ),
           ),
@@ -573,10 +763,6 @@ class _StudentHomeState extends State<StudentHome> {
   Widget _buildCoursesScreen() {
     // CourseListScreen is embedded — pass hideAppBar to avoid nested scaffold/appBar issues
     return const CourseListScreen(embedded: true);
-  }
-
-  Widget _buildProgressScreen() {
-    return const AnalyticsTab();
   }
 
   Widget _buildProfileScreen() {

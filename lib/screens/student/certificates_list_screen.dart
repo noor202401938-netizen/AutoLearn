@@ -5,7 +5,8 @@ import '../../model/certificate_model.dart';
 import 'certificate_screen.dart';
 
 class CertificatesListScreen extends StatefulWidget {
-  const CertificatesListScreen({super.key});
+  final bool embedded;
+  const CertificatesListScreen({super.key, this.embedded = false});
 
   @override
   State<CertificatesListScreen> createState() => _CertificatesListScreenState();
@@ -58,20 +59,33 @@ class _CertificatesListScreenState extends State<CertificatesListScreen> {
     final theme = Theme.of(context);
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.surface,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.help_outline, color: theme.colorScheme.onSurfaceVariant),
-            onPressed: () {},
-          )
-        ],
-      ),
+      appBar: widget.embedded
+          ? AppBar(
+              backgroundColor: theme.colorScheme.surface,
+              elevation: 0,
+              automaticallyImplyLeading: false,
+              title: Text(
+                'My Achievements',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+            )
+          : AppBar(
+              backgroundColor: theme.colorScheme.surface,
+              elevation: 0,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),
+                onPressed: () => Navigator.pop(context),
+              ),
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.help_outline, color: theme.colorScheme.onSurfaceVariant),
+                  onPressed: () {},
+                )
+              ],
+            ),
       body: SafeArea(
         child: _isLoading
             ? Center(child: CircularProgressIndicator(color: theme.colorScheme.primary))

@@ -408,9 +408,7 @@ class _StudentHomeState extends State<StudentHome> {
             padding: const EdgeInsets.all(3),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [colorScheme.primary, colorScheme.tertiary],
-              ),
+              color: colorScheme.primary,
             ),
             child: CircleAvatar(
               radius: 52,

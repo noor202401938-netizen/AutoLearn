@@ -357,7 +357,7 @@ class _LoginPageState extends State<LoginPage>
                 Expanded(
                   flex: 5,
                   child: Container(
-                    color: colorScheme.surface,
+                    color: colorScheme.surfaceVariant,
                     child: formContent,
                   ),
                 ),
@@ -365,7 +365,7 @@ class _LoginPageState extends State<LoginPage>
                   flex: 6,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: colorScheme.surface,
+                      color: colorScheme.primary,
                     ),
                     child: Center(
                       child: Column(
@@ -375,25 +375,24 @@ class _LoginPageState extends State<LoginPage>
                             width: 96,
                             height: 96,
                             decoration: BoxDecoration(
-                              color: colorScheme.primary,
+                              color: colorScheme.onPrimary,
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: colorScheme.primary
-                                      .withValues(alpha: 0.3),
+                                  color: Colors.black.withValues(alpha: 0.15),
                                   blurRadius: 32,
                                   offset: const Offset(0, 12),
                                 )
                               ],
                             ),
                             child: Icon(Icons.school_rounded,
-                                size: 48, color: colorScheme.onPrimary),
+                                size: 48, color: colorScheme.primary),
                           ),
                           const SizedBox(height: 32),
                           Text(
                             "AutoLearn",
                             style: theme.textTheme.displayMedium
-                                ?.copyWith(color: colorScheme.primary),
+                                ?.copyWith(color: colorScheme.onPrimary, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 16),
                           Padding(
@@ -402,7 +401,7 @@ class _LoginPageState extends State<LoginPage>
                               "Master the future with AI-driven\npersonalized learning paths.",
                               textAlign: TextAlign.center,
                               style: theme.textTheme.bodyLarge?.copyWith(
-                                  color: colorScheme.onSurfaceVariant),
+                                  color: colorScheme.onPrimary.withValues(alpha: 0.85)),
                             ),
                           ),
                         ],

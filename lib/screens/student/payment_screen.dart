@@ -74,6 +74,35 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
   }
 
+  Future<void> _paySandbox() async {
+    if (!mounted) return;
+    setState(() => _isProcessing = true);
+
+    try {
+      // Simulate network request delay
+      await Future.delayed(const Duration(seconds: 1));
+      await _paymentManager.confirmPaidForCourse(widget.courseId);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Sandbox payment approved successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.pop(context, true); // return success
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Sandbox payment enrollment failed: $e'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -150,7 +179,20 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     ),
                     child: _isProcessing
                         ? SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: theme.colorScheme.onPrimary, strokeWidth: 2))
-                        : Text('Pay Now', style: theme.textTheme.bodyLarge?.copyWith(fontSize: 16, fontWeight: FontWeight.bold)),
+                        : Text('Pay with Stripe', style: theme.textTheme.bodyLarge?.copyWith(fontSize: 16, fontWeight: FontWeight.bold, color: theme.colorScheme.onPrimary)),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: _isProcessing ? null : _paySandbox,
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      side: BorderSide(color: theme.colorScheme.primary),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                    child: Text('Sandbox Test Payment', style: theme.textTheme.bodyLarge?.copyWith(fontSize: 16, fontWeight: FontWeight.bold, color: theme.colorScheme.primary)),
                   ),
                 ),
               ],

@@ -487,14 +487,7 @@ class _ChartPainter extends CustomPainter {
     canvas.drawPath(path, paint);
 
     final fillPaint = Paint()
-      ..shader = LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [
-          colorScheme.primary.withValues(alpha: 0.2),
-          colorScheme.primary.withValues(alpha: 0.0),
-        ],
-      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
+      ..color = colorScheme.primary.withValues(alpha: 0.05)
       ..style = PaintingStyle.fill;
 
     final fillPath = Path.from(path);

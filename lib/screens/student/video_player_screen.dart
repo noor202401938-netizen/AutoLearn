@@ -88,12 +88,21 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             ?.seekTo(Duration(seconds: _progress!.currentPosition));
       }
 
-      _captions =
-          await widget.videoManager.getVideoCaptions(widget.lesson.videoURL!);
-      _aiSummary = await widget.videoManager.generateAISummary(
-        widget.lesson.videoURL!,
-        widget.lesson.title,
-      );
+      try {
+        _captions =
+            await widget.videoManager.getVideoCaptions(widget.lesson.videoURL!);
+      } catch (e) {
+        debugPrint('Failed to load captions: $e');
+      }
+
+      try {
+        _aiSummary = await widget.videoManager.generateAISummary(
+          widget.lesson.videoURL!,
+          widget.lesson.title,
+        );
+      } catch (e) {
+        debugPrint('Failed to generate AI summary: $e');
+      }
 
       _startProgressTracking();
 

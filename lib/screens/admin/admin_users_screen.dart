@@ -283,10 +283,10 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
             child: FractionallySizedBox(
               alignment: Alignment.centerLeft,
               widthFactor: progress,
-              child: Container(
+                child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(2),
-                  gradient: LinearGradient(colors: gradientColors),
+                  color: gradientColors.first,
                 ),
               ),
             ),
@@ -316,8 +316,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                 height: 2,
                 width: 24,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      colors: [colorScheme.primary, colorScheme.tertiary]),
+                  color: colorScheme.primary,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
