@@ -960,6 +960,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                   moduleTitle: module.title,
                   lesson: lesson,
                   videoManager: _videoManager,
+                  course: _course,
                 ))).then((_) => _loadCourseContent());
   }
 
