@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import Stripe from 'stripe';
 import { AuthenticatedRequest } from '../middleware/auth.middleware';
 import prisma from '../prisma';
@@ -35,6 +35,7 @@ export const createPaymentIntent = async (req: AuthenticatedRequest, res: Respon
     await prisma.payment.create({
       data: {
         userId,
+        courseId: courseId || null,
         amount: amount / 100.0, // amount is in cents, Prisma expects float
         currency: currency.toUpperCase(),
         status: 'pending',
@@ -65,6 +66,9 @@ export const getAllPayments = async (req: AuthenticatedRequest, res: Response): 
       include: {
         user: {
           select: { displayName: true, email: true },
+        },
+        course: {
+          select: { title: true },
         },
       },
       orderBy: { createdAt: 'desc' },
@@ -121,5 +125,78 @@ export const refundPayment = async (req: AuthenticatedRequest, res: Response): P
   } catch (error) {
     console.error('Refund payment error:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// POST /api/payments/webhook
+export const handleStripeWebhook = async (req: Request, res: Response): Promise<void> => {
+  const sig = req.headers['stripe-signature'];
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  let event: any;
+
+  try {
+    if (webhookSecret && sig) {
+      event = stripe.webhooks.constructEvent(req.body, sig as string, webhookSecret);
+    } else {
+      event = req.body;
+    }
+  } catch (err: any) {
+    console.error('Webhook signature verification failed:', err.message);
+    res.status(400).send(`Webhook Error: ${err.message}`);
+    return;
+  }
+
+  try {
+    switch (event.type) {
+      case 'payment_intent.succeeded': {
+        const paymentIntent = event.data.object;
+        const userId = paymentIntent.metadata?.userId;
+        const courseId = paymentIntent.metadata?.courseId;
+
+        await prisma.payment.updateMany({
+          where: { stripePiId: paymentIntent.id },
+          data: { status: 'succeeded' },
+        });
+
+        if (userId && courseId) {
+          await prisma.enrollment.upsert({
+            where: { userId_courseId: { userId, courseId } },
+            create: { userId, courseId, status: 'active' },
+            update: { status: 'active' },
+          });
+
+          await prisma.course.update({
+            where: { id: courseId },
+            data: { enrollmentCount: { increment: 1 } },
+          });
+
+          await prisma.notification.create({
+            data: {
+              userId,
+              title: 'Enrollment Confirmed',
+              message: 'Your payment was successful and you are now enrolled in the course.',
+              type: 'payment',
+            },
+          });
+        }
+        break;
+      }
+      case 'payment_intent.payment_failed': {
+        const paymentIntent = event.data.object;
+        await prisma.payment.updateMany({
+          where: { stripePiId: paymentIntent.id },
+          data: { status: 'failed' },
+        });
+        break;
+      }
+      default:
+        break;
+    }
+
+    res.status(200).json({ received: true });
+  } catch (error) {
+    console.error('Error handling webhook event:', error);
+    res.status(500).json({ error: 'Webhook handler failed' });
   }
 };
