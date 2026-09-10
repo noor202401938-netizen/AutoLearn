@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 class StatCard extends StatefulWidget {
   final IconData icon;
@@ -75,8 +76,8 @@ class _StatCardState extends State<StatCard> {
                   ),
                 ),
                 Icon(
-                  Icons.arrow_outward_rounded,
-                  size: 16,
+                  CupertinoIcons.arrow_up_right,
+                  size: 14,
                   color: _isHovered
                       ? colorScheme.primary
                       : colorScheme.onSurfaceVariant.withValues(alpha: 0.4),

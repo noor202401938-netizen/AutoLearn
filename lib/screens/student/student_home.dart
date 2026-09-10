@@ -1,5 +1,6 @@
 // lib/screens/student/student_home.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import '../../repository/auth_repository.dart';
 import '../../repository/user_repository.dart';
 import 'ai_tutor_chat_screen.dart';
@@ -254,23 +255,23 @@ class _StudentHomeState extends State<StudentHome> {
               menuItems: const [
                 {
                   'title': 'Home',
-                  'icon': Icons.space_dashboard_outlined,
-                  'selectedIcon': Icons.space_dashboard_rounded,
+                  'icon': CupertinoIcons.square_grid_2x2,
+                  'selectedIcon': CupertinoIcons.square_grid_2x2_fill,
                 },
                 {
                   'title': 'Courses',
-                  'icon': Icons.auto_stories_outlined,
-                  'selectedIcon': Icons.auto_stories_rounded,
+                  'icon': CupertinoIcons.book,
+                  'selectedIcon': CupertinoIcons.book_fill,
                 },
                 {
                   'title': 'Progress',
-                  'icon': Icons.insights_rounded,
-                  'selectedIcon': Icons.insights_rounded,
+                  'icon': CupertinoIcons.chart_bar_alt_fill,
+                  'selectedIcon': CupertinoIcons.chart_bar_alt_fill,
                 },
                 {
                   'title': 'Profile',
-                  'icon': Icons.person_outline_rounded,
-                  'selectedIcon': Icons.person_rounded,
+                  'icon': CupertinoIcons.person,
+                  'selectedIcon': CupertinoIcons.person_fill,
                 },
               ],
             )
@@ -304,15 +305,15 @@ class _StudentHomeState extends State<StudentHome> {
 
   Widget _buildSidebar(ColorScheme colorScheme, ThemeData theme) {
     const List<Map<String, dynamic>> menuItems = [
-      {'title': 'Dashboard', 'icon': Icons.space_dashboard_outlined, 'selectedIcon': Icons.space_dashboard_rounded},
-      {'title': 'My Courses', 'icon': Icons.auto_stories_outlined, 'selectedIcon': Icons.auto_stories_rounded},
-      {'title': 'Learning Paths', 'icon': Icons.explore_outlined, 'selectedIcon': Icons.explore_rounded},
-      {'title': 'AI Assistant', 'icon': Icons.auto_awesome_outlined, 'selectedIcon': Icons.auto_awesome_rounded},
-      {'title': 'Certificates', 'icon': Icons.workspace_premium_outlined, 'selectedIcon': Icons.workspace_premium_rounded},
-      {'title': 'Bookmarks', 'icon': Icons.bookmark_border_rounded, 'selectedIcon': Icons.bookmark_rounded},
-      {'title': 'Assignments', 'icon': Icons.fact_check_outlined, 'selectedIcon': Icons.fact_check_rounded},
-      {'title': 'Community', 'icon': Icons.forum_outlined, 'selectedIcon': Icons.forum_rounded},
-      {'title': 'Settings', 'icon': Icons.tune_rounded, 'selectedIcon': Icons.tune_rounded},
+      {'title': 'Dashboard', 'icon': CupertinoIcons.square_grid_2x2, 'selectedIcon': CupertinoIcons.square_grid_2x2_fill},
+      {'title': 'My Courses', 'icon': CupertinoIcons.book, 'selectedIcon': CupertinoIcons.book_fill},
+      {'title': 'Learning Paths', 'icon': CupertinoIcons.compass, 'selectedIcon': CupertinoIcons.compass_fill},
+      {'title': 'AI Assistant', 'icon': CupertinoIcons.sparkles, 'selectedIcon': CupertinoIcons.sparkles},
+      {'title': 'Certificates', 'icon': CupertinoIcons.rosette, 'selectedIcon': CupertinoIcons.rosette},
+      {'title': 'Bookmarks', 'icon': CupertinoIcons.bookmark, 'selectedIcon': CupertinoIcons.bookmark_fill},
+      {'title': 'Assignments', 'icon': CupertinoIcons.doc_checkmark, 'selectedIcon': CupertinoIcons.doc_checkmark_fill},
+      {'title': 'Community', 'icon': CupertinoIcons.chat_bubble_2, 'selectedIcon': CupertinoIcons.chat_bubble_2_fill},
+      {'title': 'Settings', 'icon': CupertinoIcons.slider_horizontal_3, 'selectedIcon': CupertinoIcons.slider_horizontal_3},
     ];
 
     return Container(
@@ -338,7 +339,7 @@ class _StudentHomeState extends State<StudentHome> {
                       color: colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(Icons.school_rounded, color: colorScheme.primary, size: 22),
+                    child: Icon(CupertinoIcons.lightbulb, color: colorScheme.primary, size: 20),
                   ),
                   const SizedBox(width: 12),
                   Text(
@@ -529,8 +530,9 @@ class _StudentHomeState extends State<StudentHome> {
                         IconButton(
                           icon: Icon(
                             theme.brightness == Brightness.light
-                                ? Icons.dark_mode_outlined
-                                : Icons.light_mode_outlined,
+                                ? CupertinoIcons.moon
+                                : CupertinoIcons.sun_max,
+                            size: 20,
                           ),
                           onPressed: () {
                             final newTheme = theme.brightness == Brightness.light
@@ -559,7 +561,7 @@ class _StudentHomeState extends State<StudentHome> {
                             ),
                             child: CircleAvatar(
                               backgroundColor: colorScheme.surfaceContainerHighest,
-                              child: Icon(Icons.person, color: colorScheme.primary),
+                              child: Icon(CupertinoIcons.person, color: colorScheme.primary, size: 18),
                             ),
                           ),
                         ),
@@ -580,23 +582,23 @@ class _StudentHomeState extends State<StudentHome> {
                   childAspectRatio: MediaQuery.of(context).size.width < 600 ? 1.4 : 1.5,
                   children: [
                     StatCard(
-                      icon: Icons.auto_stories_outlined,
+                      icon: CupertinoIcons.book,
                       value:
                           '${_enrolledCourses.length + completedCoursesCount}',
                       label: 'Enrolled',
                     ),
                     StatCard(
-                      icon: Icons.timer_outlined,
+                      icon: CupertinoIcons.time,
                       value: hoursLearned > 0 ? '${hoursLearned}h' : '0h',
                       label: 'Study Time',
                     ),
                     StatCard(
-                      icon: Icons.check_circle_outline_rounded,
+                      icon: CupertinoIcons.checkmark_seal,
                       value: '$completedCoursesCount',
                       label: 'Completed',
                     ),
                     StatCard(
-                      icon: Icons.workspace_premium_outlined,
+                      icon: CupertinoIcons.rosette,
                       value: '$certsCount',
                       label: 'Certificates',
                     ),

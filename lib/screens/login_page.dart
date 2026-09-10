@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import '../business_logic/auth_manager.dart';
 
 class LoginPage extends StatefulWidget {
@@ -211,8 +212,8 @@ class _LoginPageState extends State<LoginPage>
                       ),
                       child: Center(
                         child: Icon(
-                          Icons.school_outlined,
-                          size: 28,
+                          CupertinoIcons.book,
+                          size: 26,
                           color: colorScheme.primary,
                         ),
                       ),
@@ -242,7 +243,7 @@ class _LoginPageState extends State<LoginPage>
                     decoration: const InputDecoration(
                       labelText: "Email address",
                       hintText: "name@domain.com",
-                      prefixIcon: Icon(Icons.alternate_email_rounded, size: 20),
+                      prefixIcon: Icon(CupertinoIcons.mail, size: 18),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -261,13 +262,13 @@ class _LoginPageState extends State<LoginPage>
                     decoration: InputDecoration(
                       labelText: "Password",
                       hintText: "••••••••",
-                      prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20),
+                      prefixIcon: const Icon(CupertinoIcons.lock, size: 18),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          size: 20,
+                              ? CupertinoIcons.eye_slash
+                              : CupertinoIcons.eye,
+                          size: 18,
                           color: colorScheme.onSurfaceVariant,
                         ),
                         onPressed: () => setState(
@@ -456,8 +457,8 @@ class _LoginPageState extends State<LoginPage>
                         ),
                         child: Center(
                           child: Icon(
-                            Icons.school_rounded,
-                            size: 44,
+                            CupertinoIcons.book,
+                            size: 42,
                             color: colorScheme.primary,
                           ),
                         ),

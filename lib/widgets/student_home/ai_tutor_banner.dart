@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 class AITutorBanner extends StatefulWidget {
   final VoidCallback onTap;
@@ -55,7 +56,7 @@ class _AITutorBannerState extends State<AITutorBanner> {
                   child: Opacity(
                     opacity: 0.08,
                     child: Icon(
-                      Icons.auto_awesome,
+                      CupertinoIcons.sparkles,
                       size: 180,
                       color: colorScheme.onPrimary,
                     ),
@@ -81,7 +82,7 @@ class _AITutorBannerState extends State<AITutorBanner> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              Icons.auto_awesome,
+                              CupertinoIcons.sparkles,
                               size: 12,
                               color: colorScheme.onPrimary,
                             ),
@@ -151,8 +152,8 @@ class _AITutorBannerState extends State<AITutorBanner> {
                               offset: _isHovered ? const Offset(0.2, 0) : Offset.zero,
                               duration: const Duration(milliseconds: 200),
                               child: Icon(
-                                Icons.arrow_forward_rounded,
-                                size: 16,
+                                CupertinoIcons.arrow_right,
+                                size: 14,
                                 color: colorScheme.primary,
                               ),
                             ),

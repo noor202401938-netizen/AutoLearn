@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../../repository/user_repository.dart';
 import '../../business_logic/course_manager.dart';
 import '../../business_logic/payment_manager.dart';
@@ -106,9 +108,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       IconButton(
                         icon: Icon(
                           theme.brightness == Brightness.light
-                              ? Icons.dark_mode_outlined
-                              : Icons.light_mode_outlined,
+                              ? CupertinoIcons.moon
+                              : CupertinoIcons.sun_max,
                           color: theme.colorScheme.primary,
+                          size: 20,
                         ),
                         onPressed: () {
                           final newTheme = theme.brightness == Brightness.light
@@ -119,7 +122,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       ),
                       const SizedBox(width: 8),
                       IconButton(
-                        icon: Icon(Icons.notifications_none_rounded, color: theme.colorScheme.primary),
+                        icon: Icon(CupertinoIcons.bell, color: theme.colorScheme.primary, size: 20),
                         onPressed: () {
                           // Notification action placeholder
                         },
@@ -183,7 +186,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         padding: const EdgeInsets.only(bottom: 12.0),
                         child: _buildActivityItem(
                           context,
-                          icon: Icons.school,
+                          icon: CupertinoIcons.book,
                           iconColor: colorScheme.primary,
                           iconBg: colorScheme.primary.withValues(alpha: 0.1),
                           title: 'Course Updated',
@@ -198,7 +201,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         padding: const EdgeInsets.only(bottom: 12.0),
                         child: _buildActivityItem(
                           context,
-                          icon: Icons.person_add,
+                          icon: CupertinoIcons.person_crop_circle_badge_plus,
                           iconColor: colorScheme.secondary,
                           iconBg: colorScheme.secondary.withValues(alpha: 0.1),
                           title: 'New Member',
@@ -242,7 +245,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                           color: colorScheme.primaryContainer,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Icon(Icons.account_balance_wallet_outlined,
+                        child: Icon(CupertinoIcons.arrow_up_right_circle,
                             size: 18, color: colorScheme.primary),
                       ),
                       const SizedBox(width: 10),
@@ -276,7 +279,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.trending_up_rounded,
+                    Icon(CupertinoIcons.graph_circle,
                         size: 14, color: colorScheme.primary),
                     const SizedBox(width: 4),
                     Text(
@@ -292,13 +295,111 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          // Clean Minimalist Line Chart
+          const SizedBox(height: 24),
+          // Clean Minimalist Line Area Chart using fl_chart
           SizedBox(
-            height: 100,
+            height: 110,
             width: double.infinity,
-            child: CustomPaint(
-              painter: _ChartPainter(colorScheme: colorScheme),
+            child: LineChart(
+              LineChartData(
+                gridData: const FlGridData(show: false),
+                titlesData: FlTitlesData(
+                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 22,
+                      interval: 1,
+                      getTitlesWidget: (value, meta) {
+                        const style = TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black38,
+                        );
+                        switch (value.toInt()) {
+                          case 0:
+                            return const Text('Mon', style: style);
+                          case 2:
+                            return const Text('Wed', style: style);
+                          case 4:
+                            return const Text('Fri', style: style);
+                          case 6:
+                            return const Text('Sun', style: style);
+                          default:
+                            return const Text('');
+                        }
+                      },
+                    ),
+                  ),
+                ),
+                borderData: FlBorderData(show: false),
+                minX: 0,
+                maxX: 6,
+                minY: 0,
+                maxY: 6,
+                lineTouchData: LineTouchData(
+                  touchTooltipData: LineTouchTooltipData(
+                    getTooltipColor: (_) => colorScheme.primary,
+                    getTooltipItems: (touchedSpots) {
+                      return touchedSpots.map((spot) {
+                        return LineTooltipItem(
+                          '\$${(spot.y * 22400).toStringAsFixed(0)}',
+                          const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        );
+                      }).toList();
+                    },
+                  ),
+                ),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: const [
+                      FlSpot(0, 1.8),
+                      FlSpot(1, 2.5),
+                      FlSpot(2, 2.2),
+                      FlSpot(3, 3.8),
+                      FlSpot(4, 3.2),
+                      FlSpot(5, 4.9),
+                      FlSpot(6, 5.4),
+                    ],
+                    isCurved: true,
+                    curveSmoothness: 0.35,
+                    color: colorScheme.primary,
+                    barWidth: 2.5,
+                    isStrokeCapRound: true,
+                    dotData: FlDotData(
+                      show: true,
+                      checkToShowDot: (spot, barData) {
+                        return spot.x == 6 || spot.x == 3;
+                      },
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 4,
+                          color: colorScheme.primary,
+                          strokeWidth: 2,
+                          strokeColor: colorScheme.surface,
+                        );
+                      },
+                    ),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      gradient: LinearGradient(
+                        colors: [
+                          colorScheme.primary.withValues(alpha: 0.18),
+                          colorScheme.primary.withValues(alpha: 0.0),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -309,7 +410,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget _buildActiveUsersCard(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return InteractiveCard(
       borderRadius: 20,
@@ -326,7 +426,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   color: colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(Icons.people_outline_rounded,
+                child: Icon(CupertinoIcons.person_2,
                     size: 18, color: colorScheme.primary),
               ),
               Container(
@@ -356,45 +456,75 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            '$_activeUsers',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.5,
-              color: colorScheme.onSurface,
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                '$_activeUsers',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'online now',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 14),
-          Row(
-            children: [
-              _buildOverlapAvatar(
-                  context,
-                  isDark
-                      ? colorScheme.surfaceContainer
-                      : colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
-                  null),
-              Transform.translate(
-                  offset: const Offset(-8, 0),
-                  child: _buildOverlapAvatar(
-                      context,
-                      isDark
-                          ? colorScheme.surfaceContainerHigh
-                          : colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
-                      null)),
-              Transform.translate(
-                  offset: const Offset(-16, 0),
-                  child: _buildOverlapAvatar(
-                      context,
-                      isDark
-                          ? colorScheme.surfaceContainerHighest
-                          : colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                      null)),
-              Transform.translate(
-                  offset: const Offset(-24, 0),
-                  child: _buildOverlapAvatar(
-                      context, colorScheme.primary, '+12',
-                      textColor: colorScheme.onPrimary)),
-            ],
+          // Minimalist 7-Day Pulse Sparkline replacing circle avatars
+          SizedBox(
+            height: 38,
+            child: LineChart(
+              LineChartData(
+                gridData: const FlGridData(show: false),
+                titlesData: const FlTitlesData(show: false),
+                borderData: FlBorderData(show: false),
+                lineTouchData: const LineTouchData(enabled: false),
+                minX: 0,
+                maxX: 6,
+                minY: 0,
+                maxY: 5,
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: const [
+                      FlSpot(0, 1.0),
+                      FlSpot(1, 2.2),
+                      FlSpot(2, 1.8),
+                      FlSpot(3, 3.4),
+                      FlSpot(4, 2.8),
+                      FlSpot(5, 4.2),
+                      FlSpot(6, 4.8),
+                    ],
+                    isCurved: true,
+                    curveSmoothness: 0.35,
+                    color: colorScheme.primary,
+                    barWidth: 2,
+                    isStrokeCapRound: true,
+                    dotData: const FlDotData(show: false),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      gradient: LinearGradient(
+                        colors: [
+                          colorScheme.primary.withValues(alpha: 0.15),
+                          colorScheme.primary.withValues(alpha: 0.0),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -420,7 +550,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   color: colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(Icons.check_circle_outline_rounded,
+                child: Icon(CupertinoIcons.checkmark_seal,
                     size: 18, color: colorScheme.primary),
               ),
               Container(
@@ -430,7 +560,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  'STABLE',
+                  'OPTIMAL',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
@@ -443,56 +573,62 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ),
           const SizedBox(height: 14),
           Text(
-            'COMPLETION',
+            'COMPLETION RATE',
             style: theme.textTheme.labelSmall?.copyWith(
               color: colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            '${(_completionRate * 100).toStringAsFixed(1)}%',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.5,
-              color: colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 14),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: LinearProgressIndicator(
-              value: _completionRate,
-              minHeight: 6,
-              backgroundColor: colorScheme.primaryContainer,
-              color: colorScheme.primary,
-            ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${(_completionRate * 100).toStringAsFixed(1)}%',
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.5,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Course benchmark',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Minimalist Circular Progress Gauge
+              SizedBox(
+                width: 44,
+                height: 44,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      value: _completionRate,
+                      strokeWidth: 4,
+                      backgroundColor: colorScheme.primaryContainer,
+                      valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+                      strokeCap: StrokeCap.round,
+                    ),
+                    Icon(CupertinoIcons.checkmark,
+                        size: 16, color: colorScheme.primary),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildOverlapAvatar(BuildContext context, Color color, String? text,
-      {Color? textColor}) {
-    final theme = Theme.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      width: 24,
-      height: 24,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: color,
-        border: Border.all(color: colorScheme.surface, width: 2),
-      ),
-      alignment: Alignment.center,
-      child: text != null
-          ? Text(
-              text,
-              style: theme.textTheme.bodyMedium,
-            )
-          : null,
     );
   }
 
@@ -527,7 +663,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               color: iconBg,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: iconColor),
+            child: Icon(icon, color: iconColor, size: 18),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -536,60 +672,28 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               children: [
                 Text(
                   title,
-                  style: theme.textTheme.bodyMedium,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 Text(
                   subtitle,
-                  style: theme.textTheme.bodyMedium,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
           ),
           Text(
             time,
-            style: theme.textTheme.bodyMedium,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
     );
   }
-}
-
-class _ChartPainter extends CustomPainter {
-  _ChartPainter({required this.colorScheme});
-  final ColorScheme colorScheme;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = colorScheme.primary
-      ..strokeWidth = 3
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final path = Path();
-    path.moveTo(0, size.height * 0.8);
-    path.quadraticBezierTo(size.width * 0.125, size.height * 0.4,
-        size.width * 0.25, size.height * 0.6);
-    path.quadraticBezierTo(size.width * 0.5, size.height * 0.3,
-        size.width * 0.75, size.height * 0.7);
-    path.quadraticBezierTo(
-        size.width * 0.9, size.height * 0.2, size.width, size.height * 0.2);
-
-    canvas.drawPath(path, paint);
-
-    final fillPaint = Paint()
-      ..color = colorScheme.primary.withValues(alpha: 0.05)
-      ..style = PaintingStyle.fill;
-
-    final fillPath = Path.from(path);
-    fillPath.lineTo(size.width, size.height);
-    fillPath.lineTo(0, size.height);
-    fillPath.close();
-
-    canvas.drawPath(fillPath, fillPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -1,5 +1,6 @@
 // lib/screens/admin/admin_home.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import '../../repository/auth_repository.dart';
 import '../../widgets/student_home/ambient_background.dart';
 import 'admin_dashboard_screen.dart';
@@ -60,33 +61,33 @@ class _AdminHomeState extends State<AdminHome> {
               showUnselectedLabels: true,
               items: const [
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.dashboard_outlined),
-                  activeIcon: Icon(Icons.dashboard),
+                  icon: Icon(CupertinoIcons.square_grid_2x2),
+                  activeIcon: Icon(CupertinoIcons.square_grid_2x2_fill),
                   label: 'Dashboard',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.analytics_outlined),
-                  activeIcon: Icon(Icons.analytics),
+                  icon: Icon(CupertinoIcons.waveform_path_ecg),
+                  activeIcon: Icon(CupertinoIcons.waveform_path_ecg),
                   label: 'Analytics',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.notifications_outlined),
-                  activeIcon: Icon(Icons.notifications),
+                  icon: Icon(CupertinoIcons.bell),
+                  activeIcon: Icon(CupertinoIcons.bell_fill),
                   label: 'Alerts',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.group_outlined),
-                  activeIcon: Icon(Icons.group),
+                  icon: Icon(CupertinoIcons.person_2),
+                  activeIcon: Icon(CupertinoIcons.person_2_fill),
                   label: 'Users',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.school_outlined),
-                  activeIcon: Icon(Icons.school),
+                  icon: Icon(CupertinoIcons.book),
+                  activeIcon: Icon(CupertinoIcons.book_fill),
                   label: 'Courses',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.payments_outlined),
-                  activeIcon: Icon(Icons.payments),
+                  icon: Icon(CupertinoIcons.creditcard),
+                  activeIcon: Icon(CupertinoIcons.creditcard_fill),
                   label: 'Financials',
                 ),
               ],
@@ -120,12 +121,12 @@ class _AdminHomeState extends State<AdminHome> {
 
   Widget _buildAdminSidebar(ColorScheme colorScheme, ThemeData theme) {
     final List<Map<String, dynamic>> menuItems = [
-      {'title': 'Dashboard', 'icon': Icons.dashboard_outlined, 'selectedIcon': Icons.dashboard},
-      {'title': 'Analytics', 'icon': Icons.analytics_outlined, 'selectedIcon': Icons.analytics},
-      {'title': 'Alerts', 'icon': Icons.notifications_outlined, 'selectedIcon': Icons.notifications},
-      {'title': 'Users', 'icon': Icons.group_outlined, 'selectedIcon': Icons.group},
-      {'title': 'Courses', 'icon': Icons.school_outlined, 'selectedIcon': Icons.school},
-      {'title': 'Financials', 'icon': Icons.payments_outlined, 'selectedIcon': Icons.payments},
+      {'title': 'Dashboard', 'icon': CupertinoIcons.square_grid_2x2, 'selectedIcon': CupertinoIcons.square_grid_2x2_fill},
+      {'title': 'Analytics', 'icon': CupertinoIcons.waveform_path_ecg, 'selectedIcon': CupertinoIcons.waveform_path_ecg},
+      {'title': 'Alerts', 'icon': CupertinoIcons.bell, 'selectedIcon': CupertinoIcons.bell_fill},
+      {'title': 'Users', 'icon': CupertinoIcons.person_2, 'selectedIcon': CupertinoIcons.person_2_fill},
+      {'title': 'Courses', 'icon': CupertinoIcons.book, 'selectedIcon': CupertinoIcons.book_fill},
+      {'title': 'Financials', 'icon': CupertinoIcons.creditcard, 'selectedIcon': CupertinoIcons.creditcard_fill},
     ];
 
     return Container(
@@ -151,7 +152,7 @@ class _AdminHomeState extends State<AdminHome> {
                       color: colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(Icons.admin_panel_settings_rounded, color: colorScheme.primary, size: 22),
+                    child: Icon(CupertinoIcons.shield, color: colorScheme.primary, size: 20),
                   ),
                   const SizedBox(width: 12),
                   Text(
@@ -283,7 +284,7 @@ class _AdminHomeState extends State<AdminHome> {
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.logout, size: 14),
+                          Icon(CupertinoIcons.square_arrow_right, size: 14),
                           SizedBox(width: 6),
                           Text('Log Out', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                         ],
