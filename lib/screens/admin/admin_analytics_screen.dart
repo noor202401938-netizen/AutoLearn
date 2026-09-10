@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../../business_logic/analytics_monitoring_manager.dart';
 
 class AdminAnalyticsScreen extends StatefulWidget {
@@ -87,10 +89,10 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                   Row(
                     children: [
                       _buildControlButton(
-                          context, 'Last 30 Days', Icons.calendar_today),
+                          context, 'Last 30 Days', CupertinoIcons.calendar),
                       const SizedBox(width: 12),
                       _buildControlButton(
-                          context, 'Export Reports', Icons.file_download),
+                          context, 'Export Reports', CupertinoIcons.arrow_down_doc),
                     ],
                   )
                 ],
@@ -106,38 +108,42 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                   physics: const NeverScrollableScrollPhysics(),
                   mainAxisSpacing: 16,
                   crossAxisSpacing: 16,
-                  childAspectRatio: isDesktop ? 1.5 : 1.2,
+                  childAspectRatio: isDesktop ? 1.35 : 1.15,
                   children: [
                     _buildMetricCard(
                       context: context,
                       title: 'Total Revenue',
                       value: '\$${_totalRevenue.toStringAsFixed(2)}',
-                      badgeText: '12.5%',
-                      badgeIcon: Icons.trending_up,
-                      badgeColor: colorScheme.secondary,
-                      badgeBg: colorScheme.secondaryContainer,
+                      badgeText: '+12.5%',
+                      badgeIcon: CupertinoIcons.arrow_up_right,
+                      badgeColor: colorScheme.primary,
+                      badgeBg: colorScheme.primaryContainer,
                       bottomWidget: Text('Total platform revenue',
-                          style: theme.textTheme.bodyMedium),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          )),
                     ),
                     _buildMetricCard(
                       context: context,
                       title: 'Active Enrollments',
                       value: '$_activeEnrollments',
-                      badgeText: '8.2%',
-                      badgeIcon: Icons.trending_up,
-                      badgeColor: colorScheme.secondary,
-                      badgeBg: colorScheme.secondaryContainer,
+                      badgeText: '+8.2%',
+                      badgeIcon: CupertinoIcons.arrow_up_right,
+                      badgeColor: colorScheme.primary,
+                      badgeBg: colorScheme.primaryContainer,
                       bottomWidget: Text('Across all courses',
-                          style: theme.textTheme.bodyMedium),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          )),
                     ),
                     _buildMetricCard(
                       context: context,
                       title: 'Completion Rate',
                       value: '${(_completionRate * 100).toStringAsFixed(1)}%',
-                      badgeText: '0.4%',
-                      badgeIcon: Icons.trending_down,
+                      badgeText: '-0.4%',
+                      badgeIcon: CupertinoIcons.arrow_down_right,
                       badgeColor: colorScheme.error,
-                      badgeBg: colorScheme.errorContainer,
+                      badgeBg: colorScheme.errorContainer.withValues(alpha: 0.5),
                       bottomWidget: _buildProgressBar(context, _completionRate),
                     ),
                     _buildMetricCard(
@@ -145,11 +151,13 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
                       title: 'Net Promoter Score',
                       value: '$_nps / 100',
                       badgeText: 'Target Met',
-                      badgeIcon: Icons.check_circle,
-                      badgeColor: colorScheme.secondary,
-                      badgeBg: colorScheme.secondaryContainer,
+                      badgeIcon: CupertinoIcons.checkmark_alt,
+                      badgeColor: colorScheme.primary,
+                      badgeBg: colorScheme.primaryContainer,
                       bottomWidget: Text('Calculated from reviews',
-                          style: theme.textTheme.bodyMedium),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          )),
                     ),
                   ],
                 );
@@ -227,17 +235,23 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
   }) {
     final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       decoration: BoxDecoration(
-        color: isDark
-            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
-            : colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+          color: colorScheme.outlineVariant,
+          width: 1.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,37 +263,55 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
               Expanded(
                 child: Text(
                   title.toUpperCase(),
-                  style: theme.textTheme.bodyMedium,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.6,
+                    fontSize: 10,
+                  ),
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: 6),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: badgeBg,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(badgeIcon, size: 12, color: badgeColor),
-                    const SizedBox(width: 4),
+                    Icon(badgeIcon, size: 10, color: badgeColor),
+                    const SizedBox(width: 3),
                     Text(
                       badgeText,
-                      style: theme.textTheme.bodyMedium,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: badgeColor,
+                      ),
                     ),
                   ],
                 ),
-              )
+              ),
             ],
           ),
+          const SizedBox(height: 8),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
             child: Text(
               value,
-              style: theme.textTheme.titleMedium,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.5,
+                color: colorScheme.onSurface,
+              ),
             ),
           ),
+          const SizedBox(height: 8),
           bottomWidget,
         ],
       ),
