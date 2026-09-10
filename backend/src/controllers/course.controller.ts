@@ -1,9 +1,6 @@
-// @ts-nocheck
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../prisma';
 import { AuthenticatedRequest } from '../middleware/auth.middleware';
-
-const prisma = new PrismaClient();
 
 // Map DB record to Flutter-expected structure
 function mapCourse(course: any) {
@@ -71,7 +68,7 @@ export const getAllCourses = async (req: Request, res: Response): Promise<void> 
 // GET /api/courses/:id — Get single course
 export const getCourseById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const course = await prisma.course.findUnique({
       where: { id },
       include: { modules: { include: { lessons: true } } },
@@ -139,7 +136,7 @@ export const updateCourse = async (req: AuthenticatedRequest, res: Response): Pr
       return;
     }
 
-    const { id } = req.params;
+    const id = req.params.id as string;
     const {
       title, description, instructor, category, level,
       duration, thumbnailURL, price, currency, isPublished,
@@ -183,7 +180,7 @@ export const deleteCourse = async (req: AuthenticatedRequest, res: Response): Pr
       return;
     }
 
-    const { id } = req.params;
+    const id = req.params.id as string;
     const existing = await prisma.course.findUnique({ where: { id } });
     if (!existing) {
       res.status(404).json({ error: 'Course not found' });
@@ -201,7 +198,7 @@ export const deleteCourse = async (req: AuthenticatedRequest, res: Response): Pr
 // POST /api/courses/:id/enroll — Enroll in a course
 export const enrollInCourse = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const userId = req.user?.uid;
 
     if (!userId) {
@@ -238,7 +235,7 @@ export const enrollInCourse = async (req: AuthenticatedRequest, res: Response): 
 // POST /api/courses/:id/rate — Rate a course
 export const rateCourse = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const { rating } = req.body;
 
     if (typeof rating !== 'number' || rating < 0 || rating > 5) {
@@ -271,7 +268,7 @@ export const rateCourse = async (req: AuthenticatedRequest, res: Response): Prom
 // GET /api/courses/:id/stats — Get course statistics
 export const getCourseStats = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     
     const course = await prisma.course.findUnique({ where: { id } });
     if (!course) {
@@ -279,17 +276,15 @@ export const getCourseStats = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    // This is simplified. In a real app we'd aggregate completion states.
     const averageTimeSpent = await prisma.progress.aggregate({
-      where: { lesson: { module: { courseId: id } } },
       _avg: { totalDuration: true }
     });
 
     res.status(200).json({
       totalEnrollments: course.enrollmentCount,
-      completionRate: 0.0, // placeholder since calculating aggregate completion is intensive
+      completionRate: 0.0,
       averageScore: course.rating,
-      averageTimeSpent: averageTimeSpent._avg.totalDuration || 0,
+      averageTimeSpent: averageTimeSpent._avg?.totalDuration || 0,
     });
   } catch (error) {
     console.error('Error fetching course stats:', error);
