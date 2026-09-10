@@ -251,26 +251,26 @@ class _StudentHomeState extends State<StudentHome> {
           ? GradientBottomNav(
               selectedIndex: _selectedIndex > 3 ? 0 : _selectedIndex,
               onItemSelected: _onItemTapped,
-              menuItems: [
+              menuItems: const [
                 {
                   'title': 'Home',
-                  'icon': Icons.home_outlined,
-                  'selectedIcon': Icons.home,
+                  'icon': Icons.space_dashboard_outlined,
+                  'selectedIcon': Icons.space_dashboard_rounded,
                 },
                 {
                   'title': 'Courses',
-                  'icon': Icons.school_outlined,
-                  'selectedIcon': Icons.school,
+                  'icon': Icons.auto_stories_outlined,
+                  'selectedIcon': Icons.auto_stories_rounded,
                 },
                 {
                   'title': 'Progress',
-                  'icon': Icons.show_chart_outlined,
-                  'selectedIcon': Icons.show_chart,
+                  'icon': Icons.insights_rounded,
+                  'selectedIcon': Icons.insights_rounded,
                 },
                 {
                   'title': 'Profile',
-                  'icon': Icons.person_outline,
-                  'selectedIcon': Icons.person,
+                  'icon': Icons.person_outline_rounded,
+                  'selectedIcon': Icons.person_rounded,
                 },
               ],
             )
@@ -303,22 +303,22 @@ class _StudentHomeState extends State<StudentHome> {
   }
 
   Widget _buildSidebar(ColorScheme colorScheme, ThemeData theme) {
-    final List<Map<String, dynamic>> menuItems = [
-      {'title': 'Dashboard', 'icon': Icons.dashboard_outlined, 'selectedIcon': Icons.dashboard},
-      {'title': 'My Courses', 'icon': Icons.school_outlined, 'selectedIcon': Icons.school},
-      {'title': 'Learning Paths', 'icon': Icons.map_outlined, 'selectedIcon': Icons.map},
-      {'title': 'AI Assistant', 'icon': Icons.smart_toy_outlined, 'selectedIcon': Icons.smart_toy},
-      {'title': 'Certificates', 'icon': Icons.workspace_premium_outlined, 'selectedIcon': Icons.workspace_premium},
-      {'title': 'Bookmarks', 'icon': Icons.bookmark_border_rounded, 'selectedIcon': Icons.bookmark},
-      {'title': 'Assignments', 'icon': Icons.assignment_outlined, 'selectedIcon': Icons.assignment},
-      {'title': 'Community', 'icon': Icons.people_outline_rounded, 'selectedIcon': Icons.people},
-      {'title': 'Settings', 'icon': Icons.settings_outlined, 'selectedIcon': Icons.settings},
+    const List<Map<String, dynamic>> menuItems = [
+      {'title': 'Dashboard', 'icon': Icons.space_dashboard_outlined, 'selectedIcon': Icons.space_dashboard_rounded},
+      {'title': 'My Courses', 'icon': Icons.auto_stories_outlined, 'selectedIcon': Icons.auto_stories_rounded},
+      {'title': 'Learning Paths', 'icon': Icons.explore_outlined, 'selectedIcon': Icons.explore_rounded},
+      {'title': 'AI Assistant', 'icon': Icons.auto_awesome_outlined, 'selectedIcon': Icons.auto_awesome_rounded},
+      {'title': 'Certificates', 'icon': Icons.workspace_premium_outlined, 'selectedIcon': Icons.workspace_premium_rounded},
+      {'title': 'Bookmarks', 'icon': Icons.bookmark_border_rounded, 'selectedIcon': Icons.bookmark_rounded},
+      {'title': 'Assignments', 'icon': Icons.fact_check_outlined, 'selectedIcon': Icons.fact_check_rounded},
+      {'title': 'Community', 'icon': Icons.forum_outlined, 'selectedIcon': Icons.forum_rounded},
+      {'title': 'Settings', 'icon': Icons.tune_rounded, 'selectedIcon': Icons.tune_rounded},
     ];
 
     return Container(
       width: 260,
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant,
+        color: colorScheme.surfaceContainerHighest,
         border: Border(
           right: BorderSide(color: colorScheme.outline),
         ),
@@ -577,28 +577,28 @@ class _StudentHomeState extends State<StudentHome> {
                   physics: const NeverScrollableScrollPhysics(),
                   mainAxisSpacing: 16,
                   crossAxisSpacing: 16,
-                  childAspectRatio: 1.2,
+                  childAspectRatio: MediaQuery.of(context).size.width < 600 ? 1.4 : 1.5,
                   children: [
                     StatCard(
-                      icon: Icons.school_outlined,
+                      icon: Icons.auto_stories_outlined,
                       value:
                           '${_enrolledCourses.length + completedCoursesCount}',
-                      label: 'Courses',
+                      label: 'Enrolled',
                     ),
                     StatCard(
-                      icon: Icons.schedule_rounded,
+                      icon: Icons.timer_outlined,
                       value: hoursLearned > 0 ? '${hoursLearned}h' : '0h',
-                      label: 'Learning',
+                      label: 'Study Time',
                     ),
                     StatCard(
-                      icon: Icons.task_alt_rounded,
+                      icon: Icons.check_circle_outline_rounded,
                       value: '$completedCoursesCount',
                       label: 'Completed',
                     ),
                     StatCard(
-                      icon: Icons.verified_outlined,
+                      icon: Icons.workspace_premium_outlined,
                       value: '$certsCount',
-                      label: 'Certs',
+                      label: 'Certificates',
                     ),
                   ],
                 ),

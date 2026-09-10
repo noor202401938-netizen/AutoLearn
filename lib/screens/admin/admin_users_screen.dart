@@ -250,7 +250,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
             : colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+            color: colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -349,7 +349,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
             : colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.2)),
+            color: colorScheme.outlineVariant),
       ),
       child: Row(
         children: [

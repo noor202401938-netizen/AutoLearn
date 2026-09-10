@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-
 import '../../repository/user_repository.dart';
 import '../../business_logic/course_manager.dart';
 import '../../business_logic/payment_manager.dart';
 import '../../model/course_model.dart';
+import '../../utils/preference_notifier.dart';
+import '../../widgets/interactive_card.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -72,15 +73,60 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Welcome Section
-              Text(
-                'Admin Dashboard',
-                style: theme.textTheme.titleMedium,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Real-time performance overview',
-                style: theme.textTheme.bodyMedium,
+              // Welcome Section Row with Integrated Actions
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Admin Dashboard',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Real-time performance overview',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Integrated Theme & Notifications Controls
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          theme.brightness == Brightness.light
+                              ? Icons.dark_mode_outlined
+                              : Icons.light_mode_outlined,
+                          color: theme.colorScheme.primary,
+                        ),
+                        onPressed: () {
+                          final newTheme = theme.brightness == Brightness.light
+                              ? 'dark'
+                              : 'light';
+                          PreferenceNotifier.instance.updateTheme(newTheme);
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        icon: Icon(Icons.notifications_none_rounded, color: theme.colorScheme.primary),
+                        onPressed: () {
+                          // Notification action placeholder
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
               const SizedBox(height: 24),
 
@@ -173,18 +219,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   Widget _buildRevenueCard(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
-    return Container(
+
+    return InteractiveCard(
+      borderRadius: 20,
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: isDark
-            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
-            : colorScheme.surface.withValues(alpha: 0.8),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -195,40 +234,66 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'TOTAL REVENUE',
-                    style: theme.textTheme.bodyMedium,
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(Icons.account_balance_wallet_outlined,
+                            size: 18, color: colorScheme.primary),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        'TOTAL REVENUE',
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 12),
                   Text(
                     '\$${_totalRevenue.toStringAsFixed(2)}',
-                    style: theme.textTheme.titleMedium,
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.5,
+                      color: colorScheme.onSurface,
+                    ),
                   ),
                 ],
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: colorScheme.secondaryContainer.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(24),
+                  color: colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.trending_up,
-                        size: 16, color: colorScheme.secondary),
+                    Icon(Icons.trending_up_rounded,
+                        size: 14, color: colorScheme.primary),
                     const SizedBox(width: 4),
                     Text(
-                      '12%',
-                      style: theme.textTheme.bodyMedium,
+                      '+12.4%',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: colorScheme.primary,
+                      ),
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          // Mock Line Chart
+          const SizedBox(height: 20),
+          // Clean Minimalist Line Chart
           SizedBox(
             height: 100,
             width: double.infinity,
@@ -243,44 +308,63 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   Widget _buildActiveUsersCard(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: isDark
-            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
-            : colorScheme.surface.withValues(alpha: 0.8),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
-      ),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return InteractiveCard(
+      borderRadius: 20,
+      padding: const EdgeInsets.all(22),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'ACTIVE USERS',
-            style: theme.textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 4),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '$_activeUsers',
-                style: theme.textTheme.titleMedium,
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(Icons.people_outline_rounded,
+                    size: 18, color: colorScheme.primary),
               ),
-              const SizedBox(width: 4),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4.0),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Text(
                   '+4.2%',
-                  style: theme.textTheme.bodyMedium,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: colorScheme.primary,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
+          Text(
+            'ACTIVE USERS',
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.8,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '$_activeUsers',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 14),
           Row(
             children: [
               _buildOverlapAvatar(
@@ -319,62 +403,70 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   Widget _buildCompletionRateCard(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: isDark
-            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
-            : colorScheme.surface.withValues(alpha: 0.8),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
-      ),
+
+    return InteractiveCard(
+      borderRadius: 20,
+      padding: const EdgeInsets.all(22),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'COMPLETION',
-            style: theme.textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 4),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '${(_completionRate * 100).toStringAsFixed(1)}%',
-                style: theme.textTheme.titleMedium,
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(Icons.check_circle_outline_rounded,
+                    size: 18, color: colorScheme.primary),
               ),
-              const SizedBox(width: 4),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4.0),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Text(
-                  '-2.1%',
-                  style: theme.textTheme.bodyMedium,
+                  'STABLE',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                    color: colorScheme.primary,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Container(
-            height: 8,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: isDark
-                  ? colorScheme.surfaceContainerHigh
-                  : colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(4),
+          const SizedBox(height: 14),
+          Text(
+            'COMPLETION',
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.8,
             ),
-            child: FractionallySizedBox(
-              widthFactor: _completionRate,
-              alignment: Alignment.centerLeft,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: colorScheme.secondary,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '${(_completionRate * 100).toStringAsFixed(1)}%',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 14),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: LinearProgressIndicator(
+              value: _completionRate,
+              minHeight: 6,
+              backgroundColor: colorScheme.primaryContainer,
+              color: colorScheme.primary,
             ),
           ),
         ],
@@ -424,7 +516,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             : colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+            color: colorScheme.outlineVariant),
       ),
       child: Row(
         children: [

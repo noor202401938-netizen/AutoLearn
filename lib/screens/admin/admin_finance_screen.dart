@@ -171,7 +171,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
                       : colorScheme.surface,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                      color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                      color: colorScheme.outlineVariant),
                 ),
                 child: Column(
                   children: [
@@ -282,7 +282,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
             : colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+            color: colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -374,7 +374,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
             : colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+            color: colorScheme.outlineVariant),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
