@@ -22,68 +22,85 @@ class _StatCardState extends State<StatCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 240),
         curve: Curves.easeOutCubic,
-        transform: Matrix4.translationValues(0, _isHovered ? -4.0 : 0, 0),
-        padding: const EdgeInsets.all(16),
+        transform: Matrix4.translationValues(0, _isHovered ? -3.0 : 0, 0),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
+          color: colorScheme.surface,
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: theme.colorScheme.outlineVariant,
+            color: _isHovered
+                ? colorScheme.primary.withValues(alpha: 0.35)
+                : colorScheme.outlineVariant,
+            width: 1.0,
           ),
           boxShadow: [
             BoxShadow(
               color: _isHovered
-                  ? theme.colorScheme.primary.withValues(alpha: 0.15)
-                  : theme.shadowColor.withValues(alpha: 0.08),
+                  ? colorScheme.primary.withValues(alpha: 0.08)
+                  : Colors.black.withValues(alpha: 0.02),
               blurRadius: _isHovered ? 20 : 10,
-              offset: Offset(0, _isHovered ? 10 : 4),
+              offset: Offset(0, _isHovered ? 6 : 2),
             ),
           ],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AnimatedScale(
-              scale: _isHovered ? 1.1 : 1.0,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOutBack,
-              child: AnimatedSlide(
-                offset: _isHovered ? const Offset(0, -0.1) : Offset.zero,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOutCubic,
-                child: Icon(
-                  widget.icon,
-                  color: theme.colorScheme.primary,
-                  size: 32,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: colorScheme.primaryContainer.withValues(alpha: 0.7),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: Icon(
+                      widget.icon,
+                      color: colorScheme.primary,
+                      size: 20,
+                    ),
+                  ),
                 ),
-              ),
+                Icon(
+                  Icons.arrow_outward_rounded,
+                  size: 16,
+                  color: _isHovered
+                      ? colorScheme.primary
+                      : colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             Text(
               widget.value,
-              style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onSurface,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
+                    color: colorScheme.onSurface,
                   ) ??
-                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 32),
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             Text(
-              widget.label.toUpperCase(),
-              style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                    letterSpacing: 0.5,
-                    fontWeight: FontWeight.bold,
-                  ) ??
-                  const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              widget.label,
+              style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.1,
+                  ),
             ),
           ],
         ),
@@ -91,3 +108,4 @@ class _StatCardState extends State<StatCard> {
     );
   }
 }
+
