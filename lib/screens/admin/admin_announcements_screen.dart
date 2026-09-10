@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import '../../business_logic/notification_manager.dart';
 import 'package:intl/intl.dart';
 
@@ -55,50 +56,161 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
 
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 800),
+        constraints: const BoxConstraints(maxWidth: 1200),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Section Header
-              Text(
-                'Announcements',
-                style: theme.textTheme.titleMedium,
+              // Section Header with Action Button
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Announcements & Broadcasts',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Broadcast system updates and notifications to learners instantly.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      _showNewAnnouncementDialog(context);
+                    },
+                    icon: const Icon(CupertinoIcons.plus, size: 16),
+                    label: const Text('New Broadcast'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: colorScheme.primary,
+                      foregroundColor: colorScheme.onPrimary,
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 4),
-              Text(
-                'Broadcast updates to your learners instantly.',
-                style: theme.textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
 
-              // Stats Overview
+              // Stats Overview Bento Grid
               Row(
                 children: [
                   Expanded(
-                    child: _buildStatCard(context, 'Total Sent', '$_totalSent',
-                        colorScheme.primary),
+                    child: _buildStatCard(
+                      context,
+                      'Total Broadcasts',
+                      '$_totalSent',
+                      CupertinoIcons.paperplane,
+                      colorScheme.primary,
+                      'Delivered to active students',
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: _buildStatCard(
-                        context,
-                        'Avg. Open Rate',
-                        '${(_avgOpenRate * 100).toStringAsFixed(1)}%',
-                        colorScheme.secondary),
+                      context,
+                      'Avg. Open Rate',
+                      '${(_avgOpenRate * 100).toStringAsFixed(1)}%',
+                      CupertinoIcons.chart_pie,
+                      colorScheme.secondary,
+                      'Engagement benchmark',
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
 
-              // Announcements List
+              // Announcements Feed Header
+              Text(
+                'Recent Broadcasts',
+                style: theme.textTheme.labelLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: colorScheme.onSurface,
+                  letterSpacing: 0.3,
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Announcements List / Empty State
               if (_broadcasts.isEmpty)
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(32.0),
-                    child: Text('No announcements found',
-                        style: theme.textTheme.bodyMedium),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surface,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: colorScheme.outlineVariant),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.02),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 64,
+                        height: 64,
+                        decoration: BoxDecoration(
+                          color: colorScheme.primaryContainer,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          CupertinoIcons.bell_slash,
+                          size: 28,
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      Text(
+                        'No announcements published yet',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 380),
+                        child: Text(
+                          'Keep your students informed by broadcasting news, upcoming deadlines, or maintenance notices.',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                            height: 1.5,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      OutlinedButton.icon(
+                        onPressed: () => _showNewAnnouncementDialog(context),
+                        icon: const Icon(CupertinoIcons.plus, size: 14),
+                        label: const Text('Create First Announcement'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: colorScheme.primary,
+                          side: BorderSide(color: colorScheme.primary.withValues(alpha: 0.3)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 )
               else
@@ -155,39 +267,63 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
   }
 
   Widget _buildStatCard(
-      BuildContext context, String label, String value, Color valueColor) {
+      BuildContext context, String label, String value, IconData icon, Color iconColor, String subtitle) {
     final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
       decoration: BoxDecoration(
-        color: isDark
-            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
-            : colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: colorScheme.outlineVariant),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
-            offset: const Offset(0, 4),
+            offset: const Offset(0, 2),
           )
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label.toUpperCase(),
-            style: theme.textTheme.bodyMedium,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                label.toUpperCase(),
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.6,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, size: 16, color: iconColor),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Text(
             value,
-            style: theme.textTheme.titleMedium,
+            style: theme.textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),
@@ -342,7 +478,7 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.schedule, size: 14, color: colorScheme.primary),
+                    Icon(CupertinoIcons.time, size: 14, color: colorScheme.primary),
                     const SizedBox(width: 4),
                     Text(
                       'Scheduled',
@@ -389,13 +525,84 @@ class _AdminAnnouncementsScreenState extends State<AdminAnnouncementsScreen> {
                       'Edit',
                       style: theme.textTheme.bodyMedium,
                     ),
-                    Icon(Icons.chevron_right,
-                        size: 18, color: colorScheme.primary),
+                    Icon(CupertinoIcons.chevron_right,
+                        size: 14, color: colorScheme.primary),
                   ],
                 ),
               )
             ],
           )
+        ],
+      ),
+    );
+  }
+
+  void _showNewAnnouncementDialog(BuildContext context) {
+    final titleController = TextEditingController();
+    final messageController = TextEditingController();
+    final colorScheme = Theme.of(context).colorScheme;
+
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        backgroundColor: colorScheme.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Icon(CupertinoIcons.paperplane, color: colorScheme.primary, size: 20),
+            const SizedBox(width: 10),
+            const Text('New Broadcast'),
+          ],
+        ),
+        content: SizedBox(
+          width: 440,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleController,
+                decoration: const InputDecoration(
+                  labelText: 'Announcement Title',
+                  hintText: 'e.g. Platform maintenance scheduled',
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: messageController,
+                maxLines: 4,
+                decoration: const InputDecoration(
+                  labelText: 'Message Body',
+                  hintText: 'Describe details for learners...',
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx),
+            child: Text('Cancel', style: TextStyle(color: colorScheme.onSurfaceVariant)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (titleController.text.isNotEmpty && messageController.text.isNotEmpty) {
+                Navigator.pop(dialogCtx);
+                try {
+                  await _notificationManager.sendBroadcastNotification(
+                    titleController.text.trim(),
+                    messageController.text.trim(),
+                  );
+                  _fetchBroadcasts();
+                } catch (_) {}
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('Send Broadcast'),
+          ),
         ],
       ),
     );
