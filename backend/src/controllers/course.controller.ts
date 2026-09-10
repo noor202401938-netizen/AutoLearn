@@ -35,10 +35,10 @@ function mapCourse(course: any) {
   };
 }
 
-// GET /api/courses — Get all courses (with optional filters)
+// GET /api/courses — Get all courses (with optional filters & pagination)
 export const getAllCourses = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { category, level, isPublished, search } = req.query;
+    const { category, level, isPublished, search, page, limit } = req.query;
 
     let filter: any = {};
     if (category) filter.category = String(category);
@@ -52,11 +52,27 @@ export const getAllCourses = async (req: Request, res: Response): Promise<void> 
       ];
     }
 
-    const courses = await prisma.course.findMany({
-      where: filter,
-      include: { modules: { include: { lessons: true } } },
-      orderBy: { createdAt: 'desc' },
-    });
+    const pageNum = page ? parseInt(String(page), 10) : undefined;
+    const limitNum = limit ? parseInt(String(limit), 10) : undefined;
+    const skip = pageNum && limitNum ? (pageNum - 1) * limitNum : undefined;
+    const take = limitNum;
+
+    const [courses, total] = await Promise.all([
+      prisma.course.findMany({
+        where: filter,
+        include: { modules: { include: { lessons: true } } },
+        orderBy: { createdAt: 'desc' },
+        ...(skip !== undefined && { skip }),
+        ...(take !== undefined && { take }),
+      }),
+      prisma.course.count({ where: filter }),
+    ]);
+
+    if (limitNum !== undefined) {
+      res.setHeader('X-Total-Count', total.toString());
+      res.setHeader('X-Page', (pageNum || 1).toString());
+      res.setHeader('X-Per-Page', limitNum.toString());
+    }
 
     res.status(200).json(courses.map(mapCourse));
   } catch (error) {
