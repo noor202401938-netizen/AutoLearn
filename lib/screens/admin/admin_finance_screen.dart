@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter/cupertino.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../../business_logic/payment_manager.dart';
 
 class AdminFinanceScreen extends StatefulWidget {
@@ -55,19 +56,25 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Net Revenue Card
+              // Net Revenue Card with High-Contrast Typography
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(28),
                 decoration: BoxDecoration(
-                  color: colorScheme.primary,
-                  borderRadius: BorderRadius.circular(16),
+                  gradient: LinearGradient(
+                    colors: [
+                      colorScheme.primary,
+                      Color.lerp(colorScheme.primary, Colors.black, 0.2)!,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: colorScheme.primary
-                          .withValues(alpha: isDark ? 0.6 : 0.3),
+                      color: colorScheme.primary.withValues(alpha: 0.25),
                       blurRadius: 20,
-                      offset: const Offset(0, 10),
+                      offset: const Offset(0, 8),
                     )
                   ],
                 ),
@@ -83,62 +90,82 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
                           children: [
                             Text(
                               'NET REVENUE',
-                              style: theme.textTheme.bodyMedium
-                                  ?.copyWith(letterSpacing: 0.5),
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 1.0,
+                                color: colorScheme.onPrimary.withValues(alpha: 0.8),
+                              ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 8),
                             Text(
                               '\$${_totalRevenue.toStringAsFixed(2)}',
-                              style: theme.textTheme.titleMedium,
+                              style: theme.textTheme.headlineLarge?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.8,
+                                color: colorScheme.onPrimary,
+                              ),
                             ),
                           ],
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: colorScheme.secondaryContainer,
-                            borderRadius: BorderRadius.circular(24),
+                            color: colorScheme.onPrimary.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: colorScheme.onPrimary.withValues(alpha: 0.25),
+                              width: 0.8,
+                            ),
                           ),
                           child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.trending_up,
-                                  size: 16,
-                                  color: colorScheme.onSecondaryContainer),
+                              Icon(CupertinoIcons.arrow_up_right,
+                                  size: 13,
+                                  color: colorScheme.onPrimary),
                               const SizedBox(width: 4),
                               Text(
                                 '+24.8%',
-                                style: theme.textTheme.bodyMedium,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: colorScheme.onPrimary,
+                                ),
                               ),
                             ],
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 28),
                     Row(
                       children: [
                         Container(
                           width: 8,
                           height: 8,
                           decoration: BoxDecoration(
-                            color: colorScheme.secondaryContainer,
+                            color: Colors.lightGreenAccent,
                             shape: BoxShape.circle,
                           ),
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Live data updated 2m ago',
-                          style: theme.textTheme.bodyMedium,
+                          'Live telemetry verified 2m ago',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: colorScheme.onPrimary.withValues(alpha: 0.85),
+                          ),
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
-              // Secondary Stats
+              // Secondary Stats Bento Cards
               LayoutBuilder(
                 builder: (context, constraints) {
                   final isDesktop = constraints.maxWidth > 600;
@@ -148,60 +175,124 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
                       Expanded(
                           flex: isDesktop ? 1 : 0,
                           child: _buildSecondaryStat(
-                              context, 'TRANSACTIONS', '1,284', '12%', true)),
+                              context, 'TRANSACTIONS', '1,284', '+12%', CupertinoIcons.creditcard, true)),
                       if (isDesktop) const SizedBox(width: 16),
                       if (!isDesktop) const SizedBox(height: 16),
                       Expanded(
                           flex: isDesktop ? 1 : 0,
                           child: _buildSecondaryStat(
-                              context, 'AVG ORDER', '\$111.25', '5%', true)),
+                              context, 'AVG ORDER', '\$111.25', '+5%', CupertinoIcons.cart, true)),
                     ],
                   );
                 },
               ),
               const SizedBox(height: 24),
 
-              // Revenue Trends Chart
+              // Revenue Trends Chart with fl_chart
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: isDark
-                      ? colorScheme.surfaceContainerHighest
-                          .withValues(alpha: 0.5)
-                      : colorScheme.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                      color: colorScheme.outlineVariant),
+                  color: colorScheme.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: colorScheme.outlineVariant),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    )
+                  ],
                 ),
                 child: Column(
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Revenue Trends',
-                          style: theme.textTheme.titleMedium,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Revenue Trends',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Monthly recurring revenue breakdown',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          'LAST 6 MONTHS',
-                          style: theme.textTheme.bodyMedium,
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            'LAST 6 MONTHS',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.5,
+                              color: colorScheme.primary,
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 28),
                     SizedBox(
-                      height: 150,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          _buildBar(context, 'JAN', 0.4),
-                          _buildBar(context, 'FEB', 0.55),
-                          _buildBar(context, 'MAR', 0.48),
-                          _buildBar(context, 'APR', 0.72),
-                          _buildBar(context, 'MAY', 0.85),
-                          _buildBar(context, 'JUN', 1.0),
-                        ],
+                      height: 160,
+                      child: BarChart(
+                        BarChartData(
+                          alignment: BarChartAlignment.spaceAround,
+                          maxY: 120,
+                          gridData: const FlGridData(show: false),
+                          borderData: FlBorderData(show: false),
+                          titlesData: FlTitlesData(
+                            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 30,
+                                getTitlesWidget: (value, meta) {
+                                  const titles = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN'];
+                                  final idx = value.toInt();
+                                  if (idx >= 0 && idx < titles.length) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(top: 8),
+                                      child: Text(
+                                        titles[idx],
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 0.5,
+                                          color: colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                  return const SizedBox.shrink();
+                                },
+                              ),
+                            ),
+                          ),
+                          barGroups: [
+                            _makeBarGroup(0, 48, colorScheme),
+                            _makeBarGroup(1, 65, colorScheme),
+                            _makeBarGroup(2, 58, colorScheme),
+                            _makeBarGroup(3, 86, colorScheme),
+                            _makeBarGroup(4, 98, colorScheme),
+                            _makeBarGroup(5, 115, colorScheme, isHighlight: true),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -269,42 +360,77 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
   }
 
   Widget _buildSecondaryStat(BuildContext context, String title, String value,
-      String change, bool isUp) {
+      String change, IconData icon, bool isUp) {
     final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
       decoration: BoxDecoration(
-        color: isDark
-            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
-            : colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: colorScheme.outlineVariant),
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: colorScheme.outlineVariant),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          )
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: theme.textTheme.bodyMedium,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.6,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, size: 16, color: colorScheme.primary),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Text(
             value,
-            style: theme.textTheme.titleMedium,
+            style: theme.textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
+              color: colorScheme.onSurface,
+            ),
           ),
           const SizedBox(height: 4),
           Row(
             children: [
-              Icon(isUp ? Icons.expand_less : Icons.expand_more,
-                  size: 14, color: colorScheme.secondary),
+              Icon(isUp ? CupertinoIcons.arrow_up_right : CupertinoIcons.arrow_down_right,
+                  size: 12, color: colorScheme.primary),
               const SizedBox(width: 4),
               Text(
                 change,
-                style: theme.textTheme.bodyMedium,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: colorScheme.primary,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                'vs last month',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),
@@ -313,43 +439,22 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
     );
   }
 
-  Widget _buildBar(BuildContext context, String label, double fillPercent) {
-    final theme = Theme.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: colorScheme.primary.withValues(alpha: 0.1),
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(8)),
-                ),
-                alignment: Alignment.bottomCenter,
-                child: FractionallySizedBox(
-                  heightFactor: fillPercent,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: colorScheme.primary,
-                      borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(8)),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: theme.textTheme.bodyMedium,
-            ),
-          ],
+  BarChartGroupData _makeBarGroup(int x, double y, ColorScheme colorScheme, {bool isHighlight = false}) {
+    return BarChartGroupData(
+      x: x,
+      barRods: [
+        BarChartRodData(
+          toY: y,
+          color: isHighlight ? colorScheme.primary : colorScheme.primary.withValues(alpha: 0.75),
+          width: 22,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+          backDrawRodData: BackgroundBarChartRodData(
+            show: true,
+            toY: 120,
+            color: colorScheme.primaryContainer.withValues(alpha: 0.5),
+          ),
         ),
-      ),
+      ],
     );
   }
 
@@ -382,25 +487,33 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
           Row(
             children: [
               Container(
-                width: 48,
-                height: 48,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
                   color: colorScheme.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.person, color: colorScheme.primary),
+                child: Icon(CupertinoIcons.person_fill, size: 20, color: colorScheme.primary),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 14),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     name,
-                    style: theme.textTheme.bodyMedium,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onSurface,
+                    ),
                   ),
+                  const SizedBox(height: 2),
                   Text(
                     txId,
-                    style: theme.textTheme.bodyMedium,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
@@ -411,18 +524,26 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
             children: [
               Text(
                 amount,
-                style: theme.textTheme.bodyMedium,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: colorScheme.onSurface,
+                ),
               ),
               const SizedBox(height: 4),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: statusBg,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   status,
-                  style: theme.textTheme.bodyMedium,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                    color: statusColor,
+                  ),
                 ),
               ),
             ],
@@ -431,4 +552,5 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> {
       ),
     );
   }
+
 }
