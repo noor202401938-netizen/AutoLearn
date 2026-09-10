@@ -202,10 +202,29 @@ export const getNotifications = async (req: AuthenticatedRequest, res: Response)
       res.status(401).json({ error: 'Unauthorized' });
       return;
     }
-    const notifications = await prisma.notification.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' }
-    });
+
+    const { page, limit } = req.query;
+    const pageNum = page ? parseInt(String(page), 10) : undefined;
+    const limitNum = limit ? parseInt(String(limit), 10) : undefined;
+    const skip = pageNum && limitNum ? (pageNum - 1) * limitNum : undefined;
+    const take = limitNum;
+
+    const [notifications, total] = await Promise.all([
+      prisma.notification.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        ...(skip !== undefined && { skip }),
+        ...(take !== undefined && { take }),
+      }),
+      prisma.notification.count({ where: { userId } }),
+    ]);
+
+    if (limitNum !== undefined) {
+      res.setHeader('X-Total-Count', total.toString());
+      res.setHeader('X-Page', (pageNum || 1).toString());
+      res.setHeader('X-Per-Page', limitNum.toString());
+    }
+
     res.status(200).json(notifications);
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
