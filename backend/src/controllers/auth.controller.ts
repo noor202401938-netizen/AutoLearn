@@ -1,10 +1,8 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jwt-simple';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../prisma';
 import { AuthenticatedRequest } from '../middleware/auth.middleware';
-
-const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_for_dev_only';
 const JWT_EXPIRY_DAYS = 7;
 
