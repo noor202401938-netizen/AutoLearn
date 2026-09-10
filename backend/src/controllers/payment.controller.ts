@@ -1,8 +1,7 @@
 import { Response } from 'express';
 import Stripe from 'stripe';
 import { AuthenticatedRequest } from '../middleware/auth.middleware';
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import prisma from '../prisma';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
   // @ts-ignore
