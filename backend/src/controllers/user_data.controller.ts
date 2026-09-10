@@ -1,9 +1,6 @@
-// @ts-nocheck
 import { Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../prisma';
 import { AuthenticatedRequest } from '../middleware/auth.middleware';
-
-const prisma = new PrismaClient();
 
 // PROFILE
 export const getUserProfile = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
@@ -110,10 +107,13 @@ export const updateVideoProgress = async (req: AuthenticatedRequest, res: Respon
 
 export const getVideoProgress = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { lessonId } = req.params;
+    const lessonId = req.params.lessonId as string;
     const userId = req.user?.uid;
 
-    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
 
     const progress = await prisma.progress.findUnique({
       where: { userId_lessonId: { userId, lessonId } }
@@ -128,10 +128,13 @@ export const getVideoProgress = async (req: AuthenticatedRequest, res: Response)
 
 export const getCourseCompletion = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { courseId } = req.params;
+    const courseId = req.params.courseId as string;
     const userId = req.user?.uid;
 
-    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
 
     // Find all lessons for this course
     const course = await prisma.course.findUnique({
@@ -139,9 +142,12 @@ export const getCourseCompletion = async (req: AuthenticatedRequest, res: Respon
       include: { modules: { include: { lessons: true } } }
     });
 
-    if (!course) return res.status(404).json({ error: 'Course not found' });
+    if (!course) {
+      res.status(404).json({ error: 'Course not found' });
+      return;
+    }
 
-    const lessonIds = course.modules.flatMap(m => m.lessons.map(l => l.id));
+    const lessonIds = (course.modules || []).flatMap((m: any) => (m.lessons || []).map((l: any) => l.id as string));
     if (lessonIds.length === 0) {
       res.status(200).json({ completionPercentage: 0 });
       return;
@@ -166,7 +172,10 @@ export const getCourseCompletion = async (req: AuthenticatedRequest, res: Respon
 export const getUserStats = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.uid;
-    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
 
     const enrolledCourses = await prisma.enrollment.count({ where: { userId } });
     const completedCourses = await prisma.enrollment.count({ where: { userId, status: 'completed' } });
@@ -189,6 +198,10 @@ export const getUserStats = async (req: AuthenticatedRequest, res: Response): Pr
 export const getNotifications = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.uid;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
     const notifications = await prisma.notification.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' }
@@ -201,7 +214,7 @@ export const getNotifications = async (req: AuthenticatedRequest, res: Response)
 
 export const markNotificationRead = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const notification = await prisma.notification.update({
       where: { id },
       data: { isRead: true }
@@ -297,6 +310,11 @@ export const saveQuizResult = async (req: AuthenticatedRequest, res: Response): 
     const { moduleId, score, totalQuestions, passed } = req.body;
     const userId = req.user?.uid;
 
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
     const result = await prisma.quizResult.create({
       data: { userId, moduleId, score, totalQuestions, passed }
     });
@@ -310,6 +328,10 @@ export const saveQuizResult = async (req: AuthenticatedRequest, res: Response): 
 export const getUserCertificates = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.uid;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
     const certificates = await prisma.certificate.findMany({
       where: { userId },
       include: { course: true },
