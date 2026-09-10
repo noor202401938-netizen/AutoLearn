@@ -237,113 +237,101 @@ class _AdminCoursesScreenState extends State<AdminCoursesScreen> {
   }) {
     final theme = Theme.of(context);
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark
-            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
-            : colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
-      ),
-      child: Row(
-        children: [
-          // Image / Thumbnail area
-          Container(
-            width: 100,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              color: isDark
-                  ? colorScheme.surfaceContainer
-                  : colorScheme.primaryContainer,
-              borderRadius:
-                  const BorderRadius.horizontal(left: Radius.circular(16)),
-            ),
-            padding: const EdgeInsets.all(8),
-            alignment: Alignment.topLeft,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: statusBg,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                status,
-                style: theme.textTheme.bodyMedium,
-              ),
-            ),
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: colorScheme.outlineVariant),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
-          // Content
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        ],
+      ),
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isDraft
+                      ? colorScheme.outlineVariant.withValues(alpha: 0.4)
+                      : colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isDraft ? Icons.edit_outlined : Icons.check_circle_rounded,
+                      size: 11,
+                      color: isDraft ? colorScheme.onSurfaceVariant : colorScheme.primary,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      status,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                        color: isDraft ? colorScheme.onSurfaceVariant : colorScheme.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Row(
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: theme.textTheme.titleMedium,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Icon(Icons.person,
-                              size: 14, color: colorScheme.onSurfaceVariant),
-                          const SizedBox(width: 4),
-                          Text(
-                            '$enrolled Enrolled',
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                        ],
-                      ),
-                    ],
+                  Icon(Icons.person_outline_rounded,
+                      size: 14, color: colorScheme.onSurfaceVariant),
+                  const SizedBox(width: 4),
+                  Text(
+                    '$enrolled enrolled',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: isDraft
-                            ? Text('Drafting in progress...',
-                                style: theme.textTheme.bodyMedium)
-                            : isArchived
-                                ? Text('Access Restricted',
-                                    style: theme.textTheme.bodyMedium)
-                                : Container(
-                                    height: 6,
-                                    decoration: BoxDecoration(
-                                      color: isDark
-                                          ? colorScheme.surfaceContainerHigh
-                                          : colorScheme.primaryContainer,
-                                      borderRadius: BorderRadius.circular(3),
-                                    ),
-                                    child: FractionallySizedBox(
-                                      alignment: Alignment.centerLeft,
-                                      widthFactor: progress,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: colorScheme.secondary,
-                                          borderRadius:
-                                              BorderRadius.circular(3),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                      ),
-                      const SizedBox(width: 12),
-                      Icon(Icons.chevron_right, color: colorScheme.primary),
-                    ],
-                  )
                 ],
               ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: colorScheme.onSurface,
             ),
-          )
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: isDraft ? 0.0 : progress,
+                    minHeight: 5,
+                    backgroundColor: colorScheme.primaryContainer,
+                    color: colorScheme.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Icon(Icons.arrow_forward_ios_rounded,
+                  size: 13, color: colorScheme.primary),
+            ],
+          ),
         ],
       ),
     );
