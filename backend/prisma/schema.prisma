@@ -51,6 +51,7 @@ model Course {
   modules     Module[]
   enrollments Enrollment[]
   certificates Certificate[]
+  payments    Payment[]
 }
 
 model Module {
@@ -126,6 +127,7 @@ model ChatMessage {
 model Payment {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   userId      String   @db.ObjectId
+  courseId    String?  @db.ObjectId
   amount      Float
   currency    String   @default("USD")
   status      String   // "succeeded", "pending", "failed"
@@ -133,6 +135,7 @@ model Payment {
   createdAt   DateTime @default(now())
   
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course      Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
 }
 
 model Certificate {
