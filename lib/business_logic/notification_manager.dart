@@ -61,4 +61,10 @@ class NotificationManager {
   Future<List<dynamic>> getBroadcastHistory() async {
     return await _repository.getBroadcastHistory();
   }
+
+  // Send broadcast notification
+  Future<void> sendBroadcastNotification(String title, String message, {String type = 'announcement'}) async {
+    await _repository.broadcastNotification(title, message, type);
+  }
 }
+
