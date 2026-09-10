@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoLearn — Interactive Entity-Relationship Diagram (ERD)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Lora:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --cyprus: #004741;
+      --cyprus-dark: #003631;
+      --cyprus-light: #0d5e56;
+      --sand: #F0EDE4;
+      --sand-surface: #FBF9F5;
+      --sand-variant: #E5E0D3;
+      --outline: #CDC6B5;
+      --outline-variant: #DFDACD;
+      --text-main: #0A2421;
+      --text-muted: #3F5450;
+      --gold: #C69234;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--sand);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 0;
+      margin: 0;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--cyprus), var(--cyprus-dark));
+      color: var(--sand);
+      padding: 40px 32px 48px;
+      position: relative;
+      border-bottom: 2px solid var(--gold);
+    }
+
+    .header-content {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 14px;
+      background: rgba(240, 237, 228, 0.15);
+      border: 1px solid rgba(240, 237, 228, 0.3);
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      color: var(--sand);
+    }
+
+    h1 {
+      font-family: 'Lora', serif;
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    p.subtitle {
+      font-size: 15px;
+      color: rgba(240, 237, 228, 0.85);
+      max-width: 600px;
+    }
+
+    .stats-pill {
+      background: rgba(0, 0, 0, 0.25);
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(240, 237, 228, 0.2);
+      display: flex;
+      gap: 24px;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-item .num {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--sand);
+      line-height: 1;
+    }
+
+    .stat-item .lbl {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: rgba(240, 237, 228, 0.7);
+      margin-top: 4px;
+    }
+
+    main {
+      max-width: 1300px;
+      margin: -24px auto 60px;
+      padding: 0 24px;
+    }
+
+    .card {
+      background: var(--sand-surface);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+      padding: 32px;
+      margin-bottom: 32px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--outline-variant);
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--cyprus);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .diagram-container {
+      background: #FFFFFF;
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    .entities-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .entity-box {
+      background: #FFFFFF;
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+
+    .entity-box:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 71, 65, 0.08);
+      border-color: var(--cyprus-light);
+    }
+
+    .entity-header {
+      background: var(--cyprus);
+      color: var(--sand);
+      padding: 12px 16px;
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .entity-tag {
+      font-size: 10px;
+      background: rgba(240, 237, 228, 0.2);
+      padding: 2px 8px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .entity-body {
+      padding: 14px 16px;
+    }
+
+    .field-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      padding: 5px 0;
+      border-bottom: 1px dashed rgba(205, 198, 181, 0.4);
+    }
+
+    .field-row:last-child {
+      border-bottom: none;
+    }
+
+    .field-name {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .key-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 1px 4px;
+      border-radius: 4px;
+      margin-left: 4px;
+    }
+
+    .pk {
+      background: #E8F5E9;
+      color: #2E7D32;
+      border: 1px solid #A5D6A7;
+    }
+
+    .fk {
+      background: #E3F2FD;
+      color: #1565C0;
+      border: 1px solid #90CAF9;
+    }
+
+    .field-type {
+      color: var(--text-muted);
+      font-family: monospace;
+      font-size: 11px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 32px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-content">
+      <div>
+        <div class="badge">AutoLearn Core Architecture</div>
+        <h1>Entity-Relationship Diagram</h1>
+        <p class="subtitle">Complete visual relational model with 10 core entities, junction tables, foreign keys, and cascading relationships.</p>
+      </div>
+      <div class="stats-pill">
+        <div class="stat-item">
+          <div class="num">10</div>
+          <div class="lbl">Entities</div>
+        </div>
+        <div class="stat-item">
+          <div class="num">12</div>
+          <div class="lbl">Relations</div>
+        </div>
+        <div class="stat-item">
+          <div class="num">3NF</div>
+          <div class="lbl">Form</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Visual Diagram Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span>Relational Schema Diagram</span>
+        </div>
+        <span style="font-size: 13px; color: var(--text-muted);">Crow's Foot Notation &bull; Fully Normalized</span>
+      </div>
+      <div class="diagram-container">
+        <pre class="mermaid">
+erDiagram
+    USER ||--o{ ENROLLMENT : "enrolls"
+    COURSE ||--o{ ENROLLMENT : "has"
+    
+    COURSE ||--o{ MODULE : "contains"
+    MODULE ||--o{ LESSON : "has"
+    
+    USER ||--o{ PROGRESS : "tracks"
+    LESSON ||--o{ PROGRESS : "telemetry"
+    
+    MODULE ||--o{ QUIZ_RESULT : "evaluates"
+    USER ||--o{ QUIZ_RESULT : "takes"
+    
+    USER ||--o{ CERTIFICATE : "earns"
+    COURSE ||--o{ CERTIFICATE : "awards"
+    
+    USER ||--o{ PAYMENT : "pays"
+    USER ||--o{ CHAT_SESSION : "initiates"
+
+    USER {
+        string id PK
+        string email UK
+        string password
+        string displayName
+        string role
+        boolean isActive
+    }
+
+    COURSE {
+        string id PK
+        string title
+        string instructor
+        float price
+        float rating
+        boolean isPublished
+    }
+
+    MODULE {
+        string id PK
+        string courseId FK
+        string title
+    }
+
+    LESSON {
+        string id PK
+        string moduleId FK
+        string title
+        string videoUrl
+    }
+
+    ENROLLMENT {
+        string id PK
+        string userId FK
+        string courseId FK
+        string status
+    }
+
+    PROGRESS {
+        string id PK
+        string userId FK
+        string lessonId FK
+        int currentPosition
+        boolean isCompleted
+    }
+
+    QUIZ_RESULT {
+        string id PK
+        string userId FK
+        string moduleId FK
+        int score
+        boolean passed
+    }
+
+    CERTIFICATE {
+        string id PK
+        string userId FK
+        string courseId FK
+        string title
+        string certificateUrl
+    }
+
+    PAYMENT {
+        string id PK
+        string userId FK
+        float amount
+        string status
+        string stripePiId UK
+    }
+
+    CHAT_SESSION {
+        string id PK
+        string userId FK
+        string title
+    }
+        </pre>
+      </div>
+    </div>
+
+    <!-- Entity Dictionary Grid -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span>Entity Dictionary & Attributes</span>
+        </div>
+        <span style="font-size: 13px; color: var(--text-muted);">10 Tables &bull; Schema Details</span>
+      </div>
+
+      <div class="entities-grid">
+        <!-- 1. USER -->
+        <div class="entity-box">
+          <div class="entity-header">
+            <span>USER</span>
+            <span class="entity-tag">Identity</span>
+          </div>
+          <div class="entity-body">
+            <div class="field-row"><span class="field-name">id <span class="key-badge pk">PK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">email</span><span class="field-type">String (UK)</span></div>
+            <div class="field-row"><span class="field-name">password</span><span class="field-type">String</span></div>
+            <div class="field-row"><span class="field-name">displayName</span><span class="field-type">String?</span></div>
+            <div class="field-row"><span class="field-name">role</span><span class="field-type">Enum</span></div>
+            <div class="field-row"><span class="field-name">isActive</span><span class="field-type">Boolean</span></div>
+          </div>
+        </div>
+
+        <!-- 2. COURSE -->
+        <div class="entity-box">
+          <div class="entity-header">
+            <span>COURSE</span>
+            <span class="entity-tag">Catalog</span>
+          </div>
+          <div class="entity-body">
+            <div class="field-row"><span class="field-name">id <span class="key-badge pk">PK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">title</span><span class="field-type">String</span></div>
+            <div class="field-row"><span class="field-name">instructor</span><span class="field-type">String</span></div>
+            <div class="field-row"><span class="field-name">category</span><span class="field-type">String</span></div>
+            <div class="field-row"><span class="field-name">price</span><span class="field-type">Float</span></div>
+            <div class="field-row"><span class="field-name">isPublished</span><span class="field-type">Boolean</span></div>
+          </div>
+        </div>
+
+        <!-- 3. MODULE -->
+        <div class="entity-box">
+          <div class="entity-header">
+            <span>MODULE</span>
+            <span class="entity-tag">Structure</span>
+          </div>
+          <div class="entity-body">
+            <div class="field-row"><span class="field-name">id <span class="key-badge pk">PK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">courseId <span class="key-badge fk">FK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">title</span><span class="field-type">String</span></div>
+          </div>
+        </div>
+
+        <!-- 4. LESSON -->
+        <div class="entity-box">
+          <div class="entity-header">
+            <span>LESSON</span>
+            <span class="entity-tag">Content</span>
+          </div>
+          <div class="entity-body">
+            <div class="field-row"><span class="field-name">id <span class="key-badge pk">PK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">moduleId <span class="key-badge fk">FK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">title</span><span class="field-type">String</span></div>
+            <div class="field-row"><span class="field-name">videoUrl</span><span class="field-type">String?</span></div>
+            <div class="field-row"><span class="field-name">content</span><span class="field-type">Text?</span></div>
+          </div>
+        </div>
+
+        <!-- 5. ENROLLMENT -->
+        <div class="entity-box">
+          <div class="entity-header">
+            <span>ENROLLMENT</span>
+            <span class="entity-tag">Junction</span>
+          </div>
+          <div class="entity-body">
+            <div class="field-row"><span class="field-name">id <span class="key-badge pk">PK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">userId <span class="key-badge fk">FK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">courseId <span class="key-badge fk">FK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">status</span><span class="field-type">Enum</span></div>
+            <div class="field-row"><span class="field-name">enrolledAt</span><span class="field-type">DateTime</span></div>
+          </div>
+        </div>
+
+        <!-- 6. PROGRESS -->
+        <div class="entity-box">
+          <div class="entity-header">
+            <span>PROGRESS</span>
+            <span class="entity-tag">Telemetry</span>
+          </div>
+          <div class="entity-body">
+            <div class="field-row"><span class="field-name">id <span class="key-badge pk">PK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">userId <span class="key-badge fk">FK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">lessonId <span class="key-badge fk">FK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">currentPosition</span><span class="field-type">Int</span></div>
+            <div class="field-row"><span class="field-name">isCompleted</span><span class="field-type">Boolean</span></div>
+          </div>
+        </div>
+
+        <!-- 7. QUIZ_RESULT -->
+        <div class="entity-box">
+          <div class="entity-header">
+            <span>QUIZ_RESULT</span>
+            <span class="entity-tag">Evaluation</span>
+          </div>
+          <div class="entity-body">
+            <div class="field-row"><span class="field-name">id <span class="key-badge pk">PK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">userId <span class="key-badge fk">FK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">moduleId <span class="key-badge fk">FK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">score</span><span class="field-type">Int</span></div>
+            <div class="field-row"><span class="field-name">passed</span><span class="field-type">Boolean</span></div>
+          </div>
+        </div>
+
+        <!-- 8. CERTIFICATE -->
+        <div class="entity-box">
+          <div class="entity-header">
+            <span>CERTIFICATE</span>
+            <span class="entity-tag">Award</span>
+          </div>
+          <div class="entity-body">
+            <div class="field-row"><span class="field-name">id <span class="key-badge pk">PK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">userId <span class="key-badge fk">FK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">courseId <span class="key-badge fk">FK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">title</span><span class="field-type">String</span></div>
+            <div class="field-row"><span class="field-name">issueDate</span><span class="field-type">DateTime</span></div>
+          </div>
+        </div>
+
+        <!-- 9. PAYMENT -->
+        <div class="entity-box">
+          <div class="entity-header">
+            <span>PAYMENT</span>
+            <span class="entity-tag">Billing</span>
+          </div>
+          <div class="entity-body">
+            <div class="field-row"><span class="field-name">id <span class="key-badge pk">PK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">userId <span class="key-badge fk">FK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">amount</span><span class="field-type">Float</span></div>
+            <div class="field-row"><span class="field-name">status</span><span class="field-type">String</span></div>
+            <div class="field-row"><span class="field-name">stripePiId</span><span class="field-type">String (UK)</span></div>
+          </div>
+        </div>
+
+        <!-- 10. CHAT_SESSION -->
+        <div class="entity-box">
+          <div class="entity-header">
+            <span>CHAT_SESSION</span>
+            <span class="entity-tag">AI Tutor</span>
+          </div>
+          <div class="entity-body">
+            <div class="field-row"><span class="field-name">id <span class="key-badge pk">PK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">userId <span class="key-badge fk">FK</span></span><span class="field-type">ObjectId</span></div>
+            <div class="field-row"><span class="field-name">title</span><span class="field-type">String?</span></div>
+            <div class="field-row"><span class="field-name">createdAt</span><span class="field-type">DateTime</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    AutoLearn Data Architecture &bull; Designed in Cyprus (#004741) & Sand (#F0EDE4)
+  </footer>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#FBF9F5',
+        primaryTextColor: '#0A2421',
+        primaryBorderColor: '#004741',
+        lineColor: '#004741',
+        secondaryColor: '#D6EAE5',
+        tertiaryColor: '#F0EDE4',
+        fontSize: '13px'
+      }
+    });
+  </script>
+</body>
+</html>
