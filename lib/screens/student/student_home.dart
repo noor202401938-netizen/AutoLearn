@@ -18,6 +18,10 @@ import '../../widgets/student_home/progress_course_card.dart';
 import '../../widgets/student_home/recommended_course_card.dart';
 import '../../widgets/student_home/ambient_background.dart';
 import '../../widgets/navigation/global_lms_header.dart';
+import 'learning_paths_screen.dart';
+import 'bookmarks_screen.dart';
+import 'assignments_hub_screen.dart';
+import 'community_forum_screen.dart';
 
 import '../../widgets/student_home/profile_tab.dart';
 
@@ -170,73 +174,22 @@ class _StudentHomeState extends State<StudentHome> {
       case 1:
         return _buildCoursesScreen();
       case 2:
-        return _buildLearningPathsScreen();
+        return const LearningPathsScreen(embedded: true);
       case 3:
         return const AITutorChatScreen(embedded: true);
       case 4:
         return const CertificatesListScreen(embedded: true);
       case 5:
-        return _buildBookmarksScreen();
+        return const BookmarksScreen(embedded: true);
       case 6:
-        return _buildAssignmentsScreen();
+        return const AssignmentsHubScreen(embedded: true);
       case 7:
-        return _buildCommunityScreen();
+        return const CommunityForumScreen(embedded: true);
       case 8:
         return _buildProfileScreen();
       default:
         return _buildHomeScreen();
     }
-  }
-
-  Widget _buildLearningPathsScreen() {
-    return _buildPlaceholderScreen('Learning Paths', Icons.map_outlined);
-  }
-
-  Widget _buildBookmarksScreen() {
-    return _buildPlaceholderScreen('Bookmarks', Icons.bookmark_border_rounded);
-  }
-
-  Widget _buildAssignmentsScreen() {
-    return _buildPlaceholderScreen('Assignments', Icons.assignment_outlined);
-  }
-
-  Widget _buildCommunityScreen() {
-    return _buildPlaceholderScreen('Community', Icons.people_outline_rounded);
-  }
-
-  Widget _buildPlaceholderScreen(String title, IconData icon) {
-    final theme = Theme.of(context);
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 80,
-              color: theme.colorScheme.primary.withValues(alpha: 0.15),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              title,
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: theme.colorScheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'This feature is coming soon to your AutoLearn study journey. Stay tuned!',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   @override
