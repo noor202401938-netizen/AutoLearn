@@ -17,6 +17,7 @@ import '../../widgets/student_home/ai_tutor_banner.dart';
 import '../../widgets/student_home/progress_course_card.dart';
 import '../../widgets/student_home/recommended_course_card.dart';
 import '../../widgets/student_home/ambient_background.dart';
+import '../../widgets/navigation/global_lms_header.dart';
 
 import '../../widgets/student_home/profile_tab.dart';
 
@@ -282,17 +283,33 @@ class _StudentHomeState extends State<StudentHome> {
           children: [
             // Single AmbientBackground — only rendered once at the top level
             const AmbientBackground(),
-            Row(
+            Column(
               children: [
-                if (!isMobile) _buildSidebar(colorScheme, theme),
+                if (!isMobile)
+                  GlobalLmsHeader(
+                    onExploreTap: () => _onItemTapped(1),
+                    onMyLearningTap: () => _onItemTapped(0),
+                    onProfileTap: () => _onItemTapped(8),
+                    onSearch: (q) {
+                      _onItemTapped(1);
+                    },
+                  ),
                 Expanded(
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 1200),
-                      child: SafeArea(
-                        child: _getSelectedScreen(),
+                  child: Row(
+                    children: [
+                      if (!isMobile) _buildSidebar(colorScheme, theme),
+                      Expanded(
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 1200),
+                            child: SafeArea(
+                              top: isMobile,
+                              child: _getSelectedScreen(),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ],
