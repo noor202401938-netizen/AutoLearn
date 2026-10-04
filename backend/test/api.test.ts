@@ -93,6 +93,13 @@ test('new learning/community/admin endpoints require a token', async () => {
     ['GET', '/api/finance/stats'],
     ['DELETE', '/api/users/x'],
     ['POST', '/api/auth/change-password'],
+    ['GET', '/api/teacher/overview'],
+    ['GET', '/api/teacher/earnings'],
+    ['GET', '/api/teacher/submissions'],
+    ['PUT', '/api/teacher/submissions/x/grade'],
+    ['POST', '/api/teacher/courses/x/co-teachers'],
+    ['POST', '/api/teacher/courses/x/announce'],
+    ['GET', '/api/courses?mine=true'],
   ];
   for (const [method, path] of guarded) {
     const res = await fetch(`${baseUrl}${path}`, { method });
@@ -130,4 +137,15 @@ test('Stripe webhook refuses unsigned events (no free enrolment by forgery)', as
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(forged),
   });
   assert.ok(res.status === 503 || res.status === 400, `expected rejection, got ${res.status}`);
+});
+
+test('tokens signed with the wrong secret, or with a bogus user id, are refused before any database lookup', async () => {
+  const jwt = (await import('jwt-simple')).default;
+  const exp = Math.floor(Date.now() / 1000) + 3600;
+  const forged = jwt.encode({ uid: 'a'.repeat(24), role: 'admin', exp }, 'not-the-real-secret');
+  const badId = jwt.encode({ uid: 'not-an-object-id', role: 'admin', exp }, process.env.JWT_SECRET || 'fallback_secret_for_dev_only');
+  for (const token of [forged, badId, 'garbage']) {
+    const res = await fetch(`${baseUrl}/api/teacher/overview`, { headers: { Authorization: `Bearer ${token}` } });
+    assert.equal(res.status, 403);
+  }
 });

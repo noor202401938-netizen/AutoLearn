@@ -4,7 +4,9 @@ import assert from 'node:assert/strict';
 import { gradeQuiz, withoutAnswers } from '../src/controllers/learning.controller';
 import { toggleVote } from '../src/controllers/community.controller';
 import { streakDays } from '../src/controllers/user_data.controller';
-import { mayManage, mayOwn } from '../src/access';
+import { mayManage, mayOwn, mayView } from '../src/access';
+import { resolveJwtSecret } from '../src/config';
+import { checkAccount } from '../src/middleware/auth.middleware';
 import { clampScore, summarizeEarnings } from '../src/controllers/teacher.controller';
 
 test('gradeQuiz scores on the server from stored answers', () => {
@@ -79,4 +81,36 @@ test('summarizeEarnings totals sales per currency and per course', () => {
   assert.deepEqual(r.totals, [{ currency: 'USD', amount: 25, sales: 2 }, { currency: 'EUR', amount: 5, sales: 1 }]);
   assert.deepEqual(r.perCourse.find((c) => c.courseId === 'a'), { courseId: 'a', currency: 'USD', amount: 25, sales: 2 });
   assert.deepEqual(summarizeEarnings([]), { totals: [], perCourse: [] });
+});
+
+test('a draft course is visible only to the people who manage it', () => {
+  const draft = { isPublished: false, createdBy: 't1', coTeacherIds: ['t2'] };
+  const live = { ...draft, isPublished: true };
+  assert.equal(mayView(undefined, draft), false);
+  assert.equal(mayView({ uid: 's1', role: 'student' }, draft), false);
+  assert.equal(mayView({ uid: 't3', role: 'teacher' }, draft), false);
+  assert.equal(mayView({ uid: 't1', role: 'teacher' }, draft), true);
+  assert.equal(mayView({ uid: 't2', role: 'teacher' }, draft), true);
+  assert.equal(mayView({ uid: 'a', role: 'admin' }, draft), true);
+  assert.equal(mayView(undefined, live), true);
+  assert.equal(mayView(undefined, null), false);
+});
+
+test('production refuses to start without a strong JWT secret', () => {
+  const strong = 'x'.repeat(32);
+  assert.throws(() => resolveJwtSecret({ NODE_ENV: 'production' }), /JWT_SECRET is required/);
+  assert.throws(() => resolveJwtSecret({ NODE_ENV: 'production', JWT_SECRET: 'short' }), /at least 32/);
+  assert.equal(resolveJwtSecret({ NODE_ENV: 'production', JWT_SECRET: strong }), strong);
+  // The secrets shipped in .env.example and docker-compose are public, so they must not work in production.
+  for (const placeholder of ['change_this_to_a_secure_random_64_char_secret_in_production', 'autolearn_jwt_secret_change_in_production_please']) {
+    assert.throws(() => resolveJwtSecret({ NODE_ENV: 'production', JWT_SECRET: placeholder }), /placeholder/);
+  }
+  assert.equal(resolveJwtSecret({ NODE_ENV: 'development', JWT_SECRET: 'dev' }), 'dev');
+  assert.equal(resolveJwtSecret({ NODE_ENV: 'test' }), 'fallback_secret_for_dev_only');
+});
+
+test('checkAccount turns away deleted and disabled users and trusts the stored role', () => {
+  assert.deepEqual(checkAccount(null), { ok: false, status: 401, error: 'Unauthorized: this account no longer exists' });
+  assert.deepEqual(checkAccount({ role: 'teacher', isActive: false }), { ok: false, status: 403, error: 'Forbidden: this account has been disabled' });
+  assert.deepEqual(checkAccount({ role: 'student', isActive: true }), { ok: true, role: 'student' });
 });
