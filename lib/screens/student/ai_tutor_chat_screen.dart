@@ -113,8 +113,9 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
       ];
     });
     _toBottom();
+    String? created;
     try {
-      final id = _sessionId ?? await _repo.createSession();
+      final id = _sessionId ?? (created = await _repo.createSession());
       final reply = await _repo.send(id, text, context: widget.contextTitle);
       if (!mounted) return;
       final isNew = _sessionId == null;
@@ -126,6 +127,8 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
       if (isNew) _loadSessions();
       _toBottom();
     } on ApiException catch (e) {
+      // Don't leave an empty conversation behind when the first answer fails.
+      if (created != null) _repo.delete(created).ignore();
       if (!mounted) return;
       setState(() {
         // Put the question back so the student doesn't lose it.
