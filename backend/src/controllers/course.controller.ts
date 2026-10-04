@@ -22,17 +22,66 @@ function mapCourse(course: any) {
     createdAt: course.createdAt.toISOString(),
     updatedAt: course.updatedAt.toISOString(),
     createdBy: course.createdBy,
-    syllabus: (course.modules || []).map((m: any) => ({
-      moduleId: m.id,
-      title: m.title,
-      lessons: (m.lessons || []).map((l: any) => ({
-        lessonId: l.id,
-        title: l.title,
-        videoURL: l.videoUrl,
-        content: l.content,
+    syllabus: [...(course.modules || [])]
+      .sort((a: any, b: any) => a.order - b.order)
+      .map((m: any) => ({
+        moduleId: m.id,
+        title: m.title,
+        lessons: [...(m.lessons || [])]
+          .sort((a: any, b: any) => a.order - b.order)
+          .map((l: any) => ({
+            lessonId: l.id,
+            title: l.title,
+            type: l.type,
+            duration: l.duration,
+            videoURL: l.videoUrl,
+            content: l.content,
+          })),
       })),
-    })),
   };
+}
+
+const LESSON_TYPES = ['video', 'reading', 'quiz', 'assignment', 'project'];
+
+/**
+ * Makes the course's modules/lessons match `syllabus` exactly (order included).
+ * Items whose id already belongs to this course are updated in place, so
+ * student progress on them survives; new items are created; anything missing
+ * from `syllabus` is deleted.
+ */
+export async function syncSyllabus(courseId: string, syllabus: any[]): Promise<void> {
+  const existing = await prisma.module.findMany({ where: { courseId }, include: { lessons: true } });
+  const moduleIds = new Set(existing.map((m) => m.id));
+  const lessonIds = new Set(existing.flatMap((m) => m.lessons.map((l) => l.id)));
+  const keepModules = new Set<string>();
+  const keepLessons = new Set<string>();
+
+  for (const [mi, m] of syllabus.entries()) {
+    const title = String(m?.title ?? '').trim() || `Module ${mi + 1}`;
+    const moduleId = moduleIds.has(m?.moduleId)
+      ? (await prisma.module.update({ where: { id: m.moduleId }, data: { title, order: mi } })).id
+      : (await prisma.module.create({ data: { courseId, title, order: mi } })).id;
+    keepModules.add(moduleId);
+
+    for (const [li, l] of (Array.isArray(m?.lessons) ? m.lessons : []).entries()) {
+      const data = {
+        moduleId,
+        order: li,
+        title: String(l?.title ?? '').trim() || `Lesson ${li + 1}`,
+        type: LESSON_TYPES.includes(l?.type) ? l.type : 'video',
+        duration: Math.max(0, Math.floor(Number(l?.duration) || 0)),
+        videoUrl: l?.videoURL ? String(l.videoURL) : null,
+        content: l?.content ? String(l.content) : null,
+      };
+      const lessonId = lessonIds.has(l?.lessonId)
+        ? (await prisma.lesson.update({ where: { id: l.lessonId }, data })).id
+        : (await prisma.lesson.create({ data })).id;
+      keepLessons.add(lessonId);
+    }
+  }
+
+  await prisma.lesson.deleteMany({ where: { id: { in: [...lessonIds].filter((id) => !keepLessons.has(id)) } } });
+  await prisma.module.deleteMany({ where: { id: { in: [...moduleIds].filter((id) => !keepModules.has(id)) } } });
 }
 
 // GET /api/courses — Get all courses (with optional filters & pagination)
@@ -112,7 +161,7 @@ export const createCourse = async (req: AuthenticatedRequest, res: Response): Pr
 
     const {
       title, description, instructor, category, level,
-      duration, thumbnailURL, price, currency, isPublished,
+      duration, thumbnailURL, price, currency, isPublished, syllabus,
     } = req.body;
 
     if (!title || !description) {
@@ -134,10 +183,11 @@ export const createCourse = async (req: AuthenticatedRequest, res: Response): Pr
         isPublished: isPublished || false,
         createdBy: req.user?.uid || 'system',
       },
-      include: { modules: { include: { lessons: true } } },
     });
+    if (Array.isArray(syllabus)) await syncSyllabus(course.id, syllabus);
 
-    res.status(201).json(mapCourse(course));
+    const full = await prisma.course.findUnique({ where: { id: course.id }, include: { modules: { include: { lessons: true } } } });
+    res.status(201).json(mapCourse(full));
   } catch (error) {
     console.error('Error creating course:', error);
     res.status(500).json({ error: 'Failed to create course' });
@@ -155,7 +205,7 @@ export const updateCourse = async (req: AuthenticatedRequest, res: Response): Pr
     const id = req.params.id as string;
     const {
       title, description, instructor, category, level,
-      duration, thumbnailURL, price, currency, isPublished,
+      duration, thumbnailURL, price, currency, isPublished, syllabus,
     } = req.body;
 
     const existing = await prisma.course.findUnique({ where: { id } });
@@ -178,10 +228,11 @@ export const updateCourse = async (req: AuthenticatedRequest, res: Response): Pr
         ...(currency && { currency }),
         ...(isPublished !== undefined && { isPublished }),
       },
-      include: { modules: { include: { lessons: true } } },
     });
+    if (Array.isArray(syllabus)) await syncSyllabus(course.id, syllabus);
 
-    res.status(200).json(mapCourse(course));
+    const full = await prisma.course.findUnique({ where: { id: course.id }, include: { modules: { include: { lessons: true } } } });
+    res.status(200).json(mapCourse(full));
   } catch (error) {
     console.error('Error updating course:', error);
     res.status(500).json({ error: 'Failed to update course' });
@@ -228,14 +279,23 @@ export const enrollInCourse = async (req: AuthenticatedRequest, res: Response): 
       return;
     }
 
-    // Upsert to handle duplicate enrollment gracefully
-    const enrollment = await prisma.enrollment.upsert({
-      where: { userId_courseId: { userId, courseId: id } },
-      create: { userId, courseId: id, status: 'active' },
-      update: { status: 'active' },
-    });
+    const existing = await prisma.enrollment.findUnique({ where: { userId_courseId: { userId, courseId: id } } });
+    if (existing) {
+      // Already enrolled — don't double count, and don't reset a completed course.
+      res.status(200).json(existing);
+      return;
+    }
 
-    // Increment course enrollment count only on new enrollment
+    // Paid courses are enrolled by the Stripe webhook once payment succeeds.
+    if (course.price > 0) {
+      const paid = await prisma.payment.findFirst({ where: { userId, courseId: id, status: 'succeeded' } });
+      if (!paid) {
+        res.status(402).json({ error: 'This course requires payment before enrolling' });
+        return;
+      }
+    }
+
+    const enrollment = await prisma.enrollment.create({ data: { userId, courseId: id, status: 'active' } });
     await prisma.course.update({
       where: { id },
       data: { enrollmentCount: { increment: 1 } },
@@ -259,19 +319,21 @@ export const rateCourse = async (req: AuthenticatedRequest, res: Response): Prom
       return;
     }
 
-    const course = await prisma.course.findUnique({ where: { id } });
-    if (!course) {
-      res.status(404).json({ error: 'Course not found' });
+    // One rating per enrolled student; re-rating replaces their earlier one.
+    const userId = req.user!.uid;
+    const { count } = await prisma.enrollment.updateMany({ where: { userId, courseId: id }, data: { rating } });
+    if (count === 0) {
+      res.status(403).json({ error: 'Enrol in the course before rating it' });
       return;
     }
-
-    const newTotal = course.rating * course.ratingCount + rating;
-    const newCount = course.ratingCount + 1;
-    const newAverage = newTotal / newCount;
-
+    const agg = await prisma.enrollment.aggregate({
+      where: { courseId: id, rating: { not: null } },
+      _avg: { rating: true },
+      _count: { rating: true },
+    });
     const updated = await prisma.course.update({
       where: { id },
-      data: { rating: newAverage, ratingCount: newCount },
+      data: { rating: agg._avg.rating ?? 0, ratingCount: agg._count.rating },
     });
 
     res.status(200).json({ rating: updated.rating, ratingCount: updated.ratingCount });

@@ -27,6 +27,12 @@ model User {
   certificates Certificate[]
   notifications Notification[]
   quizResults   QuizResult[]
+  passwordResets PasswordReset[]
+  quizSubmissions QuizSubmission[]
+  assignmentSubmissions AssignmentSubmission[]
+  bookmarks     Bookmark[]
+  forumThreads  ForumThread[]
+  forumReplies  ForumReply[]
 }
 
 model Course {
@@ -57,6 +63,7 @@ model Course {
 model Module {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   title       String
+  order       Int      @default(0)
   courseId    String   @db.ObjectId
   course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   
@@ -67,6 +74,9 @@ model Module {
 model Lesson {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   title       String
+  type        String   @default("video") // video, reading, quiz, assignment, project
+  duration    Int      @default(0)       // minutes
+  order       Int      @default(0)
   videoUrl    String?
   content     String?
   moduleId    String   @db.ObjectId
@@ -80,6 +90,7 @@ model Enrollment {
   userId      String   @db.ObjectId
   courseId    String   @db.ObjectId
   status      String   @default("active") // active, completed, dropped
+  rating      Float?   // the student's own 0-5 rating; course.rating averages these
   enrolledAt  DateTime @default(now())
   
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -183,3 +194,142 @@ model AdminBroadcast {
   sentAt    DateTime @default(now())
 }
 
+
+model PasswordReset {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String    @db.ObjectId
+  tokenHash String    @unique // sha256 of the emailed token; the raw token is never stored
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Quizzes/assignments are keyed by lesson. lessonId is a plain string because
+// course-level finals use synthetic ids like "final_test_<courseId>".
+model Quiz {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  courseId     String
+  moduleId     String   @default("")
+  lessonId     String   @unique
+  title        String
+  description  String   @default("")
+  questions    Json     // [{questionId, questionText, type, options[{optionId,text}], correctOptionIndex, correctAnswer, explanation, points}]
+  timeLimit    Int      @default(0)
+  passingScore Int      @default(70)
+  createdBy    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  submissions  QuizSubmission[]
+}
+
+model QuizSubmission {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String   @db.ObjectId
+  quizId       String   @db.ObjectId
+  answers      Json
+  score        Int      // percentage, computed on the server
+  earnedPoints Int
+  totalPoints  Int
+  passed       Boolean
+  timeSpent    Int?
+  submittedAt  DateTime @default(now())
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz         Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, quizId])
+}
+
+model Assignment {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  courseId     String
+  moduleId     String   @default("")
+  lessonId     String   @unique
+  title        String
+  description  String   @default("")
+  instructions String   @default("")
+  dueDate      DateTime
+  maxPoints    Int      @default(100)
+  createdBy    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  submissions  AssignmentSubmission[]
+}
+
+model AssignmentSubmission {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String     @db.ObjectId
+  assignmentId String     @db.ObjectId
+  content      String
+  fileUrl      String?
+  feedback     String?
+  score        Int?
+  isGraded     Boolean    @default(false)
+  submittedAt  DateTime   @default(now())
+  gradedAt     DateTime?
+
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, assignmentId])
+}
+
+model Bookmark {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String   @db.ObjectId
+  courseId        String   @db.ObjectId
+  lessonId        String?  // null = the whole course
+  title           String
+  note            String?
+  positionSeconds Int?     // video timestamp
+  createdAt       DateTime @default(now())
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+}
+
+model LearningPath {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  level       String   @default("beginner")
+  skills      String[]
+  courseIds   String[] @db.ObjectId // ordered
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ForumThread {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  authorId        String   @db.ObjectId
+  courseId        String?  @db.ObjectId
+  category        String   @default("general")
+  title           String
+  body            String
+  tags            String[]
+  upvoterIds      String[] @db.ObjectId
+  replyCount      Int      @default(0)
+  acceptedReplyId String?  @db.ObjectId
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  author          User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  replies         ForumReply[]
+}
+
+model ForumReply {
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  threadId   String      @db.ObjectId
+  authorId   String      @db.ObjectId
+  body       String
+  upvoterIds String[]    @db.ObjectId
+  createdAt  DateTime    @default(now())
+
+  thread     ForumThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  author     User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}

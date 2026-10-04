@@ -131,6 +131,10 @@ export const getMe = async (req: AuthenticatedRequest, res: Response): Promise<v
       res.status(404).json({ error: 'User not found' });
       return;
     }
+    if (!user.isActive) {
+      res.status(403).json({ error: 'Account is disabled. Contact support.' });
+      return;
+    }
 
     res.status(200).json({
       uid: user.id,

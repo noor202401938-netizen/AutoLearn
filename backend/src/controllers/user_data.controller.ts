@@ -87,7 +87,8 @@ export const updateVideoProgress = async (req: AuthenticatedRequest, res: Respon
       update: {
         currentPosition,
         totalDuration,
-        isCompleted
+        // Completion is sticky: rewatching a lesson never un-completes it.
+        ...(isCompleted && { isCompleted: true }),
       },
       create: {
         userId,
@@ -169,6 +170,20 @@ export const getCourseCompletion = async (req: AuthenticatedRequest, res: Respon
   }
 };
 
+/** Consecutive days (ending today or yesterday) with any study activity. */
+export function streakDays(activity: Date[], now = new Date()): number {
+  const day = (d: Date) => Math.floor((d.getTime() - d.getTimezoneOffset() * 60_000) / 86_400_000);
+  const days = new Set(activity.map(day));
+  let d = day(now);
+  if (!days.has(d)) d -= 1; // today not started yet doesn't break the streak
+  let streak = 0;
+  while (days.has(d)) {
+    streak++;
+    d--;
+  }
+  return streak;
+}
+
 export const getUserStats = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.uid;
@@ -177,16 +192,24 @@ export const getUserStats = async (req: AuthenticatedRequest, res: Response): Pr
       return;
     }
 
-    const enrolledCourses = await prisma.enrollment.count({ where: { userId } });
-    const completedCourses = await prisma.enrollment.count({ where: { userId, status: 'completed' } });
-    const totalLessonsWatched = await prisma.progress.count({ where: { userId, isCompleted: true } });
-    const totalQuizzesTaken = await prisma.quizResult.count({ where: { userId } });
+    const [enrolledCourses, completedCourses, totalLessonsWatched, totalQuizzesTaken, certificates, progress] = await Promise.all([
+      prisma.enrollment.count({ where: { userId } }),
+      prisma.enrollment.count({ where: { userId, status: 'completed' } }),
+      prisma.progress.count({ where: { userId, isCompleted: true } }),
+      prisma.quizSubmission.count({ where: { userId } }),
+      prisma.certificate.count({ where: { userId } }),
+      prisma.progress.findMany({ where: { userId }, select: { currentPosition: true, updatedAt: true } }),
+    ]);
 
     res.status(200).json({
       enrolledCourses,
       completedCourses,
       totalLessonsWatched,
       totalQuizzesTaken,
+      certificates,
+      // Watch position is the best measure of video time we record.
+      hoursLearned: Math.round((progress.reduce((s, p) => s + p.currentPosition, 0) / 3600) * 10) / 10,
+      streakDays: streakDays(progress.map((p) => p.updatedAt)),
     });
   } catch (error) {
     console.error('Error fetching user stats:', error);
@@ -234,12 +257,33 @@ export const getNotifications = async (req: AuthenticatedRequest, res: Response)
 export const markNotificationRead = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const id = req.params.id as string;
-    const notification = await prisma.notification.update({
-      where: { id },
+    // Scoped to the caller so nobody can touch someone else's notifications.
+    const { count } = await prisma.notification.updateMany({
+      where: { id, userId: req.user!.uid },
       data: { isRead: true }
     });
-    res.status(200).json(notification);
+    res.status(count ? 200 : 404).json({ id, isRead: count > 0 });
   } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getUnreadCount = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const count = await prisma.notification.count({ where: { userId: req.user!.uid, isRead: false } });
+    res.status(200).json({ count });
+  } catch (error) {
+    console.error('Unread count error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const markAllNotificationsRead = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    await prisma.notification.updateMany({ where: { userId: req.user!.uid, isRead: false }, data: { isRead: true } });
+    res.status(204).end();
+  } catch (error) {
+    console.error('Mark all read error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -289,8 +333,14 @@ export const getBroadcastHistory = async (req: AuthenticatedRequest, res: Respon
 
 export const broadcastNotification = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { title, message, type } = req.body;
-    
+    const title = String(req.body?.title ?? '').trim();
+    const message = String(req.body?.message ?? '').trim();
+    const type = String(req.body?.type ?? 'system');
+    if (!title || !message) {
+      res.status(400).json({ error: 'An announcement needs a title and a message' });
+      return;
+    }
+
     const students = await prisma.user.findMany({
       where: { role: 'student' }
     });
@@ -343,21 +393,3 @@ export const saveQuizResult = async (req: AuthenticatedRequest, res: Response): 
   }
 };
 
-// CERTIFICATES
-export const getUserCertificates = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
-  try {
-    const userId = req.user?.uid;
-    if (!userId) {
-      res.status(401).json({ error: 'Unauthorized' });
-      return;
-    }
-    const certificates = await prisma.certificate.findMany({
-      where: { userId },
-      include: { course: true },
-      orderBy: { issueDate: 'desc' }
-    });
-    res.status(200).json(certificates);
-  } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};

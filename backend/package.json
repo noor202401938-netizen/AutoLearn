@@ -11,7 +11,7 @@
     "db:push": "npx prisma db push",
     "db:migrate": "npx prisma migrate deploy",
     "db:studio": "npx prisma studio",
-    "test": "echo \"No tests yet\" && exit 0"
+    "test": "ts-node test/logic.test.ts && ts-node test/api.test.ts"
   },
   "keywords": [
     "autolearn",
@@ -34,6 +34,7 @@
     "jwt-simple": "^0.5.6",
     "minio": "^8.0.7",
     "multer": "^2.2.0",
+    "nodemailer": "^6.10.1",
     "openai": "^6.44.0",
     "pg": "^8.21.0",
     "prisma": "^5.14.0",
@@ -48,6 +49,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/jwt-simple": "^0.5.36",
     "@types/node": "^25.9.3",
+    "@types/nodemailer": "^6.4.24",
     "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3"

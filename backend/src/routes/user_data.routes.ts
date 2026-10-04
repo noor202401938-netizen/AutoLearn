@@ -3,10 +3,10 @@ import {
   updateVideoProgress, getVideoProgress, getCourseCompletion, getUserStats,
   getNotifications, markNotificationRead, createNotification, broadcastNotification, getBroadcastHistory,
   saveQuizResult,
-  getUserCertificates,
-  getUserProfile, updateUserProfile
+  getUserProfile, updateUserProfile,
+  getUnreadCount, markAllNotificationsRead,
 } from '../controllers/user_data.controller';
-import { authenticateToken } from '../middleware/auth.middleware';
+import { authenticateToken, adminOnly } from '../middleware/auth.middleware';
 
 const router = Router();
 
@@ -26,15 +26,14 @@ router.get('/stats', getUserStats);
 
 // Notifications
 router.get('/notifications', getNotifications);
+router.get('/notifications/unread-count', getUnreadCount);
+router.put('/notifications/read-all', markAllNotificationsRead);
 router.put('/notifications/:id/read', markNotificationRead);
-router.post('/notifications', createNotification);
-router.post('/notifications/broadcast', broadcastNotification);
-router.get('/notifications/broadcast-history', getBroadcastHistory);
+router.post('/notifications', adminOnly, createNotification);
+router.post('/notifications/broadcast', adminOnly, broadcastNotification);
+router.get('/notifications/broadcast-history', adminOnly, getBroadcastHistory);
 
 // Quiz
 router.post('/quiz', saveQuizResult);
-
-// Certificates
-router.get('/certificates', getUserCertificates);
 
 export default router;
