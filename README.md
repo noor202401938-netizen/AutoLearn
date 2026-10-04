@@ -1,6 +1,15 @@
 # AutoLearn 🎓
 
-**AutoLearn** is a production-ready, AI-powered generalized learning platform built with Flutter (mobile/web), Node.js/Express (backend), PostgreSQL (database), and MinIO (file storage). It supports student course browsing, enrollment, video learning with progress tracking, AI-assisted tutoring, quiz assessments, certificate generation, and a full-featured admin dashboard.
+**AutoLearn** teaches economics the way a good teacher would: short readings that explain the intuition, a supply-and-demand lab you can push around yourself, practice quizzes with worked explanations, assignments marked with feedback, and an AI tutor to ask when you're stuck. Built with Flutter (web/mobile), Node.js/Express + Prisma (MongoDB), Redis and MinIO.
+
+## ✏️ Design: the lecture notebook
+
+The interface is a student's notebook, not a dashboard template:
+
+- **Paper & ink** (light) / **blackboard & chalk** (dark) — graph-paper pages, fountain-pen ink, a red margin rule.
+- **Handwriting for annotations** (Caveat), a bookish serif for headings (Fraunces), IBM Plex for reading and Plex Mono for figures. All fonts are bundled — no runtime calls to Google.
+- **Economics as the visual language** — the hand-sketched supply & demand diagram is the logo, the empty-state illustration and the interactive lab.
+- Notebook components live in `lib/widgets/notebook/` (`GraphPaper`, `NoteCard`, `Highlight`, `MarginNote`, `NoteHeading`, `NoteText`, `SupplyDemandSketch`, `NotebookShell`). Colours come from `ColorScheme` + the `NotebookColors` theme extension in `lib/theme/app_theme.dart` — don't hardcode hex values in screens.
 
 ---
 
@@ -21,6 +30,8 @@ cd economics-learner-app-main
 # 2. Configure environment variables
 cp backend/.env.example backend/.env
 # Edit backend/.env with your secrets (JWT_SECRET, OPENAI_API_KEY, etc.)
+# By default, Docker Compose connects to the included local MongoDB container.
+# For production, set DATABASE_URL to your MongoDB Atlas connection string.
 
 # 3. Start all services
 docker compose up --build
@@ -66,62 +77,34 @@ docker compose up --build
            │                      │
            ▼                      ▼
 ┌──────────────────┐    ┌──────────────────────────┐
-│    PgBouncer     │    │  MinIO Object Storage    │
-│(Connection Pool) │    │  (video/media files)     │
-└────────┬─────────┘    └──────────────────────────┘
-         │
-         ▼
-┌──────────────────┐    ┌──────────────────────────┐
-│  PostgreSQL 15   │    │        Redis 7           │
-│  (via Prisma ORM)│    │  (Rate limits / Session) │
-└──────────────────┘    └──────────────────────────┘
+│  MongoDB Atlas   │    │  MinIO Object Storage    │
+│  or Local Mongo  │    │  (video/media files)     │
+│ (via Prisma ORM) │    └──────────────────────────┘
+└──────────────────┘    ┌──────────────────────────┐
+                        │        Redis 7           │
+                        │ (Rate limits / Sessions) │
+                        └──────────────────────────┘
 ```
 
 ---
 
 ## 📋 API Endpoints
 
-**Legend:**
-- ❌ : Public endpoint (No authentication required)
-- ✅ : Authenticated endpoint (Requires valid user JWT token)
-- 🔒 Admin : Admin endpoint (Requires Admin role JWT token)
+❌ public · ✅ signed in · 🔒 admin. All paths are under `/api`.
 
-### Authentication (`/api/auth`)
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/signup` | ❌ | Register new student |
-| POST | `/login` | ❌ | Login and receive JWT |
-| GET | `/me` | ✅ | Get current user profile |
-| GET | `/users` | 🔒 Admin | List all users |
-| PATCH | `/users/:uid/toggle-status` | 🔒 Admin | Enable/disable user |
+| Area | Endpoints |
+|------|-----------|
+| Auth | ❌ `POST /auth/signup`, `POST /auth/login`, `POST /auth/password-reset`, `POST /auth/password-reset/confirm` · ✅ `GET /auth/me`, `POST /auth/change-password` · 🔒 `GET /auth/users`, `PATCH /auth/users/:uid/toggle-status` |
+| Users | ✅ `GET /users/:uid` (self) · 🔒 `PUT /users/:uid/role`, `DELETE /users/:uid` |
+| Courses | ❌ `GET /courses`, `GET /courses/:id` · ✅ `POST /courses/:id/enroll` (free courses), `POST /courses/:id/rate` (enrolled, one rating each) · 🔒 `POST/PUT/DELETE /courses[/:id]` — `syllabus` in the body creates/updates/deletes chapters and lessons |
+| Learning | ✅ `GET /quizzes/lesson/:lessonId` (no answers until submitted), `POST /user/quizzes/:quizId/submit` (graded on the server), `GET /assignments/lesson/:lessonId`, `GET /user/assignments`, `POST /user/assignments/:id/submit` (AI feedback), `GET/POST /user/certificates` (issued only when earned), `GET /user/courses/:id/progress` · 🔒 `POST /quizzes`, `POST /assignments` |
+| Study tools | ✅ `GET/POST/DELETE /user/bookmarks`, `GET /learning-paths`, forum: `GET/POST /forum/threads`, `GET/DELETE /forum/threads/:id`, `POST /forum/threads/:id/{replies,upvote,accept}`, `POST /forum/replies/:id/upvote` · 🔒 `POST/PUT/DELETE /learning-paths` |
+| AI tutor | ✅ `POST /chat/session`, `GET /chat/sessions`, `GET /chat/:id/history`, `POST /chat/:id/message`, `DELETE /chat/:id`, `POST /ai/quiz`, `POST /ai/summary`, `POST /ai/chat` — all AI runs server-side; the app holds no AI key |
+| Profile & progress | ✅ `GET/PUT /user/profile`, `GET /user/stats`, `POST /user/progress`, `GET /user/progress/:lessonId`, `GET /user/enrollments`, notifications (`GET`, `unread-count`, `read-all`, `:id/read`) · 🔒 broadcast + history |
+| Payments | ✅ `POST /payments/checkout` (Stripe Checkout; price from the database) · Stripe → `POST /payments/webhook` (signature required) · 🔒 `GET /payments`, `POST /payments/:id/refund`, `GET /finance/stats`, `GET /admin/analytics` |
 
-### Courses (`/api/courses`)
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/` | ❌ | List all courses (supports `?isPublished=true&category=X&level=Y&search=Z`) |
-| GET | `/:id` | ❌ | Get course details |
-| POST | `/` | 🔒 Admin | Create course |
-| PUT | `/:id` | 🔒 Admin | Update course |
-| DELETE | `/:id` | 🔒 Admin | Delete course |
-| POST | `/:id/enroll` | ✅ | Enroll in course |
-| POST | `/:id/rate` | ✅ | Rate a course |
-
-### User Data (`/api/user`)
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/enrollments` | ✅ | Get enrolled courses |
-| POST | `/progress` | ✅ | Update lesson progress |
-| GET | `/progress/:lessonId` | ✅ | Get lesson progress |
-| GET | `/notifications` | ✅ | Get notifications |
-| PUT | `/notifications/:id/read` | ✅ | Mark notification read |
-| POST | `/quiz` | ✅ | Submit quiz result |
-| GET | `/certificates` | ✅ | Get certificates |
-
-### AI (`/api/ai`)
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/summarize` | ✅ | Generate video summary |
-| POST | `/chat` | ✅ | AI tutor chat |
+### Environment you'll want to set
+`JWT_SECRET`, `DATABASE_URL` (Prisma needs a MongoDB **replica set** — the compose file runs a single-node one), `OPENAI_API_KEY` (tutor, quiz generation, assignment feedback; disabled without it), `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` (paid courses), `APP_URL` + `SMTP_URL` (password-reset emails; without SMTP the link is logged in development). See `backend/.env.example`.
 
 ---
 
