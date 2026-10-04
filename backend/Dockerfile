@@ -19,5 +19,6 @@ RUN npm run build
 
 EXPOSE 3001
 
-# Run migrations, seed, then start the server
-CMD ["sh", "-c", "npx prisma db push --accept-data-loss && node -e \"require('ts-node').register({transpileOnly:true}); require('./prisma/seed.ts')\" 2>/dev/null || true && npm start"]
+# Sync indexes and seed starter content (both idempotent), then start.
+# No --accept-data-loss: a destructive schema change must be done by hand.
+CMD ["sh", "-c", "npx prisma db push --skip-generate; npx ts-node --transpile-only prisma/seed.ts; npm start"]
