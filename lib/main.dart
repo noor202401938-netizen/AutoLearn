@@ -3,12 +3,12 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/welcome_screen.dart';
-import 'screens/user_info_screen.dart';
 import 'screens/login_page.dart';
 import 'screens/signup_page.dart';
 import 'theme/app_theme.dart';
 import 'screens/role_based_wrapper.dart';
-import 'repository/user_preferences_repository.dart';
+import 'screens/reset_password_page.dart';
+import 'widgets/notebook/notebook.dart';
 import 'utils/preference_notifier.dart';
 import 'backend/api_client.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
@@ -29,8 +29,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final UserPreferencesRepository _preferencesRepository =
-      UserPreferencesRepository();
   final PreferenceNotifier _preferenceNotifier = PreferenceNotifier.instance;
 
   @override
@@ -53,20 +51,7 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  Future<void> _loadPreferences() async {
-    try {
-      final prefs =
-          await _preferencesRepository.getUserPreferences('local_preferences');
-      _preferenceNotifier.loadPreferences(
-        theme: prefs['theme'] as String? ?? 'system',
-        fontSize: prefs['fontSize'] as String? ?? 'normal',
-        highContrast: prefs['highContrast'] as bool? ?? false,
-        reduceMotion: prefs['reduceMotion'] as bool? ?? false,
-      );
-    } catch (e) {
-      debugPrint('Error loading preferences: $e');
-    }
-  }
+  Future<void> _loadPreferences() => _preferenceNotifier.load();
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +60,7 @@ class _MyAppState extends State<MyApp> {
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(
         textScaler: TextScaler.linear(fontSizeMultiplier),
+        disableAnimations: _preferenceNotifier.reduceMotion,
       ),
       child: MaterialApp(
         title: 'AutoLearn',
@@ -92,11 +78,6 @@ class _MyAppState extends State<MyApp> {
                 title: 'Welcome - AutoLearn',
                 color: AppTheme.primary,
                 child: const WelcomePage(),
-              ),
-          '/userinfo': (context) => Title(
-                title: 'Setup - AutoLearn',
-                color: AppTheme.primary,
-                child: const UserInfoPage(),
               ),
           '/login': (context) => Title(
                 title: 'Login - AutoLearn',
@@ -144,7 +125,7 @@ class _SplashScreenState extends State<SplashScreen>
         .animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
 
     _controller.forward();
-    _checkFirstLaunch();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkFirstLaunch());
   }
 
   @override
@@ -154,30 +135,23 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _checkFirstLaunch() async {
-    await Future.delayed(
-        const Duration(seconds: 2)); // Show splash for 2 seconds
+    // Password-reset links land here: /reset-password?token=...
+    final resetToken = Uri.base.queryParameters['token'];
+    if (Uri.base.path.endsWith('/reset-password') && resetToken != null) {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ResetPasswordPage(token: resetToken)));
+      return;
+    }
 
     final prefs = await SharedPreferences.getInstance();
     final isFirstLaunch = prefs.getBool('isFirstLaunch') ?? true;
-    final hasCompletedUserInfo = prefs.getBool('hasCompletedUserInfo') ?? false;
+    final isLoggedIn = await ApiClient.instance.getToken() != null;
 
     if (!mounted) return;
-
-    // Check if user is already logged in via stored JWT token
-    final token = await ApiClient.instance.getToken();
-    final bool isLoggedIn = token != null;
-
     if (isFirstLaunch) {
-      // First time opening the app - show welcome screen
       Navigator.pushReplacementNamed(context, '/welcome');
-    } else if (!hasCompletedUserInfo) {
-      // User has seen welcome but not completed user info
-      Navigator.pushReplacementNamed(context, '/userinfo');
     } else if (isLoggedIn) {
-      // User is logged in and completed all onboarding - go to home
       Navigator.pushReplacementNamed(context, '/home');
     } else {
-      // User completed onboarding but not logged in - go to login
       Navigator.pushReplacementNamed(context, '/login');
     }
   }
@@ -185,56 +159,25 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
-      body: Center(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: ScaleTransition(
-            scale: _scaleAnimation,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(28),
-                  decoration: BoxDecoration(
-                    color: colorScheme.primaryContainer,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.school_rounded,
-                    size: 64,
-                    color: colorScheme.primary,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Text(
-                  'AutoLearn',
-                  style: theme.textTheme.headlineLarge?.copyWith(
-                    color: colorScheme.primary,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Your Personal Learning Assistant',
-                  style: theme.textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 60),
-                SizedBox(
-                  width: 32,
-                  height: 32,
-                  child: CircularProgressIndicator(
-                    color: colorScheme.primary,
-                    strokeWidth: 3,
-                  ),
-                ),
-              ],
+      body: Stack(children: [
+        const GraphPaper(),
+        Center(
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: ScaleTransition(
+              scale: _scaleAnimation,
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                const SupplyDemandSketch(size: 120),
+                const SizedBox(height: 20),
+                Text('AutoLearn', style: theme.textTheme.displayMedium),
+                const SizedBox(height: 4),
+                const MarginNote('economics, in your own notes', tilt: 0),
+              ]),
             ),
           ),
         ),
-      ),
+      ]),
     );
   }
 }

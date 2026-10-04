@@ -2,9 +2,12 @@
 import 'package:flutter/material.dart';
 import '../backend/api_client.dart';
 import '../repository/auth_repository.dart';
+import '../widgets/notebook/notebook.dart';
 import 'admin/admin_home.dart';
 import 'student/student_home.dart';
 
+/// Checks the saved session with the server, then opens the student or
+/// admin notebook. An expired or revoked session goes back to sign-in.
 class RoleBasedWrapper extends StatefulWidget {
   const RoleBasedWrapper({super.key});
 
@@ -12,91 +15,47 @@ class RoleBasedWrapper extends StatefulWidget {
   State<RoleBasedWrapper> createState() => _RoleBasedWrapperState();
 }
 
-class _RoleBasedWrapperState extends State<RoleBasedWrapper>
-    with SingleTickerProviderStateMixin {
-  final AuthRepository _authRepository = AuthRepository();
-  // _role is null while loading, then set to 'admin' or 'student'
+class _RoleBasedWrapperState extends State<RoleBasedWrapper> {
   String? _role;
-  bool _isLoading = true;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
-    _checkAuth();
+    _check();
   }
 
-  Future<void> _checkAuth() async {
-    final token = await ApiClient.instance.getToken();
-    if (token == null) {
-      if (mounted) Navigator.pushReplacementNamed(context, '/login');
-      return;
+  Future<void> _check() async {
+    setState(() => _error = null);
+    if (await ApiClient.instance.getToken() == null) return _toLogin();
+    try {
+      // The server is the source of truth for both the session and the role.
+      final me = await ApiClient.instance.json('GET', '/auth/me');
+      if (mounted) setState(() => _role = me['role'] as String? ?? 'student');
+    } on ApiException catch (e) {
+      if (e.status == 401 || e.status == 403 || e.status == 404) {
+        await AuthRepository().logoutUser();
+        return _toLogin();
+      }
+      if (mounted) setState(() => _error = e.message); // offline etc. — let them retry
     }
+  }
 
-    final uid = await _authRepository.getCurrentUserUid();
-    if (uid == null) {
-      if (mounted) Navigator.pushReplacementNamed(context, '/login');
-      return;
-    }
-
-    final role = await _authRepository.getUserRole(uid);
-    if (mounted) {
-      setState(() {
-        _role = role;
-        _isLoading = false;
-      });
-    }
+  void _toLogin() {
+    if (mounted) Navigator.pushReplacementNamed(context, '/login');
   }
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 600),
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeInCubic,
-      transitionBuilder: (child, animation) =>
-          FadeTransition(opacity: animation, child: child),
-      child: _buildContent(colorScheme, isDark),
+    if (_role == 'admin') return const AdminHome(key: ValueKey('admin_home'));
+    if (_role != null) return const StudentHome(key: ValueKey('student_home'));
+    return Scaffold(
+      body: Stack(children: [
+        const GraphPaper(),
+        _error != null
+            ? NotebookError(message: _error!, onRetry: _check)
+            : const Center(child: CircularProgressIndicator()),
+      ]),
     );
-  }
-
-  Widget _buildContent(ColorScheme colorScheme, bool isDark) {
-    if (_isLoading) {
-      return Scaffold(
-        key: const ValueKey('loading'),
-        backgroundColor: colorScheme.surface,
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer,
-                  shape: BoxShape.circle,
-                ),
-                child: CircularProgressIndicator(
-                  color: colorScheme.primary,
-                  strokeWidth: 3,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Authenticating...',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    // Auth succeeded — route by role
-    if (_role == 'admin') {
-      return const AdminHome(key: ValueKey('admin_home'));
-    }
-    return const StudentHome(key: ValueKey('student_home'));
   }
 }

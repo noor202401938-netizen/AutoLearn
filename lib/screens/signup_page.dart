@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../business_logic/auth_manager.dart';
+import '../repository/auth_repository.dart';
 import '../repository/user_repository.dart';
+import '../utils/profile_options.dart';
+import '../widgets/notebook/notebook.dart';
+import 'auth_shell.dart';
+import 'student/policies_screen.dart';
 
+const _levels = learnerLevels;
+const _interests = learnerInterests;
+
+/// Sign up and onboarding in one page: who you are, where you're starting
+/// from, and what you want to learn — all saved to your profile.
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
 
@@ -9,401 +20,144 @@ class SignupPage extends StatefulWidget {
   State<SignupPage> createState() => _SignupPageState();
 }
 
-class _SignupPageState extends State<SignupPage>
-    with SingleTickerProviderStateMixin {
-  final AuthManager _authManager = AuthManager();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-
-  bool _isLoading = false;
-  bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
-  bool _agreeToTerms = false;
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
-    );
-    _animationController.forward();
-  }
+class _SignupPageState extends State<SignupPage> {
+  final _auth = AuthManager();
+  final _form = GlobalKey<FormState>();
+  final _name = TextEditingController();
+  final _email = TextEditingController();
+  final _password = TextEditingController();
+  String _level = _levels.first;
+  String _interest = _interests.first;
+  bool _agreed = false;
+  bool _hidePassword = true;
+  bool _busy = false;
+  String? _error;
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    _animationController.dispose();
+    _name.dispose();
+    _email.dispose();
+    _password.dispose();
     super.dispose();
   }
 
-  Future<void> _registerUser() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    if (!_agreeToTerms) {
-      _showErrorSnackBar("Please agree to Terms & Conditions");
+  Future<void> _create() async {
+    if (!_form.currentState!.validate()) return;
+    if (!_agreed) {
+      setState(() => _error = 'Please accept the terms to continue');
       return;
     }
-
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    final error = await _auth.register(_email.text.trim(), _password.text, displayName: _name.text.trim());
     if (!mounted) return;
-    setState(() => _isLoading = true);
-
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-
-    try {
-      final result = await _authManager.register(email, password);
-
-      if (!mounted) return;
-      setState(() => _isLoading = false);
-
-      if (result == null || result == "success") {
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, '/home');
-        }
-      } else {
-        _showErrorSnackBar(result);
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _isLoading = false);
-      _showErrorSnackBar('Registration failed: ${e.toString()}');
+    if (error != null) {
+      setState(() {
+        _busy = false;
+        _error = error;
+      });
+      return;
     }
-  }
-
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.error_outline, color: Colors.white),
-            const SizedBox(width: 10),
-            Expanded(child: Text(message)),
-          ],
-        ),
-        backgroundColor: Theme.of(context).colorScheme.error,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.all(16),
-      ),
-    );
+    // Account exists now; store the onboarding answers on the profile.
+    try {
+      final uid = await AuthRepository().getCurrentUserUid();
+      if (uid != null) {
+        await UserRepository().saveOnboardingData(uid: uid, displayName: _name.text.trim(), grade: _level, interest: _interest);
+      }
+    } on Exception {
+      // Not fatal: they can fill this in later under Edit profile.
+    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isFirstLaunch', false);
+    if (mounted) Navigator.pushReplacementNamed(context, '/home');
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final isDesktop = constraints.maxWidth > 800;
-
-          final formContent = FadeTransition(
-            opacity: _fadeAnimation,
-            child: Center(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(
-                    horizontal: isDesktop ? 60 : 24, vertical: 40),
-                child: Container(
-                  constraints: const BoxConstraints(maxWidth: 440),
-                  padding: EdgeInsets.all(isDesktop ? 40 : 28),
-                  decoration: BoxDecoration(
-                    color: colorScheme.surface,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: colorScheme.outlineVariant),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 24,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Center(
-                          child: Container(
-                            padding: const EdgeInsets.all(14),
-                            decoration: BoxDecoration(
-                              color: colorScheme.primaryContainer,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Icon(Icons.school_rounded,
-                                size: 32, color: colorScheme.primary),
-                          ),
-                        ),
-                        const SizedBox(height: 28),
-                        Text(
-                          "Create Account",
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.headlineSmall,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Start your learning journey today",
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.bodyMedium,
-                        ),
-                        const SizedBox(height: 32),
-                        TextFormField(
-                          controller: _nameController,
-                          decoration: const InputDecoration(
-                            labelText: "Full Name",
-                            hintText: "Enter your full name",
-                            prefixIcon: Icon(Icons.person_outline),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty)
-                              return 'Please enter your name';
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            labelText: "Email address",
-                            hintText: "Enter your email",
-                            prefixIcon: Icon(Icons.email_outlined),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty)
-                              return 'Please enter your email';
-                            if (!value.contains('@'))
-                              return 'Please enter a valid email';
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _passwordController,
-                          obscureText: _obscurePassword,
-                          decoration: InputDecoration(
-                            labelText: "Password",
-                            hintText: "Create a password",
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_off_outlined
-                                    : Icons.visibility_outlined,
-                                color: colorScheme.onSurfaceVariant,
-                              ),
-                              onPressed: () => setState(
-                                  () => _obscurePassword = !_obscurePassword),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty)
-                              return 'Please enter a password';
-                            if (value.length < 8)
-                              return 'Password must be at least 8 characters';
-                            if (!RegExp(r'^(?=.*[A-Za-z])(?=.*\d)')
-                                .hasMatch(value)) {
-                              return 'Password must be alphanumeric';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _confirmPasswordController,
-                          obscureText: _obscureConfirmPassword,
-                          decoration: InputDecoration(
-                            labelText: "Confirm Password",
-                            hintText: "Re-enter your password",
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscureConfirmPassword
-                                    ? Icons.visibility_off_outlined
-                                    : Icons.visibility_outlined,
-                                color: colorScheme.onSurfaceVariant,
-                              ),
-                              onPressed: () => setState(() =>
-                                  _obscureConfirmPassword =
-                                      !_obscureConfirmPassword),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty)
-                              return 'Please confirm your password';
-                            if (value != _passwordController.text)
-                              return 'Passwords do not match';
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: Checkbox(
-                                value: _agreeToTerms,
-                                onChanged: (v) =>
-                                    setState(() => _agreeToTerms = v ?? false),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(6)),
-                                activeColor: colorScheme.primary,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () => setState(
-                                    () => _agreeToTerms = !_agreeToTerms),
-                                child: RichText(
-                                  text: TextSpan(
-                                    style: theme.textTheme.bodySmall,
-                                    children: [
-                                      const TextSpan(text: 'I agree to the '),
-                                      TextSpan(
-                                        text: 'Terms & Conditions',
-                                        style: TextStyle(
-                                          color: colorScheme.primary,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                        _isLoading
-                            ? const Center(child: CircularProgressIndicator())
-                            : SizedBox(
-                                height: 52,
-                                child: ElevatedButton(
-                                  onPressed: _registerUser,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: colorScheme.primary,
-                                    foregroundColor: colorScheme.onPrimary,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(14)),
-                                    elevation: 0,
-                                  ),
-                                  child: Text(
-                                    "Sign Up",
-                                    style: theme.textTheme.labelLarge?.copyWith(
-                                      color: colorScheme.onPrimary,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                        const SizedBox(height: 24),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text("Already have an account? ",
-                                style: theme.textTheme.bodyMedium),
-                            TextButton(
-                              onPressed: () => Navigator.pushReplacementNamed(
-                                  context, '/login'),
-                              style: TextButton.styleFrom(
-                                padding: EdgeInsets.zero,
-                                minimumSize: const Size(0, 0),
-                              ),
-                              child: Text("Sign in",
-                                  style: theme.textTheme.labelLarge
-                                      ?.copyWith(color: colorScheme.primary)),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+    return AuthShell(
+      child: Form(
+        key: _form,
+        child: AutofillGroup(
+          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Text('Start your notebook', style: theme.textTheme.headlineMedium),
+            const MarginNote('takes a minute', tilt: 0),
+            const SizedBox(height: 24),
+            TextFormField(
+              controller: _name,
+              autofillHints: const [AutofillHints.name],
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(labelText: 'Your name'),
+              validator: (v) => (v ?? '').trim().isEmpty ? 'What should we call you?' : null,
+            ),
+            const SizedBox(height: 14),
+            TextFormField(
+              controller: _email,
+              keyboardType: TextInputType.emailAddress,
+              autofillHints: const [AutofillHints.email],
+              decoration: const InputDecoration(labelText: 'Email'),
+              validator: (v) => RegExp(r'^\S+@\S+\.\S+$').hasMatch((v ?? '').trim()) ? null : 'Enter a valid email address',
+            ),
+            const SizedBox(height: 14),
+            TextFormField(
+              controller: _password,
+              obscureText: _hidePassword,
+              autofillHints: const [AutofillHints.newPassword],
+              decoration: InputDecoration(
+                labelText: 'Password',
+                helperText: 'At least 8 characters, letters and numbers',
+                suffixIcon: IconButton(
+                  tooltip: _hidePassword ? 'Show password' : 'Hide password',
+                  icon: Icon(_hidePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+                  onPressed: () => setState(() => _hidePassword = !_hidePassword),
                 ),
               ),
+              validator: (v) => RegExp(r'^(?=.*[A-Za-z])(?=.*\d).{8,}$').hasMatch(v ?? '')
+                  ? null
+                  : 'At least 8 characters, with letters and numbers',
             ),
-          );
-
-          if (isDesktop) {
-            return Row(
-              children: [
-                Expanded(
-                  flex: 5,
-                  child: Container(
-                    color: colorScheme.surfaceVariant,
-                    child: formContent,
-                  ),
-                ),
-                Expanded(
-                  flex: 6,
-                  child: Container(
-                    color: colorScheme.primary,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 96,
-                            height: 96,
-                            decoration: BoxDecoration(
-                              color: colorScheme.onPrimary,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.15),
-                                  blurRadius: 32,
-                                  offset: const Offset(0, 12),
-                                )
-                              ],
-                            ),
-                            child: Icon(Icons.school_rounded,
-                                size: 48, color: colorScheme.primary),
-                          ),
-                          const SizedBox(height: 32),
-                          Text(
-                            "AutoLearn",
-                            style: theme.textTheme.displayMedium
-                                ?.copyWith(color: colorScheme.onPrimary, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 16),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 48),
-                            child: Text(
-                              "Create an account and start\nunlocking your potential today.",
-                              textAlign: TextAlign.center,
-                              style: theme.textTheme.bodyLarge?.copyWith(
-                                  color: colorScheme.onPrimary.withValues(alpha: 0.85)),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          }
-
-          return formContent;
-        },
+            const SizedBox(height: 20),
+            Text('Where are you starting from?', style: theme.textTheme.titleSmall),
+            const SizedBox(height: 8),
+            Wrap(spacing: 8, runSpacing: 8, children: [
+              for (final l in _levels) ChoiceChip(label: Text(l), selected: _level == l, onSelected: (_) => setState(() => _level = l)),
+            ]),
+            const SizedBox(height: 16),
+            Text('What do you most want to understand?', style: theme.textTheme.titleSmall),
+            const SizedBox(height: 8),
+            Wrap(spacing: 8, runSpacing: 8, children: [
+              for (final i in _interests)
+                ChoiceChip(label: Text(i), selected: _interest == i, onSelected: (_) => setState(() => _interest = i)),
+            ]),
+            const SizedBox(height: 12),
+            Row(children: [
+              Checkbox(value: _agreed, onChanged: (v) => setState(() => _agreed = v ?? false)),
+              const Text('I accept the '),
+              InkWell(
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PoliciesScreen())),
+                child: Text('terms & privacy policy', style: TextStyle(color: theme.colorScheme.primary, decoration: TextDecoration.underline)),
+              ),
+            ]),
+            if (_error != null) ...[
+              const SizedBox(height: 6),
+              Text(_error!, style: TextStyle(color: theme.colorScheme.error)),
+            ],
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _busy ? null : _create,
+              child: _busy
+                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Text('Create account'),
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
+              child: const Text('Already have an account? Sign in'),
+            ),
+          ]),
+        ),
       ),
     );
   }
