@@ -90,11 +90,17 @@ class _NoteCardState extends State<NoteCard> {
       child: widget.child,
     );
     if (widget.onTap == null) return card;
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hover = true),
-      onExit: (_) => setState(() => _hover = false),
-      child: GestureDetector(onTap: widget.onTap, behavior: HitTestBehavior.opaque, child: card),
+    // Exposed as a focusable button so screen readers and keyboards can use it
+    // (Enter/Space activate it; focus lifts it like hover).
+    return Semantics(
+      button: true,
+      child: FocusableActionDetector(
+        mouseCursor: SystemMouseCursors.click,
+        onShowHoverHighlight: (v) => setState(() => _hover = v),
+        onShowFocusHighlight: (v) => setState(() => _hover = v),
+        actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onTap!())},
+        child: GestureDetector(onTap: widget.onTap, behavior: HitTestBehavior.opaque, child: card),
+      ),
     );
   }
 }

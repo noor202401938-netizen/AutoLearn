@@ -141,7 +141,8 @@ class AdminOverviewPage extends StatelessWidget {
 /// Hand-drawn weekly bar chart.
 class _WeekBars extends StatelessWidget {
   final List<Map<String, dynamic>> weeks;
-  const _WeekBars(this.weeks);
+  final String labelFormat;
+  const _WeekBars(this.weeks, {this.labelFormat = 'd MMM'});
 
   @override
   Widget build(BuildContext context) {
@@ -164,7 +165,7 @@ class _WeekBars extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              Text(DateFormat('d MMM').format(DateTime.parse(w['weekStart'] as String)), style: theme.textTheme.bodySmall),
+              Text(DateFormat(labelFormat).format(DateTime.parse(w['weekStart'] as String)), style: theme.textTheme.bodySmall),
             ]),
           ),
         ),
@@ -217,7 +218,7 @@ class _AdminStudentsPageState extends State<AdminStudentsPage> {
                 child: ListTile(
                   title: Text((u['displayName'] as String?)?.isNotEmpty == true ? u['displayName'] as String : u['email'] as String),
                   subtitle: Text(
-                    '${u['email']} · ${u['enrollmentCount']} courses · joined ${DateFormat('d MMM yyyy').format(DateTime.parse(u['createdAt'] as String))}',
+                    '${u['email']} · ${u['enrollmentCount']} ${u['enrollmentCount'] == 1 ? 'course' : 'courses'} · joined ${DateFormat('d MMM yyyy').format(DateTime.parse(u['createdAt'] as String))}',
                   ),
                   leading: u['role'] == 'admin'
                       ? Highlight('admin', style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurface))
@@ -293,7 +294,7 @@ class AdminPaymentsPage extends StatelessWidget {
               height: 140,
               child: _WeekBars([
                 for (final m in monthly) {'count': (m['revenue'] as num).round(), 'weekStart': '${m['month']}-01'},
-              ]),
+              ], labelFormat: 'MMM'),
             ),
             const SizedBox(height: 28),
             const NoteHeading('Transactions'),

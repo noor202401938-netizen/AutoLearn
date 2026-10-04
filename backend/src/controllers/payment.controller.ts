@@ -223,7 +223,8 @@ export const getFinanceStats = async (req: AuthenticatedRequest, res: Response):
       const revenue = payments
         .filter((p) => p.status === 'succeeded' && p.createdAt >= start && p.createdAt < end)
         .reduce((s, p) => s + p.amount, 0);
-      return { month: start.toISOString().slice(0, 7), revenue };
+      // Local year-month: toISOString() would shift to UTC and mislabel the month.
+      return { month: `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}`, revenue };
     });
 
     res.status(200).json({
