@@ -157,15 +157,21 @@ class _VoteTally extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final nb = NotebookColors.of(context);
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(6),
-      child: Padding(
-        padding: const EdgeInsets.all(6),
-        child: Column(children: [
-          Icon(mine ? Icons.thumb_up : Icons.thumb_up_outlined, size: 18, color: mine ? nb.annotation : theme.colorScheme.onSurfaceVariant),
-          Text('$count', style: NotebookColors.figures(size: 14, weight: FontWeight.w600, color: theme.colorScheme.onSurface)),
-        ]),
+    return Semantics(
+      button: true,
+      selected: mine,
+      label: 'Upvote, $count ${count == 1 ? 'vote' : 'votes'}',
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(6),
+        child: Padding(
+          padding: const EdgeInsets.all(6),
+          child: Column(children: [
+            Icon(mine ? Icons.thumb_up : Icons.thumb_up_outlined, size: 18, color: mine ? nb.annotation : theme.colorScheme.onSurfaceVariant),
+            Text('$count', style: NotebookColors.figures(size: 14, weight: FontWeight.w600, color: theme.colorScheme.onSurface)),
+          ]),
+        ),
       ),
     );
   }

@@ -133,7 +133,7 @@ class _SignupPageState extends State<SignupPage> {
             ]),
             const SizedBox(height: 12),
             Row(children: [
-              Checkbox(value: _agreed, onChanged: (v) => setState(() => _agreed = v ?? false)),
+              Semantics(label: 'I accept the terms and privacy policy', child: Checkbox(value: _agreed, onChanged: (v) => setState(() => _agreed = v ?? false))),
               const Text('I accept the '),
               InkWell(
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PoliciesScreen())),

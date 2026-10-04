@@ -35,17 +35,18 @@ class ThemeAccessibilityScreen extends StatelessWidget {
                 const NoteHeading('Text size'),
                 const SizedBox(height: 14),
                 SegmentedButton<String>(
-                  segments: const [
-                    ButtonSegment(value: 'small', label: Text('Small')),
-                    ButtonSegment(value: 'normal', label: Text('Normal')),
-                    ButtonSegment(value: 'large', label: Text('Large')),
-                    ButtonSegment(value: 'extraLarge', label: Text('Largest')),
+                  segments: [
+                    for (final (value, label) in const [('small', 'Small'), ('normal', 'Normal'), ('large', 'Large'), ('extraLarge', 'Largest')])
+                      ButtonSegment(
+                        value: value,
+                        label: Text(label, semanticsLabel: prefs.fontSize == value ? '$label, selected' : label),
+                      ),
                   ],
                   selected: {prefs.fontSize},
                   onSelectionChanged: (s) => prefs.updateFontSize(s.first),
                 ),
                 const SizedBox(height: 10),
-                Text('The quick brown fox priced its eggs at equilibrium.', style: theme.textTheme.bodyLarge),
+                Text('The quick brown fox jumps over the lazy dog.', style: theme.textTheme.bodyLarge),
                 const SizedBox(height: 32),
                 const NoteHeading('Motion'),
                 SwitchListTile(
@@ -79,22 +80,29 @@ class _Swatch extends StatelessWidget {
     final fill = light == null
         ? BoxDecoration(gradient: LinearGradient(colors: [paper, paper, board, board], stops: const [0, 0.5, 0.5, 1]))
         : BoxDecoration(color: light! ? paper : board);
-    return InkWell(
-      onTap: onTap,
-      child: Column(children: [
-        Container(
-          width: 120,
-          height: 80,
-          decoration: fill.copyWith(
-            border: Border.all(color: selected ? NotebookColors.of(context).annotation : theme.colorScheme.outline, width: selected ? 3 : 1),
-            borderRadius: BorderRadius.circular(6),
+    return Semantics(
+      button: true,
+      selected: selected,
+      // Flutter web doesn't expose `selected` on buttons, so say it.
+      label: selected ? '$label, selected' : label,
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: onTap,
+        child: Column(children: [
+          Container(
+            width: 120,
+            height: 80,
+            decoration: fill.copyWith(
+              border: Border.all(color: selected ? NotebookColors.of(context).annotation : theme.colorScheme.outline, width: selected ? 3 : 1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            alignment: Alignment.center,
+            child: const NotebookMark(size: 54),
           ),
-          alignment: Alignment.center,
-          child: const NotebookMark(size: 54),
-        ),
-        const SizedBox(height: 6),
-        selected ? Highlight(label, style: theme.textTheme.labelLarge) : Text(label, style: theme.textTheme.labelLarge),
-      ]),
+          const SizedBox(height: 6),
+          selected ? Highlight(label, style: theme.textTheme.labelLarge) : Text(label, style: theme.textTheme.labelLarge),
+        ]),
+      ),
     );
   }
 }
