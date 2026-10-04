@@ -3,6 +3,7 @@ import '../../widgets/notebook/shell.dart';
 import '../admin/admin_pages.dart' show AdminAccountPage;
 import '../admin/course_studio.dart';
 import 'teacher_pages.dart';
+import 'teacher_team_pages.dart';
 
 const _sections = [
   ShellSection('Overview', Icons.insights_outlined),
@@ -10,6 +11,8 @@ const _sections = [
   ShellSection('Marking', Icons.rate_review_outlined),
   ShellSection('Students', Icons.people_outline),
   ShellSection('Announcements', Icons.campaign_outlined),
+  ShellSection('Co-teachers', Icons.group_add_outlined),
+  ShellSection('Earnings', Icons.payments_outlined),
   ShellSection('Account', Icons.person_outline),
 ];
 
@@ -39,6 +42,8 @@ class _TeacherHomeState extends State<TeacherHome> {
           2 => const TeacherMarkingPage(),
           3 => const TeacherStudentsPage(),
           4 => const TeacherAnnouncementsPage(),
+          5 => const TeacherTeamPage(),
+          6 => const TeacherEarningsPage(),
           _ => const AdminAccountPage(roleLabel: 'teacher'),
         },
       );

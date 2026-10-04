@@ -292,19 +292,19 @@ class _MarkDialogState extends State<_MarkDialog> {
 // ── Per-course helper ────────────────────────────────────────────────────────
 
 /// Lets the teacher pick one of their own courses, then builds [builder] for it.
-class _CoursePicker extends StatefulWidget {
+class CoursePicker extends StatefulWidget {
   final String title;
   final String note;
   final Widget Function(
       BuildContext context, String courseId, String courseTitle) builder;
-  const _CoursePicker(
+  const CoursePicker(
       {required this.title, required this.note, required this.builder});
 
   @override
-  State<_CoursePicker> createState() => _CoursePickerState();
+  State<CoursePicker> createState() => CoursePickerState();
 }
 
-class _CoursePickerState extends State<_CoursePicker> {
+class CoursePickerState extends State<CoursePicker> {
   String? _selected;
 
   @override
@@ -354,7 +354,7 @@ class TeacherStudentsPage extends StatelessWidget {
   const TeacherStudentsPage({super.key});
 
   @override
-  Widget build(BuildContext context) => _CoursePicker(
+  Widget build(BuildContext context) => CoursePicker(
         title: 'Students',
         note: 'who is keeping up, and who has gone quiet',
         builder: (context, courseId, _) =>
@@ -448,7 +448,7 @@ class TeacherAnnouncementsPage extends StatelessWidget {
   const TeacherAnnouncementsPage({super.key});
 
   @override
-  Widget build(BuildContext context) => _CoursePicker(
+  Widget build(BuildContext context) => CoursePicker(
         title: 'Announcements',
         note: 'goes to the students enrolled in one course',
         builder: (context, courseId, courseTitle) => _AnnounceForm(
