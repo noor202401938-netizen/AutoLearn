@@ -2,7 +2,9 @@ import OpenAI from 'openai';
 
 export class AiNotConfiguredError extends Error {
   constructor() {
-    super('The AI tutor is not configured on this server (OPENAI_API_KEY is missing).');
+    // Shown to students; the setup detail goes to the server log instead.
+    super("The AI tutor isn't available right now. Please try again later.");
+    console.warn('AI request refused: OPENAI_API_KEY is not set');
   }
 }
 
