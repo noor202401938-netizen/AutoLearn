@@ -5,6 +5,7 @@ import crypto from 'crypto';
 import prisma from '../prisma';
 import { AuthenticatedRequest } from '../middleware/auth.middleware';
 import { sendMail } from '../mailer';
+import { passwordProblem } from '../validation';
 
 const RESET_TTL_MINUTES = 30;
 const sha256 = (s: string) => crypto.createHash('sha256').update(s).digest('hex');
@@ -20,7 +21,7 @@ export const requestPasswordReset = async (req: Request, res: Response): Promise
     return;
   }
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
     if (user && user.isActive) {
       const token = crypto.randomBytes(32).toString('hex');
       await prisma.passwordReset.create({
@@ -45,9 +46,10 @@ export const requestPasswordReset = async (req: Request, res: Response): Promise
 // POST /api/auth/password-reset/confirm { token, newPassword }
 export const confirmPasswordReset = async (req: Request, res: Response): Promise<void> => {
   const token = String(req.body?.token ?? '');
-  const newPassword = String(req.body?.newPassword ?? '');
-  if (!token || newPassword.length < 6) {
-    res.status(400).json({ error: 'A reset token and a password of at least 6 characters are required' });
+  const newPassword = req.body?.newPassword;
+  const passwordIssue = passwordProblem(newPassword);
+  if (!token || passwordIssue) {
+    res.status(400).json({ error: passwordIssue ?? 'A reset token is required' });
     return;
   }
   try {
@@ -56,7 +58,7 @@ export const confirmPasswordReset = async (req: Request, res: Response): Promise
       res.status(400).json({ error: 'This reset link is invalid or has expired. Request a new one.' });
       return;
     }
-    await prisma.user.update({ where: { id: reset.userId }, data: { password: await bcrypt.hash(newPassword, 12) } });
+    await prisma.user.update({ where: { id: reset.userId }, data: { password: await bcrypt.hash(newPassword as string, 12) } });
     // Burn this token and any other outstanding ones for the user.
     await prisma.passwordReset.updateMany({ where: { userId: reset.userId, usedAt: null }, data: { usedAt: new Date() } });
     res.status(200).json({ message: 'Password updated. You can sign in now.' });
@@ -69,9 +71,10 @@ export const confirmPasswordReset = async (req: Request, res: Response): Promise
 // POST /api/auth/change-password { currentPassword, newPassword }
 export const changePassword = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   const currentPassword = String(req.body?.currentPassword ?? '');
-  const newPassword = String(req.body?.newPassword ?? '');
-  if (!currentPassword || newPassword.length < 6) {
-    res.status(400).json({ error: 'Current password and a new password of at least 6 characters are required' });
+  const newPassword = req.body?.newPassword;
+  const passwordIssue = passwordProblem(newPassword);
+  if (!currentPassword || passwordIssue) {
+    res.status(400).json({ error: passwordIssue ?? 'Your current password is required' });
     return;
   }
   try {
@@ -80,7 +83,7 @@ export const changePassword = async (req: AuthenticatedRequest, res: Response): 
       res.status(401).json({ error: 'Current password is incorrect' });
       return;
     }
-    await prisma.user.update({ where: { id: user.id }, data: { password: await bcrypt.hash(newPassword, 12) } });
+    await prisma.user.update({ where: { id: user.id }, data: { password: await bcrypt.hash(newPassword as string, 12) } });
     res.status(200).json({ message: 'Password changed' });
   } catch (error) {
     console.error('Change password error:', error);

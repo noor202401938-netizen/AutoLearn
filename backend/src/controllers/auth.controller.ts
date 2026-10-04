@@ -4,6 +4,9 @@ import jwt from 'jwt-simple';
 import prisma from '../prisma';
 import { AuthenticatedRequest } from '../middleware/auth.middleware';
 import { JWT_SECRET } from '../config';
+import { cleanEmail, MAX_PASSWORD_LENGTH, optionalText, passwordProblem } from '../validation';
+
+const MAX_NAME_LENGTH = 80;
 const JWT_EXPIRY_DAYS = 7;
 
 function createToken(uid: string, role: string): string {
@@ -13,19 +16,30 @@ function createToken(uid: string, role: string): string {
 
 export const signup = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password, displayName } = req.body;
+    const email = cleanEmail(req.body?.email);
+    const password = req.body?.password;
 
-    if (!email || !password) {
+    if (typeof req.body?.email !== 'string' || typeof password !== 'string' || !req.body.email.trim() || !password) {
       res.status(400).json({ error: 'Email and password are required' });
       return;
     }
-
-    if (password.length < 6) {
-      res.status(400).json({ error: 'Password must be at least 6 characters' });
+    if (!email) {
+      res.status(400).json({ error: 'Enter a valid email address' });
+      return;
+    }
+    const passwordIssue = passwordProblem(password);
+    if (passwordIssue) {
+      res.status(400).json({ error: passwordIssue });
+      return;
+    }
+    const displayName = optionalText(req.body?.displayName, MAX_NAME_LENGTH);
+    if (displayName === 'too-long') {
+      res.status(400).json({ error: `Name must be at most ${MAX_NAME_LENGTH} characters` });
       return;
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    // Emails are unique ignoring case, so Maya@x.com and maya@x.com are one account.
+    const existingUser = await prisma.user.findFirst({ where: { email: { equals: email, mode: 'insensitive' } } });
     if (existingUser) {
       res.status(400).json({ error: 'User already exists with this email' });
       return;
@@ -61,14 +75,18 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
 
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password } = req.body;
+    const email = req.body?.email;
+    const password = req.body?.password;
 
-    if (!email || !password) {
+    // Anything that isn't plain text is a bad request, never something to hand to the database.
+    if (typeof email !== 'string' || typeof password !== 'string' || !email.trim() || !password) {
       res.status(400).json({ error: 'Email and password are required' });
       return;
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = password.length > MAX_PASSWORD_LENGTH
+      ? null
+      : await prisma.user.findFirst({ where: { email: { equals: email.trim(), mode: 'insensitive' } } });
     if (!user) {
       res.status(401).json({ error: 'Invalid credentials' });
       return;

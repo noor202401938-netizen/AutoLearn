@@ -149,6 +149,11 @@ app.use((_req, res) => {
 // ─── Global Error Handler ─────────────────────────────────────────────────────
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Unhandled error:', err);
+  // A body that isn't valid JSON is the client's mistake; don't echo the parser's internals.
+  if (err.type === 'entity.parse.failed') {
+    res.status(400).json({ error: 'The request body is not valid JSON' });
+    return;
+  }
   const status = err.status || (err.code === 'LIMIT_FILE_SIZE' ? 413 : 500);
   res.status(status).json({
     // 4xx messages are meant for the user (e.g. "file type not allowed").
