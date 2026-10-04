@@ -125,7 +125,7 @@ class _SectionTabs extends StatelessWidget {
               Text('AutoLearn', style: theme.textTheme.headlineSmall),
             ]),
           ),
-          Padding(padding: const EdgeInsets.fromLTRB(66, 0, 20, 20), child: MarginNote(tagline, size: 16)),
+          Padding(padding: const EdgeInsets.fromLTRB(66, 0, 20, 20), child: MarginNote(tagline, size: 16, handwritten: true)),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 12),

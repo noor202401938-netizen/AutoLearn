@@ -225,7 +225,7 @@ class _ThreadRow extends StatelessWidget {
         Column(children: [
           Text('${t.replyCount}', style: NotebookColors.figures(size: 18, weight: FontWeight.w600, color: theme.colorScheme.onSurface)),
           Text(t.replyCount == 1 ? 'reply' : 'replies', style: theme.textTheme.bodySmall),
-          if (t.acceptedReplyId != null) Text('✓ answered', style: nb.hand(size: 17, color: nb.correct)),
+          if (t.acceptedReplyId != null) Text('✓ answered', style: nb.note(size: 13, color: nb.correct)),
         ]),
       ]),
     );

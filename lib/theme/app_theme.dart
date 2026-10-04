@@ -282,6 +282,10 @@ class NotebookColors extends ThemeExtension<NotebookColors> {
   TextStyle hand({double size = 20, Color? color}) =>
       AppTheme.font('Caveat', TextStyle(fontSize: size, fontWeight: FontWeight.w600, color: color ?? annotation, height: 1.1));
 
+  /// Plain small text for labels and status. It inherits the theme's body font
+  /// and colour, so informational text doesn't compete with real content.
+  TextStyle note({double size = 13, Color? color}) => TextStyle(fontSize: size, height: 1.3, color: color);
+
   /// Tabular figures for stats, prices, scores.
   static TextStyle figures({double size = 14, FontWeight weight = FontWeight.w500, Color? color}) =>
       AppTheme.font('IBM Plex Mono', TextStyle(fontSize: size, fontWeight: weight, color: color));

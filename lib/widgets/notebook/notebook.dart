@@ -146,20 +146,29 @@ class _MarkerPainter extends CustomPainter {
   bool shouldRepaint(_MarkerPainter old) => old.color != color;
 }
 
-/// Handwritten note in the margin, tilted a touch.
+/// A short note under a title or label. Plain muted text by default, so pages
+/// stay calm; pass [handwritten] for the few places that should feel like a
+/// pen-written margin note (taglines, empty states).
 class MarginNote extends StatelessWidget {
   final String text;
   final double size;
   final double tilt;
   final Color? color;
-  const MarginNote(this.text, {super.key, this.size = 20, this.tilt = -0.03, this.color});
+  final bool handwritten;
+  const MarginNote(this.text, {super.key, this.size = 20, this.tilt = -0.03, this.color, this.handwritten = false});
 
   @override
-  Widget build(BuildContext context) => Transform.rotate(
-        angle: tilt,
-        alignment: Alignment.centerLeft,
-        child: Text(text, style: NotebookColors.of(context).hand(size: size, color: color)),
-      );
+  Widget build(BuildContext context) {
+    if (!handwritten) {
+      final theme = Theme.of(context);
+      return Text(text, style: theme.textTheme.bodyMedium?.copyWith(color: color ?? theme.colorScheme.onSurfaceVariant));
+    }
+    return Transform.rotate(
+      angle: tilt,
+      alignment: Alignment.centerLeft,
+      child: Text(text, style: NotebookColors.of(context).hand(size: size, color: color)),
+    );
+  }
 }
 
 /// Section heading with a pen-drawn underline, like a notebook header.
@@ -309,7 +318,7 @@ class NotebookEmpty extends StatelessWidget {
             const SizedBox(height: 16),
             Text(title, style: theme.textTheme.titleMedium, textAlign: TextAlign.center),
             const SizedBox(height: 4),
-            MarginNote(note, tilt: 0, size: 19),
+            MarginNote(note, tilt: 0, size: 19, handwritten: true),
             if (actionLabel != null) ...[
               const SizedBox(height: 18),
               OutlinedButton(onPressed: onAction, child: Text(actionLabel!)),

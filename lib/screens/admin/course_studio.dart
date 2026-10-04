@@ -110,7 +110,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
                       const SizedBox(width: 10),
                       c.isPublished
                           ? Highlight('published', style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurface))
-                          : Text('draft', style: NotebookColors.of(context).hand(size: 16)),
+                          : Text('draft', style: NotebookColors.of(context).note(size: 13)),
                     ]),
                     const SizedBox(height: 4),
                     Text(c.title, style: theme.textTheme.titleLarge),

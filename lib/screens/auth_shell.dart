@@ -54,7 +54,7 @@ class NotebookCover extends StatelessWidget {
           const SizedBox(height: 24),
           Text('AutoLearn', style: theme.textTheme.displayLarge),
           const SizedBox(height: 4),
-          const MarginNote('learn anything, in your own notes', size: 24),
+          const MarginNote('learn anything, in your own notes', size: 24, handwritten: true),
           if (!compact) ...[
             const SizedBox(height: 36),
             for (final line in const [

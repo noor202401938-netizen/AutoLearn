@@ -144,7 +144,7 @@ class _CourseCard extends StatelessWidget {
         const SizedBox(height: 6),
         Text(c.description, style: theme.textTheme.bodyMedium, maxLines: 3, overflow: TextOverflow.ellipsis),
         const SizedBox(height: 12),
-        Text('${c.instructor} · ${c.level}', style: nb.hand(size: 18, color: theme.colorScheme.onSurfaceVariant)),
+        Text('${c.instructor} · ${c.level}', style: nb.note(size: 13, color: theme.colorScheme.onSurfaceVariant)),
         const SizedBox(height: 12),
         const Divider(),
         const SizedBox(height: 10),

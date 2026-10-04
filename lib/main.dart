@@ -172,7 +172,7 @@ class _SplashScreenState extends State<SplashScreen>
                 const SizedBox(height: 20),
                 Text('AutoLearn', style: theme.textTheme.displayMedium),
                 const SizedBox(height: 4),
-                const MarginNote('learn anything, in your own notes', tilt: 0),
+                const MarginNote('learn anything, in your own notes', tilt: 0, handwritten: true),
               ]),
             ),
           ),

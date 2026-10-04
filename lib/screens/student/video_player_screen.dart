@@ -252,7 +252,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             onPressed: () => _player?.seekTo(Duration(seconds: m.positionSeconds!)),
             child: Text(_clock(m.positionSeconds!), style: NotebookColors.figures(size: 14, weight: FontWeight.w600)),
           ),
-          title: Text(m.note ?? 'Bookmarked moment', style: NotebookColors.of(context).hand(size: 20, color: theme.colorScheme.onSurface)),
+          title: Text(m.note ?? 'Bookmarked moment', style: NotebookColors.of(context).note(size: 14, color: theme.colorScheme.onSurface)),
           trailing: IconButton(
             tooltip: 'Remove',
             icon: const Icon(Icons.close, size: 18),
@@ -275,7 +275,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           Padding(
             padding: const EdgeInsets.only(bottom: 6),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('→  ', style: NotebookColors.of(context).hand(size: 20)),
+              Text('→  ', style: NotebookColors.of(context).note(size: 14)),
               Expanded(child: Highlight(k, style: theme.textTheme.bodyLarge)),
             ]),
           ),

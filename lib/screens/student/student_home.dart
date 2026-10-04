@@ -212,7 +212,7 @@ class _TodayPageState extends State<_TodayPage> {
                       const SizedBox(height: 8),
                       Text(c.title, style: theme.textTheme.titleMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
                       const SizedBox(height: 8),
-                      Text(c.level, style: NotebookColors.of(context).hand(size: 17)),
+                      Text(c.level, style: NotebookColors.of(context).note(size: 13)),
                     ]),
                   ),
                 ),
@@ -303,7 +303,7 @@ class _ContinueCard extends StatelessWidget {
         const SizedBox(width: 20),
         Column(children: [
           Text('${(pct * 100).round()}%', style: NotebookColors.figures(size: 22, weight: FontWeight.w600, color: theme.colorScheme.onSurface)),
-          Text(pct == 0 ? 'not started' : 'done', style: nb.hand(size: 16)),
+          Text(pct == 0 ? 'not started' : 'done', style: nb.note(size: 13)),
         ]),
       ]),
     );

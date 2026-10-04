@@ -109,7 +109,7 @@ class _BookmarksScreenState extends State<BookmarksScreen> {
                   style: NotebookColors.figures(size: 13, color: theme.colorScheme.onSurfaceVariant)),
             if ((b.note ?? '').isNotEmpty) ...[
               const SizedBox(height: 6),
-              Text(b.note!, style: nb.hand(size: 18)),
+              Text(b.note!, style: nb.note(size: 14)),
             ],
             const SizedBox(height: 6),
             Text('saved ${timeAgo(b.createdAt)}', style: theme.textTheme.bodySmall),

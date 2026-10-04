@@ -96,7 +96,7 @@ class _PathCard extends StatelessWidget {
           Column(children: [
             Text('${(path.progress * 100).round()}%',
                 style: NotebookColors.figures(size: 22, weight: FontWeight.w600, color: theme.colorScheme.onSurface)),
-            Text('complete', style: nb.hand(size: 16)),
+            Text('complete', style: nb.note(size: 13)),
           ]),
         ]),
         const SizedBox(height: 8),
