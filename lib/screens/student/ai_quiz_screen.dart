@@ -1,14 +1,15 @@
-// lib/screens/student/ai_quiz_screen.dart
-import 'package:flutter/material.dart';
-import '../../business_logic/ai_quiz_engine.dart';
-import '../../business_logic/ai_feedback_engine.dart';
-import '../../business_logic/certificate_manager.dart';
-import '../../repository/quiz_repository.dart';
-import '../../repository/auth_repository.dart';
-import '../../model/quiz_model.dart';
-import 'certificate_screen.dart';
 import 'dart:async';
+import 'package:flutter/material.dart';
+import '../../backend/api_client.dart';
+import '../../model/certificate_model.dart';
+import '../../model/quiz_model.dart';
+import '../../repository/certificate_repository.dart';
+import '../../repository/quiz_repository.dart';
+import '../../widgets/notebook/notebook.dart';
+import 'certificate_screen.dart';
 
+/// A quiz laid out like a worksheet: every question on one page, circle your
+/// answer, hand it in, get it back marked in red pen.
 class AIQuizScreen extends StatefulWidget {
   final String courseId;
   final String courseTitle;
@@ -32,138 +33,23 @@ class AIQuizScreen extends StatefulWidget {
 }
 
 class _AIQuizScreenState extends State<AIQuizScreen> {
-  final AIQuizEngine _quizEngine = AIQuizEngine();
-  final QuizRepository _quizRepository = QuizRepository();
-  final CertificateManager _certificateManager = CertificateManager();
-  bool _certificateShown = false;
+  final _quizzes = QuizRepository();
+  final _certificates = CertificateRepository();
 
   QuizModel? _quiz;
-  Map<String, dynamic> _answers = {};
-  bool _isLoading = true;
-  bool _isSubmitting = false;
-  bool _showResults = false;
-  QuizSubmissionModel? _submission;
-  int _currentQuestionIndex = 0;
+  QuizSubmissionModel? _result;
+  CertificateModel? _certificate;
+  final Map<String, dynamic> _answers = {};
+  String? _error;
+  bool _submitting = false;
+  DateTime? _started;
   Timer? _timer;
-  int _timeRemaining = 0; // in seconds
-  DateTime? _startTime;
+  int _secondsLeft = 0;
 
   @override
   void initState() {
     super.initState();
-    _loadQuiz();
-  }
-
-  Future<void> _loadQuiz() async {
-    setState(() => _isLoading = true);
-    try {
-      _quiz = await _quizEngine.getOrGenerateQuiz(
-        courseId: widget.courseId,
-        moduleId: widget.moduleId,
-        lessonId: widget.lessonId,
-        lessonTitle: widget.lessonTitle,
-      );
-
-      // Check for existing submission
-      final user = await AuthRepository().getCurrentUser();
-      final uid = user?['uid'] as String?;
-      if (uid != null) {
-        final existingSubmission = await _quizRepository.getUserQuizSubmission(
-          userId: uid,
-          quizId: _quiz!.quizId,
-        );
-        if (existingSubmission != null) {
-          setState(() {
-            _submission = existingSubmission;
-            _showResults = true;
-            _answers = existingSubmission.answers;
-          });
-        }
-      }
-
-      // Initialize timer if time limit exists
-      if (_quiz!.timeLimit > 0) {
-        _timeRemaining = _quiz!.timeLimit * 60;
-        _startTime = DateTime.now();
-        _startTimer();
-      }
-
-      setState(() => _isLoading = false);
-    } catch (e) {
-      setState(() => _isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading quiz: $e')),
-        );
-      }
-    }
-  }
-
-  void _startTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_timeRemaining > 0) {
-        setState(() {
-          _timeRemaining--;
-        });
-      } else {
-        _timer?.cancel();
-        _submitQuiz(autoSubmit: true);
-      }
-    });
-  }
-
-  Future<void> _submitQuiz({bool autoSubmit = false}) async {
-    if (_isSubmitting) return;
-
-    final user = await AuthRepository().getCurrentUser();
-    final uid = user?['uid'] as String?;
-    if (uid == null || _quiz == null) return;
-
-    setState(() => _isSubmitting = true);
-    _timer?.cancel();
-
-    try {
-      final timeSpent = _startTime != null
-          ? DateTime.now().difference(_startTime!).inSeconds
-          : null;
-
-      // Grade the quiz
-      final submission = _quizEngine.gradeQuiz(
-        userId: uid,
-        quiz: _quiz!,
-        answers: _answers,
-        timeSpent: timeSpent,
-      );
-
-      // Save submission
-      await _quizRepository.submitQuiz(submission);
-
-      setState(() {
-        _submission = submission;
-        _showResults = true;
-        _isSubmitting = false;
-      });
-
-      // Generate and show certificate
-      if (!_certificateShown) {
-        _certificateShown = true;
-        _showCertificate();
-      }
-
-      if (autoSubmit && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Time\'s up! Quiz submitted automatically.')),
-        );
-      }
-    } catch (e) {
-      setState(() => _isSubmitting = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error submitting quiz: $e')),
-        );
-      }
-    }
+    _load();
   }
 
   @override
@@ -172,563 +58,290 @@ class _AIQuizScreenState extends State<AIQuizScreen> {
     super.dispose();
   }
 
+  Future<void> _load() async {
+    setState(() => _error = null);
+    try {
+      final quiz = await _quizzes.getQuizForLesson(
+        courseId: widget.courseId,
+        moduleId: widget.moduleId,
+        lessonId: widget.lessonId,
+        lessonTitle: widget.lessonTitle,
+      );
+      final previous = await _quizzes.getQuizSubmission(quiz.quizId);
+      if (!mounted) return;
+      setState(() {
+        _quiz = quiz;
+        _result = previous;
+      });
+      if (previous == null) _start();
+    } on ApiException catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    }
+  }
+
+  void _start() {
+    _answers.clear();
+    _started = DateTime.now();
+    _timer?.cancel();
+    final limit = _quiz!.timeLimit * 60;
+    setState(() {
+      _result = null;
+      _certificate = null;
+      _secondsLeft = limit;
+    });
+    if (limit > 0) {
+      _timer = Timer.periodic(const Duration(seconds: 1), (t) {
+        if (_secondsLeft <= 1) {
+          t.cancel();
+          _submit();
+        } else {
+          setState(() => _secondsLeft--);
+        }
+      });
+    }
+  }
+
+  Future<void> _submit() async {
+    if (_submitting || _quiz == null) return;
+    _timer?.cancel();
+    setState(() => _submitting = true);
+    try {
+      final result = await _quizzes.submitQuiz(
+        _quiz!.quizId,
+        Map.of(_answers),
+        timeSpent: _started == null ? null : DateTime.now().difference(_started!).inSeconds,
+      );
+      CertificateModel? cert;
+      if (result.passed) {
+        cert = await _certificates.issueIfEarned(courseId: widget.courseId, lessonId: widget.lessonId);
+      }
+      if (!mounted) return;
+      setState(() {
+        _result = result;
+        _certificate = cert;
+        _submitting = false;
+      });
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _submitting = false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget body;
+    if (_error != null) {
+      body = NotebookError(message: _error!, onRetry: _load);
+    } else if (_quiz == null) {
+      body = const Center(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          CircularProgressIndicator(),
+          SizedBox(height: 16),
+          MarginNote('setting your questions…', tilt: 0),
+        ]),
+      );
+    } else if (_result != null) {
+      body = _results();
+    } else {
+      body = _worksheet();
+    }
+    return NotebookPage(title: widget.lessonTitle, body: body);
+  }
+
+  Widget _worksheet() {
+    final theme = Theme.of(context);
+    final quiz = _quiz!;
+    final answered = quiz.questions.where((q) => _answers.containsKey(q.questionId)).length;
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 760),
+        child: ListView(padding: const EdgeInsets.fromLTRB(24, 24, 24, 48), children: [
+          Row(children: [
+            Expanded(child: Text(quiz.title, style: theme.textTheme.headlineMedium)),
+            if (quiz.timeLimit > 0)
+              Text(
+                '${_secondsLeft ~/ 60}:${(_secondsLeft % 60).toString().padLeft(2, '0')}',
+                style: NotebookColors.figures(
+                  size: 22,
+                  weight: FontWeight.w600,
+                  color: _secondsLeft < 60 ? theme.colorScheme.error : theme.colorScheme.onSurface,
+                ),
+              ),
+          ]),
+          if (quiz.description.isNotEmpty) Text(quiz.description, style: theme.textTheme.bodyMedium),
+          MarginNote('${quiz.passingScore}% to pass', size: 19),
+          const SizedBox(height: 24),
+          for (final (i, q) in quiz.questions.indexed) ...[
+            _QuestionBlock(
+              number: i + 1,
+              question: q,
+              selected: _answers[q.questionId],
+              onSelect: (v) => setState(() => _answers[q.questionId] = v),
+            ),
+            const SizedBox(height: 28),
+          ],
+          Row(children: [
+            Text('$answered of ${quiz.questions.length} answered', style: theme.textTheme.bodyMedium),
+            const Spacer(),
+            ElevatedButton(
+              onPressed: _submitting || answered == 0 ? null : _submit,
+              child: _submitting
+                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Text('Hand it in'),
+            ),
+          ]),
+        ]),
+      ),
+    );
+  }
+
+  Widget _results() {
+    final theme = Theme.of(context);
+    final nb = NotebookColors.of(context);
+    final r = _result!;
+    final review = r.review.isNotEmpty ? r.review : _quiz!.questions;
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 760),
+        child: ListView(padding: const EdgeInsets.fromLTRB(24, 24, 24, 48), children: [
+          Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+            // The mark, written in red pen and circled.
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+              decoration: BoxDecoration(
+                border: Border.all(color: nb.annotation, width: 2),
+                borderRadius: const BorderRadius.all(Radius.elliptical(60, 40)),
+              ),
+              child: Text('${r.earnedPoints}/${r.totalPoints}', style: nb.hand(size: 40)),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('${r.score}%', style: NotebookColors.figures(size: 28, weight: FontWeight.w600, color: theme.colorScheme.onSurface)),
+                MarginNote(
+                  r.passed ? 'Passed — well done!' : 'Not yet — you need ${_quiz!.passingScore}%',
+                  size: 21,
+                  color: r.passed ? nb.correct : nb.annotation,
+                ),
+              ]),
+            ),
+          ]),
+          if (_certificate != null) ...[
+            const SizedBox(height: 20),
+            NoteCard(
+              color: nb.highlighter.withValues(alpha: 0.35),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => CertificateScreen(certificate: _certificate!)),
+              ),
+              child: Row(children: [
+                const Icon(Icons.workspace_premium_outlined, size: 32),
+                const SizedBox(width: 14),
+                Expanded(child: Text('You earned the certificate for ${widget.courseTitle}', style: theme.textTheme.titleMedium)),
+                const Icon(Icons.arrow_forward),
+              ]),
+            ),
+          ],
+          const SizedBox(height: 28),
+          const NoteHeading('Corrections'),
+          const SizedBox(height: 16),
+          for (final (i, q) in review.indexed) ...[
+            _QuestionBlock(number: i + 1, question: q, selected: r.answers[q.questionId], marked: true),
+            const SizedBox(height: 28),
+          ],
+          Row(children: [
+            OutlinedButton.icon(onPressed: _start, icon: const Icon(Icons.refresh), label: const Text('Try again')),
+            const Spacer(),
+            ElevatedButton(onPressed: () => Navigator.pop(context, r.passed), child: const Text('Back to the course')),
+          ]),
+        ]),
+      ),
+    );
+  }
+}
+
+/// One numbered question. In answer mode the chosen option is circled in ink;
+/// in [marked] mode each option shows ✓/✗ and the explanation sits in the margin.
+class _QuestionBlock extends StatelessWidget {
+  final int number;
+  final QuestionModel question;
+  final dynamic selected;
+  final ValueChanged<dynamic>? onSelect;
+  final bool marked;
+
+  const _QuestionBlock({required this.number, required this.question, this.selected, this.onSelect, this.marked = false});
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.surface,
-        elevation: 0,
-        centerTitle: false,
-        automaticallyImplyLeading: false,
-        titleSpacing: 0,
-        title: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Row(
-            children: [
-              IconButton(
-                icon: Icon(Icons.close, color: theme.colorScheme.onSurface),
-                onPressed: () => Navigator.pop(context),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.courseTitle,
-                      style: theme.textTheme.bodyMedium,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      'Unit: ${widget.moduleTitle}'.toUpperCase(),
-                      style: theme.textTheme.bodyMedium,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              if (_quiz != null && _quiz!.timeLimit > 0 && !_showResults)
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                        color:
-                            theme.colorScheme.outline.withValues(alpha: 0.3)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.timer, size: 16),
-                      const SizedBox(width: 6),
-                      Text(
-                        _formatTime(_timeRemaining),
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-      body: SafeArea(
-        child: _isLoading
-            ? Center(
-                child:
-                    CircularProgressIndicator(color: theme.colorScheme.primary))
-            : _quiz == null
-                ? Center(
-                    child: Text('Quiz not found',
-                        style: theme.textTheme.bodyLarge))
-                : _showResults
-                    ? _buildResultsView()
-                    : _buildQuizView(),
-      ),
-      bottomNavigationBar: !_isLoading && _quiz != null && !_showResults
-          ? _buildBottomNavigation()
-          : null,
-    );
-  }
+    final nb = NotebookColors.of(context);
+    final q = question;
+    final letters = 'abcdefgh';
 
-  Widget _buildQuizView() {
-    final theme = Theme.of(context);
-    if (_quiz!.questions.isEmpty) {
-      return const Center(child: Text('No questions available'));
-    }
-
-    final question = _quiz!.questions[_currentQuestionIndex];
-    final progressPercent =
-        (_currentQuestionIndex + 1) / _quiz!.questions.length;
-
-    return Column(
-      children: [
-        Padding(
-          padding:
-              const EdgeInsets.only(left: 20, right: 20, top: 24, bottom: 24),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  RichText(
-                    text: TextSpan(
-                      text: 'Question ${_currentQuestionIndex + 1} ',
-                      style: theme.textTheme.headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                      children: [
-                        TextSpan(
-                          text: 'of ${_quiz!.questions.length}',
-                          style: theme.textTheme.bodyMedium,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    '${(progressPercent * 100).toInt()}%',
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Container(
-                height: 8,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return Align(
-                      alignment: Alignment.centerLeft,
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 500),
-                        curve: Curves.easeOut,
-                        height: 8,
-                        width: constraints.maxWidth * progressPercent,
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.secondary,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  question.questionText,
-                  style: theme.textTheme.headlineSmall
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 32),
-                if (question.type == QuestionType.multipleChoice ||
-                    question.type == QuestionType.trueFalse)
-                  ...question.options.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final option = entry.value;
-                    final isSelected = _answers[question.questionId] == index;
-
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: InkWell(
-                        onTap: () {
-                          setState(() {
-                            _answers[question.questionId] = index;
-                          });
-                        },
-                        borderRadius: BorderRadius.circular(16),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? theme.colorScheme.primaryContainer
-                                : theme.colorScheme.surface,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: isSelected
-                                  ? theme.colorScheme.primary
-                                  : theme.colorScheme.outline
-                                      .withValues(alpha: 0.5),
-                            ),
-                            boxShadow: [
-                              if (isSelected)
-                                BoxShadow(
-                                  color: theme.colorScheme.primary
-                                      .withValues(alpha: 0.15),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 10),
-                                ),
-                            ],
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                width: 24,
-                                height: 24,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: isSelected
-                                        ? theme.colorScheme.primary
-                                        : theme.colorScheme.outline,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: Center(
-                                  child: AnimatedOpacity(
-                                    duration: const Duration(milliseconds: 200),
-                                    opacity: isSelected ? 1.0 : 0.0,
-                                    child: Container(
-                                      width: 10,
-                                      height: 10,
-                                      decoration: BoxDecoration(
-                                        color: theme.colorScheme.primary,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      option.text,
-                                      style: theme.textTheme.titleMedium,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-                if (question.type == QuestionType.shortAnswer)
-                  Container(
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                          color:
-                              theme.colorScheme.outline.withValues(alpha: 0.5)),
-                    ),
-                    child: TextField(
-                      onChanged: (value) {
-                        _answers[question.questionId] = value;
-                      },
-                      maxLines: 5,
-                      style: theme.textTheme.bodyMedium,
-                      decoration: InputDecoration(
-                        hintText: 'Type your answer here...',
-                        hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.all(24),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBottomNavigation() {
-    final theme = Theme.of(context);
-    final isLastQuestion = _currentQuestionIndex == _quiz!.questions.length - 1;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        border:
-            Border(top: BorderSide(color: theme.colorScheme.outlineVariant)),
-      ),
-      padding: const EdgeInsets.all(20),
-      child: SafeArea(
-        child: Row(
-          children: [
-            Expanded(
-              flex: 1,
-              child: OutlinedButton(
-                onPressed: _currentQuestionIndex > 0
-                    ? () {
-                        setState(() {
-                          _currentQuestionIndex--;
-                        });
-                      }
-                    : () {
-                        Navigator.pop(context);
-                      },
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: BorderSide(color: theme.colorScheme.primary),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  foregroundColor: theme.colorScheme.primary,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.arrow_back, size: 18),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Back',
-                      style: theme.textTheme.labelLarge,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              flex: 2,
-              child: ElevatedButton(
-                onPressed: _isSubmitting
-                    ? null
-                    : () {
-                        if (isLastQuestion) {
-                          _submitQuiz();
-                        } else {
-                          setState(() {
-                            _currentQuestionIndex++;
-                          });
-                        }
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.primary,
-                  foregroundColor: theme.colorScheme.onPrimary,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-                child: _isSubmitting
-                    ? SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                              theme.colorScheme.onPrimary),
-                        ),
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            isLastQuestion ? 'Submit Quiz' : 'Next',
-                            style: theme.textTheme.labelLarge,
-                          ),
-                          const SizedBox(width: 8),
-                          Icon(
-                              isLastQuestion
-                                  ? Icons.check
-                                  : Icons.arrow_forward,
-                              size: 18),
-                        ],
-                      ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildResultsView() {
-    final theme = Theme.of(context);
-    if (_submission == null) return const SizedBox();
-
-    final score = _submission!.score;
-    final passed = _submission!.passed;
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
+    final Widget answers;
+    if (q.type == QuestionType.multipleChoice) {
+      answers = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        for (final (j, o) in q.options.indexed)
+          Builder(builder: (context) {
+            final picked = selected != null && '$selected' == '$j';
+            final correct = marked && j == q.correctOptionIndex;
+            final wrong = marked && picked && !correct;
+            return InkWell(
+              onTap: onSelect == null ? null : () => onSelect!(j),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: theme.colorScheme.outlineVariant),
-              boxShadow: [
-                BoxShadow(
-                  color: (passed
-                          ? theme.colorScheme.secondary
-                          : theme.colorScheme.error)
-                      .withValues(alpha: 0.15),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Icon(
-                  passed ? Icons.check_circle : Icons.error_outline,
-                  size: 64,
-                  color: passed
-                      ? theme.colorScheme.secondary
-                      : theme.colorScheme.error,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  '$score%',
-                  style: theme.textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  passed ? 'Passed!' : 'Not Passed',
-                  style: theme.textTheme.labelMedium?.copyWith(
-                      color: theme.colorScheme.onSurface,
-                      fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  '${_submission!.earnedPoints} / ${_submission!.totalPoints} points',
-                  style: theme.textTheme.bodyMedium,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-          ..._quiz!.questions.asMap().entries.map((entry) {
-            final index = entry.key;
-            final question = entry.value;
-            final userAnswer = _answers[question.questionId];
-            final isCorrect = question.type == QuestionType.multipleChoice ||
-                    question.type == QuestionType.trueFalse
-                ? userAnswer == question.correctOptionIndex
-                : true;
-
-            return Container(
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: theme.colorScheme.outlineVariant),
-              ),
               child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          isCorrect ? Icons.check_circle : Icons.cancel,
-                          color: isCorrect
-                              ? theme.colorScheme.secondary
-                              : theme.colorScheme.error,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Question ${index + 1}',
-                          style: theme.textTheme.labelMedium?.copyWith(
-                              color: theme.colorScheme.onSurface,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      question.questionText,
-                      style: theme.textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 16),
-                    if (question.explanation != null)
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                              color: theme.colorScheme.primary
-                                  .withValues(alpha: 0.2)),
-                        ),
-                        child: Text(question.explanation!,
-                            style: theme.textTheme.bodyMedium),
-                      ),
+                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+                child: Row(children: [
+                  Container(
+                    width: 30,
+                    height: 26,
+                    alignment: Alignment.center,
+                    decoration: picked
+                        ? BoxDecoration(
+                            border: Border.all(color: marked ? (wrong ? nb.annotation : nb.correct) : theme.colorScheme.primary, width: 2),
+                            borderRadius: const BorderRadius.all(Radius.elliptical(16, 13)),
+                          )
+                        : null,
+                    child: Text('${letters[j % letters.length]})', style: theme.textTheme.titleSmall),
+                  ),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: correct
+                        ? Highlight(o.text, style: theme.textTheme.bodyLarge)
+                        : Text(o.text, style: theme.textTheme.bodyLarge),
+                  ),
+                  if (marked && (correct || wrong)) ...[
+                    const SizedBox(width: 8),
+                    Text(correct ? '✓' : '✗', style: nb.hand(size: 24, color: correct ? nb.correct : nb.annotation)),
                   ],
-                ),
+                ]),
               ),
             );
           }),
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary,
-                foregroundColor: theme.colorScheme.onPrimary,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16)),
-              ),
-              child: Text('Done', style: theme.textTheme.bodyMedium),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatTime(int seconds) {
-    final minutes = seconds ~/ 60;
-    final secs = seconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
-  }
-
-  Future<void> _showCertificate() async {
-    try {
-      final certificate = await _certificateManager.generateCertificate(
-        courseId: widget.courseId,
-        courseName: widget.courseTitle,
-        lessonId: widget.lessonId,
-        lessonName: widget.lessonTitle,
-      );
-
-      if (certificate != null && mounted) {
-        Future.delayed(const Duration(seconds: 1), () {
-          if (mounted) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    CertificateScreen(certificate: certificate),
-              ),
+      ]);
+    } else {
+      answers = marked
+          ? Text('Your answer: ${selected ?? '—'}   ·   Answer: ${q.correctAnswer ?? '—'}', style: theme.textTheme.bodyLarge)
+          : TextFormField(
+              initialValue: selected?.toString(),
+              onChanged: onSelect,
+              decoration: const InputDecoration(hintText: 'Your answer'),
             );
-          }
-        });
-      }
-    } catch (e) {
-      print('Error showing certificate: $e');
     }
+
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SizedBox(width: 32, child: Text('$number.', style: theme.textTheme.titleMedium)),
+        Expanded(child: Text(q.questionText, style: theme.textTheme.titleMedium)),
+      ]),
+      const SizedBox(height: 8),
+      Padding(padding: const EdgeInsets.only(left: 28), child: answers),
+      if (marked && (q.explanation ?? '').isNotEmpty)
+        Padding(
+          padding: const EdgeInsets.only(left: 36, top: 6),
+          child: MarginNote(q.explanation!, size: 18, tilt: 0),
+        ),
+    ]);
   }
 }

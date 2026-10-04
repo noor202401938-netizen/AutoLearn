@@ -1,29 +1,35 @@
 // lib/screens/student/student_home.dart
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import '../../repository/auth_repository.dart';
-import '../../repository/user_repository.dart';
-import 'ai_tutor_chat_screen.dart';
-import 'certificates_list_screen.dart';
+import 'package:intl/intl.dart';
+import '../../backend/api_client.dart';
 import '../../business_logic/recommendation_engine.dart';
 import '../../model/course_model.dart';
-import 'course_list_screen.dart';
-import 'course_content_screen.dart';
 import '../../repository/enrollment_repository.dart';
-import '../../utils/preference_notifier.dart';
-import '../../widgets/gradient_bottom_nav.dart';
-import '../../widgets/student_home/stat_card.dart';
-import '../../widgets/student_home/ai_tutor_banner.dart';
-import '../../widgets/student_home/progress_course_card.dart';
-import '../../widgets/student_home/recommended_course_card.dart';
-import '../../widgets/student_home/ambient_background.dart';
-import '../../widgets/navigation/global_lms_header.dart';
-import 'learning_paths_screen.dart';
-import 'bookmarks_screen.dart';
-import 'assignments_hub_screen.dart';
-import 'community_forum_screen.dart';
-
+import '../../repository/auth_repository.dart';
+import '../../widgets/notebook/notebook.dart';
+import '../../widgets/notebook/shell.dart';
 import '../../widgets/student_home/profile_tab.dart';
+import 'ai_tutor_chat_screen.dart';
+import 'assignments_hub_screen.dart';
+import 'bookmarks_screen.dart';
+import 'certificates_list_screen.dart';
+import 'community_forum_screen.dart';
+import 'course_content_screen.dart';
+import 'course_list_screen.dart';
+import 'learning_paths_screen.dart';
+
+const _sections = [
+  ShellSection('Today', Icons.edit_note),
+  ShellSection('Courses', Icons.menu_book_outlined),
+  ShellSection('Learning paths', Icons.route_outlined),
+  ShellSection('AI tutor', Icons.forum_outlined),
+  ShellSection('Assignments', Icons.assignment_outlined),
+  ShellSection('Bookmarks', Icons.bookmark_border),
+  ShellSection('Forum', Icons.groups_outlined),
+  ShellSection('Certificates', Icons.workspace_premium_outlined),
+  ShellSection('Profile', Icons.person_outline),
+];
 
 class StudentHome extends StatefulWidget {
   const StudentHome({super.key});
@@ -33,721 +39,334 @@ class StudentHome extends StatefulWidget {
 }
 
 class _StudentHomeState extends State<StudentHome> {
-  final AuthRepository _authRepository = AuthRepository();
-  final UserRepository _userRepository = UserRepository();
-  final RecommendationEngine _recommendationEngine = RecommendationEngine();
-  final EnrollmentRepository _enrollmentRepository = EnrollmentRepository();
-  int _selectedIndex = 0;
-  Map<String, dynamic>? _userProfile;
-  List<CourseModel> _recommendedCourses = [];
-  List<Map<String, dynamic>> _enrolledCourses = [];
-  bool _loadingEnrolled = false;
+  int _index = 0;
 
-  // Cache the getCurrentUser future so it isn't recreated on every rebuild
-  late final Future<Map<String, dynamic>?> _currentUserFuture;
+  void _go(int i) => setState(() => _index = i);
+
+  Widget _page() => switch (_index) {
+        0 => _TodayPage(onNavigate: _go),
+        1 => const CourseListScreen(embedded: true),
+        2 => const LearningPathsScreen(embedded: true),
+        3 => const AITutorChatScreen(embedded: true),
+        4 => const AssignmentsHubScreen(embedded: true),
+        5 => const BookmarksScreen(embedded: true),
+        6 => const CommunityForumScreen(embedded: true),
+        7 => const CertificatesListScreen(embedded: true),
+        _ => const _ProfilePage(),
+      };
+
+  @override
+  Widget build(BuildContext context) => NotebookShell(
+        sections: _sections,
+        index: _index,
+        onSelect: _go,
+        page: _page(),
+        tagline: 'economics, in your own notes',
+        mobileTabs: const [0, 1, 3, 4],
+      );
+}
+
+/// The "Today" page — a fresh notebook page with the date at the top.
+class _TodayPage extends StatefulWidget {
+  final ValueChanged<int> onNavigate;
+  const _TodayPage({required this.onNavigate});
+
+  @override
+  State<_TodayPage> createState() => _TodayPageState();
+}
+
+class _TodayPageState extends State<_TodayPage> {
+  final _enrollments = EnrollmentRepository();
+  final _recommendations = RecommendationEngine();
+
+  String _name = '';
+  Map<String, dynamic> _stats = const {};
+  List<Map<String, dynamic>> _enrolled = [];
+  List<CourseModel> _recommended = [];
+  bool _loading = true;
+  bool _failed = false;
 
   @override
   void initState() {
     super.initState();
-    _currentUserFuture = _authRepository.getCurrentUser();
-    _loadUserProfile();
-    _loadEnrolledCourses();
-    _loadRecommendations();
+    _load();
   }
 
-  Future<void> _loadEnrolledCourses() async {
-    setState(() => _loadingEnrolled = true);
-    try {
-      final user = await _currentUserFuture;
-      final uid = user?['uid'] as String?;
-      if (uid == null) {
-        setState(() {
-          _enrolledCourses = [];
-          _loadingEnrolled = false;
-        });
-        return;
-      }
-      final enrollments = await _enrollmentRepository.getUserEnrollments(uid);
-      setState(() {
-        _enrolledCourses = enrollments;
-        _loadingEnrolled = false;
-      });
-    } catch (e) {
-      setState(() => _loadingEnrolled = false);
-    }
-  }
-
-  Future<void> _loadRecommendations() async {
-    try {
-      final recommendations = await _recommendationEngine.getRecommendations();
-      setState(() {
-        _recommendedCourses = recommendations;
-      });
-    } catch (e) {
-      // ignore — non-critical
-    }
-  }
-
-  Future<void> _loadUserProfile() async {
-    try {
-      final user = await _currentUserFuture;
-      final uid = user?['uid'] as String?;
-      if (uid != null) {
-        final profile = await _authRepository.getUserProfile(uid);
-        if (mounted) {
-          setState(() {
-            _userProfile = profile;
-          });
-        }
-      }
-    } catch (e) {
-      // ignore — profile will just show defaults
-    }
-  }
-
-  /// Builds the user's display name using cached data — no extra API calls.
-  Widget _buildGreetingName() {
-    final theme = Theme.of(context);
-
-    // Use the cached profile first, then fall back to stream updates
-    String name = _userProfile?['displayName'] as String? ?? '';
-
-    if (name.isEmpty) {
-      // Try email split as fallback
-      final email = _userProfile?['email'] as String?;
-      if (email != null && email.contains('@')) {
-        name = email.split('@')[0];
-      }
-    }
-
-    if (name.isEmpty) name = 'Student';
-
-    final uid = _userProfile?['uid'] as String? ?? _userProfile?['id'] as String?;
-    if (uid == null) {
-      return Text(
-        name,
-        style: theme.textTheme.headlineMedium?.copyWith(
-          fontWeight: FontWeight.w800,
-          color: theme.colorScheme.primary,
-          letterSpacing: -1.0,
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      );
-    }
-
-    // Stream for real-time displayName updates (no new Future created here)
-    return StreamBuilder<Map<String, dynamic>?>(
-      stream: _userRepository.streamUserProfile(uid),
-      builder: (context, snapshot) {
-        String displayName = name;
-        if (snapshot.hasData && snapshot.data != null) {
-          final streamed = snapshot.data!['displayName'] as String?;
-          if (streamed != null && streamed.isNotEmpty) {
-            displayName = streamed;
-          }
-        }
-        return Text(
-          displayName,
-          style: theme.textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: theme.colorScheme.primary,
-            letterSpacing: -1.0,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        );
-      },
-    );
-  }
-
-  void _onItemTapped(int index) {
+  Future<void> _load() async {
     setState(() {
-      _selectedIndex = index;
+      _loading = true;
+      _failed = false;
     });
+    try {
+      final api = ApiClient.instance;
+      final results = await Future.wait([
+        api.get('/user/profile'),
+        api.get('/user/stats'),
+        _enrollments.getUserEnrollments(''),
+      ]);
+      final profile = results[0] as dynamic;
+      final stats = results[1] as dynamic;
+      if (!mounted) return;
+      setState(() {
+        if (profile.statusCode == 200) {
+          final p = jsonDecode(profile.body) as Map<String, dynamic>;
+          _name = (p['displayName'] as String?)?.trim().isNotEmpty == true
+              ? p['displayName'] as String
+              : (p['email'] as String? ?? '').split('@').first;
+        }
+        if (stats.statusCode == 200) _stats = jsonDecode(stats.body) as Map<String, dynamic>;
+        _enrolled = results[2] as List<Map<String, dynamic>>;
+        _loading = false;
+      });
+    } on Exception {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          _failed = true;
+        });
+      }
+    }
+    // Recommendations are a nice-to-have; never block the page on them.
+    try {
+      final recs = await _recommendations.getRecommendations();
+      if (mounted) setState(() => _recommended = recs);
+    } on Exception {
+      // leave empty
+    }
   }
 
-  Widget _getSelectedScreen() {
-    switch (_selectedIndex) {
-      case 0:
-        return _buildHomeScreen();
-      case 1:
-        return _buildCoursesScreen();
-      case 2:
-        return const LearningPathsScreen(embedded: true);
-      case 3:
-        return const AITutorChatScreen(embedded: true);
-      case 4:
-        return const CertificatesListScreen(embedded: true);
-      case 5:
-        return const BookmarksScreen(embedded: true);
-      case 6:
-        return const AssignmentsHubScreen(embedded: true);
-      case 7:
-        return const CommunityForumScreen(embedded: true);
-      case 8:
-        return _buildProfileScreen();
-      default:
-        return _buildHomeScreen();
-    }
+  void _openCourse(String id, String title) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => CourseContentScreen(courseId: id, title: title)),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final isMobile = MediaQuery.of(context).size.width < 600;
+    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_failed) return NotebookError(message: "Couldn't load today's page", onRetry: _load);
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      appBar: null, // Completely removed top AppBar to merge action controls into the dashboard welcome card
-      bottomNavigationBar: isMobile
-          ? GradientBottomNav(
-              selectedIndex: _selectedIndex > 3 ? 0 : _selectedIndex,
-              onItemSelected: _onItemTapped,
-              menuItems: const [
-                {
-                  'title': 'Home',
-                  'icon': CupertinoIcons.square_grid_2x2,
-                  'selectedIcon': CupertinoIcons.square_grid_2x2_fill,
-                },
-                {
-                  'title': 'Courses',
-                  'icon': CupertinoIcons.book,
-                  'selectedIcon': CupertinoIcons.book_fill,
-                },
-                {
-                  'title': 'Progress',
-                  'icon': CupertinoIcons.chart_bar_alt_fill,
-                  'selectedIcon': CupertinoIcons.chart_bar_alt_fill,
-                },
-                {
-                  'title': 'Profile',
-                  'icon': CupertinoIcons.person,
-                  'selectedIcon': CupertinoIcons.person_fill,
-                },
-              ],
+    final theme = Theme.of(context);
+    final wide = MediaQuery.of(context).size.width >= 700;
+    final streak = (_stats['streakDays'] as num?)?.toInt() ?? 0;
+
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView(
+        padding: EdgeInsets.fromLTRB(wide ? 48 : 20, 32, wide ? 48 : 20, 48),
+        children: [
+          MarginNote(DateFormat('EEEE, d MMMM').format(DateTime.now()), size: 22),
+          const SizedBox(height: 6),
+          Wrap(crossAxisAlignment: WrapCrossAlignment.end, spacing: 16, runSpacing: 4, children: [
+            Text(
+              _name.isEmpty ? 'Welcome back.' : 'Welcome back, $_name.',
+              style: theme.textTheme.displaySmall,
+            ),
+            if (streak > 1)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: MarginNote('$streak days in a row — keep going!', size: 19),
+              ),
+          ]),
+          const SizedBox(height: 28),
+          _Ledger(stats: _stats),
+          const SizedBox(height: 36),
+          NoteHeading(
+            'Pick up where you left off',
+            trailing: TextButton(onPressed: () => widget.onNavigate(1), child: const Text('All courses')),
+          ),
+          const SizedBox(height: 16),
+          if (_enrolled.isEmpty)
+            NotebookEmpty(
+              title: 'Your notebook is empty',
+              note: 'enrol in a course to start taking notes',
+              actionLabel: 'Browse courses',
+              onAction: () => widget.onNavigate(1),
             )
-          : null,
-      body: Container(
-        color: Colors.transparent,
-        child: Stack(
-          children: [
-            // Single AmbientBackground — only rendered once at the top level
-            const AmbientBackground(),
-            Column(
-              children: [
-                if (!isMobile)
-                  GlobalLmsHeader(
-                    onExploreTap: () => _onItemTapped(1),
-                    onMyLearningTap: () => _onItemTapped(0),
-                    onProfileTap: () => _onItemTapped(8),
-                    onSearch: (q) {
-                      _onItemTapped(1);
-                    },
-                  ),
-                Expanded(
-                  child: Row(
-                    children: [
-                      if (!isMobile) _buildSidebar(colorScheme, theme),
-                      Expanded(
-                        child: Center(
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 1200),
-                            child: SafeArea(
-                              top: isMobile,
-                              child: _getSelectedScreen(),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSidebar(ColorScheme colorScheme, ThemeData theme) {
-    const List<Map<String, dynamic>> menuItems = [
-      {'title': 'Dashboard', 'icon': CupertinoIcons.square_grid_2x2, 'selectedIcon': CupertinoIcons.square_grid_2x2_fill},
-      {'title': 'My Courses', 'icon': CupertinoIcons.book, 'selectedIcon': CupertinoIcons.book_fill},
-      {'title': 'Learning Paths', 'icon': CupertinoIcons.compass, 'selectedIcon': CupertinoIcons.compass_fill},
-      {'title': 'AI Assistant', 'icon': CupertinoIcons.sparkles, 'selectedIcon': CupertinoIcons.sparkles},
-      {'title': 'Certificates', 'icon': CupertinoIcons.rosette, 'selectedIcon': CupertinoIcons.rosette},
-      {'title': 'Bookmarks', 'icon': CupertinoIcons.bookmark, 'selectedIcon': CupertinoIcons.bookmark_fill},
-      {'title': 'Assignments', 'icon': CupertinoIcons.doc_checkmark, 'selectedIcon': CupertinoIcons.doc_checkmark_fill},
-      {'title': 'Community', 'icon': CupertinoIcons.chat_bubble_2, 'selectedIcon': CupertinoIcons.chat_bubble_2_fill},
-      {'title': 'Settings', 'icon': CupertinoIcons.slider_horizontal_3, 'selectedIcon': CupertinoIcons.slider_horizontal_3},
-    ];
-
-    return Container(
-      width: 260,
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        border: Border(
-          right: BorderSide(color: colorScheme.outline),
-        ),
-      ),
-      child: Column(
-        children: [
-          // Logo Header
-          SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(CupertinoIcons.lightbulb, color: colorScheme.primary, size: 20),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'AutoLearn',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.primary,
-                      fontSize: 18,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          
-          // Navigation Menu List
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: menuItems.length,
-              itemBuilder: (context, index) {
-                final item = menuItems[index];
-                final isSelected = _selectedIndex == index;
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: InkWell(
-                    onTap: () {
-                      setState(() {
-                        _selectedIndex = index;
-                      });
-                    },
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: isSelected ? colorScheme.primaryContainer : Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            isSelected ? item['selectedIcon'] : item['icon'],
-                            color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 16),
-                          Text(
-                            item['title'],
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                              color: isSelected ? colorScheme.primary : colorScheme.onSurface,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-
-          // Upgrade to Pro Card
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: colorScheme.surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colorScheme.outlineVariant),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  )
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Upgrade to Pro',
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Unlock unlimited access to all courses and premium features.',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 38,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Action placeholder
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colorScheme.primary,
-                        foregroundColor: colorScheme.onPrimary,
-                        padding: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text('Upgrade Now', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHomeScreen() {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final int streak = (_userProfile?['learningStreak'] as num?)?.toInt() ?? 0;
-    final int completedCoursesCount =
-        (_userProfile?['completedCoursesCount'] as num?)?.toInt() ?? 0;
-    final int certsCount =
-        (_userProfile?['certificationsCount'] as num?)?.toInt() ?? 0;
-    final int hoursLearned =
-        (_userProfile?['hoursLearned'] as num?)?.toInt() ?? 0;
-
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header Section with Merged Actions
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                'Welcome back, ',
-                                style: theme.textTheme.headlineMedium?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  color: theme.colorScheme.onSurface,
-                                  letterSpacing: -1.0,
-                                ),
-                              ),
-                              Expanded(child: _buildGreetingName()),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          if (streak > 0)
-                            Text(
-                              'You\'re on a $streak-day learning streak! Keep it up.',
-                              style: theme.textTheme.bodyMedium
-                                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                            )
-                          else
-                            Text(
-                              'Start learning today and build your streak!',
-                              style: theme.textTheme.bodyMedium
-                                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                            ),
-                        ],
-                      ),
-                    ),
-                    
-                    // Merged Profile and Theme Controls
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            theme.brightness == Brightness.light
-                                ? CupertinoIcons.moon
-                                : CupertinoIcons.sun_max,
-                            size: 20,
-                          ),
-                          onPressed: () {
-                            final newTheme = theme.brightness == Brightness.light
-                                ? 'dark'
-                                : 'light';
-                            PreferenceNotifier.instance.updateTheme(newTheme);
-                          },
-                        ),
-                        const SizedBox(width: 8),
-                        InkWell(
-                          onTap: () {
-                            setState(() {
-                              _selectedIndex = 8; // Switches to the Settings/Profile tab
-                            });
-                          },
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: colorScheme.primaryContainer,
-                                width: 2,
-                              ),
-                            ),
-                            child: CircleAvatar(
-                              backgroundColor: colorScheme.surfaceContainerHighest,
-                              child: Icon(CupertinoIcons.person, color: colorScheme.primary, size: 18),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-                
-                // Stat Cards
-                GridView.count(
-                  crossAxisCount:
-                      MediaQuery.of(context).size.width < 600 ? 2 : 4,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
-                  childAspectRatio: MediaQuery.of(context).size.width < 600 ? 1.4 : 1.5,
-                  children: [
-                    StatCard(
-                      icon: CupertinoIcons.book,
-                      value:
-                          '${_enrolledCourses.length + completedCoursesCount}',
-                      label: 'Enrolled',
-                    ),
-                    StatCard(
-                      icon: CupertinoIcons.time,
-                      value: hoursLearned > 0 ? '${hoursLearned}h' : '0h',
-                      label: 'Study Time',
-                    ),
-                    StatCard(
-                      icon: CupertinoIcons.checkmark_seal,
-                      value: '$completedCoursesCount',
-                      label: 'Completed',
-                    ),
-                    StatCard(
-                      icon: CupertinoIcons.rosette,
-                      value: '$certsCount',
-                      label: 'Certificates',
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          // AI Tutor Banner
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            child: AITutorBanner(
-              onTap: () {
-                setState(() {
-                  _selectedIndex = 3;
-                });
-              },
-            ),
-          ),
-
-          // Continue Learning Section
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Continue Learning',
-                      style: theme.textTheme.titleMedium,
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        setState(() => _selectedIndex = 1);
-                      },
-                      child: Text(
-                        'View All',
-                        style: theme.textTheme.bodyMedium
-                            ?.copyWith(color: theme.colorScheme.primary),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                _loadingEnrolled
-                    ? const Center(child: CircularProgressIndicator())
-                    : _enrolledCourses.isEmpty
-                        ? Center(
-                            child: Column(
-                              children: [
-                                Icon(
-                                  Icons.auto_stories_outlined,
-                                  size: 80,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withValues(alpha: 0.2),
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'No courses in progress',
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                      color:
-                                          theme.colorScheme.onSurfaceVariant),
-                                ),
-                                const SizedBox(height: 20),
-                                ElevatedButton(
-                                  onPressed: () =>
-                                      setState(() => _selectedIndex = 1),
-                                  child: const Text('Browse Courses'),
-                                ),
-                              ],
-                            ),
-                          )
-                        : ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: _enrolledCourses.length > 3
-                                ? 3
-                                : _enrolledCourses.length,
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(height: 16),
-                            itemBuilder: (context, index) {
-                              final enrollment = _enrolledCourses[index];
-                              final course = enrollment['course'] ?? {};
-                              final progress =
-                                  enrollment['progressPercent'] ?? 0.0;
-                              return ProgressCourseCard(
-                                title: course['title'] ?? 'Course',
-                                moduleName: 'Continue learning',
-                                thumbnailUrl: course['thumbnailURL'],
-                                progressPercent: progress.toDouble(),
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => CourseContentScreen(
-                                        courseId: course['courseId'] ?? '',
-                                        title: course['title'] ?? '',
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                          ),
-              ],
-            ),
-          ),
-
-          // Recommended Courses Section
-          if (_recommendedCourses.isNotEmpty) ...[
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(
-                'For You',
-                style: theme.textTheme.titleMedium,
-              ),
-            ),
+          else
+            for (final e in _enrolled.take(3)) ...[
+              _ContinueCard(enrollment: e, onTap: () {
+                final c = (e['course'] as Map?) ?? const {};
+                _openCourse(c['courseId'] as String? ?? '', c['title'] as String? ?? '');
+              }),
+              const SizedBox(height: 14),
+            ],
+          const SizedBox(height: 24),
+          _TutorStickyNote(onTap: () => widget.onNavigate(3)),
+          if (_recommended.isNotEmpty) ...[
+            const SizedBox(height: 40),
+            const NoteHeading('Worth reading next', note: 'picked for you'),
             const SizedBox(height: 16),
-            SizedBox(
-              height: 280,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                itemCount: _recommendedCourses.length,
-                itemBuilder: (context, index) {
-                  final course = _recommendedCourses[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 16),
-                    child: RecommendedCourseCard(
-                      title: course.title,
-                      description:
-                          'Master the subject with this interactive course.',
-                      thumbnailUrl: course.thumbnailURL,
-                      tag: 'RECOMMENDED',
-                      rating: course.rating,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CourseContentScreen(
-                              courseId: course.courseId,
-                              title: course.title,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 32),
+            Wrap(spacing: 16, runSpacing: 16, children: [
+              for (final c in _recommended.take(4))
+                SizedBox(
+                  width: wide ? 240 : double.infinity,
+                  child: NoteCard(
+                    onTap: () => _openCourse(c.courseId, c.title),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text(c.category.toUpperCase(), style: theme.textTheme.labelSmall),
+                      const SizedBox(height: 8),
+                      Text(c.title, style: theme.textTheme.titleMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
+                      const SizedBox(height: 8),
+                      Text(c.level, style: NotebookColors.of(context).hand(size: 17)),
+                    ]),
+                  ),
+                ),
+            ]),
           ],
         ],
       ),
     );
   }
+}
 
-  Widget _buildCoursesScreen() {
-    // CourseListScreen is embedded — pass hideAppBar to avoid nested scaffold/appBar issues
-    return const CourseListScreen(embedded: true);
-  }
+/// The week's numbers, written like a ledger: figures in mono, labels by hand.
+class _Ledger extends StatelessWidget {
+  final Map<String, dynamic> stats;
+  const _Ledger({required this.stats});
 
-  Widget _buildProfileScreen() {
-    // Use the already-cached future — no new API call on each tab switch
-    return FutureBuilder<Map<String, dynamic>?>(
-      future: _currentUserFuture,
-      builder: (context, userSnapshot) {
-        final user = userSnapshot.data;
-        return ProfileTab(
-          userProfile: _userProfile ?? user,
-          onProfileUpdated: _loadUserProfile,
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    int n(String k) => (stats[k] as num?)?.toInt() ?? 0;
+    final hours = (stats['hoursLearned'] as num?)?.toDouble() ?? 0;
+    final items = [
+      ('${n('enrolledCourses')}', 'courses'),
+      (hours < 10 ? hours.toStringAsFixed(1) : hours.toStringAsFixed(0), 'hours studied'),
+      ('${n('totalLessonsWatched')}', 'lessons done'),
+      ('${n('certificates')}', 'certificates'),
+    ];
+    final wide = MediaQuery.of(context).size.width >= 700;
+    Widget cell((String, String) it) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(it.$1, style: NotebookColors.figures(size: 30, weight: FontWeight.w600, color: theme.colorScheme.onSurface)),
+            MarginNote(it.$2, size: 18, tilt: 0, color: theme.colorScheme.onSurfaceVariant),
+          ]),
         );
-      },
+
+    return NoteCard(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+      child: wide
+          ? IntrinsicHeight(
+              child: Row(children: [
+                for (var i = 0; i < items.length; i++) ...[
+                  if (i > 0) const VerticalDivider(width: 32),
+                  Expanded(child: cell(items[i])),
+                ],
+              ]),
+            )
+          : GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              childAspectRatio: 2.2,
+              children: [for (final it in items) cell(it)],
+            ),
     );
   }
+}
+
+class _ContinueCard extends StatelessWidget {
+  final Map<String, dynamic> enrollment;
+  final VoidCallback onTap;
+  const _ContinueCard({required this.enrollment, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final nb = NotebookColors.of(context);
+    final course = (enrollment['course'] as Map?) ?? const {};
+    final pct = ((enrollment['progressPercent'] as num?)?.toDouble() ?? 0).clamp(0.0, 1.0);
+    return NoteCard(
+      onTap: onTap,
+      child: Row(children: [
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(course['title'] as String? ?? 'Course', style: theme.textTheme.titleLarge),
+            const SizedBox(height: 4),
+            Text(course['instructor'] as String? ?? '', style: theme.textTheme.bodyMedium),
+            const SizedBox(height: 14),
+            // Progress drawn as a pencil line over a dotted track.
+            LayoutBuilder(builder: (context, c) {
+              return Stack(children: [
+                Container(height: 6, decoration: BoxDecoration(border: Border(bottom: BorderSide(color: theme.colorScheme.outlineVariant, width: 2)))),
+                Container(width: c.maxWidth * pct, height: 6, decoration: BoxDecoration(border: Border(bottom: BorderSide(color: theme.colorScheme.primary, width: 3)))),
+              ]);
+            }),
+          ]),
+        ),
+        const SizedBox(width: 20),
+        Column(children: [
+          Text('${(pct * 100).round()}%', style: NotebookColors.figures(size: 22, weight: FontWeight.w600, color: theme.colorScheme.onSurface)),
+          Text(pct == 0 ? 'not started' : 'done', style: nb.hand(size: 16)),
+        ]),
+      ]),
+    );
+  }
+}
+
+/// A yellow sticky note stuck to the page, pointing at the AI tutor.
+class _TutorStickyNote extends StatelessWidget {
+  final VoidCallback onTap;
+  const _TutorStickyNote({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final nb = NotebookColors.of(context);
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final ink = dark ? Theme.of(context).colorScheme.onSurface : const Color(0xFF3B3415);
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Transform.rotate(
+        angle: -0.012,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 460),
+          child: NoteCard(
+            onTap: onTap,
+            color: nb.highlighter.withValues(alpha: dark ? 0.18 : 0.85),
+            child: Row(children: [
+              const SupplyDemandSketch(size: 64, labels: false),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('Stuck on a curve?', style: nb.hand(size: 26, color: ink)),
+                  Text('Ask the AI tutor — it explains with diagrams and checks your reasoning.',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: ink)),
+                ]),
+              ),
+              Icon(Icons.arrow_forward, color: ink),
+            ]),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfilePage extends StatefulWidget {
+  const _ProfilePage();
+
+  @override
+  State<_ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<_ProfilePage> {
+  final _auth = AuthRepository();
+  Map<String, dynamic>? _user;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final u = await _auth.getCurrentUser();
+    if (mounted) setState(() => _user = u);
+  }
+
+  @override
+  Widget build(BuildContext context) => ProfileTab(userProfile: _user, onProfileUpdated: _load);
 }

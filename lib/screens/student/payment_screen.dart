@@ -1,15 +1,16 @@
-// lib/screens/student/payment_screen.dart
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import '../../business_logic/payment_manager.dart';
-import '../../backend/payment_gateway_service.dart';
-import 'package:flutter_stripe/flutter_stripe.dart' hide Card;
+import 'package:url_launcher/url_launcher.dart';
+import '../../backend/api_client.dart';
+import '../../widgets/notebook/notebook.dart';
 
+/// Hands the student to Stripe Checkout. The server sets the price and the
+/// Stripe webhook enrols them once the payment clears.
 class PaymentScreen extends StatefulWidget {
   final String courseId;
   final String courseTitle;
-  final int amountCents; // course fee in cents
+  final int amountCents;
   final String currency;
-
   const PaymentScreen({super.key, required this.courseId, required this.courseTitle, required this.amountCents, this.currency = 'USD'});
 
   @override
@@ -17,185 +18,76 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-  final PaymentManager _paymentManager = PaymentManager();
-  bool _isProcessing = false;
+  bool _busy = false;
+  bool _opened = false;
+  String? _error;
 
-  @override
-  void initState() {
-    super.initState();
-    // Schedule the async payment-intent creation after the first frame
-    // so errors are catchable and don't silently fail in initState.
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      try {
-        await _paymentManager.startPendingPayment(
-          courseId: widget.courseId,
-          amountCents: widget.amountCents,
-          currency: widget.currency,
-        );
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to initialise payment: $e')),
-          );
-        }
-      }
+  Future<void> _pay() async {
+    setState(() {
+      _busy = true;
+      _error = null;
     });
-  }
-
-  Future<void> _simulatePayNow() async {
-    if (!mounted) return;
-    setState(() => _isProcessing = true);
-    
     try {
-      final intent = await PaymentGatewayService().createPaymentIntent(
-        amountCents: widget.amountCents,
-        currency: widget.currency,
-      );
-
-      await Stripe.instance.initPaymentSheet(
-        paymentSheetParameters: SetupPaymentSheetParameters(
-          paymentIntentClientSecret: intent['client_secret'],
-          merchantDisplayName: 'AI Tutor App',
-        ),
-      );
-
-      await Stripe.instance.presentPaymentSheet();
-
-      await _paymentManager.confirmPaidForCourse(widget.courseId);
-      if (!mounted) return;
-      Navigator.pop(context, true); // return success
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Payment failed: $e')),
-      );
-    } finally {
-      if (mounted) setState(() => _isProcessing = false);
-    }
-  }
-
-  Future<void> _paySandbox() async {
-    if (!mounted) return;
-    setState(() => _isProcessing = true);
-
-    try {
-      // Simulate network request delay
-      await Future.delayed(const Duration(seconds: 1));
-      await _paymentManager.confirmPaidForCourse(widget.courseId);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Sandbox payment approved successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Navigator.pop(context, true); // return success
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Sandbox payment enrollment failed: $e'),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => _isProcessing = false);
+      final data = await ApiClient.instance.json('POST', '/payments/checkout', body: {'courseId': widget.courseId});
+      final url = Uri.parse(data['url'] as String);
+      // Same tab on the web (Stripe sends them back to the app); browser on mobile.
+      await launchUrl(url, webOnlyWindowName: kIsWeb ? '_self' : null, mode: LaunchMode.externalApplication);
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _opened = true;
+        });
+      }
+    } on ApiException catch (e) {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _error = e.message;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final amount = (widget.amountCents / 100).toStringAsFixed(2);
-    return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        title: Text('Complete Enrollment', 
-          style: TextStyle(
-            fontWeight: FontWeight.bold, 
-            color: theme.colorScheme.primary,
-          )
-        ),
-        backgroundColor: theme.colorScheme.surface,
-        elevation: 0,
-        iconTheme: IconThemeData(color: theme.colorScheme.primary),
-      ),
-      body: Container(
-        
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Enroll in Course',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Complete payment to enroll in this course and get full access to all lessons.',
-                  style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surface,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: theme.colorScheme.outlineVariant),
-                    boxShadow: [
-                      BoxShadow(
-                        color: theme.colorScheme.primary.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Course', style: TextStyle(color: theme.colorScheme.onSurfaceVariant)),
-                        Text(widget.courseTitle, style: TextStyle(fontWeight: FontWeight.w600, color: theme.colorScheme.onSurface)),
-                        const SizedBox(height: 12),
-                        Text('Amount', style: TextStyle(color: theme.colorScheme.onSurfaceVariant)),
-                        Text('${widget.currency} $amount', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18, color: theme.colorScheme.primary)),
-                      ],
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isProcessing ? null : _simulatePayNow,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.colorScheme.primary,
-                      shadowColor: Colors.transparent,
-                      foregroundColor: theme.colorScheme.onPrimary,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
-                    child: _isProcessing
-                        ? SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: theme.colorScheme.onPrimary, strokeWidth: 2))
-                        : Text('Pay with Stripe', style: theme.textTheme.bodyLarge?.copyWith(fontSize: 16, fontWeight: FontWeight.bold, color: theme.colorScheme.onPrimary)),
-                  ),
-                ),
+    return NotebookPage(
+      title: 'Enrol',
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 460),
+            child: NoteCard(
+              padding: const EdgeInsets.all(28),
+              child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                Text(widget.courseTitle, style: theme.textTheme.headlineSmall),
                 const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: _isProcessing ? null : _paySandbox,
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: BorderSide(color: theme.colorScheme.primary),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
-                    child: Text('Sandbox Test Payment', style: theme.textTheme.bodyLarge?.copyWith(fontSize: 16, fontWeight: FontWeight.bold, color: theme.colorScheme.primary)),
+                Row(children: [
+                  Text('Total', style: theme.textTheme.bodyLarge),
+                  const Spacer(),
+                  Text('${widget.currency} ${(widget.amountCents / 100).toStringAsFixed(2)}',
+                      style: NotebookColors.figures(size: 22, weight: FontWeight.w600, color: theme.colorScheme.onSurface)),
+                ]),
+                const SizedBox(height: 6),
+                const MarginNote('one payment, yours to keep', tilt: 0, size: 18),
+                const SizedBox(height: 24),
+                if (_opened) ...[
+                  Text('Finish paying in the Stripe window. Your enrolment appears as soon as the payment clears.',
+                      style: theme.textTheme.bodyMedium),
+                  const SizedBox(height: 16),
+                  OutlinedButton(onPressed: () => Navigator.pop(context, true), child: const Text("I've paid — back to the course")),
+                ] else
+                  ElevatedButton.icon(
+                    onPressed: _busy ? null : _pay,
+                    icon: const Icon(Icons.lock_outline, size: 18),
+                    label: const Text('Pay securely with Stripe'),
                   ),
-                ),
-              ],
+                if (_error != null) ...[
+                  const SizedBox(height: 12),
+                  Text(_error!, style: TextStyle(color: theme.colorScheme.error)),
+                ],
+              ]),
             ),
           ),
         ),
@@ -203,5 +95,3 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 }
-
-

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../repository/user_repository.dart';
-import '../../repository/auth_repository.dart';
+import '../../backend/api_client.dart';
+import '../../utils/profile_options.dart';
+import '../../widgets/notebook/notebook.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -10,125 +11,72 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final UserRepository _userRepository = UserRepository();
-  final AuthRepository _authRepository = AuthRepository();
-
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _gradeController = TextEditingController();
-  final TextEditingController _interestController = TextEditingController();
-
-  bool _isLoading = false;
-  Map<String, dynamic>? _userProfile;
-
-  final List<String> _grades = [
-    'Elementary School',
-    'Middle School',
-    'High School',
-    'Undergraduate',
-    'Graduate',
-    'Professional',
-  ];
-
-  final List<String> _interests = [
-    'Technology',
-    'Science',
-    'Mathematics',
-    'Arts',
-    'Business',
-    'Languages',
-    'Engineering',
-    'Medicine',
-    'Other',
-  ];
+  final _form = GlobalKey<FormState>();
+  final _name = TextEditingController();
+  final _phone = TextEditingController();
+  String? _level;
+  String? _interest;
+  String _email = '';
+  bool _loading = true;
+  bool _saving = false;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
-    _loadUserProfile();
+    _load();
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _phoneController.dispose();
-    _gradeController.dispose();
-    _interestController.dispose();
+    _name.dispose();
+    _phone.dispose();
     super.dispose();
   }
 
-  Future<void> _loadUserProfile() async {
-    setState(() => _isLoading = true);
-    final user = await _authRepository.getCurrentUser();
-    if (user != null) {
-      final uid = user['uid'] as String?;
-      if (uid != null) {
-        final profile = await _authRepository.getUserProfile(uid);
-        if (profile != null) {
-          setState(() {
-            _userProfile = profile;
-            _nameController.text = profile['displayName'] ?? '';
-            _phoneController.text = profile['phone'] ?? '';
-            _gradeController.text = profile['grade'] ?? '';
-            _interestController.text = profile['interest'] ?? '';
-          });
-        }
+  Future<void> _load() async {
+    try {
+      final p = await ApiClient.instance.json('GET', '/user/profile') as Map<String, dynamic>;
+      if (!mounted) return;
+      setState(() {
+        _name.text = p['displayName'] as String? ?? '';
+        _phone.text = p['phone'] as String? ?? '';
+        _email = p['email'] as String? ?? '';
+        // Older accounts may hold values from the previous option lists.
+        _level = learnerLevels.contains(p['grade']) ? p['grade'] as String : null;
+        _interest = learnerInterests.contains(p['interest']) ? p['interest'] as String : null;
+        _loading = false;
+      });
+    } on ApiException catch (e) {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          _error = e.message;
+        });
       }
     }
-    setState(() => _isLoading = false);
   }
 
-  Future<void> _saveProfile() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() => _isLoading = true);
-    final user = await _authRepository.getCurrentUser();
-    final uid = user?['uid'] as String?;
-    if (uid == null) {
-      setState(() => _isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: const Text('User not found'),
-              backgroundColor: Theme.of(context).colorScheme.error),
-        );
-      }
-      return;
-    }
-
+  Future<void> _save() async {
+    if (!_form.currentState!.validate()) return;
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
     try {
-      final displayName = _nameController.text.trim();
-
-      await _userRepository.updateUserProfile(
-        uid: uid,
-        displayName: displayName,
-        phone: _phoneController.text.trim(),
-        grade: _gradeController.text.trim(),
-        interest: _interestController.text.trim(),
-      );
-
-      setState(() => _isLoading = false);
-
+      await ApiClient.instance.json('PUT', '/user/profile', body: {
+        'displayName': _name.text.trim(),
+        'phone': _phone.text.trim(),
+        'grade': _level,
+        'interest': _interest,
+      });
+      if (mounted) Navigator.pop(context, true);
+    } on ApiException catch (e) {
       if (mounted) {
-        final theme = Theme.of(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Profile updated successfully'),
-            backgroundColor: theme.colorScheme.primaryContainer,
-          ),
-        );
-        Navigator.pop(context, true);
-      }
-    } catch (e) {
-      setState(() => _isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error updating profile: $e'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
+        setState(() {
+          _saving = false;
+          _error = e.message;
+        });
       }
     }
   }
@@ -136,241 +84,59 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        title: Text('Edit Profile',
-            style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold, color: theme.colorScheme.primary)),
-        backgroundColor: theme.colorScheme.surface,
-        elevation: 0,
-        iconTheme: IconThemeData(color: theme.colorScheme.primary),
-      ),
-      body: SafeArea(
-        child: _isLoading && _userProfile == null
-            ? Center(
-                child:
-                    CircularProgressIndicator(color: theme.colorScheme.primary))
-            : SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const SizedBox(height: 20),
-                      Center(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                                color: theme.colorScheme.secondary
-                                    .withValues(alpha: 0.5),
-                                width: 2),
-                          ),
-                          child: CircleAvatar(
-                            radius: 60,
-                            backgroundColor:
-                                theme.colorScheme.secondaryContainer,
-                            child: Text(
-                              (_nameController.text.isNotEmpty
-                                      ? _nameController.text
-                                      : (_userProfile?['email'] ?? 'U'))[0]
-                                  .toUpperCase(),
-                              style: theme.textTheme.headlineLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: theme.colorScheme.primary,
-                              ),
-                            ),
-                          ),
+    return NotebookPage(
+      title: 'Edit profile',
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 560),
+                child: ListView(padding: const EdgeInsets.all(24), children: [
+                  NoteCard(
+                    padding: const EdgeInsets.all(24),
+                    child: Form(
+                      key: _form,
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                        if (_email.isNotEmpty) MarginNote(_email, tilt: 0, size: 19),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _name,
+                          decoration: const InputDecoration(labelText: 'Name'),
+                          validator: (v) => (v ?? '').trim().isEmpty ? 'Enter your name' : null,
                         ),
-                      ),
-                      const SizedBox(height: 32),
-                      _buildTextField(
-                        theme: theme,
-                        controller: _nameController,
-                        label: 'Full Name',
-                        hint: 'Enter your full name',
-                        icon: Icons.person_outline,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter your name';
-                          }
-                          return null;
-                        },
-                        onChanged: (value) => setState(() {}),
-                      ),
-                      const SizedBox(height: 16),
-                      _buildTextField(
-                        theme: theme,
-                        controller: TextEditingController(
-                            text: _userProfile?['email'] ?? ''),
-                        label: 'Email',
-                        hint: '',
-                        icon: Icons.email_outlined,
-                        readOnly: true,
-                      ),
-                      const SizedBox(height: 16),
-                      _buildTextField(
-                        theme: theme,
-                        controller: _phoneController,
-                        label: 'Phone Number',
-                        hint: 'Enter your phone number',
-                        icon: Icons.phone_outlined,
-                        keyboardType: TextInputType.phone,
-                      ),
-                      const SizedBox(height: 16),
-                      _buildDropdown(
-                        theme: theme,
-                        value: _gradeController.text.isEmpty
-                            ? null
-                            : _gradeController.text,
-                        label: 'Grade/Level',
-                        icon: Icons.school_outlined,
-                        items: _grades,
-                        onChanged: (value) {
-                          setState(() {
-                            _gradeController.text = value ?? '';
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      _buildDropdown(
-                        theme: theme,
-                        value: _interestController.text.isEmpty
-                            ? null
-                            : _interestController.text,
-                        label: 'Interest',
-                        icon: Icons.favorite_outline,
-                        items: _interests,
-                        onChanged: (value) {
-                          setState(() {
-                            _interestController.text = value ?? '';
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 32),
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primary,
-                          borderRadius: BorderRadius.circular(12),
+                        const SizedBox(height: 14),
+                        TextFormField(
+                          controller: _phone,
+                          keyboardType: TextInputType.phone,
+                          decoration: const InputDecoration(labelText: 'Phone (optional)'),
                         ),
-                        child: ElevatedButton(
-                          onPressed: _isLoading ? null : _saveProfile,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            foregroundColor: theme.colorScheme.onPrimary,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                          ),
-                          child: _isLoading
-                              ? SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        theme.colorScheme.onPrimary),
-                                  ),
-                                )
-                              : Text(
-                                  'Save Changes',
-                                  style: theme.textTheme.labelLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: theme.colorScheme.onPrimary,
-                                  ),
-                                ),
-                        ),
-                      ),
-                    ],
+                        const SizedBox(height: 20),
+                        Text('Where are you starting from?', style: theme.textTheme.titleSmall),
+                        const SizedBox(height: 8),
+                        Wrap(spacing: 8, runSpacing: 8, children: [
+                          for (final l in learnerLevels)
+                            ChoiceChip(label: Text(l), selected: _level == l, onSelected: (_) => setState(() => _level = l)),
+                        ]),
+                        const SizedBox(height: 16),
+                        Text('What do you most want to understand?', style: theme.textTheme.titleSmall),
+                        const SizedBox(height: 8),
+                        Wrap(spacing: 8, runSpacing: 8, children: [
+                          for (final i in learnerInterests)
+                            ChoiceChip(label: Text(i), selected: _interest == i, onSelected: (_) => setState(() => _interest = i)),
+                        ]),
+                        if (_error != null) ...[
+                          const SizedBox(height: 12),
+                          Text(_error!, style: TextStyle(color: theme.colorScheme.error)),
+                        ],
+                        const SizedBox(height: 24),
+                        ElevatedButton(onPressed: _saving ? null : _save, child: const Text('Save')),
+                      ]),
+                    ),
                   ),
-                ),
+                ]),
               ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required ThemeData theme,
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData icon,
-    bool readOnly = false,
-    TextInputType keyboardType = TextInputType.text,
-    String? Function(String?)? validator,
-    void Function(String)? onChanged,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-      ),
-      child: TextFormField(
-        controller: controller,
-        readOnly: readOnly,
-        keyboardType: keyboardType,
-        style: theme.textTheme.bodyLarge?.copyWith(
-          color: readOnly
-              ? theme.colorScheme.onSurface.withValues(alpha: 0.5)
-              : theme.colorScheme.onSurface,
-        ),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: theme.textTheme.bodyMedium
-              ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-          hintText: hint,
-          hintStyle: theme.textTheme.bodyMedium
-              ?.copyWith(color: theme.colorScheme.outline),
-          prefixIcon: Icon(icon, color: theme.colorScheme.primary),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(20),
-        ),
-        validator: validator,
-        onChanged: onChanged,
-      ),
-    );
-  }
-
-  Widget _buildDropdown({
-    required ThemeData theme,
-    required String? value,
-    required String label,
-    required IconData icon,
-    required List<String> items,
-    required void Function(String?) onChanged,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-      ),
-      child: DropdownButtonFormField<String>(
-        initialValue: value,
-        dropdownColor: theme.colorScheme.surface,
-        style: theme.textTheme.bodyLarge
-            ?.copyWith(color: theme.colorScheme.onSurface),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: theme.textTheme.bodyMedium
-              ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-          prefixIcon: Icon(icon, color: theme.colorScheme.primary),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(20),
-        ),
-        items: items.map((item) {
-          return DropdownMenuItem(
-            value: item,
-            child: Text(item),
-          );
-        }).toList(),
-        onChanged: onChanged,
-      ),
+            ),
     );
   }
 }
+

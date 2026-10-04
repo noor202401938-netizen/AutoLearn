@@ -1,390 +1,121 @@
-// lib/screens/student/certificate_screen.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../model/certificate_model.dart';
 import '../../utils/certificate_pdf_generator.dart';
+import '../../widgets/notebook/notebook.dart';
 
+/// The certificate as it will print: double-ruled border, serif type, a red
+/// seal. Download / print produce the same design as a PDF.
 class CertificateScreen extends StatefulWidget {
   final CertificateModel certificate;
-
-  const CertificateScreen({
-    super.key,
-    required this.certificate,
-  });
+  const CertificateScreen({super.key, required this.certificate});
 
   @override
   State<CertificateScreen> createState() => _CertificateScreenState();
 }
 
 class _CertificateScreenState extends State<CertificateScreen> {
-  final CertificatePdfGenerator _pdfGenerator = CertificatePdfGenerator();
-  bool _isGeneratingPdf = false;
+  final _pdf = CertificatePdfGenerator();
+  bool _busy = false;
+
+  Future<void> _run(Future<void> Function() action) async {
+    setState(() => _busy = true);
+    try {
+      await action();
+    } on Exception catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Couldn't create the PDF: $e")));
+    }
+    if (mounted) setState(() => _busy = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = widget.certificate;
+    return NotebookPage(
+      title: 'Certificate',
+      actions: [
+        IconButton(tooltip: 'Print', onPressed: _busy ? null : () => _run(() => _pdf.print(c)), icon: const Icon(Icons.print_outlined)),
+        Padding(
+          padding: const EdgeInsets.only(right: 12),
+          child: TextButton.icon(
+            onPressed: _busy ? null : () => _run(() => _pdf.share(c)),
+            icon: const Icon(Icons.download_outlined),
+            label: const Text('Download PDF'),
+          ),
+        ),
+      ],
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 900),
+            child: AspectRatio(aspectRatio: 1.414, child: _Certificate(c)),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Certificate extends StatelessWidget {
+  final CertificateModel c;
+  const _Certificate(this.c);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Certificate of Completion',
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: theme.colorScheme.onSurface)),
-        backgroundColor: theme.colorScheme.surface,
-        elevation: 0,
-        iconTheme: IconThemeData(color: theme.colorScheme.onSurface),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.download, color: theme.colorScheme.onSurface),
-            onPressed:
-                _isGeneratingPdf ? null : () => _downloadCertificate(context),
-            tooltip: 'Download Certificate',
-          ),
-          IconButton(
-            icon: Icon(Icons.share, color: theme.colorScheme.onSurface),
-            onPressed:
-                _isGeneratingPdf ? null : () => _shareCertificate(context),
-            tooltip: 'Share Certificate',
-          ),
-        ],
-      ),
-      backgroundColor: theme.colorScheme.surface,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Center(
-            child: _buildCertificate(context),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCertificate(BuildContext context) {
-    final theme = Theme.of(context);
-    // Format date
-    String formattedDate;
-    try {
-      final dateFormat = DateFormat('dd MMMM yyyy');
-      formattedDate = dateFormat.format(widget.certificate.completionDate);
-    } catch (e) {
-      final months = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December'
-      ];
-      final date = widget.certificate.completionDate;
-      formattedDate = '${date.day} ${months[date.month - 1]} ${date.year}';
-    }
-
-    return Container(
-      width: double.infinity,
-      constraints: const BoxConstraints(maxWidth: 900),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16), // Rounded corners
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 30,
-            spreadRadius: 5,
-            offset: const Offset(0, 15),
-          ),
-        ],
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.5),
-          width: 1,
-        ),
-      ),
-      child: Stack(
-        children: [
-          // Decorative corner elements
-          Positioned(
-            top: 0,
-            right: 0,
-            child: _buildCornerDecoration(),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            child: Transform.rotate(
-              angle: 3.14159, // 180 degrees
-              child: _buildCornerDecoration(),
-            ),
-          ),
-
-          // Main content
-          Padding(
-            padding: const EdgeInsets.all(60.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // CERTIFICATE title
-                const Text(
-                  'CERTIFICATE',
-                  style: TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                    letterSpacing: 2,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
-
-                // OF COMPLETION
-                const Text(
-                  'OF COMPLETION',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.normal,
-                    color: Colors.black,
-                    letterSpacing: 1,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 40),
-
-                // IS PRESENTED TO
-                const Text(
-                  'IS PRESENTED TO :',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.normal,
-                    color: Colors.black,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-
-                // Name with lines
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Container(
-                      width: 400,
-                      height: 1,
-                      color: Colors.black,
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      color: Colors.white,
-                      child: Text(
-                        widget.certificate.userName,
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .primary, // Primary color
-                          letterSpacing: 0.5,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
+    final nb = NotebookColors.of(context);
+    final ink = theme.colorScheme.onSurface;
+    return LayoutBuilder(builder: (context, box) {
+      final s = box.maxWidth / 900; // scale type with the page
+      TextStyle serif(double size, {FontWeight w = FontWeight.w600, bool italic = false}) =>
+          theme.textTheme.displayLarge!.copyWith(fontSize: size * s, fontWeight: w, fontStyle: italic ? FontStyle.italic : null, color: ink, height: 1.15);
+      return NoteCard(
+        padding: EdgeInsets.all(10 * s),
+        child: Container(
+          decoration: BoxDecoration(border: Border.all(color: ink, width: 2)),
+          padding: EdgeInsets.all(6 * s),
+          child: Container(
+            decoration: BoxDecoration(border: Border.all(color: ink, width: 0.6)),
+            padding: EdgeInsets.symmetric(horizontal: 60 * s, vertical: 36 * s),
+            child: Column(children: [
+              Text('AUTOLEARN', style: theme.textTheme.labelLarge?.copyWith(fontSize: 14 * s, letterSpacing: 4 * s, color: ink)),
+              SizedBox(height: 20 * s),
+              Text('Certificate of Completion', style: serif(44), textAlign: TextAlign.center),
+              SizedBox(height: 24 * s),
+              Text('This certifies that', style: serif(18, w: FontWeight.w400, italic: true)),
+              SizedBox(height: 8 * s),
+              Text(c.userName, style: serif(38), textAlign: TextAlign.center),
+              Container(width: 340 * s, height: 1.5, color: nb.annotation, margin: EdgeInsets.only(top: 6 * s, bottom: 16 * s)),
+              Text('has completed the course', style: serif(18, w: FontWeight.w400, italic: true)),
+              SizedBox(height: 8 * s),
+              Text(c.courseName, style: serif(26, w: FontWeight.w500), textAlign: TextAlign.center),
+              const Spacer(),
+              Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(DateFormat('d MMMM yyyy').format(c.completionDate), style: serif(15, w: FontWeight.w500)),
+                    Text('Date awarded', style: serif(12, w: FontWeight.w400, italic: true)),
+                  ]),
                 ),
                 Container(
-                  width: 400,
-                  height: 1,
-                  color: Colors.black,
-                  margin: const EdgeInsets.only(top: 5),
+                  width: 80 * s,
+                  height: 80 * s,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: nb.annotation, width: 2)),
+                  child: SupplyDemandSketch(size: 52 * s, labels: false),
                 ),
-                const SizedBox(height: 30),
-
-                // Description text
-                Text(
-                  'For successfully completing the lesson "${widget.certificate.lessonName}" '
-                  'in the course "${widget.certificate.courseName}". '
-                  'Completed on $formattedDate.',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.normal,
-                    color: Colors.black,
-                    height: 1.5,
-                  ),
-                  textAlign: TextAlign.center,
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                    Text(c.certificateId, style: NotebookColors.figures(size: 11 * s, color: ink)),
+                    Text('Certificate ID', style: serif(12, w: FontWeight.w400, italic: true)),
+                  ]),
                 ),
-                const SizedBox(height: 60),
-
-                // Signatures section
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    // Left signature
-                    Column(
-                      children: [
-                        const Text(
-                          'Instructor',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 40),
-                        Text(
-                          'GENERAL INSTRUCTOR',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.normal,
-                            color: Colors.grey.shade700,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    // Center seal
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: theme.colorScheme.tertiary,
-                        border: Border.all(
-                          color: theme.colorScheme.tertiary,
-                          width: 2,
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          '✓',
-                          style: TextStyle(
-                            fontSize: 40,
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.onTertiary,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Right signature
-                    Column(
-                      children: [
-                        const Text(
-                          'Director',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 40),
-                        Text(
-                          'CREATIVE DIRECTOR',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.normal,
-                            color: Colors.grey.shade700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              ]),
+            ]),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCornerDecoration() {
-    return SizedBox(
-      width: 150,
-      height: 150,
-      child: Stack(
-        children: [
-          // Large blue curve
-          Positioned(
-            top: 0,
-            right: 0,
-            child: Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary, // Primary
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-          // Small gray curve
-          Positioned(
-            top: 20,
-            right: 20,
-            child: Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _downloadCertificate(BuildContext context) async {
-    setState(() => _isGeneratingPdf = true);
-
-    try {
-      final file = await _pdfGenerator.generatePdf(widget.certificate);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Certificate downloaded to: ${file.path}'),
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error downloading certificate: $e'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isGeneratingPdf = false);
-      }
-    }
-  }
-
-  Future<void> _shareCertificate(BuildContext context) async {
-    setState(() => _isGeneratingPdf = true);
-
-    try {
-      await _pdfGenerator.sharePdf(widget.certificate);
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error sharing certificate: $e'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isGeneratingPdf = false);
-      }
-    }
+        ),
+      );
+    });
   }
 }

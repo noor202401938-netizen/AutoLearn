@@ -1,609 +1,350 @@
 import 'package:flutter/material.dart';
-import '../../business_logic/ai_tutor_engine.dart';
+import '../../backend/api_client.dart';
 import '../../model/chat_message_model.dart';
-import '../../repository/auth_repository.dart';
+import '../../repository/chat_repository.dart';
+import '../../widgets/notebook/notebook.dart';
 
+const _starters = [
+  'Why does the demand curve slope downwards?',
+  'What is the difference between a shift and a movement along the curve?',
+  'Explain price elasticity with a real example.',
+  'Who really pays a tax on cigarettes?',
+];
+
+/// The AI tutor: a notebook page where your questions are written in ink and
+/// the tutor's answers appear as annotated notes. Past conversations sit in
+/// the margin.
 class AITutorChatScreen extends StatefulWidget {
-  final String? courseId;
-  final String? lessonId;
   final bool embedded;
 
-  const AITutorChatScreen({
-    super.key,
-    this.courseId,
-    this.lessonId,
-    this.embedded = false,
-  });
+  /// Lesson the student came from, passed to the tutor as context.
+  final String? contextTitle;
+
+  const AITutorChatScreen({super.key, this.embedded = false, this.contextTitle});
 
   @override
   State<AITutorChatScreen> createState() => _AITutorChatScreenState();
 }
 
 class _AITutorChatScreenState extends State<AITutorChatScreen> {
-  final AITutorEngine _aiTutorEngine = AITutorEngine();
-  final TextEditingController _messageController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
+  final _repo = ChatRepository();
+  final _input = TextEditingController();
+  final _scroll = ScrollController();
 
-  String? _currentSessionId;
+  List<ChatSessionModel> _sessions = [];
+  String? _sessionId;
   List<ChatMessageModel> _messages = [];
-  bool _isLoading = false;
-  bool _isSending = false;
+  bool _loading = true;
+  bool _sending = false;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
-    _initializeChat();
-  }
-
-  Future<void> _initializeChat() async {
-    setState(() => _isLoading = true);
-    try {
-      final user = await AuthRepository().getCurrentUser();
-      final uid = user?['uid'] as String?;
-      if (uid == null) {
-        setState(() => _isLoading = false);
-        return;
-      }
-
-      _currentSessionId = await _aiTutorEngine.getOrCreateSession(uid);
-
-      if (_currentSessionId != null) {
-        _messages =
-            await _aiTutorEngine.getConversationHistory(_currentSessionId!);
-
-        _aiTutorEngine.watchConversation(_currentSessionId!).listen((messages) {
-          if (mounted) {
-            setState(() {
-              _messages = messages;
-            });
-            _scrollToBottom();
-          }
-        });
-      }
-
-      setState(() => _isLoading = false);
-    } catch (e) {
-      setState(() => _isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading chat: $e')),
-        );
-      }
-    }
-  }
-
-  Future<void> _sendMessage() async {
-    final theme = Theme.of(context);
-    final message = _messageController.text.trim();
-    if (message.isEmpty || _isSending) return;
-
-    final user = await AuthRepository().getCurrentUser();
-    final uid = user?['uid'] as String?;
-    if (uid == null) return;
-
-    setState(() {
-      _isSending = true;
-    });
-
-    _messageController.clear();
-
-    try {
-      await _aiTutorEngine.sendMessage(
-        userId: uid,
-        userMessage: message,
-        sessionId: _currentSessionId,
-        courseId: widget.courseId,
-        lessonId: widget.lessonId,
-      );
-      _scrollToBottom();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error sending message: $e'),
-            backgroundColor: theme.colorScheme.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSending = false;
-        });
-      }
-    }
-  }
-
-  void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
-  }
-
-  Future<void> _startNewConversation() async {
-    final user = await AuthRepository().getCurrentUser();
-    final uid = user?['uid'] as String?;
-    if (uid == null) return;
-
-    try {
-      final newSessionId = await _aiTutorEngine.startNewConversation(uid);
-      setState(() {
-        _currentSessionId = newSessionId;
-        _messages = [];
-      });
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error starting new conversation: ')),
-        );
-      }
-    }
+    _loadSessions();
   }
 
   @override
   void dispose() {
-    _messageController.dispose();
-    _scrollController.dispose();
+    _input.dispose();
+    _scroll.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadSessions() async {
+    try {
+      final sessions = await _repo.listSessions();
+      if (!mounted) return;
+      setState(() {
+        _sessions = sessions;
+        _loading = false;
+      });
+    } on ApiException catch (e) {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          _error = e.message;
+        });
+      }
+    }
+  }
+
+  Future<void> _open(String id) async {
+    setState(() {
+      _sessionId = id;
+      _messages = [];
+      _error = null;
+      _loading = true;
+    });
+    try {
+      final msgs = await _repo.history(id);
+      if (!mounted) return;
+      setState(() {
+        _messages = msgs;
+        _loading = false;
+      });
+      _toBottom();
+    } on ApiException catch (e) {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          _error = e.message;
+        });
+      }
+    }
+  }
+
+  void _newConversation() => setState(() {
+        _sessionId = null;
+        _messages = [];
+        _error = null;
+      });
+
+  Future<void> _send([String? preset]) async {
+    final text = (preset ?? _input.text).trim();
+    if (text.isEmpty || _sending) return;
+    _input.clear();
+    setState(() {
+      _sending = true;
+      _error = null;
+      _messages = [
+        ..._messages,
+        ChatMessageModel(messageId: 'pending', userId: '', role: 'user', content: text, timestamp: DateTime.now()),
+      ];
+    });
+    _toBottom();
+    try {
+      final id = _sessionId ?? await _repo.createSession();
+      final reply = await _repo.send(id, text, context: widget.contextTitle);
+      if (!mounted) return;
+      final isNew = _sessionId == null;
+      setState(() {
+        _sessionId = id;
+        _messages = [..._messages, reply];
+        _sending = false;
+      });
+      if (isNew) _loadSessions();
+      _toBottom();
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        // Put the question back so the student doesn't lose it.
+        _messages = _messages.where((m) => m.messageId != 'pending').toList();
+        _input.text = text;
+        _sending = false;
+        _error = e.message;
+      });
+    }
+  }
+
+  Future<void> _delete(ChatSessionModel s) async {
+    try {
+      await _repo.delete(s.sessionId);
+      if (_sessionId == s.sessionId) _newConversation();
+      await _loadSessions();
+    } on ApiException catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
+
+  void _toBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scroll.hasClients) {
+        _scroll.animateTo(_scroll.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final bodyContent = SafeArea(
-      child: _isLoading
-          ? Center(
-              child:
-                  CircularProgressIndicator(color: theme.colorScheme.primary))
-          : Stack(
-              children: [
-                Column(
-                  children: [
-                    Expanded(
-                      child: _messages.isEmpty
-                          ? _buildEmptyState()
-                          : ListView.builder(
-                              controller: _scrollController,
-                              padding: const EdgeInsets.only(
-                                left: 20,
-                                right: 20,
-                                top: 24,
-                                bottom: 160,
-                              ),
-                              itemCount: _messages.length,
-                              itemBuilder: (context, index) {
-                                if (index == 0) {
-                                  return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      _buildContextHeader(),
-                                      const SizedBox(height: 24),
-                                      _buildMessageBubble(_messages[index]),
-                                    ],
-                                  );
-                                }
-                                return _buildMessageBubble(_messages[index]);
-                              },
-                            ),
-                    ),
-                  ],
-                ),
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: _buildFloatingInputArea(),
-                ),
-              ],
-            ),
-    );
-
-    if (widget.embedded) {
-      return bodyContent;
-    }
-
-    return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.surface,
-        elevation: 0,
-        centerTitle: false,
-        title: Text(
-          'AI Tutor',
-          style: theme.textTheme.titleMedium,
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh, color: theme.colorScheme.onSurface),
-            tooltip: 'New Conversation',
-            onPressed: _startNewConversation,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primaryContainer,
-                shape: BoxShape.circle,
-                border: Border.all(color: theme.colorScheme.outline),
-              ),
-              child: ClipOval(
-                child: Icon(Icons.person, color: theme.colorScheme.primary),
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: bodyContent,
-    );
+    final wide = MediaQuery.of(context).size.width >= 1000;
+    final page = Row(children: [
+      if (wide) SizedBox(width: 260, child: _history()),
+      Expanded(child: _conversation(showHistoryButton: !wide)),
+    ]);
+    if (widget.embedded) return page;
+    return NotebookPage(title: 'AI tutor', body: page);
   }
 
-  Widget _buildContextHeader() {
+  Widget _history({bool inSheet = false}) {
     final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'LEARNING MODULE',
-          style: theme.textTheme.bodyMedium,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          widget.lessonId ?? 'Advanced Prototyping',
-          style: theme.textTheme.titleMedium,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEmptyState() {
-    final theme = Theme.of(context);
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildContextHeader(),
-            const SizedBox(height: 48),
-            Center(
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: theme.colorScheme.primaryContainer),
-                  boxShadow: [
-                    BoxShadow(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.2),
-                      blurRadius: 20,
-                      spreadRadius: 5,
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.auto_awesome,
-                  size: 64,
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Center(
-              child: Text(
-                'AI Tutor',
-                style: theme.textTheme.titleMedium,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Center(
-              child: Text(
-                'Ask me anything about your subjects!\nI\'m here to help you learn.',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyLarge
-                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMessageBubble(ChatMessageModel message) {
-    final isUser = message.isUser;
-
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
-      child: isUser ? _buildUserMessage(message) : _buildAIMessage(message),
-    );
-  }
-
-  Widget _buildUserMessage(ChatMessageModel message) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Flexible(
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    topRight: Radius.circular(4),
-                    bottomLeft: Radius.circular(16),
-                    bottomRight: Radius.circular(16),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.2),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+      padding: const EdgeInsets.fromLTRB(20, 32, 8, 20),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        MarginNote('past conversations', size: 20),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          onPressed: () {
+            if (inSheet) Navigator.pop(context);
+            _newConversation();
+          },
+          icon: const Icon(Icons.add, size: 18),
+          label: const Text('New question'),
+        ),
+        const SizedBox(height: 12),
+        Expanded(
+          child: _sessions.isEmpty
+              ? Text('Nothing yet — your conversations will be kept here.', style: theme.textTheme.bodySmall)
+              : ListView(children: [
+                  for (final s in _sessions)
+                    ListTile(
+                      dense: true,
+                      contentPadding: const EdgeInsets.only(left: 4),
+                      selected: s.sessionId == _sessionId,
+                      title: Text(s.title ?? 'Conversation', maxLines: 2, overflow: TextOverflow.ellipsis),
+                      subtitle: Text(timeAgo(s.updatedAt ?? s.createdAt)),
+                      trailing: IconButton(
+                        tooltip: 'Delete conversation',
+                        icon: const Icon(Icons.close, size: 16),
+                        onPressed: () => _delete(s),
+                      ),
+                      onTap: () {
+                        if (inSheet) Navigator.pop(context);
+                        _open(s.sessionId);
+                      },
                     ),
-                  ],
-                ),
-                child: Text(
-                  message.content,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontSize: 16,
-                    height: 1.5,
-                  ),
-                ),
-              ),
-            ),
-          ],
+                ]),
         ),
-        const SizedBox(height: 6),
-        Text(
-          _formatTime(message.timestamp),
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ],
+      ]),
     );
   }
 
-  Widget _buildAIMessage(ChatMessageModel message) {
+  Widget _conversation({required bool showHistoryButton}) {
     final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primary,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                Icons.auto_awesome,
-                size: 20,
-                color: theme.colorScheme.onPrimary,
+    return Column(children: [
+      Padding(
+        padding: const EdgeInsets.fromLTRB(24, 24, 16, 8),
+        child: Row(children: [
+          Expanded(child: Text('Ask the tutor', style: theme.textTheme.headlineMedium)),
+          if (showHistoryButton)
+            IconButton(
+              tooltip: 'Past conversations',
+              icon: const Icon(Icons.history),
+              onPressed: () => showModalBottomSheet<void>(
+                context: context,
+                backgroundColor: NotebookColors.of(context).sheet,
+                builder: (_) => SizedBox(height: 420, child: _history(inSheet: true)),
               ),
             ),
-            const SizedBox(width: 8),
-            Text(
-              'AI Tutor',
-              style: theme.textTheme.bodyMedium,
+        ]),
+      ),
+      Expanded(
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _messages.isEmpty && !_sending
+                ? _emptyPage()
+                : ListView(
+                    controller: _scroll,
+                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+                    children: [
+                      for (final m in _messages) _Message(m),
+                      if (_sending) Padding(
+                        padding: const EdgeInsets.only(top: 8, left: 4),
+                        child: MarginNote('the tutor is thinking…', size: 20),
+                      ),
+                    ],
+                  ),
+      ),
+      if (_error != null)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+          child: NoteCard(
+            color: theme.colorScheme.errorContainer,
+            padding: const EdgeInsets.all(12),
+            child: Row(children: [
+              Icon(Icons.error_outline, color: theme.colorScheme.onErrorContainer),
+              const SizedBox(width: 10),
+              Expanded(child: Text(_error!, style: TextStyle(color: theme.colorScheme.onErrorContainer))),
+            ]),
+          ),
+        ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(24, 4, 24, 20),
+        child: Row(children: [
+          Expanded(
+            child: TextField(
+              controller: _input,
+              minLines: 1,
+              maxLines: 5,
+              textInputAction: TextInputAction.send,
+              onSubmitted: (_) => _send(),
+              decoration: const InputDecoration(hintText: 'Write your question…'),
             ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(4),
-              topRight: Radius.circular(16),
-              bottomLeft: Radius.circular(16),
-              bottomRight: Radius.circular(16),
-            ),
-            border: Border.all(color: theme.colorScheme.outlineVariant),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                message.content,
-                style: theme.textTheme.bodyLarge
-                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-              ),
-              const SizedBox(height: 16),
-              Divider(color: theme.colorScheme.outlineVariant),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.thumb_up_outlined, size: 18),
-                    color: theme.colorScheme.primary,
-                    onPressed: () {},
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.thumb_down_outlined, size: 18),
-                    color: theme.colorScheme.onSurfaceVariant,
-                    onPressed: () {},
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.share_outlined, size: 18),
-                    color: theme.colorScheme.onSurfaceVariant,
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-            ],
+          const SizedBox(width: 10),
+          IconButton.filled(
+            tooltip: 'Send',
+            onPressed: _sending ? null : _send,
+            icon: const Icon(Icons.arrow_upward),
           ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          _formatTime(message.timestamp),
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ],
-    );
+        ]),
+      ),
+    ]);
   }
 
-  Widget _buildFloatingInputArea() {
+  Widget _emptyPage() {
     final theme = Theme.of(context);
-    return Container(
-      color: theme.colorScheme.surface.withValues(alpha: 0.95),
-      padding: const EdgeInsets.only(top: 12, left: 20, right: 20, bottom: 20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSuggestedPrompts(),
-          const SizedBox(height: 12),
-          Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.secondaryContainer,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: theme.colorScheme.outlineVariant),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: [
-                Icon(Icons.auto_awesome, color: theme.colorScheme.primary),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    style: theme.textTheme.bodyMedium,
-                    decoration: InputDecoration(
-                      hintText: 'Ask AI Tutor anything...',
-                      hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant
-                              .withValues(alpha: 0.5)),
-                      border: InputBorder.none,
-                      isDense: true,
-                    ),
-                    maxLines: null,
-                    textCapitalization: TextCapitalization.sentences,
-                    onSubmitted: (_) => _sendMessage(),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: IconButton(
-                    icon: _isSending
-                        ? SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                  theme.colorScheme.onPrimary),
-                            ),
-                          )
-                        : Icon(Icons.arrow_upward,
-                            color: theme.colorScheme.onPrimary),
-                    onPressed: _isSending ? null : _sendMessage,
-                    padding: const EdgeInsets.all(8),
-                    constraints: const BoxConstraints(),
-                  ), // IconButton
-                ), // send Container
-              ], // Row children
-            ), // Row
-          ), // inner Container
-        ], // Column children
-      ), // Column
-    ); // return
-  }
-
-  Widget _buildSuggestedPrompts() {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          'CONTINUE LEARNING',
-          style: theme.textTheme.bodyMedium,
-        ),
-        const SizedBox(height: 8),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              _buildSuggestionChip('Smart Animate Tips'),
-              const SizedBox(width: 12),
-              _buildSuggestionChip('Variables in Prototypes'),
-              const SizedBox(width: 12),
-              _buildSuggestionChip('Overlay Logic'),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSuggestionChip(String text) {
-    final theme = Theme.of(context);
-    return InkWell(
-      onTap: () {
-        _messageController.text = text;
-        _sendMessage();
-      },
-      borderRadius: BorderRadius.circular(24),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-              color: theme.colorScheme.primary.withValues(alpha: 0.2)),
-        ),
+    return ListView(padding: const EdgeInsets.all(24), children: [
+      const Center(child: SupplyDemandSketch(size: 140)),
+      const SizedBox(height: 16),
+      Center(
         child: Text(
-          text,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
-          ),
+          widget.contextTitle == null
+              ? 'Ask anything about economics.'
+              : 'Ask anything about "${widget.contextTitle}".',
+          style: theme.textTheme.titleMedium,
+          textAlign: TextAlign.center,
         ),
       ),
-    );
+      const SizedBox(height: 4),
+      const Center(child: MarginNote('it explains, then checks you understood', tilt: 0, size: 18)),
+      const SizedBox(height: 24),
+      Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 10,
+        runSpacing: 10,
+        children: [for (final s in _starters) ActionChip(label: Text(s), onPressed: () => _send(s))],
+      ),
+    ]);
   }
+}
 
-  String _formatTime(DateTime timestamp) {
-    final now = DateTime.now();
-    final difference = now.difference(timestamp);
+class _Message extends StatelessWidget {
+  final ChatMessageModel m;
+  const _Message(this.m);
 
-    if (difference.inMinutes < 1) {
-      return 'Just now';
-    } else if (difference.inHours < 1) {
-      return 'm ago';
-    } else if (difference.inDays < 1) {
-      return 'h ago';
-    } else {
-      return ':';
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final nb = NotebookColors.of(context);
+    if (m.role == 'user') {
+      return Align(
+        alignment: Alignment.centerRight,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 520),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 16, left: 48),
+            child: NoteCard(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Text(m.content, style: theme.textTheme.bodyLarge),
+            ),
+          ),
+        ),
+      );
     }
+    // Tutor replies: a red margin rule and a handwritten "Tutor" label.
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20, right: 24),
+      child: Container(
+        padding: const EdgeInsets.only(left: 16),
+        decoration: BoxDecoration(border: Border(left: BorderSide(color: nb.marginLine, width: 2))),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          MarginNote('Tutor', size: 20, tilt: 0),
+          const SizedBox(height: 4),
+          NoteText(m.content),
+        ]),
+      ),
+    );
   }
 }

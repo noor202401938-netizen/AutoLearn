@@ -1,605 +1,127 @@
 import 'package:flutter/material.dart';
-import '../../model/user_stats_model.dart';
 import '../../business_logic/auth_manager.dart';
-import '../../screens/student/change_password_screen.dart';
 import '../../screens/notifications_panel.dart';
+import '../../screens/student/about_screen.dart';
+import '../../screens/student/change_password_screen.dart';
+import '../../screens/student/edit_profile_screen.dart';
+import '../../screens/student/help_support_screen.dart';
+import '../../screens/student/policies_screen.dart';
+import '../../screens/theme_accessibility_screen.dart';
+import '../notebook/notebook.dart';
 
-class ProfileTab extends StatefulWidget {
+/// Profile page: who you are, and the settings pages. Numbers live on the
+/// Today page, which reads them from the server — nothing here is made up.
+class ProfileTab extends StatelessWidget {
   final Map<String, dynamic>? userProfile;
   final VoidCallback onProfileUpdated;
 
-  const ProfileTab({
-    super.key,
-    required this.userProfile,
-    required this.onProfileUpdated,
-  });
-
-  @override
-  State<ProfileTab> createState() => _ProfileTabState();
-}
-
-class _ProfileTabState extends State<ProfileTab> {
-  final AuthManager _authManager = AuthManager();
-
-  // Variables to hold the models
-  late UserStatsModel _userStats;
-  late List<AchievementModel> _achievements;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadProfileData();
-  }
-
-  void _loadProfileData() {
-    // In a real app, these would be fetched from a backend repository.
-    // For now, we populate the variables with data representing the user.
-    _userStats = UserStatsModel(
-      points: 12450,
-      certificates: 3,
-      globalRank: 'Top 5%',
-      level: 12,
-      pointsToNextLevel: 2550,
-      streakDays: 7,
-    );
-
-    _achievements = [
-      AchievementModel(
-        title: '7 Day Streak',
-        description: 'Consistency Master',
-        icon: 'local_fire_department',
-        colorTheme: 'tertiary',
-      ),
-      AchievementModel(
-        title: 'Fast Learner',
-        description: 'Quiz Ace',
-        icon: 'psychology',
-        colorTheme: 'secondary',
-      ),
-      AchievementModel(
-        title: 'Top Scorer',
-        description: 'Course Leader',
-        icon: 'military_tech',
-        colorTheme: 'primary',
-      ),
-    ];
-  }
-
-  IconData _getIconData(String iconName) {
-    switch (iconName) {
-      case 'local_fire_department':
-        return Icons.local_fire_department;
-      case 'psychology':
-        return Icons.psychology;
-      case 'military_tech':
-        return Icons.military_tech;
-      default:
-        return Icons.star;
-    }
-  }
-
-  Color _getThemeColor(String theme, ColorScheme colorScheme) {
-    switch (theme) {
-      case 'tertiary':
-        return colorScheme.secondary;
-      case 'secondary':
-        return colorScheme.primary;
-      case 'primary':
-        return colorScheme.primary;
-      default:
-        return colorScheme.primary;
-    }
-  }
-
-  Color _getThemeBgColor(String theme, ColorScheme colorScheme) {
-    switch (theme) {
-      case 'tertiary':
-        return colorScheme.secondaryContainer;
-      case 'secondary':
-        return colorScheme.primaryContainer;
-      case 'primary':
-        return colorScheme.primaryContainer;
-      default:
-        return colorScheme.primaryContainer;
-    }
-  }
+  const ProfileTab({super.key, required this.userProfile, required this.onProfileUpdated});
 
   @override
   Widget build(BuildContext context) {
-    final displayName = widget.userProfile?['displayName'] ?? 'Student';
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.only(top: 24, left: 20, right: 20, bottom: 100),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 600),
-          child: Column(
-            children: [
-              _buildProfileHeader(displayName),
-              const SizedBox(height: 64),
-              _buildStatsGrid(),
-              const SizedBox(height: 64),
-              _buildAchievementsSection(),
-              const SizedBox(height: 64),
-              _buildSettingsList(context),
-              const SizedBox(height: 40),
-              _buildSignOutButton(context),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProfileHeader(String displayName) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    return Column(
-      children: [
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Container(
-              width: 128,
-              height: 128,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border:
-                    Border.all(color: colorScheme.primaryContainer, width: 4),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(64),
-                child: Container(
-                  color: colorScheme.primaryContainer,
-                  child: Center(
-                    child: Text(
-                      displayName.isNotEmpty
-                          ? displayName[0].toUpperCase()
-                          : 'U',
-                      style: theme.textTheme.titleMedium,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: -8,
-              right: -8,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: colorScheme.primary,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.15),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.verified,
-                        color: colorScheme.onPrimary, size: 14),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Premium',
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
-        Text(
-          displayName,
-          style: theme.textTheme.titleMedium,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'Premium Learner • Level ${_userStats.level}',
-          style: theme.textTheme.bodyLarge
-              ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-        ),
-      ],
-    );
-  }
+    final nb = NotebookColors.of(context);
+    final p = userProfile ?? const {};
+    final email = p['email'] as String? ?? '';
+    final name = (p['displayName'] as String?)?.trim().isNotEmpty == true
+        ? p['displayName'] as String
+        : email.split('@').first;
+    final initial = name.isEmpty ? '?' : name[0].toUpperCase();
+    final details = [
+      if ((p['grade'] as String?)?.isNotEmpty == true) p['grade'] as String,
+      if ((p['interest'] as String?)?.isNotEmpty == true) 'interested in ${p['interest']}',
+    ];
 
-  Widget _buildStatsGrid() {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    return Column(
+    Future<void> open(Widget page) async {
+      await Navigator.push(context, MaterialPageRoute(builder: (_) => page));
+      onProfileUpdated();
+    }
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(24, 32, 24, 48),
       children: [
-        // Points Earned full width card
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: colorScheme.surface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: colorScheme.outlineVariant),
-            boxShadow: [
-              BoxShadow(
-                color: colorScheme.primary.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
+        Row(children: [
+          Container(
+            width: 72,
+            height: 72,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: nb.sheet,
+              border: Border.all(color: theme.colorScheme.onSurface, width: 1.5),
+            ),
+            child: Text(initial, style: nb.hand(size: 40, color: theme.colorScheme.onSurface)),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'POINTS EARNED',
-                    style: theme.textTheme.bodySmall
-                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                  ),
-                  Icon(Icons.stars, color: colorScheme.primary),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                '${_userStats.points}',
-                style: theme.textTheme.titleMedium,
-              ),
-              const SizedBox(height: 16),
-              Container(
-                height: 8,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        width: constraints.maxWidth *
-                            0.75, // 75% hardcoded for layout, can be calculated
-                        decoration: BoxDecoration(
-                          color: colorScheme.secondary,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '${_userStats.pointsToNextLevel} pts until next level',
-                style: theme.textTheme.bodyMedium
-                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-              ),
-            ],
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(name.isEmpty ? 'Your profile' : name, style: theme.textTheme.headlineMedium),
+              if (email.isNotEmpty) Text(email, style: theme.textTheme.bodyMedium),
+              if (details.isNotEmpty) MarginNote(details.join(' · '), size: 18),
+            ]),
           ),
-        ),
+        ]),
+        const SizedBox(height: 32),
+        const NoteHeading('Account'),
         const SizedBox(height: 12),
-        // Two columns for Certificates and Global Rank
-        Row(
-          children: [
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: colorScheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: colorScheme.outlineVariant),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colorScheme.primary.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(Icons.school, color: colorScheme.secondary),
-                    const SizedBox(height: 8),
-                    Text(
-                      '${_userStats.certificates}',
-                      style: theme.textTheme.titleMedium,
-                    ),
-                    Text(
-                      'Certificates',
-                      style: theme.textTheme.bodyMedium
-                          ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: colorScheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: colorScheme.outlineVariant),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colorScheme.primary.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(Icons.leaderboard, color: colorScheme.error),
-                    const SizedBox(height: 8),
-                    Text(
-                      _userStats.globalRank,
-                      style: theme.textTheme.titleMedium,
-                    ),
-                    Text(
-                      'Global Rank',
-                      style: theme.textTheme.bodyMedium
-                          ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+        NoteCard(
+          padding: EdgeInsets.zero,
+          child: Column(children: [
+            _item(context, Icons.edit_outlined, 'Edit profile', 'Name, phone, level, interests',
+                () => open(const EditProfileScreen())),
+            _item(context, Icons.lock_outline, 'Password', 'Change your password',
+                () => open(const ChangePasswordScreen())),
+            _item(context, Icons.notifications_none, 'Notifications', 'Announcements and course updates',
+                () => open(const NotificationsPanel()), last: true),
+          ]),
+        ),
+        const SizedBox(height: 28),
+        const NoteHeading('Preferences & help'),
+        const SizedBox(height: 12),
+        NoteCard(
+          padding: EdgeInsets.zero,
+          child: Column(children: [
+            _item(context, Icons.text_fields, 'Theme & accessibility', 'Paper or blackboard, text size, motion',
+                () => open(const ThemeAccessibilityScreen())),
+            _item(context, Icons.help_outline, 'Help & support', 'FAQs and contact',
+                () => open(const HelpSupportScreen())),
+            _item(context, Icons.policy_outlined, 'Policies', 'Terms and privacy',
+                () => open(const PoliciesScreen())),
+            _item(context, Icons.info_outline, 'About AutoLearn', 'Version and credits',
+                () => open(const AboutScreen()), last: true),
+          ]),
+        ),
+        const SizedBox(height: 32),
+        OutlinedButton.icon(
+          onPressed: () async {
+            await AuthManager().logout();
+            if (context.mounted) Navigator.pushReplacementNamed(context, '/login');
+          },
+          style: OutlinedButton.styleFrom(
+            foregroundColor: theme.colorScheme.error,
+            side: BorderSide(color: theme.colorScheme.error),
+            minimumSize: const Size.fromHeight(52),
+          ),
+          icon: const Icon(Icons.logout),
+          label: const Text('Sign out'),
         ),
       ],
     );
   }
 
-  Widget _buildAchievementsSection() {
+  Widget _item(BuildContext context, IconData icon, String title, String subtitle, VoidCallback onTap,
+      {bool last = false}) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Recent Achievements',
-              style: theme.textTheme.titleMedium,
-            ),
-            TextButton(
-              onPressed: () {},
-              child: Text(
-                'View All',
-                style: theme.textTheme.bodyMedium,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        SizedBox(
-          height: 180,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: _achievements.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 16),
-            itemBuilder: (context, index) {
-              final achievement = _achievements[index];
-              return Container(
-                width: 160,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: colorScheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: colorScheme.outlineVariant),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colorScheme.primary.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        color: _getThemeBgColor(achievement.colorTheme,
-                            Theme.of(context).colorScheme),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        _getIconData(achievement.icon),
-                        color: _getThemeColor(achievement.colorTheme,
-                            Theme.of(context).colorScheme),
-                        size: 32,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      achievement.title,
-                      style: theme.textTheme.bodyMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      achievement.description,
-                      style: theme.textTheme.bodyMedium
-                          ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSettingsList(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 24),
-          child: Text(
-            'Settings',
-            style: theme.textTheme.titleMedium,
-          ),
-        ),
-        Container(
-          decoration: BoxDecoration(
-            color: colorScheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: colorScheme.outlineVariant),
-          ),
-          child: Column(
-            children: [
-              _buildSettingsItem(
-                icon: Icons.security,
-                title: 'Security',
-                subtitle: 'Password, 2FA, Devices',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ChangePasswordScreen(),
-                    ),
-                  );
-                },
-                showBorder: true,
-              ),
-              _buildSettingsItem(
-                icon: Icons.notifications,
-                title: 'Notifications',
-                subtitle: 'Email, Push, Activity',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const NotificationsPanel(),
-                    ),
-                  );
-                },
-                showBorder: true,
-              ),
-              _buildSettingsItem(
-                icon: Icons.payments,
-                title: 'Billing',
-                subtitle: 'Subscription, Invoices',
-                onTap: () {
-                  // Can be wired up later
-                },
-                showBorder: false,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSettingsItem({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-    required bool showBorder,
-  }) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          border: showBorder
-              ? Border(bottom: BorderSide(color: colorScheme.outlineVariant))
-              : null,
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: colorScheme.primary),
-            ),
-            const SizedBox(width: 24),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                  Text(
-                    subtitle,
-                    style: theme.textTheme.bodyMedium
-                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
-          ],
-        ),
+    return Column(children: [
+      ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+        leading: Icon(icon, color: theme.colorScheme.onSurface),
+        title: Text(title, style: theme.textTheme.titleSmall),
+        subtitle: Text(subtitle, style: theme.textTheme.bodySmall),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: onTap,
       ),
-    );
-  }
-
-  Widget _buildSignOutButton(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    return OutlinedButton(
-      onPressed: () async {
-        await _authManager.logout();
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, '/login');
-        }
-      },
-      style: OutlinedButton.styleFrom(
-        foregroundColor: colorScheme.error,
-        side: BorderSide(color: colorScheme.error.withValues(alpha: 0.2)),
-        minimumSize: const Size(double.infinity, 56),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.logout),
-          const SizedBox(width: 8),
-          Text(
-            'Sign Out',
-            style: theme.textTheme.bodyMedium,
-          ),
-        ],
-      ),
-    );
+      if (!last) const Divider(indent: 20, endIndent: 20),
+    ]);
   }
 }
