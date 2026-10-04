@@ -12,7 +12,7 @@ model User {
   email       String   @unique
   password    String
   displayName String?
-  role        String   @default("student") // "student" or "admin"
+  role        String   @default("student") // "student", "teacher" or "admin"
   phone       String?
   grade       String?
   interest    String?

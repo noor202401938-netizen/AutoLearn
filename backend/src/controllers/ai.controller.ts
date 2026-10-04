@@ -3,6 +3,7 @@ import { AuthenticatedRequest } from '../middleware/auth.middleware';
 import prisma from '../prisma';
 import { complete, aiErrorStatus, TUTOR_PROMPT } from '../ai';
 import { withoutAnswers } from './learning.controller';
+import { canManageCourse } from '../access';
 
 type Turn = { role: 'user' | 'assistant'; content: string };
 
@@ -177,7 +178,8 @@ export const generateQuiz = async (req: AuthenticatedRequest, res: Response): Pr
   }
   try {
     const existing = await prisma.quiz.findUnique({ where: { lessonId: String(lessonId) } });
-    const forCaller = <T extends { questions: unknown }>(q: T) => (req.user?.role === 'admin' ? q : withoutAnswers(q));
+    const manages = await canManageCourse(req.user, courseId);
+    const forCaller = <T extends { questions: unknown }>(q: T) => (manages ? q : withoutAnswers(q));
     if (existing) {
       res.status(200).json(forCaller(existing));
       return;

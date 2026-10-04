@@ -5,17 +5,17 @@ import {
   getAssignmentByLesson, upsertAssignment, listMyAssignments, submitAssignment, getAssignmentSubmission,
   getUserCertificates, checkCertificate, issueCertificate, getCourseProgress,
 } from '../controllers/learning.controller';
-import { authenticateToken, adminOnly } from '../middleware/auth.middleware';
+import { authenticateToken, staffOnly } from '../middleware/auth.middleware';
 
 const router = Router();
 
 router.get('/quizzes/lesson/:lessonId', authenticateToken, getQuizByLesson);
-router.post('/quizzes', authenticateToken, adminOnly, upsertQuiz);
+router.post('/quizzes', authenticateToken, staffOnly, upsertQuiz);
 router.post('/user/quizzes/:quizId/submit', authenticateToken, submitQuiz);
 router.get('/user/quizzes/:quizId/submission', authenticateToken, getQuizSubmission);
 
 router.get('/assignments/lesson/:lessonId', authenticateToken, getAssignmentByLesson);
-router.post('/assignments', authenticateToken, adminOnly, upsertAssignment);
+router.post('/assignments', authenticateToken, staffOnly, upsertAssignment);
 router.get('/user/assignments', authenticateToken, listMyAssignments);
 router.post('/user/assignments/:assignmentId/submit', authenticateToken, submitAssignment);
 router.get('/user/assignments/:assignmentId/submission', authenticateToken, getAssignmentSubmission);

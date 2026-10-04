@@ -119,8 +119,8 @@ export const getUserById = async (req: AuthenticatedRequest, res: Response): Pro
 export const setUserRole = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   const id = String(req.params.uid);
   const role = String(req.body?.role ?? '');
-  if (!['student', 'admin'].includes(role) || !isObjectId(id)) {
-    res.status(400).json({ error: 'role must be "student" or "admin"' });
+  if (!['student', 'teacher', 'admin'].includes(role) || !isObjectId(id)) {
+    res.status(400).json({ error: 'role must be "student", "teacher" or "admin"' });
     return;
   }
   if (id === req.user?.uid && role !== 'admin') {

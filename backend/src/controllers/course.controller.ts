@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../prisma';
-import { AuthenticatedRequest } from '../middleware/auth.middleware';
+import { AuthenticatedRequest, isStaff } from '../middleware/auth.middleware';
+import { canManageCourse } from '../access';
 
 // Map DB record to Flutter-expected structure
 function mapCourse(course: any) {
@@ -87,9 +88,18 @@ export async function syncSyllabus(courseId: string, syllabus: any[]): Promise<v
 // GET /api/courses — Get all courses (with optional filters & pagination)
 export const getAllCourses = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { category, level, isPublished, search, page, limit } = req.query;
+    const { category, level, isPublished, search, page, limit, mine } = req.query;
 
     let filter: any = {};
+    // A teacher's studio: only their own courses, drafts included.
+    if (mine === 'true') {
+      const me = (req as AuthenticatedRequest).user;
+      if (!me) {
+        res.status(401).json({ error: 'Unauthorized: sign in to list your courses' });
+        return;
+      }
+      filter.createdBy = me.uid;
+    }
     if (category) filter.category = String(category);
     if (level) filter.level = String(level);
     if (isPublished !== undefined) filter.isPublished = isPublished === 'true';
@@ -154,8 +164,8 @@ export const getCourseById = async (req: Request, res: Response): Promise<void> 
 // POST /api/courses — Create a new course (Admin only)
 export const createCourse = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    if (req.user?.role !== 'admin') {
-      res.status(403).json({ error: 'Forbidden: Admin access required' });
+    if (!isStaff(req.user?.role)) {
+      res.status(403).json({ error: 'Forbidden: Staff access required' });
       return;
     }
 
@@ -197,12 +207,11 @@ export const createCourse = async (req: AuthenticatedRequest, res: Response): Pr
 // PUT /api/courses/:id — Update a course (Admin only)
 export const updateCourse = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    if (req.user?.role !== 'admin') {
-      res.status(403).json({ error: 'Forbidden: Admin access required' });
+    const id = req.params.id as string;
+    if (!(await canManageCourse(req.user, id))) {
+      res.status(403).json({ error: 'Forbidden: you can only edit your own courses' });
       return;
     }
-
-    const id = req.params.id as string;
     const {
       title, description, instructor, category, level,
       duration, thumbnailURL, price, currency, isPublished, syllabus,
@@ -242,12 +251,11 @@ export const updateCourse = async (req: AuthenticatedRequest, res: Response): Pr
 // DELETE /api/courses/:id — Delete a course (Admin only)
 export const deleteCourse = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    if (req.user?.role !== 'admin') {
-      res.status(403).json({ error: 'Forbidden: Admin access required' });
+    const id = req.params.id as string;
+    if (!(await canManageCourse(req.user, id))) {
+      res.status(403).json({ error: 'Forbidden: you can only delete your own courses' });
       return;
     }
-
-    const id = req.params.id as string;
     const existing = await prisma.course.findUnique({ where: { id } });
     if (!existing) {
       res.status(404).json({ error: 'Course not found' });

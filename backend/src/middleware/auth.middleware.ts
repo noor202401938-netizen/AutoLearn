@@ -52,3 +52,18 @@ export const adminOnly = (
   }
   next();
 };
+
+export const isStaff = (role?: string): boolean => role === 'admin' || role === 'teacher';
+
+// Admins and teachers. Teachers are further limited to their own courses by canManageCourse.
+export const staffOnly = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): void => {
+  if (!isStaff(req.user?.role)) {
+    res.status(403).json({ error: 'Forbidden: Staff access required' });
+    return;
+  }
+  next();
+};

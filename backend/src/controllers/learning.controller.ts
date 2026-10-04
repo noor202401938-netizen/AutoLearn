@@ -2,6 +2,7 @@
 import { Response } from 'express';
 import prisma from '../prisma';
 import { AuthenticatedRequest } from '../middleware/auth.middleware';
+import { canManageCourse } from '../access';
 import { complete, aiErrorStatus } from '../ai';
 
 const isObjectId = (s: unknown): s is string => typeof s === 'string' && /^[a-f0-9]{24}$/.test(s);
@@ -60,13 +61,14 @@ export const getQuizByLesson = async (req: AuthenticatedRequest, res: Response):
       res.status(404).json({ error: 'No quiz for this lesson yet' });
       return;
     }
-    res.status(200).json(req.user?.role === 'admin' ? quiz : withoutAnswers(quiz));
+    // The answer key goes only to whoever manages the course.
+    res.status(200).json((await canManageCourse(req.user, quiz.courseId)) ? quiz : withoutAnswers(quiz));
   } catch (e) {
     fail(res, 'Get quiz', e);
   }
 };
 
-// POST /api/quizzes (admin) — create or replace a lesson's quiz
+// POST /api/quizzes (staff, own courses) — create or replace a lesson's quiz
 export const upsertQuiz = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   const { courseId, moduleId = '', lessonId, title, description = '', questions, timeLimit = 0, passingScore = 70 } = req.body ?? {};
   if (!courseId || !lessonId || !title || !Array.isArray(questions) || questions.length === 0) {
@@ -74,6 +76,10 @@ export const upsertQuiz = async (req: AuthenticatedRequest, res: Response): Prom
     return;
   }
   try {
+    if (!(await canManageCourse(req.user, courseId))) {
+      res.status(403).json({ error: 'Forbidden: you can only edit quizzes in your own courses' });
+      return;
+    }
     const data = {
       courseId: String(courseId), moduleId: String(moduleId), title: String(title), description: String(description),
       questions, timeLimit: Number(timeLimit) || 0, passingScore: Number(passingScore) || 70, createdBy: uid(req),
@@ -172,7 +178,7 @@ export const getAssignmentByLesson = async (req: AuthenticatedRequest, res: Resp
   }
 };
 
-// POST /api/assignments (admin) — create or replace a lesson's assignment
+// POST /api/assignments (staff, own courses) — create or replace a lesson's assignment
 export const upsertAssignment = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   const { courseId, moduleId = '', lessonId, title, description = '', instructions = '', dueDate, maxPoints = 100 } = req.body ?? {};
   const due = new Date(dueDate);
@@ -181,6 +187,10 @@ export const upsertAssignment = async (req: AuthenticatedRequest, res: Response)
     return;
   }
   try {
+    if (!(await canManageCourse(req.user, courseId))) {
+      res.status(403).json({ error: 'Forbidden: you can only edit assignments in your own courses' });
+      return;
+    }
     const data = {
       courseId: String(courseId), moduleId: String(moduleId), title: String(title), description: String(description),
       instructions: String(instructions), dueDate: due, maxPoints: Number(maxPoints) || 100, createdBy: uid(req),
