@@ -4,6 +4,8 @@ import assert from 'node:assert/strict';
 import { gradeQuiz, withoutAnswers } from '../src/controllers/learning.controller';
 import { toggleVote } from '../src/controllers/community.controller';
 import { streakDays } from '../src/controllers/user_data.controller';
+import { mayManage } from '../src/access';
+import { clampScore } from '../src/controllers/teacher.controller';
 
 test('gradeQuiz scores on the server from stored answers', () => {
   const questions = [
@@ -37,4 +39,23 @@ test('withoutAnswers hides the answer key from students', () => {
   const safe = withoutAnswers(quiz).questions as any[];
   assert.deepEqual(Object.keys(safe[0]).sort(), ['options', 'questionId', 'questionText']);
   assert.equal((quiz.questions[0] as any).correctOptionIndex, 2, 'original is not mutated');
+});
+
+test('mayManage lets admins touch any course but teachers only their own', () => {
+  const course = { createdBy: 't1' };
+  assert.equal(mayManage({ uid: 'a', role: 'admin' }, course), true);
+  assert.equal(mayManage({ uid: 't1', role: 'teacher' }, course), true);
+  assert.equal(mayManage({ uid: 't2', role: 'teacher' }, course), false);
+  assert.equal(mayManage({ uid: 't1', role: 'student' }, course), false);
+  assert.equal(mayManage({ uid: 't1', role: 'teacher' }, null), false);
+  assert.equal(mayManage(undefined, course), false);
+});
+
+test('clampScore keeps marks whole and inside 0..max', () => {
+  assert.equal(clampScore('72.6', 100), 73);
+  assert.equal(clampScore(150, 100), 100);
+  assert.equal(clampScore(-5, 100), 0);
+  assert.equal(clampScore('', 100), null);
+  assert.equal(clampScore('abc', 100), null);
+  assert.equal(clampScore(null, 100), null);
 });

@@ -267,10 +267,23 @@ async function main() {
     console.log(`Created admin user with id: ${admin.id}`);
   }
 
+  // Demo teacher: owns the seeded course(s), so the teacher workspace has content.
+  const teacher =
+    (await prisma.user.findUnique({ where: { email: 'teacher@autolearn.com' } })) ??
+    (await prisma.user.create({
+      data: {
+        email: 'teacher@autolearn.com',
+        password: await bcrypt.hash(process.env.SEED_TEACHER_PASSWORD || 'teacher123', 10),
+        displayName: 'AutoLearn Faculty',
+        role: 'teacher',
+      },
+    }));
+  await prisma.course.updateMany({ where: { createdBy: 'seed' }, data: { createdBy: teacher.id } });
+
   let course = await prisma.course.findFirst({ where: { title: MICRO.title } });
   if (!course) {
     const { syllabus, ...fields } = MICRO;
-    course = await prisma.course.create({ data: { ...fields, isPublished: true, createdBy: 'seed' } });
+    course = await prisma.course.create({ data: { ...fields, isPublished: true, createdBy: teacher.id } });
     await syncSyllabus(course.id, syllabus);
 
     const lessons = await prisma.lesson.findMany({ where: { module: { courseId: course.id } }, include: { module: true } });
@@ -312,7 +325,7 @@ async function main() {
   let study = await prisma.course.findFirst({ where: { title: STUDY.title } });
   if (!study) {
     const { syllabus, ...fields } = STUDY;
-    study = await prisma.course.create({ data: { ...fields, isPublished: true, createdBy: 'seed' } });
+    study = await prisma.course.create({ data: { ...fields, isPublished: true, createdBy: teacher.id } });
     await syncSyllabus(study.id, syllabus);
     const lessons = await prisma.lesson.findMany({ where: { module: { courseId: study.id } } });
     const byTitle = (t: string) => lessons.find((l) => l.title === t)!;

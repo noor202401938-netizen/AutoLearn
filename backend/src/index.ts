@@ -18,6 +18,7 @@ import chatRoutes from './routes/chat.routes';
 import learningRoutes from './routes/learning.routes';
 import communityRoutes from './routes/community.routes';
 import usersRoutes from './routes/users.routes';
+import teacherRoutes from './routes/teacher.routes';
 import path from 'path';
 
 import { createClient } from 'redis';
@@ -105,6 +106,7 @@ app.use('/api/user', userDataRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/admin/analytics', analyticsRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/teacher', teacherRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api', learningRoutes);
 app.use('/api', communityRoutes);
