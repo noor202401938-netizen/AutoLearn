@@ -3,9 +3,9 @@
     "short_name": "AutoLearn",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F6F1E3",
+    "theme_color": "#1D3557",
+    "description": "Learn economics with readings, interactive diagrams, practice quizzes and an AI tutor.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -1,370 +1,322 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+/// "Lecture notebook" design language.
+///
+/// Light mode is a sheet of graph paper written on in fountain-pen ink.
+/// Dark mode is a lecture-hall blackboard written on in chalk.
+/// Anything that isn't a standard Material role lives in [NotebookColors].
 class AppTheme {
-  // Cyprus & Sand Brand Color Palette (Combo 04)
-  // Cyprus: #004741 (Deep rich pine / forest cyan)
-  // Sand:   #F0EDE4 (Warm organic sand cream)
-  static const Color cyprus = Color(0xFF004741);
-  static const Color sand = Color(0xFFF0EDE4);
+  // ── Paper & ink (light) ────────────────────────────────────────────────────
+  static const Color paper = Color(0xFFF6F1E3);        // page background
+  static const Color sheet = Color(0xFFFFFCF4);        // fresh sheet / cards
+  static const Color sheetShade = Color(0xFFEDE6D3);   // tucked-under paper
+  static const Color ink = Color(0xFF1D3557);          // blue-black fountain pen
+  static const Color inkSoft = Color(0xFFDCE4EF);      // ink wash
+  static const Color graphite = Color(0xFF4A4F59);     // pencil
+  static const Color redPen = Color(0xFFC8553D);       // margin rule / corrections
+  static const Color greenPen = Color(0xFF2E7D4F);     // ticks, correct answers
+  static const Color highlighter = Color(0xFFFFE066);  // yellow marker
+  static const Color gridLine = Color(0xFFD5E0EA);     // faint blue grid
 
-  static const Color primary = Color(0xFF004741);          // Cyprus #004741
-  static const Color primaryLight = Color(0xFF0D5E56);     // Soft Cyprus
-  static const Color primaryContainer = Color(0xFFD6EAE5); // Cyprus-tinted Sand
-  static const Color onPrimary = Color(0xFFF0EDE4);        // Sand text on Cyprus
+  // ── Blackboard & chalk (dark) ──────────────────────────────────────────────
+  static const Color board = Color(0xFF1F2B26);
+  static const Color boardRaised = Color(0xFF26352F);
+  static const Color boardShade = Color(0xFF2E3F38);
+  static const Color chalk = Color(0xFFEDEAE0);
+  static const Color chalkDim = Color(0xFFB4BCB5);
+  static const Color chalkYellow = Color(0xFFF2DC7A);
+  static const Color chalkPink = Color(0xFFF0A49A);
+  static const Color chalkGreen = Color(0xFF9FD8AE);
+  static const Color chalkBlue = Color(0xFFA9C8E8);
+  static const Color boardGrid = Color(0xFF2C3B35);
 
-  static const Color secondary = Color(0xFF2E635C);        // Slate Cyprus
-  static const Color secondaryDark = Color(0xFF16443E);
-  static const Color secondaryContainer = Color(0xFFE2EFEA);
+  /// Kept for callers that only need the brand colour (window titles etc).
+  static const Color primary = ink;
 
-  static const Color accent = Color(0xFFC69234);           // Warm Gold/Amber Accent
+  /// Fonts are bundled (see pubspec.yaml), so this is just the family name.
+  static TextStyle font(String family, TextStyle style) => style.copyWith(fontFamily: family);
 
-  static const Color error = Color(0xFFBA1A1A);
-  static const Color errorContainer = Color(0xFFFFDAD6);
-  static const Color onError = Color(0xFFFFFFFF);
-  static const Color onErrorContainer = Color(0xFF410002);
+  static ThemeData get lightTheme => _build(
+        brightness: Brightness.light,
+        scheme: const ColorScheme.light(
+          primary: ink,
+          onPrimary: sheet,
+          primaryContainer: inkSoft,
+          onPrimaryContainer: ink,
+          secondary: graphite,
+          onSecondary: sheet,
+          secondaryContainer: sheetShade,
+          onSecondaryContainer: graphite,
+          tertiary: redPen,
+          onTertiary: sheet,
+          tertiaryContainer: Color(0xFFF6DDD5),
+          onTertiaryContainer: Color(0xFF6E2414),
+          error: Color(0xFFB3261E),
+          onError: Colors.white,
+          errorContainer: Color(0xFFF9DEDC),
+          onErrorContainer: Color(0xFF410E0B),
+          surface: paper,
+          onSurface: Color(0xFF1C2230),
+          onSurfaceVariant: graphite,
+          surfaceContainerLowest: sheet,
+          surfaceContainerLow: sheet,
+          surfaceContainer: sheet,
+          surfaceContainerHigh: Color(0xFFF1EBDB),
+          surfaceContainerHighest: sheetShade,
+          outline: Color(0xFF8A8F99),
+          outlineVariant: Color(0xFFD9D1BC),
+        ),
+        notebook: const NotebookColors(
+          gridLine: gridLine,
+          marginLine: redPen,
+          highlighter: highlighter,
+          annotation: redPen,
+          correct: greenPen,
+          sheet: sheet,
+          stackShadow: Color(0x331D3557),
+        ),
+      );
 
-  static const Color background = Color(0xFFF0EDE4);       // Sand Background #F0EDE4
-  static const Color onBackground = Color(0xFF004741);     // Cyprus Text #004741
+  static ThemeData get darkTheme => _build(
+        brightness: Brightness.dark,
+        scheme: const ColorScheme.dark(
+          primary: chalk,
+          onPrimary: board,
+          primaryContainer: boardShade,
+          onPrimaryContainer: chalk,
+          secondary: chalkBlue,
+          onSecondary: board,
+          secondaryContainer: boardShade,
+          onSecondaryContainer: chalkBlue,
+          tertiary: chalkPink,
+          onTertiary: board,
+          tertiaryContainer: Color(0xFF4A302C),
+          onTertiaryContainer: chalkPink,
+          error: Color(0xFFFFB4AB),
+          onError: Color(0xFF690005),
+          errorContainer: Color(0xFF93000A),
+          onErrorContainer: Color(0xFFFFDAD6),
+          surface: board,
+          onSurface: chalk,
+          onSurfaceVariant: chalkDim,
+          surfaceContainerLowest: board,
+          surfaceContainerLow: boardRaised,
+          surfaceContainer: boardRaised,
+          surfaceContainerHigh: boardShade,
+          surfaceContainerHighest: boardShade,
+          outline: Color(0xFF7C8A83),
+          outlineVariant: Color(0xFF3A4C44),
+        ),
+        notebook: const NotebookColors(
+          gridLine: boardGrid,
+          marginLine: chalkPink,
+          highlighter: chalkYellow,
+          annotation: chalkYellow,
+          correct: chalkGreen,
+          sheet: boardRaised,
+          stackShadow: Color(0x66000000),
+        ),
+      );
 
-  static const Color surface = Color(0xFFFBF9F5);          // Ivory Sand Surface
-  static const Color surfaceVariant = Color(0xFFE5E0D3);   // Warm Sand Variant
-  static const Color onSurface = Color(0xFF0A2421);        // Deep Cyprus Charcoal
-  static const Color onSurfaceVariant = Color(0xFF3F5450); // Muted Cyprus Slate
+  static ThemeData _build({
+    required Brightness brightness,
+    required ColorScheme scheme,
+    required NotebookColors notebook,
+  }) {
+    final text = _textTheme(scheme.onSurface, scheme.onSurfaceVariant);
+    const radius = BorderRadius.all(Radius.circular(6));
+    final inkBorder = BorderSide(color: scheme.onSurface.withValues(alpha: 0.85), width: 1.25);
 
-  static const Color outline = Color(0xFFCDC6B5);          // Sand Outline
-  static const Color outlineVariant = Color(0xFFDFDACD);   // Soft Sand Divider
-
-  static const Color textPrimary = Color(0xFF0A2421);
-  static const Color textSecondary = Color(0xFF3F5450);
-  static const Color textDisabled = Color(0xFF909F9B);
-
-  static ThemeData get lightTheme {
     return ThemeData(
-      brightness: Brightness.light,
-      primaryColor: primary,
-      scaffoldBackgroundColor: background,
-      colorScheme: const ColorScheme.light(
-        primary: primary,
-        primaryContainer: primaryContainer,
-        secondary: secondary,
-        secondaryContainer: secondaryContainer,
-        tertiary: accent,
-        error: error,
-        errorContainer: errorContainer,
-        surface: background,
-        onPrimary: onPrimary,
-        onSecondary: onPrimary,
-        onSurface: onSurface,
-        onError: onError,
-        outline: outline,
-        outlineVariant: outlineVariant,
-        surfaceContainerHighest: surfaceVariant,
-        onSurfaceVariant: onSurfaceVariant,
+      useMaterial3: true,
+      brightness: brightness,
+      colorScheme: scheme,
+      scaffoldBackgroundColor: scheme.surface,
+      textTheme: text,
+      extensions: [notebook],
+      appBarTheme: AppBarTheme(
+        backgroundColor: scheme.surface,
+        foregroundColor: scheme.onSurface,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: false,
+        titleTextStyle: text.headlineSmall,
       ),
-      textTheme: _buildTextTheme(onSurface, onSurfaceVariant),
-      appBarTheme: _buildAppBarTheme(background, onSurface),
-      cardTheme: _buildCardTheme(surface, outlineVariant),
-      elevatedButtonTheme: _buildElevatedButtonTheme(primary, onPrimary),
-      outlinedButtonTheme: _buildOutlinedButtonTheme(primary, outline),
-      inputDecorationTheme: _buildInputDecorationTheme(
-          surface, outline, primary, onSurfaceVariant),
-      bottomNavigationBarTheme:
-          _buildBottomNavigationBarTheme(surface, primary, onSurfaceVariant),
-      dividerTheme: const DividerThemeData(
-        color: outlineVariant,
-        thickness: 1,
-        space: 1,
+      cardTheme: CardThemeData(
+        color: notebook.sheet,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: radius,
+          side: BorderSide(color: scheme.outlineVariant),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: scheme.primary,
+          foregroundColor: scheme.onPrimary,
+          elevation: 0,
+          shape: const RoundedRectangleBorder(borderRadius: radius),
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+          textStyle: text.labelLarge,
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          shape: const RoundedRectangleBorder(borderRadius: radius),
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+          textStyle: text.labelLarge,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: scheme.onSurface,
+          side: inkBorder,
+          shape: const RoundedRectangleBorder(borderRadius: radius),
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+          textStyle: text.labelLarge,
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: scheme.primary,
+          textStyle: text.labelLarge,
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: notebook.sheet,
+        contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
+        border: OutlineInputBorder(borderRadius: radius, borderSide: BorderSide(color: scheme.outline)),
+        enabledBorder: OutlineInputBorder(borderRadius: radius, borderSide: BorderSide(color: scheme.outline)),
+        focusedBorder: OutlineInputBorder(borderRadius: radius, borderSide: BorderSide(color: scheme.primary, width: 2)),
+        hintStyle: text.bodyMedium?.copyWith(color: scheme.onSurfaceVariant.withValues(alpha: 0.7)),
+        labelStyle: text.bodyMedium,
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: surfaceVariant,
-        selectedColor: primaryContainer,
-        labelStyle: GoogleFonts.plusJakartaSans(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: onSurface,
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        side: const BorderSide(color: outlineVariant),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        backgroundColor: notebook.sheet,
+        selectedColor: notebook.highlighter.withValues(alpha: brightness == Brightness.light ? 0.7 : 0.25),
+        labelStyle: text.labelMedium?.copyWith(color: scheme.onSurface),
+        side: BorderSide(color: scheme.outlineVariant),
+        shape: const StadiumBorder(),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       ),
-      dialogTheme: DialogThemeData(
-        backgroundColor: surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      dividerTheme: DividerThemeData(color: scheme.outlineVariant, thickness: 1, space: 1),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: scheme.primary,
+        linearTrackColor: scheme.outlineVariant,
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: notebook.sheet,
+        selectedItemColor: scheme.primary,
+        unselectedItemColor: scheme.onSurfaceVariant,
+        type: BottomNavigationBarType.fixed,
         elevation: 0,
       ),
-      snackBarTheme: SnackBarThemeData(
+      dialogTheme: DialogThemeData(
+        backgroundColor: notebook.sheet,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: radius, side: inkBorder),
+      ),
+      snackBarTheme: const SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: radius),
       ),
     );
   }
 
-  static ThemeData get darkTheme {
-    // Cyprus Night & Sand Glow Theme
-    const Color darkBg = Color(0xFF071514);
-    const Color darkSurface = Color(0xFF0D2220);
-    const Color darkSurfaceVariant = Color(0xFF152E2B);
-    const Color darkOnSurface = Color(0xFFF0EDE4);       // Sand
-    const Color darkOnSurfaceVariant = Color(0xFFB5C6C2);
-    const Color darkOutline = Color(0xFF22433F);
-    const Color darkOutlineVariant = Color(0xFF15302C);
-    const Color darkPrimary = Color(0xFF2CB7A9);         // Luminous Cyprus Teal
-    const Color darkPrimaryContainer = Color(0xFF004741);// Pure Cyprus
+  /// Fraunces (bookish serif) for headings, IBM Plex Sans for reading,
+  /// IBM Plex Mono for figures. Handwriting lives in [NotebookColors.hand].
+  static TextTheme _textTheme(Color onSurf, Color onSurfVar) {
+    TextStyle serif(double size, {double h = 1.2}) => font('Fraunces',
+        TextStyle(fontSize: size, fontWeight: FontWeight.w600, color: onSurf, height: h, letterSpacing: -0.3));
+    TextStyle sans(double size, FontWeight w, Color c, {double h = 1.5}) =>
+        font('IBM Plex Sans', TextStyle(fontSize: size, fontWeight: w, color: c, height: h));
 
-    return ThemeData(
-      brightness: Brightness.dark,
-      primaryColor: darkPrimary,
-      scaffoldBackgroundColor: darkBg,
-      colorScheme: const ColorScheme.dark(
-        primary: darkPrimary,
-        primaryContainer: darkPrimaryContainer,
-        secondary: secondary,
-        secondaryContainer: Color(0xFF1E3935),
-        tertiary: accent,
-        error: Color(0xFFFF6B6B),
-        errorContainer: Color(0xFF4A1515),
-        surface: darkBg,
-        surfaceContainerHighest: darkSurfaceVariant,
-        onPrimary: Color(0xFF071514),
-        onSecondary: darkOnSurface,
-        onSurface: darkOnSurface,
-        onError: Colors.white,
-        outline: darkOutline,
-        outlineVariant: darkOutlineVariant,
-        onSurfaceVariant: darkOnSurfaceVariant,
-      ),
-      textTheme: _buildTextTheme(darkOnSurface, darkOnSurfaceVariant),
-      appBarTheme: _buildAppBarTheme(darkBg, darkOnSurface),
-      cardTheme: _buildCardTheme(darkSurface, darkOutline),
-      elevatedButtonTheme: _buildElevatedButtonTheme(darkPrimary, const Color(0xFF071514)),
-      outlinedButtonTheme: _buildOutlinedButtonTheme(darkPrimary, darkOutline),
-      inputDecorationTheme: _buildInputDecorationTheme(
-          darkSurface, darkOutline, darkPrimary, darkOnSurfaceVariant),
-      bottomNavigationBarTheme: _buildBottomNavigationBarTheme(
-          darkSurface, darkPrimary, darkOnSurfaceVariant),
-      dividerTheme: const DividerThemeData(
-        color: darkOutlineVariant,
-        thickness: 1,
-        space: 1,
-      ),
-      chipTheme: ChipThemeData(
-        backgroundColor: darkSurfaceVariant,
-        selectedColor: darkPrimaryContainer,
-        labelStyle: GoogleFonts.plusJakartaSans(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: darkOnSurface,
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        side: const BorderSide(color: darkOutline),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      ),
-      dialogTheme: DialogThemeData(
-        backgroundColor: darkSurface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        elevation: 0,
-      ),
-      snackBarTheme: SnackBarThemeData(
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-  }
-
-  static TextTheme _buildTextTheme(Color onSurf, Color onSurfVar) {
     return TextTheme(
-      displayLarge: GoogleFonts.lora(
-          fontSize: 40,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -1.0,
-          color: onSurf,
-          height: 1.15),
-      displayMedium: GoogleFonts.lora(
-          fontSize: 32,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -0.8,
-          color: onSurf,
-          height: 1.2),
-      headlineLarge: GoogleFonts.lora(
-          fontSize: 28,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -0.6,
-          color: onSurf,
-          height: 1.2),
-      headlineMedium: GoogleFonts.lora(
-          fontSize: 24,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -0.4,
-          color: onSurf,
-          height: 1.25),
-      headlineSmall: GoogleFonts.lora(
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -0.2,
-          color: onSurf,
-          height: 1.3),
-      titleLarge: GoogleFonts.plusJakartaSans(
-          fontSize: 18,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -0.18,
-          color: onSurf,
-          height: 1.35),
-      titleMedium: GoogleFonts.plusJakartaSans(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          letterSpacing: -0.16,
-          color: onSurf,
-          height: 1.4),
-      titleSmall: GoogleFonts.plusJakartaSans(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          letterSpacing: -0.14,
-          color: onSurf,
-          height: 1.4),
-      bodyLarge: GoogleFonts.plusJakartaSans(
-          fontSize: 16,
-          fontWeight: FontWeight.w400,
-          letterSpacing: -0.16,
-          color: onSurf,
-          height: 1.6),
-      bodyMedium: GoogleFonts.plusJakartaSans(
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-          letterSpacing: -0.14,
-          color: onSurfVar,
-          height: 1.6),
-      bodySmall: GoogleFonts.plusJakartaSans(
-          fontSize: 12,
-          fontWeight: FontWeight.w400,
-          letterSpacing: -0.12,
-          color: onSurfVar,
-          height: 1.5),
-      labelLarge: GoogleFonts.plusJakartaSans(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.28,
-          color: onSurf,
-          height: 1.0),
-      labelMedium: GoogleFonts.plusJakartaSans(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.24,
-          color: onSurfVar,
-          height: 1.0),
-      labelSmall: GoogleFonts.plusJakartaSans(
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.55,
-          color: onSurfVar,
-          height: 1.0),
+      displayLarge: serif(44, h: 1.1),
+      displayMedium: serif(36, h: 1.1),
+      displaySmall: serif(30, h: 1.15),
+      headlineLarge: serif(28),
+      headlineMedium: serif(24),
+      headlineSmall: serif(20, h: 1.3),
+      titleLarge: sans(18, FontWeight.w600, onSurf, h: 1.35),
+      titleMedium: sans(16, FontWeight.w600, onSurf, h: 1.4),
+      titleSmall: sans(14, FontWeight.w600, onSurf, h: 1.4),
+      bodyLarge: sans(16, FontWeight.w400, onSurf, h: 1.6),
+      bodyMedium: sans(14, FontWeight.w400, onSurfVar, h: 1.55),
+      bodySmall: sans(12, FontWeight.w400, onSurfVar),
+      labelLarge: sans(14, FontWeight.w600, onSurf, h: 1.0),
+      labelMedium: sans(12, FontWeight.w600, onSurfVar, h: 1.0),
+      labelSmall: sans(11, FontWeight.w600, onSurfVar, h: 1.0).copyWith(letterSpacing: 0.6),
     );
   }
+}
 
-  static AppBarTheme _buildAppBarTheme(Color bg, Color onSurf) {
-    return AppBarTheme(
-      backgroundColor: bg,
-      elevation: 0,
-      centerTitle: false,
-      scrolledUnderElevation: 0,
-      iconTheme: IconThemeData(color: onSurf),
-      titleTextStyle: GoogleFonts.lora(
-        fontSize: 20,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -0.4,
-        color: onSurf,
-      ),
-    );
-  }
+/// Notebook-specific colours that Material's [ColorScheme] has no slot for.
+/// Read with `NotebookColors.of(context)`.
+@immutable
+class NotebookColors extends ThemeExtension<NotebookColors> {
+  final Color gridLine;
+  final Color marginLine;
+  final Color highlighter;
+  final Color annotation;
+  final Color correct;
+  final Color sheet;
+  final Color stackShadow;
 
-  static CardThemeData _buildCardTheme(Color surf, Color outlineVar) {
-    return CardThemeData(
-      color: surf,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: outlineVar, width: 1),
-      ),
-      margin: EdgeInsets.zero,
-    );
-  }
+  const NotebookColors({
+    required this.gridLine,
+    required this.marginLine,
+    required this.highlighter,
+    required this.annotation,
+    required this.correct,
+    required this.sheet,
+    required this.stackShadow,
+  });
 
-  static ElevatedButtonThemeData _buildElevatedButtonTheme(
-      Color btnColor, Color onBtnColor) {
-    return ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: btnColor,
-        foregroundColor: onBtnColor,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 28),
-        textStyle: const TextStyle(
-          fontFamily: 'Inter',
-          fontSize: 15,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.15,
-        ),
-      ),
-    );
-  }
+  static NotebookColors of(BuildContext context) =>
+      Theme.of(context).extension<NotebookColors>()!;
 
-  static OutlinedButtonThemeData _buildOutlinedButtonTheme(
-      Color btnColor, Color outlineColor) {
-    return OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        foregroundColor: btnColor,
-        side: BorderSide(color: outlineColor, width: 1.5),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 28),
-        textStyle: const TextStyle(
-          fontFamily: 'Inter',
-          fontSize: 15,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.15,
-        ),
-      ),
-    );
-  }
+  /// Handwritten margin-note style.
+  TextStyle hand({double size = 20, Color? color}) =>
+      AppTheme.font('Caveat', TextStyle(fontSize: size, fontWeight: FontWeight.w600, color: color ?? annotation, height: 1.1));
 
-  static InputDecorationTheme _buildInputDecorationTheme(
-      Color surf, Color outlineColor, Color focusedColor, Color hintColor) {
-    return InputDecorationTheme(
-      filled: true,
-      fillColor: surf,
-      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: outlineColor, width: 1.5),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: outlineColor, width: 1.5),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: focusedColor, width: 2),
-      ),
-      hintStyle: TextStyle(fontFamily: 'Inter', color: hintColor),
-      labelStyle: TextStyle(fontFamily: 'Inter', color: hintColor),
-    );
-  }
+  /// Tabular figures for stats, prices, scores.
+  static TextStyle figures({double size = 14, FontWeight weight = FontWeight.w500, Color? color}) =>
+      AppTheme.font('IBM Plex Mono', TextStyle(fontSize: size, fontWeight: weight, color: color));
 
-  static BottomNavigationBarThemeData _buildBottomNavigationBarTheme(
-      Color surf, Color selected, Color unselected) {
-    return BottomNavigationBarThemeData(
-      backgroundColor: surf,
-      selectedItemColor: selected,
-      unselectedItemColor: unselected,
-      type: BottomNavigationBarType.fixed,
-      elevation: 0,
-      selectedLabelStyle: const TextStyle(
-          fontFamily: 'Inter', fontSize: 11, fontWeight: FontWeight.w600),
-      unselectedLabelStyle: const TextStyle(
-          fontFamily: 'Inter', fontSize: 11, fontWeight: FontWeight.w500),
+  @override
+  NotebookColors copyWith({
+    Color? gridLine,
+    Color? marginLine,
+    Color? highlighter,
+    Color? annotation,
+    Color? correct,
+    Color? sheet,
+    Color? stackShadow,
+  }) =>
+      NotebookColors(
+        gridLine: gridLine ?? this.gridLine,
+        marginLine: marginLine ?? this.marginLine,
+        highlighter: highlighter ?? this.highlighter,
+        annotation: annotation ?? this.annotation,
+        correct: correct ?? this.correct,
+        sheet: sheet ?? this.sheet,
+        stackShadow: stackShadow ?? this.stackShadow,
+      );
+
+  @override
+  NotebookColors lerp(NotebookColors? other, double t) {
+    if (other == null) return this;
+    return NotebookColors(
+      gridLine: Color.lerp(gridLine, other.gridLine, t)!,
+      marginLine: Color.lerp(marginLine, other.marginLine, t)!,
+      highlighter: Color.lerp(highlighter, other.highlighter, t)!,
+      annotation: Color.lerp(annotation, other.annotation, t)!,
+      correct: Color.lerp(correct, other.correct, t)!,
+      sheet: Color.lerp(sheet, other.sheet, t)!,
+      stackShadow: Color.lerp(stackShadow, other.stackShadow, t)!,
     );
   }
 }

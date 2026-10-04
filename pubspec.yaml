@@ -18,7 +18,6 @@ dependencies:
 
   # UI
   cupertino_icons: ^1.0.6
-  google_fonts: ^6.1.0
 
   # Video Player
   youtube_player_flutter: ^9.0.0
@@ -34,8 +33,6 @@ dependencies:
   # Storage
   # (Will be replaced with custom API / minio implementation)
 
-  # Payment Gateway
-  flutter_stripe: ^11.1.0
 
   # URL Launcher
   url_launcher: ^6.3.1
@@ -70,16 +67,52 @@ flutter:
     - assets/google.png
     - assets/course_content_template.xml
 
-  # Uncomment and add fonts if you want custom fonts
-  # To use Poppins font:
-  # 1. Download Poppins from Google Fonts
-  # 2. Create fonts/ folder in project root
-  # 3. Add .ttf files there
-  # 4. Uncomment below:
-
-  # fonts:
-  #   - family: Poppins
-  #     fonts:
-  #       - asset: fonts/Poppins-Regular.ttf
-  #       - asset: fonts/Poppins-Bold.ttf
-  #         weight: 700
+  # Bundled so the app works offline and never calls Google at runtime.
+  # Licences: assets/fonts/OFL-*.txt (SIL Open Font License 1.1).
+  fonts:
+    - family: Fraunces
+      fonts:
+        - asset: assets/fonts/Fraunces-400.ttf
+          weight: 400
+        - asset: assets/fonts/Fraunces-400-italic.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/Fraunces-500.ttf
+          weight: 500
+        - asset: assets/fonts/Fraunces-600.ttf
+          weight: 600
+        - asset: assets/fonts/Fraunces-600-italic.ttf
+          weight: 600
+          style: italic
+        - asset: assets/fonts/Fraunces-700.ttf
+          weight: 700
+    - family: IBM Plex Sans
+      fonts:
+        - asset: assets/fonts/IBMPlexSans-400.ttf
+          weight: 400
+        - asset: assets/fonts/IBMPlexSans-400-italic.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/IBMPlexSans-500.ttf
+          weight: 500
+        - asset: assets/fonts/IBMPlexSans-600.ttf
+          weight: 600
+        - asset: assets/fonts/IBMPlexSans-600-italic.ttf
+          weight: 600
+          style: italic
+        - asset: assets/fonts/IBMPlexSans-700.ttf
+          weight: 700
+    - family: IBM Plex Mono
+      fonts:
+        - asset: assets/fonts/IBMPlexMono-400.ttf
+          weight: 400
+        - asset: assets/fonts/IBMPlexMono-500.ttf
+          weight: 500
+        - asset: assets/fonts/IBMPlexMono-600.ttf
+          weight: 600
+    - family: Caveat
+      fonts:
+        - asset: assets/fonts/Caveat-400.ttf
+          weight: 400
+        - asset: assets/fonts/Caveat-600.ttf
+          weight: 600
