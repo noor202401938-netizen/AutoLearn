@@ -4,8 +4,8 @@ import assert from 'node:assert/strict';
 import { gradeQuiz, withoutAnswers } from '../src/controllers/learning.controller';
 import { toggleVote } from '../src/controllers/community.controller';
 import { streakDays } from '../src/controllers/user_data.controller';
-import { mayManage } from '../src/access';
-import { clampScore } from '../src/controllers/teacher.controller';
+import { mayManage, mayOwn } from '../src/access';
+import { clampScore, summarizeEarnings } from '../src/controllers/teacher.controller';
 
 test('gradeQuiz scores on the server from stored answers', () => {
   const questions = [
@@ -58,4 +58,25 @@ test('clampScore keeps marks whole and inside 0..max', () => {
   assert.equal(clampScore('', 100), null);
   assert.equal(clampScore('abc', 100), null);
   assert.equal(clampScore(null, 100), null);
+});
+
+test('co-teachers may manage a course but only its creator owns it', () => {
+  const course = { createdBy: 't1', coTeacherIds: ['t2'] };
+  assert.equal(mayManage({ uid: 't2', role: 'teacher' }, course), true);
+  assert.equal(mayOwn({ uid: 't2', role: 'teacher' }, course), false);
+  assert.equal(mayOwn({ uid: 't1', role: 'teacher' }, course), true);
+  assert.equal(mayOwn({ uid: 'a', role: 'admin' }, course), true);
+  assert.equal(mayManage({ uid: 't3', role: 'teacher' }, course), false);
+  assert.equal(mayManage({ uid: 't2', role: 'student' }, course), false);
+});
+
+test('summarizeEarnings totals sales per currency and per course', () => {
+  const r = summarizeEarnings([
+    { courseId: 'a', amount: 10, currency: 'USD' },
+    { courseId: 'a', amount: 15, currency: 'USD' },
+    { courseId: 'b', amount: 5, currency: 'EUR' },
+  ]);
+  assert.deepEqual(r.totals, [{ currency: 'USD', amount: 25, sales: 2 }, { currency: 'EUR', amount: 5, sales: 1 }]);
+  assert.deepEqual(r.perCourse.find((c) => c.courseId === 'a'), { courseId: 'a', currency: 'USD', amount: 25, sales: 2 });
+  assert.deepEqual(summarizeEarnings([]), { totals: [], perCourse: [] });
 });

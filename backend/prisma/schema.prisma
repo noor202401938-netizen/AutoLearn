@@ -51,6 +51,7 @@ model Course {
   ratingCount     Int      @default(0)
   isPublished     Boolean  @default(false)
   createdBy       String   @default("system")
+  coTeacherIds    String[] @db.ObjectId // teachers who may edit and mark this course, but not delete it
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

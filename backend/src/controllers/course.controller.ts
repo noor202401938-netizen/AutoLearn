@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../prisma';
 import { AuthenticatedRequest, isStaff } from '../middleware/auth.middleware';
-import { canManageCourse } from '../access';
+import { canManageCourse, canOwnCourse } from '../access';
 
 // Map DB record to Flutter-expected structure
 function mapCourse(course: any) {
@@ -98,7 +98,7 @@ export const getAllCourses = async (req: Request, res: Response): Promise<void> 
         res.status(401).json({ error: 'Unauthorized: sign in to list your courses' });
         return;
       }
-      filter.createdBy = me.uid;
+      filter.OR = [{ createdBy: me.uid }, { coTeacherIds: { has: me.uid } }];
     }
     if (category) filter.category = String(category);
     if (level) filter.level = String(level);
@@ -252,8 +252,8 @@ export const updateCourse = async (req: AuthenticatedRequest, res: Response): Pr
 export const deleteCourse = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const id = req.params.id as string;
-    if (!(await canManageCourse(req.user, id))) {
-      res.status(403).json({ error: 'Forbidden: you can only delete your own courses' });
+    if (!(await canOwnCourse(req.user, id))) {
+      res.status(403).json({ error: 'Forbidden: only the course creator can delete it' });
       return;
     }
     const existing = await prisma.course.findUnique({ where: { id } });
