@@ -2,7 +2,7 @@
 import { Response } from 'express';
 import prisma from '../prisma';
 import { AuthenticatedRequest } from '../middleware/auth.middleware';
-import { canManageCourse } from '../access';
+import { canLearnIn, canManageCourse, canReadCourseContent, isEnrolled } from '../access';
 import { complete, aiErrorStatus } from '../ai';
 
 const isObjectId = (s: unknown): s is string => typeof s === 'string' && /^[a-f0-9]{24}$/.test(s);
@@ -59,6 +59,10 @@ export const getQuizByLesson = async (req: AuthenticatedRequest, res: Response):
     const quiz = await prisma.quiz.findUnique({ where: { lessonId: String(req.params.lessonId) } });
     if (!quiz) {
       res.status(404).json({ error: 'No quiz for this lesson yet' });
+      return;
+    }
+    if (!(await canReadCourseContent(req.user, quiz.courseId))) {
+      res.status(403).json({ error: 'Enrol in this course to take its quizzes' });
       return;
     }
     // The answer key goes only to whoever manages the course.
@@ -127,6 +131,10 @@ export const submitQuiz = async (req: AuthenticatedRequest, res: Response): Prom
       res.status(404).json({ error: 'Quiz not found' });
       return;
     }
+    if (!(await canLearnIn(req.user, quiz.courseId))) {
+      res.status(403).json({ error: 'Enrol in this course before taking its quizzes' });
+      return;
+    }
     // Score on the server — never trust a client-computed grade.
     const { earned, total, score } = gradeQuiz(quiz.questions as any[], answers);
     const passed = score >= quiz.passingScore;
@@ -170,6 +178,10 @@ export const getAssignmentByLesson = async (req: AuthenticatedRequest, res: Resp
     const a = await prisma.assignment.findUnique({ where: { lessonId: String(req.params.lessonId) } });
     if (!a) {
       res.status(404).json({ error: 'No assignment for this lesson yet' });
+      return;
+    }
+    if (!(await canReadCourseContent(req.user, a.courseId))) {
+      res.status(403).json({ error: 'Enrol in this course to see its assignments' });
       return;
     }
     res.status(200).json(a);
@@ -256,6 +268,16 @@ export const submitAssignment = async (req: AuthenticatedRequest, res: Response)
       res.status(404).json({ error: 'Assignment not found' });
       return;
     }
+    if (!(await canLearnIn(req.user, a.courseId))) {
+      res.status(403).json({ error: 'Enrol in this course before handing in its assignments' });
+      return;
+    }
+    // A mark given by a teacher is not silently replaced by a resubmission.
+    const earlier = await prisma.assignmentSubmission.findUnique({ where: { userId_assignmentId: { userId: uid(req), assignmentId } } });
+    if (earlier?.gradedBy && earlier.gradedBy !== 'ai') {
+      res.status(409).json({ error: 'Your teacher has already marked this assignment. Ask them if you need to hand in again.' });
+      return;
+    }
 
     let feedback: string | null = null;
     let score: number | null = null;
@@ -284,7 +306,7 @@ export const submitAssignment = async (req: AuthenticatedRequest, res: Response)
     }
 
     const graded = score !== null;
-    const data = { content, fileUrl, feedback, score, isGraded: graded, submittedAt: new Date(), gradedAt: graded ? new Date() : null };
+    const data = { content, fileUrl, feedback, score, isGraded: graded, gradedBy: graded ? 'ai' : null, submittedAt: new Date(), gradedAt: graded ? new Date() : null };
     const sub = await prisma.assignmentSubmission.upsert({
       where: { userId_assignmentId: { userId: uid(req), assignmentId } },
       create: { ...data, userId: uid(req), assignmentId },
@@ -382,6 +404,11 @@ export const issueCertificate = async (req: AuthenticatedRequest, res: Response)
     const existing = await prisma.certificate.findFirst({ where: { userId: uid(req), courseId }, include });
     if (existing) {
       res.status(200).json(mapCertificate(existing));
+      return;
+    }
+    // Only students who are enrolled (and so, for paid courses, have paid) can earn one.
+    if (!(await isEnrolled(uid(req), courseId))) {
+      res.status(403).json({ error: 'Enrol in this course to earn its certificate' });
       return;
     }
 

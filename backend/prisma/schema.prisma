@@ -270,6 +270,7 @@ model AssignmentSubmission {
   feedback     String?
   score        Int?
   isGraded     Boolean    @default(false)
+  gradedBy     String?    // "ai", or the teacher's user id; a teacher's mark can't be replaced by a resubmission
   submittedAt  DateTime   @default(now())
   gradedAt     DateTime?
 

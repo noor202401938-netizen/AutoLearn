@@ -1,6 +1,8 @@
 import { Response } from 'express';
 import prisma from '../prisma';
 import { AuthenticatedRequest } from '../middleware/auth.middleware';
+import { canLearnIn } from '../access';
+import { isObjectId, optionalText } from '../validation';
 
 // PROFILE
 export const getUserProfile = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
@@ -45,11 +47,20 @@ export const updateUserProfile = async (req: AuthenticatedRequest, res: Response
       return;
     }
 
-    const { displayName, phone, grade, interest } = req.body;
+    const limits = { displayName: 80, phone: 30, grade: 40, interest: 80 } as const;
+    const data: Partial<Record<keyof typeof limits, string>> = {};
+    for (const [field, max] of Object.entries(limits) as [keyof typeof limits, number][]) {
+      const value = optionalText(req.body?.[field], max);
+      if (value === 'too-long') {
+        res.status(400).json({ error: `${field} must be at most ${max} characters` });
+        return;
+      }
+      if (value !== undefined) data[field] = value;
+    }
 
     const user = await prisma.user.update({
       where: { id: userId },
-      data: { displayName, phone, grade, interest },
+      data,
       select: {
         id: true,
         email: true,
@@ -75,27 +86,40 @@ export const updateVideoProgress = async (req: AuthenticatedRequest, res: Respon
     const { lessonId, currentPosition, totalDuration, isCompleted } = req.body;
     const userId = req.user?.uid;
 
-    if (!userId || !lessonId) {
-      res.status(400).json({ error: 'Missing userId or lessonId' });
+    if (!userId || !isObjectId(lessonId)) {
+      res.status(400).json({ error: 'A valid lessonId is required' });
       return;
     }
+    const lesson = await prisma.lesson.findUnique({ where: { id: lessonId }, select: { module: { select: { courseId: true } } } });
+    if (!lesson) {
+      res.status(404).json({ error: 'Lesson not found' });
+      return;
+    }
+    // Progress (and so completion and certificates) only counts for people enrolled in the course.
+    if (!(await canLearnIn(req.user, lesson.module.courseId))) {
+      res.status(403).json({ error: 'Enrol in this course to track your progress' });
+      return;
+    }
+    const seconds = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) && v >= 0 ? Math.floor(v) : 0);
+    const position = seconds(currentPosition);
+    const duration = seconds(totalDuration);
 
     const progress = await prisma.progress.upsert({
       where: {
         userId_lessonId: { userId, lessonId }
       },
       update: {
-        currentPosition,
-        totalDuration,
+        currentPosition: position,
+        totalDuration: duration,
         // Completion is sticky: rewatching a lesson never un-completes it.
-        ...(isCompleted && { isCompleted: true }),
+        ...(isCompleted === true && { isCompleted: true }),
       },
       create: {
         userId,
         lessonId,
-        currentPosition,
-        totalDuration,
-        isCompleted
+        currentPosition: position,
+        totalDuration: duration,
+        isCompleted: isCompleted === true,
       }
     });
 
@@ -373,23 +397,4 @@ export const broadcastNotification = async (req: AuthenticatedRequest, res: Resp
   }
 };
 
-// QUIZZES
-export const saveQuizResult = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
-  try {
-    const { moduleId, score, totalQuestions, passed } = req.body;
-    const userId = req.user?.uid;
-
-    if (!userId) {
-      res.status(401).json({ error: 'Unauthorized' });
-      return;
-    }
-
-    const result = await prisma.quizResult.create({
-      data: { userId, moduleId, score, totalQuestions, passed }
-    });
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
 

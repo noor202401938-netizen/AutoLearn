@@ -171,7 +171,7 @@ export const gradeSubmission = async (req: AuthenticatedRequest, res: Response):
     const feedback = String(req.body?.feedback ?? '').trim().slice(0, 5000);
     const updated = await prisma.assignmentSubmission.update({
       where: { id },
-      data: { score, feedback, isGraded: true, gradedAt: new Date() },
+      data: { score, feedback, isGraded: true, gradedBy: req.user!.uid, gradedAt: new Date() },
     });
     await prisma.notification.create({
       data: {
