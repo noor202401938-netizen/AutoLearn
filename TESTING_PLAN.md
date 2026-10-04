@@ -295,13 +295,16 @@ Found by reading the code while writing this plan; each has a test above that wi
 |---|---|---|---|
 | R1 | **FIXED.** `GET /api/courses`, `/:id` and `/:id/stats` used to return unpublished courses to anyone, and enrolment was not blocked for drafts. Now drafts are visible only to admins and the course's teachers (404 for everyone else), enrolment requires a published course, and the `mine`+`search` filters no longer override each other | Students could read or enrol in unfinished courses | CRS-2 (unit `mayView`; verified live: anonymous/student/other-teacher get 404, owner/admin 200) |
 | R2 | **FIXED.** The JWT secret fell back to a public dev value. Now production refuses to start without `JWT_SECRET`, with one shorter than 32 characters, or with the placeholder values shipped in `.env.example` / `docker-compose.yml`; `.env` is loaded before the secret is read | Forged admin tokens if production is misconfigured | Unit `resolveJwtSecret`; verified live: each bad case exits at startup, a good secret boots. **Deploy note:** set a real `JWT_SECRET`, or the API will not start |
-| R3 | `getCourseStats` returns `completionRate: 0.0` and averages `totalDuration` across **all** courses | Wrong numbers shown to anyone using it | CRS-6 |
+| R3 | **FIXED.** `getCourseStats` returned a hard-coded `completionRate` of 0 and averaged time across **all** courses. It now counts enrolments, completions, quiz average and time for the one course | Wrong numbers shown to anyone using it | CRS-6 (verified live) |
 | R4 | `CORS_ORIGIN` defaults to `*` | Any site can call the API from a logged-in browser context | Header check in staging |
-| R5 | Student re-submission replaces a teacher's mark with the AI/ungraded result | Teacher work silently lost | ASG-7 |
+| R5 | **FIXED.** A student's re-submission used to replace a teacher's mark. Submissions now record who marked them (`gradedBy`: `ai` or the teacher); once a teacher has marked one, resubmitting returns 409 and the mark is untouched. Resubmitting after only an AI mark (or none) still works | Teacher work silently lost | ASG-7 (verified live) |
 | R6 | **FIXED.** The token carried the role for its full 7-day life and the middleware never re-checked `isActive` (only login and `/me` did). Now every authenticated request re-reads the account: deleted → 401, disabled → 403, and the role always comes from the database | A disabled or demoted teacher/admin kept API access until the token expired | TCH-11, AUTH-4 (unit `checkAccount`; verified live with the same token: demoted → 403, disabled → 403, deleted → 401). Cost: one indexed user lookup per request |
 | R7 | One global 200 req/15 min per IP limit | A whole classroom behind one NAT can lock itself out | Load test §6.2 |
-| R8 | Legacy `POST /api/user/quiz` (`saveQuizResult`) accepts any `moduleId`/score from the client | Fake scores in a table nothing should trust | Remove it, or assert it is unused |
+| R8 | **FIXED.** The legacy `POST /api/user/quiz` accepted any score from the client. Removed (nothing used it); scores are only computed by the server | Fake scores in a table nothing should trust | `POST /user/quiz` is 404 (verified live) |
 | R9 | Forum threads created before course-tagging have no course, so only admins can moderate them | Teachers cannot clean old threads | FRM-3 on legacy data |
+| R10 | **FIXED (found in the final pass).** Paid courses' lesson text and video links were public: anyone could read them from `GET /courses` or `/courses/:id`. Now a course that costs money shows only its outline to people who haven't enrolled; course staff, admins and enrolled (paid) students see everything. Quizzes and assignments of paid courses are gated the same way | Content paywall bypass | CRS-2/CRS-4 + `mayReadContent` unit test (verified live for anonymous, student, owner, admin, and an enrolled student) |
+| R11 | **FIXED (found in the final pass).** Progress, quiz and assignment writes did not require enrolment, so a student could mark every lesson of a paid course complete and receive its certificate without paying. Those writes, and certificate issue, now require enrolment (course staff may use their own course) | Certificates and progress without payment | LRN-3, QZ-3, CERT-2 (verified live: 403 without enrolment, 201 once enrolled) |
+| R12 | **FIXED (found in the final pass).** Malformed ids, bad `limit`/`page`, non-text `email`/`password`, and bad JSON produced 500s or leaked parser text; email was case-sensitive and unvalidated, passwords only needed 6 characters (the form says 8 with letters and numbers), profile fields were unbounded, and empty courses could be published | Crashes, duplicate accounts, junk data | AUTH-1…3, CRS-1/7, PRF-1 (unit tests for each rule; verified live) |
 
 ## 8. Execution
 
@@ -318,7 +321,7 @@ Health = ok; sign in as test student, open a course, take a quiz, open forum; si
 - 0 open P0 defects; P1 defects either fixed or accepted by the product owner in writing.
 - 100% of §3 matrix cells automated and green.
 - Automated line coverage ≥ 80% for `backend/src/controllers` and `access.ts`; every route has at least one auth test and one happy-path test.
-- Security checks §6.1 passed; R1, R2 and R6 are fixed — R3, R4, R5 and R7–R9 resolved or explicitly accepted.
+- Security checks §6.1 passed; R1–R3, R5, R6 and R8, R10–R12 are fixed — R4, R7 and R9 resolved or explicitly accepted.
 - Rollback rehearsed: previous image redeploys and the schema change is backward compatible.
 
 ### 8.5 Defect handling
@@ -326,7 +329,7 @@ Severity follows priority (P0 blocks release). Every defect gets a failing autom
 
 ## 9. Automation roadmap (what to build, in order)
 
-Current automated coverage: **11 unit tests** (`gradeQuiz`, `toggleVote`, `streakDays`, `withoutAnswers`, `mayManage`, `mayOwn`, `mayView`, `clampScore`, `summarizeEarnings`, `resolveJwtSecret`, `checkAccount`), **12 API tests** (health, headers, 404, input validation, token required incl. all `/api/teacher` routes, forged/invalid tokens, reset privacy, traversal, unsigned webhook), **6 Flutter smoke tests**. The R1/R6 behaviours above were verified by hand against a live API and still need the real-database harness in step 1 to become repeatable tests.
+Current automated coverage: **18 unit tests** (`gradeQuiz`, `toggleVote`, `streakDays`, `withoutAnswers`, `mayManage`, `mayOwn`, `mayView`, `mayReadContent`, `clampScore`, `summarizeEarnings`, `resolveJwtSecret`, `checkAccount`, `cleanEmail`, `passwordProblem`, `optionalText`, `parsePaging`, `lessonCountOf`, `courseFieldProblem`), **12 API tests** (health, headers, 404, input validation, token required incl. all `/api/teacher` routes, forged/invalid tokens, reset privacy, traversal, unsigned webhook), **6 Flutter smoke tests**. The R1/R6 behaviours above were verified by hand against a live API and still need the real-database harness in step 1 to become repeatable tests.
 
 1. **API test harness against a real replica set** (`mongodb-memory-server` replica set or the Docker Mongo in CI): helpers to create users by role, sign tokens, create courses. Everything below builds on it.
 2. **Permission-matrix table test** (§3) — highest value: one test generates every role × route × expected status.

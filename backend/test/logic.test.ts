@@ -4,7 +4,9 @@ import assert from 'node:assert/strict';
 import { gradeQuiz, withoutAnswers } from '../src/controllers/learning.controller';
 import { toggleVote } from '../src/controllers/community.controller';
 import { streakDays } from '../src/controllers/user_data.controller';
-import { mayManage, mayOwn, mayView } from '../src/access';
+import { mayManage, mayOwn, mayReadContent, mayView } from '../src/access';
+import { cleanEmail, lessonCountOf, optionalText, parsePaging, passwordProblem } from '../src/validation';
+import { courseFieldProblem } from '../src/controllers/course.controller';
 import { resolveJwtSecret } from '../src/config';
 import { checkAccount } from '../src/middleware/auth.middleware';
 import { clampScore, summarizeEarnings } from '../src/controllers/teacher.controller';
@@ -113,4 +115,68 @@ test('checkAccount turns away deleted and disabled users and trusts the stored r
   assert.deepEqual(checkAccount(null), { ok: false, status: 401, error: 'Unauthorized: this account no longer exists' });
   assert.deepEqual(checkAccount({ role: 'teacher', isActive: false }), { ok: false, status: 403, error: 'Forbidden: this account has been disabled' });
   assert.deepEqual(checkAccount({ role: 'student', isActive: true }), { ok: true, role: 'student' });
+});
+
+test('paid course content is for people who enrolled or who run the course', () => {
+  const paid = { price: 20, createdBy: 't1', coTeacherIds: ['t2'] };
+  const free = { ...paid, price: 0 };
+  assert.equal(mayReadContent(undefined, paid, false), false);
+  assert.equal(mayReadContent({ uid: 's1', role: 'student' }, paid, false), false);
+  assert.equal(mayReadContent({ uid: 's1', role: 'student' }, paid, true), true);
+  assert.equal(mayReadContent({ uid: 't1', role: 'teacher' }, paid, false), true);
+  assert.equal(mayReadContent({ uid: 't2', role: 'teacher' }, paid, false), true);
+  assert.equal(mayReadContent({ uid: 't3', role: 'teacher' }, paid, false), false);
+  assert.equal(mayReadContent({ uid: 'a', role: 'admin' }, paid, false), true);
+  assert.equal(mayReadContent(undefined, free, false), true);
+  assert.equal(mayReadContent(undefined, null, false), false);
+});
+
+test('emails are normalised and anything that is not text is refused', () => {
+  assert.equal(cleanEmail('  Maya@Example.COM '), 'maya@example.com');
+  for (const bad of ['not-an-email', '', 'a@b', 'a b@c.de', null, undefined, 42, ['a@b.co'], { $ne: '' }, 'x'.repeat(250) + '@b.co']) {
+    assert.equal(cleanEmail(bad), null, `should reject ${JSON.stringify(bad)}`);
+  }
+});
+
+test('password rule matches the sign-up form: 8+ characters with a letter and a number', () => {
+  assert.equal(passwordProblem('Study2026ok'), null);
+  assert.equal(passwordProblem('admin123'), null);
+  for (const bad of ['short1', '12345678', 'abcdefgh', '', null, undefined, 12345678, ['abc12345'], 'a1'.repeat(70)]) {
+    assert.notEqual(passwordProblem(bad), null, `should reject ${JSON.stringify(bad)}`);
+  }
+});
+
+test('optional text is trimmed, bounded, and ignored when it is not text', () => {
+  assert.equal(optionalText('  hi ', 10), 'hi');
+  assert.equal(optionalText('x'.repeat(11), 10), 'too-long');
+  assert.equal(optionalText(undefined, 10), undefined);
+  assert.equal(optionalText(5, 10), undefined);
+  assert.equal(optionalText({ a: 1 }, 10), undefined);
+});
+
+test('paging accepts only positive whole numbers and caps the page size', () => {
+  assert.deepEqual(parsePaging('2', '10'), { page: 2, limit: 10 });
+  assert.deepEqual(parsePaging('abc', 'zz'), { page: undefined, limit: undefined });
+  assert.deepEqual(parsePaging('-1', '-5'), { page: undefined, limit: undefined });
+  assert.deepEqual(parsePaging('0', '0'), { page: undefined, limit: undefined });
+  assert.deepEqual(parsePaging(undefined, '5000'), { page: undefined, limit: 100 });
+  assert.deepEqual(parsePaging(['1'], { x: 1 }), { page: undefined, limit: undefined });
+});
+
+test('a syllabus with no lessons cannot be published', () => {
+  assert.equal(lessonCountOf(undefined), 0);
+  assert.equal(lessonCountOf([]), 0);
+  assert.equal(lessonCountOf([{ title: 'Empty chapter', lessons: [] }]), 0);
+  assert.equal(lessonCountOf([{ lessons: [{}, {}] }, { lessons: [{}] }, null]), 3);
+});
+
+test('course fields are validated before they reach the database', () => {
+  assert.equal(courseFieldProblem({ title: 'Ok', description: 'Ok', price: 0 }), null);
+  assert.equal(courseFieldProblem({}), null);
+  assert.match(courseFieldProblem({ price: -1 }) ?? '', /Price/);
+  assert.match(courseFieldProblem({ price: '20' }) ?? '', /Price/);
+  assert.match(courseFieldProblem({ price: Infinity }) ?? '', /Price/);
+  assert.match(courseFieldProblem({ title: { x: 1 } }) ?? '', /Title/);
+  assert.match(courseFieldProblem({ title: 'x'.repeat(201) }) ?? '', /Title/);
+  assert.match(courseFieldProblem({ description: 5 }) ?? '', /Description/);
 });
