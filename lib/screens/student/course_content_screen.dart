@@ -5,6 +5,7 @@ import '../../business_logic/enrollment_manager.dart';
 import '../../business_logic/video_manager.dart';
 import '../../model/course_model.dart';
 import '../../model/video_progress_model.dart';
+import '../../repository/certificate_repository.dart';
 import '../../repository/community_repository.dart';
 import '../../repository/course_repository.dart';
 import '../../repository/progress_repository.dart';
@@ -13,6 +14,7 @@ import '../../widgets/notebook/notebook.dart';
 import 'ai_quiz_screen.dart';
 import 'ai_tutor_chat_screen.dart';
 import 'assignment_screen.dart';
+import 'certificate_screen.dart';
 import 'payment_screen.dart';
 import 'video_player_screen.dart';
 
@@ -140,6 +142,20 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
     } else {
       setState(() => _enrolled = true);
+    }
+  }
+
+  Future<void> _claimCertificate() async {
+    try {
+      final cert = await CertificateRepository().issueIfEarned(courseId: widget.courseId);
+      if (!mounted) return;
+      if (cert == null) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Finish every lesson to earn the certificate')));
+      } else {
+        Navigator.push(context, MaterialPageRoute(builder: (_) => CertificateScreen(certificate: cert)));
+      }
+    } on ApiException catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
     }
   }
 
@@ -275,7 +291,8 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
           const SizedBox(height: 10),
           ClipRRect(
             borderRadius: BorderRadius.circular(2),
-            child: LinearProgressIndicator(value: total == 0 ? 0 : done / total, minHeight: 4),
+            // Own semantics node, so the bar's role doesn't swallow the card (and the Continue button).
+            child: Semantics(container: true, child: LinearProgressIndicator(value: total == 0 ? 0 : done / total, minHeight: 4, semanticsLabel: 'Course progress')),
           ),
           const SizedBox(height: 16),
           if (next != null) ...[
@@ -287,7 +304,15 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
               child: ElevatedButton(onPressed: () => _open(next.$1, next.$2), child: const Text('Continue')),
             ),
           ] else
-            MarginNote('course complete ✓', size: 22, tilt: 0, color: nb.correct),
+            ...[
+              MarginNote('course complete ✓', size: 22, tilt: 0, color: nb.correct),
+              const SizedBox(height: 12),
+              SizedBox(width: double.infinity, child: OutlinedButton.icon(
+                onPressed: _claimCertificate,
+                icon: const Icon(Icons.workspace_premium_outlined),
+                label: const Text('Get your certificate'),
+              )),
+            ],
         ] else ...[
           Text(c.price > 0 ? '${c.currency} ${c.price.toStringAsFixed(2)}' : 'Free',
               style: NotebookColors.figures(size: 28, weight: FontWeight.w600, color: theme.colorScheme.onSurface)),
@@ -327,17 +352,12 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                   constraints: const BoxConstraints(maxWidth: 460),
                   child: Text(l.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: theme.textTheme.bodyLarge),
                 ),
-                // Dotted leader, like a printed table of contents.
+                // Dotted leader, like a printed table of contents (decorative).
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: LayoutBuilder(
-                      builder: (_, box) => Text(
-                        '·' * (box.maxWidth / 6).floor().clamp(0, 400),
-                        maxLines: 1,
-                        overflow: TextOverflow.clip,
-                        style: TextStyle(color: theme.colorScheme.outline),
-                      ),
+                  child: ExcludeSemantics(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: CustomPaint(size: const Size.fromHeight(14), painter: _LeaderPainter(theme.colorScheme.outline)),
                     ),
                   ),
                 ),
@@ -440,4 +460,21 @@ class _ReadingPageState extends State<_ReadingPage> {
       ),
     );
   }
+}
+
+/// Evenly spaced dots along the baseline, filling whatever width it gets.
+class _LeaderPainter extends CustomPainter {
+  final Color color;
+  _LeaderPainter(this.color);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final dot = Paint()..color = color;
+    for (double x = 2; x < size.width; x += 6) {
+      canvas.drawCircle(Offset(x, size.height - 3), 1, dot);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_LeaderPainter old) => old.color != color;
 }
