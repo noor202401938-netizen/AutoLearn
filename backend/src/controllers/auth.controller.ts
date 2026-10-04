@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jwt-simple';
 import prisma from '../prisma';
 import { AuthenticatedRequest } from '../middleware/auth.middleware';
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_for_dev_only';
+import { JWT_SECRET } from '../config';
 const JWT_EXPIRY_DAYS = 7;
 
 function createToken(uid: string, role: string): string {
