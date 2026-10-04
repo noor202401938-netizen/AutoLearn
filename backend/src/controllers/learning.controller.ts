@@ -34,6 +34,16 @@ export async function courseCompletion(userId: string, courseId: string): Promis
   return done / lessons.length;
 }
 
+/** Id of the last lesson in the course's syllabus order, or null if empty. */
+export async function finalLessonId(courseId: string): Promise<string | null> {
+  const modules = await prisma.module.findMany({
+    where: { courseId },
+    orderBy: { order: 'desc' },
+    include: { lessons: { orderBy: { order: 'desc' }, take: 1, select: { id: true } } },
+  });
+  return modules.find((m) => m.lessons.length > 0)?.lessons[0].id ?? null;
+}
+
 // ── Quizzes ──────────────────────────────────────────────────────────────────
 
 /** A quiz as a student may see it before submitting: no answers or explanations. */
@@ -366,7 +376,9 @@ export const issueCertificate = async (req: AuthenticatedRequest, res: Response)
     }
 
     let earned = (await courseCompletion(uid(req), courseId)) >= 1;
-    if (!earned && lessonId) {
+    // A passed quiz only counts if it is the course's final test: the very
+    // last lesson of the syllabus. Mid-course quizzes never grant certificates.
+    if (!earned && lessonId && lessonId === (await finalLessonId(courseId))) {
       const quiz = await prisma.quiz.findUnique({ where: { lessonId } });
       earned = !!quiz && quiz.courseId === courseId &&
         !!(await prisma.quizSubmission.findFirst({ where: { userId: uid(req), quizId: quiz.id, passed: true } }));
