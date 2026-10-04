@@ -5,10 +5,10 @@ import '../../repository/chat_repository.dart';
 import '../../widgets/notebook/notebook.dart';
 
 const _starters = [
-  'Why does the demand curve slope downwards?',
-  'What is the difference between a shift and a movement along the curve?',
-  'Explain price elasticity with a real example.',
-  'Who really pays a tax on cigarettes?',
+  'Explain this topic as if I were new to it.',
+  'Give me a worked example, step by step.',
+  'Quiz me with three quick questions.',
+  'What are the most common mistakes here?',
 ];
 
 /// The AI tutor: a notebook page where your questions are written in ink and
@@ -286,12 +286,12 @@ class _AITutorChatScreenState extends State<AITutorChatScreen> {
   Widget _emptyPage() {
     final theme = Theme.of(context);
     return ListView(padding: const EdgeInsets.all(24), children: [
-      const Center(child: SupplyDemandSketch(size: 140)),
+      const Center(child: NotebookMark(size: 140)),
       const SizedBox(height: 16),
       Center(
         child: Text(
           widget.contextTitle == null
-              ? 'Ask anything about economics.'
+              ? "Ask anything about what you're learning."
               : 'Ask anything about "${widget.contextTitle}".',
           style: theme.textTheme.titleMedium,
           textAlign: TextAlign.center,

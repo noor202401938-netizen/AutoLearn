@@ -129,7 +129,7 @@ class AdminOverviewPage extends StatelessWidget {
                 title: Text(c['title'] as String),
                 subtitle: Text(c['isPublished'] == true ? 'published' : 'draft'),
                 trailing: Text(
-                  '${c['enrollmentCount']} enrolled${(c['ratingCount'] as int) > 0 ? '  ·  ★ ${(c['rating'] as num).toStringAsFixed(1)}' : ''}',
+                  '${c['enrollmentCount']} enrolled${(c['ratingCount'] as int) > 0 ? '  ·  rated ${(c['rating'] as num).toStringAsFixed(1)}' : ''}',
                   style: NotebookColors.figures(size: 13, color: theme.colorScheme.onSurface),
                 ),
               ),

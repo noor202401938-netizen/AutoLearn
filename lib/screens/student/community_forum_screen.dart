@@ -5,7 +5,7 @@ import '../../repository/auth_repository.dart';
 import '../../repository/community_repository.dart';
 import '../../widgets/notebook/notebook.dart';
 
-const _categories = ['all', 'microeconomics', 'macroeconomics', 'finance', 'econometrics', 'general'];
+const _categories = ['all', 'course questions', 'study help', 'assignments', 'resources', 'general'];
 
 /// Study-group forum: questions, answers, upvotes, and an accepted answer.
 class CommunityForumScreen extends StatefulWidget {
@@ -82,7 +82,7 @@ class _CommunityForumScreenState extends State<CommunityForumScreen> {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('Study group', style: theme.textTheme.displaySmall),
-            const MarginNote('ask, answer, argue about the curves'),
+            const MarginNote('ask, answer, learn from each other'),
           ]),
         ),
         ElevatedButton.icon(onPressed: _ask, icon: const Icon(Icons.edit_outlined), label: const Text('Ask a question')),
@@ -236,7 +236,7 @@ class _AskDialog extends StatefulWidget {
 class _AskDialogState extends State<_AskDialog> {
   final _title = TextEditingController();
   final _body = TextEditingController();
-  String _category = 'microeconomics';
+  String _category = 'course questions';
   bool _saving = false;
   String? _error;
 

@@ -116,6 +116,75 @@ Taxes also shrink the quantity traded, creating deadweight loss. The more elasti
   ],
 };
 
+// A subject-neutral course so a fresh install shows AutoLearn is a general LMS.
+const STUDY = {
+  title: 'Learning How to Learn',
+  description: 'Evidence-based study techniques for any subject: how memory works, how to practise, and how to plan your time.',
+  instructor: 'AutoLearn Faculty',
+  category: 'Study Skills',
+  level: 'beginner',
+  duration: 2,
+  syllabus: [
+    {
+      title: 'How memory works',
+      lessons: [
+        {
+          title: 'Why rereading feels good but works badly',
+          type: 'reading',
+          duration: 8,
+          content: `Rereading your notes feels productive because the material becomes familiar. But **familiarity is not memory**: recognising something on the page is much easier than recalling it from nothing.
+
+The fix is **retrieval practice** — closing the book and trying to bring the idea back. Every successful recall strengthens the memory; every failed attempt shows you exactly what to study next.
+
+Try it: after this lesson, write down the three main ideas without looking.`,
+        },
+        {
+          title: 'Spacing and interleaving',
+          type: 'reading',
+          duration: 10,
+          content: `**Spacing:** study a topic, leave it, and return later. Forgetting a little between sessions makes the next recall harder — and that effort is what makes it stick.
+
+**Interleaving:** mix different kinds of problems in one session instead of doing twenty of the same type. It feels slower, but it trains you to recognise *which* method a problem needs.
+
+A simple plan:
+- Day 1: learn it
+- Day 2: recall it
+- Day 7: recall it again
+- Day 30: one more time`,
+        },
+        { title: 'Check: study techniques', type: 'quiz', duration: 5 },
+      ],
+    },
+    {
+      title: 'Putting it into practice',
+      lessons: [
+        { title: 'Your study plan', type: 'assignment', duration: 20 },
+      ],
+    },
+  ],
+};
+
+const STUDY_QUIZ = [
+  {
+    questionText: 'Which technique does the research suggest is most effective for long-term memory?',
+    options: ['Rereading notes several times', 'Highlighting key sentences', 'Trying to recall the material without looking', 'Copying notes out neatly'],
+    correctOptionIndex: 2,
+    explanation: 'Retrieval practice strengthens memory far more than re-exposure to the same material.',
+  },
+  {
+    questionText: 'Why does spacing out study sessions help?',
+    options: ['It is less tiring', 'The effort of recalling after a gap strengthens memory', 'It means studying less in total', 'It avoids interleaving'],
+    correctOptionIndex: 1,
+    explanation: 'A little forgetting between sessions makes recall effortful, and effortful recall is what makes learning last.',
+  },
+  {
+    questionText: 'Interleaving means…',
+    options: ['Studying one topic until it is perfect', 'Mixing different types of problems in one session', 'Taking breaks every 25 minutes', 'Studying with a partner'],
+    correctOptionIndex: 1,
+    explanation: 'Mixing problem types trains you to choose the right method, not just to repeat one.',
+  },
+];
+
 const SD_QUIZ = [
   {
     questionText: 'A drought destroys a third of the wheat harvest. What happens in the wheat market?',
@@ -238,6 +307,50 @@ async function main() {
       },
     });
     console.log(`Created course "${course.title}" with ${lessons.length} lessons`);
+  }
+
+  let study = await prisma.course.findFirst({ where: { title: STUDY.title } });
+  if (!study) {
+    const { syllabus, ...fields } = STUDY;
+    study = await prisma.course.create({ data: { ...fields, isPublished: true, createdBy: 'seed' } });
+    await syncSyllabus(study.id, syllabus);
+    const lessons = await prisma.lesson.findMany({ where: { module: { courseId: study.id } } });
+    const byTitle = (t: string) => lessons.find((l) => l.title === t)!;
+    const q = byTitle('Check: study techniques');
+    await prisma.quiz.create({
+      data: {
+        courseId: study.id, moduleId: q.moduleId, lessonId: q.id, title: q.title, description: 'Three quick questions.',
+        questions: toQuestions(STUDY_QUIZ), timeLimit: 6, passingScore: 70, createdBy: 'seed',
+      },
+    });
+    const a = byTitle('Your study plan');
+    await prisma.assignment.create({
+      data: {
+        courseId: study.id, moduleId: a.moduleId, lessonId: a.id, title: 'Your study plan',
+        description: 'Plan the next two weeks of study for a course you are taking.',
+        instructions:
+          'Choose one subject you are learning.\n' +
+          '1. List the topics you need to know.\n' +
+          '2. Schedule spaced review sessions for each over two weeks.\n' +
+          '3. Describe how you will use retrieval practice in each session (not rereading).\n' +
+          'Aim for 150–300 words.',
+        dueDate: new Date(Date.now() + 14 * 86_400_000), maxPoints: 50, createdBy: 'seed',
+      },
+    });
+    console.log(`Created course "${study.title}" with ${lessons.length} lessons`);
+  }
+
+  if (!(await prisma.learningPath.findFirst({ where: { title: 'Start here' } }))) {
+    await prisma.learningPath.create({
+      data: {
+        title: 'Start here',
+        description: 'New to AutoLearn? Learn how to study well, then put it to work on your first subject course.',
+        level: 'beginner',
+        skills: ['Retrieval practice', 'Spaced study', 'Planning'],
+        courseIds: [study.id, course.id],
+      },
+    });
+    console.log('Created learning path "Start here"');
   }
 
   if (!(await prisma.learningPath.findFirst({ where: { title: 'Economics foundations' } }))) {

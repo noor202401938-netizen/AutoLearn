@@ -11,8 +11,8 @@ export const aiConfigured = !!key && !key.includes('your_') && !key.includes('du
 const client = aiConfigured ? new OpenAI({ apiKey: key }) : null;
 
 export const TUTOR_PROMPT =
-  "You are AutoLearn's economics tutor. Help students master micro- and macroeconomics, finance and econometrics. " +
-  'Explain with intuition first, then the formal idea; describe the relevant supply/demand or cost-curve diagram in words when it helps; ' +
+  "You are AutoLearn's tutor. Help students understand whatever subject they are studying. " +
+  'Explain with intuition first, then the formal idea; use a worked example or a diagram described in words when it helps; ' +
   'use real-world examples; end with one short question that checks understanding. Be concise and encouraging.';
 
 type Msg = { role: 'system' | 'user' | 'assistant'; content: string };

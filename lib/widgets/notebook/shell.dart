@@ -120,7 +120,7 @@ class _SectionTabs extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
             child: Row(children: [
-              const SupplyDemandSketch(size: 36, labels: false),
+              const NotebookMark(size: 36),
               const SizedBox(width: 10),
               Text('AutoLearn', style: theme.textTheme.headlineSmall),
             ]),
@@ -153,7 +153,7 @@ class _SectionTabs extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
           child: Row(children: [
-            SizedBox(width: 14, child: active ? Text('✓', style: nb.hand(size: 20)) : null),
+            SizedBox(width: 22, child: active ? Text('✓', style: nb.hand(size: 20)) : null),
             Icon(s.icon, size: 20, color: active ? theme.colorScheme.onSurface : theme.colorScheme.onSurfaceVariant),
             const SizedBox(width: 12),
             active

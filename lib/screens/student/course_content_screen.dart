@@ -251,7 +251,7 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
         for (final (i, m) in c.syllabus.indexed) _chapter(i, m),
       if (isEconomics) ...[
         const SizedBox(height: 32),
-        const NoteHeading('Lab', note: 'drag the curves'),
+        const NoteHeading('Lab', note: 'drag the curves'), // economics courses only
         const SizedBox(height: 16),
         const SupplyDemandInteractiveWidget(),
       ],
@@ -323,7 +323,10 @@ class _CourseContentScreenState extends State<CourseContentScreen> {
                   width: 44,
                   child: Text('${i + 1}.${j + 1}', style: NotebookColors.figures(size: 13, color: theme.colorScheme.onSurfaceVariant)),
                 ),
-                Flexible(child: Text(l.title, style: theme.textTheme.bodyLarge)),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 460),
+                  child: Text(l.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: theme.textTheme.bodyLarge),
+                ),
                 // Dotted leader, like a printed table of contents.
                 Expanded(
                   child: Padding(

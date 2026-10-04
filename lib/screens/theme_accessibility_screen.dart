@@ -90,7 +90,7 @@ class _Swatch extends StatelessWidget {
             borderRadius: BorderRadius.circular(6),
           ),
           alignment: Alignment.center,
-          child: const SupplyDemandSketch(size: 54, labels: false),
+          child: const NotebookMark(size: 54),
         ),
         const SizedBox(height: 6),
         selected ? Highlight(label, style: theme.textTheme.labelLarge) : Text(label, style: theme.textTheme.labelLarge),

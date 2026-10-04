@@ -23,7 +23,7 @@ export const generateSummary = async (req: AuthenticatedRequest, res: Response):
   try {
     const content = await complete(
       [
-        { role: 'system', content: 'You write concise study notes for economics lessons. Reply as JSON.' },
+        { role: 'system', content: 'You write concise study notes for course lessons. Reply as JSON.' },
         {
           role: 'user',
           content: `Lesson title: ${String(videoTitle).slice(0, 300)}\n` +
@@ -184,7 +184,7 @@ export const generateQuiz = async (req: AuthenticatedRequest, res: Response): Pr
     }
     const raw = await complete(
       [
-        { role: 'system', content: 'You write rigorous multiple-choice economics quizzes. Reply as JSON.' },
+        { role: 'system', content: 'You write rigorous multiple-choice quizzes that test understanding of a lesson. Reply as JSON.' },
         {
           role: 'user',
           content:

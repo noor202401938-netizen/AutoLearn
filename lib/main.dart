@@ -168,11 +168,11 @@ class _SplashScreenState extends State<SplashScreen>
             child: ScaleTransition(
               scale: _scaleAnimation,
               child: Column(mainAxisSize: MainAxisSize.min, children: [
-                const SupplyDemandSketch(size: 120),
+                const NotebookMark(size: 120),
                 const SizedBox(height: 20),
                 Text('AutoLearn', style: theme.textTheme.displayMedium),
                 const SizedBox(height: 4),
-                const MarginNote('economics, in your own notes', tilt: 0),
+                const MarginNote('learn anything, in your own notes', tilt: 0),
               ]),
             ),
           ),

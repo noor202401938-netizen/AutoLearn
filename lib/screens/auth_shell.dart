@@ -50,17 +50,17 @@ class NotebookCover extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: compact ? CrossAxisAlignment.center : CrossAxisAlignment.start,
         children: [
-          SupplyDemandSketch(size: compact ? 150 : 200),
+          NotebookMark(size: compact ? 150 : 200),
           const SizedBox(height: 24),
           Text('AutoLearn', style: theme.textTheme.displayLarge),
           const SizedBox(height: 4),
-          const MarginNote('economics, in your own notes', size: 24),
+          const MarginNote('learn anything, in your own notes', size: 24),
           if (!compact) ...[
             const SizedBox(height: 36),
             for (final line in const [
-              '→ lessons that explain the curves, not just draw them',
-              '→ a lab where you drag supply and demand yourself',
-              '→ an AI tutor that checks your reasoning',
+              '→ courses in any subject, written to be understood',
+              '→ quizzes, assignments and feedback that help you improve',
+              '→ an AI tutor and a study group when you get stuck',
             ])
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),

@@ -210,12 +210,11 @@ class _ScribblePainter extends CustomPainter {
   bool shouldRepaint(_ScribblePainter old) => old.color != color;
 }
 
-/// A hand-sketched supply & demand diagram. Used as the app's mark and as
-/// the illustration on empty states / heroes — the subject *is* the visual.
-class SupplyDemandSketch extends StatelessWidget {
+/// The app's mark: a hand-drawn open notebook with ruled lines, one line
+/// highlighted and a red-pen tick. Also the empty-state illustration.
+class NotebookMark extends StatelessWidget {
   final double size;
-  final bool labels;
-  const SupplyDemandSketch({super.key, this.size = 120, this.labels = true});
+  const NotebookMark({super.key, this.size = 120});
 
   @override
   Widget build(BuildContext context) {
@@ -225,84 +224,65 @@ class SupplyDemandSketch extends StatelessWidget {
       width: size,
       height: size,
       child: CustomPaint(
-        painter: _SketchPainter(
-          axis: scheme.onSurface,
-          supply: scheme.primary,
-          demand: nb.annotation,
-          dot: nb.highlighter,
-          labelStyle: labels ? nb.hand(size: size * 0.14, color: scheme.onSurfaceVariant) : null,
-        ),
+        painter: _MarkPainter(ink: scheme.onSurface, page: nb.sheet, pen: nb.annotation, marker: nb.highlighter),
       ),
     );
   }
 }
 
-class _SketchPainter extends CustomPainter {
-  final Color axis, supply, demand, dot;
-  final TextStyle? labelStyle;
-  _SketchPainter({required this.axis, required this.supply, required this.demand, required this.dot, this.labelStyle});
+class _MarkPainter extends CustomPainter {
+  final Color ink, page, pen, marker;
+  _MarkPainter({required this.ink, required this.page, required this.pen, required this.marker});
 
   @override
   void paint(Canvas canvas, Size s) {
     final w = s.width, h = s.height;
-    final o = Offset(w * 0.14, h * 0.86);
+    Offset p(double x, double y) => Offset(x * w, y * h);
     final stroke = Paint()
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = math.max(1.5, w / 60);
+      ..strokeJoin = StrokeJoin.round
+      ..strokeWidth = math.max(1.5, w / 55)
+      ..color = ink;
 
-    // Axes, drawn a little wobbly.
-    final axes = Path()
-      ..moveTo(o.dx, h * 0.06)
-      ..quadraticBezierTo(o.dx - 1, h * 0.5, o.dx, o.dy)
-      ..quadraticBezierTo(w * 0.55, o.dy + 1, w * 0.95, o.dy);
-    canvas.drawPath(axes, stroke..color = axis);
-
-    // Supply rises, demand falls; they cross near the middle.
-    final sup = Path()
-      ..moveTo(w * 0.24, h * 0.76)
-      ..quadraticBezierTo(w * 0.52, h * 0.5, w * 0.86, h * 0.18);
-    canvas.drawPath(sup, stroke..color = supply);
-    final dem = Path()
-      ..moveTo(w * 0.24, h * 0.2)
-      ..quadraticBezierTo(w * 0.5, h * 0.44, w * 0.86, h * 0.74);
-    canvas.drawPath(dem, stroke..color = demand);
-
-    // Equilibrium dot + dashed guides to the axes.
-    final eq = Offset(w * 0.54, h * 0.475);
-    final guide = Paint()
-      ..color = axis.withValues(alpha: 0.45)
-      ..strokeWidth = 1;
-    for (double y = eq.dy; y < o.dy; y += 6) {
-      canvas.drawLine(Offset(eq.dx, y), Offset(eq.dx, math.min(y + 3, o.dy)), guide);
+    // Two pages curving away from the spine.
+    Path pageShape(double side) => Path()
+      ..moveTo(0.5 * w, 0.26 * h)
+      ..quadraticBezierTo((0.5 + side * 0.2) * w, 0.16 * h, (0.5 + side * 0.42) * w, 0.22 * h)
+      ..lineTo((0.5 + side * 0.42) * w, 0.78 * h)
+      ..quadraticBezierTo((0.5 + side * 0.2) * w, 0.72 * h, 0.5 * w, 0.84 * h)
+      ..close();
+    for (final side in [-1.0, 1.0]) {
+      final shape = pageShape(side);
+      canvas.drawPath(shape, Paint()..color = page);
+      canvas.drawPath(shape, stroke);
     }
-    for (double x = o.dx; x < eq.dx; x += 6) {
-      canvas.drawLine(Offset(x, eq.dy), Offset(math.min(x + 3, eq.dx), eq.dy), guide);
-    }
-    canvas.drawCircle(eq, w / 22, Paint()..color = dot);
-    canvas.drawCircle(eq, w / 22, Paint()
-      ..color = axis
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2);
 
-    if (labelStyle != null) {
-      void label(String t, Offset at, Color c) {
-        final tp = TextPainter(text: TextSpan(text: t, style: labelStyle!.copyWith(color: c)), textDirection: TextDirection.ltr)..layout();
-        tp.paint(canvas, at);
-      }
-      label('P', Offset(0, h * 0.02), axis);
-      label('Q', Offset(w * 0.9, o.dy - h * 0.02), axis);
-      label('S', Offset(w * 0.88, h * 0.06), supply);
-      label('D', Offset(w * 0.88, h * 0.7), demand);
+    // Highlighter swipe, then ruled lines on the left page.
+    canvas.drawRect(Rect.fromPoints(p(0.17, 0.44), p(0.42, 0.52)), Paint()..color = marker.withValues(alpha: 0.8));
+    final rule = Paint()
+      ..color = ink.withValues(alpha: 0.55)
+      ..strokeWidth = math.max(1, w / 90)
+      ..strokeCap = StrokeCap.round;
+    for (final y in [0.36, 0.49, 0.62]) {
+      canvas.drawLine(p(0.18, y), p(0.42, y + 0.01), rule);
     }
+    // Right page: two lines and a tick in red pen.
+    for (final y in [0.36, 0.49]) {
+      canvas.drawLine(p(0.58, y + 0.01), p(0.82, y), rule);
+    }
+    final tick = Path()
+      ..moveTo(0.6 * w, 0.62 * h)
+      ..lineTo(0.66 * w, 0.68 * h)
+      ..lineTo(0.8 * w, 0.54 * h);
+    canvas.drawPath(tick, stroke..color = pen);
   }
 
   @override
-  bool shouldRepaint(_SketchPainter old) =>
-      old.axis != axis || old.supply != supply || old.demand != demand || old.dot != dot;
+  bool shouldRepaint(_MarkPainter old) => old.ink != ink || old.page != page || old.pen != pen || old.marker != marker;
 }
 
-/// Empty state: the sketch, a handwritten line, and an optional action.
+/// Empty state: the mark, a handwritten line, and an optional action.
 class NotebookEmpty extends StatelessWidget {
   final String title;
   final String note;
@@ -319,7 +299,7 @@ class NotebookEmpty extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SupplyDemandSketch(size: 110),
+            const NotebookMark(size: 110),
             const SizedBox(height: 16),
             Text(title, style: theme.textTheme.titleMedium, textAlign: TextAlign.center),
             const SizedBox(height: 4),

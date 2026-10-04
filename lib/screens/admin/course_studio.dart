@@ -114,7 +114,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
                     Text(c.title, style: theme.textTheme.titleLarge),
                     Text(
                       '${c.syllabus.length} chapters · ${c.syllabus.fold<int>(0, (n, m) => n + m.lessons.length)} lessons · '
-                      '${c.enrollmentCount} enrolled${c.ratingCount > 0 ? ' · ★ ${c.rating.toStringAsFixed(1)}' : ''}',
+                      '${c.enrollmentCount} enrolled${c.ratingCount > 0 ? ' · rated ${c.rating.toStringAsFixed(1)}/5' : ''}',
                       style: theme.textTheme.bodySmall,
                     ),
                   ]),
@@ -177,7 +177,7 @@ class _CourseEditorPageState extends State<CourseEditorPage> {
   late final _title = TextEditingController(text: widget.course?.title);
   late final _description = TextEditingController(text: widget.course?.description);
   late final _instructor = TextEditingController(text: widget.course?.instructor ?? '');
-  late final _category = TextEditingController(text: widget.course?.category ?? 'Microeconomics');
+  late final _category = TextEditingController(text: widget.course?.category ?? '');
   late final _hours = TextEditingController(text: '${widget.course?.duration ?? 0}');
   late final _price = TextEditingController(text: (widget.course?.price ?? 0).toStringAsFixed(2));
   late String _level = widget.course?.level ?? 'beginner';

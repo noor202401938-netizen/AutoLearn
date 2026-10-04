@@ -152,7 +152,8 @@ class _CourseCard extends StatelessWidget {
           Text('$lessons lessons', style: theme.textTheme.bodySmall),
           if (c.rating > 0) ...[
             const SizedBox(width: 12),
-            Text('★ ${c.rating.toStringAsFixed(1)}', style: theme.textTheme.bodySmall),
+            Icon(Icons.star_rounded, size: 14, color: theme.colorScheme.onSurfaceVariant),
+            Text(' ${c.rating.toStringAsFixed(1)}', style: theme.textTheme.bodySmall),
           ],
           const Spacer(),
           if (progress != null)

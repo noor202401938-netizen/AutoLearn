@@ -22,8 +22,8 @@ class WelcomePage extends StatelessWidget {
         Text('Start a new notebook', style: theme.textTheme.headlineMedium),
         const SizedBox(height: 8),
         Text(
-          'Learn micro- and macroeconomics the way you would with a good teacher: '
-          'short readings, diagrams you can play with, practice questions, and someone to ask.',
+          'Learn any subject the way you would with a good teacher: '
+          'short lessons, practice questions with feedback, and someone to ask.',
           style: theme.textTheme.bodyMedium,
         ),
         const SizedBox(height: 24),

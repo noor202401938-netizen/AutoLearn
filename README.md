@@ -1,6 +1,6 @@
 # AutoLearn 🎓
 
-**AutoLearn** teaches economics the way a good teacher would: short readings that explain the intuition, a supply-and-demand lab you can push around yourself, practice quizzes with worked explanations, assignments marked with feedback, and an AI tutor to ask when you're stuck. Built with Flutter (web/mobile), Node.js/Express + Prisma (MongoDB), Redis and MinIO.
+**AutoLearn** is a learning management system for any subject: courses with reading, video, quiz and assignment lessons, server-graded quizzes, AI-marked assignments with feedback, certificates, learning paths, bookmarks, a study-group forum, an AI tutor, and a full admin course studio. Built with Flutter (web/mobile), Node.js/Express + Prisma (MongoDB), Redis and MinIO.
 
 ## ✏️ Design: the lecture notebook
 
@@ -8,8 +8,8 @@ The interface is a student's notebook, not a dashboard template:
 
 - **Paper & ink** (light) / **blackboard & chalk** (dark) — graph-paper pages, fountain-pen ink, a red margin rule.
 - **Handwriting for annotations** (Caveat), a bookish serif for headings (Fraunces), IBM Plex for reading and Plex Mono for figures. All fonts are bundled — no runtime calls to Google.
-- **Economics as the visual language** — the hand-sketched supply & demand diagram is the logo, the empty-state illustration and the interactive lab.
-- Notebook components live in `lib/widgets/notebook/` (`GraphPaper`, `NoteCard`, `Highlight`, `MarginNote`, `NoteHeading`, `NoteText`, `SupplyDemandSketch`, `NotebookShell`). Colours come from `ColorScheme` + the `NotebookColors` theme extension in `lib/theme/app_theme.dart` — don't hardcode hex values in screens.
+- **The mark** is a hand-drawn open notebook; subject-specific interactives (e.g. the supply & demand lab on economics courses) appear only where they belong.
+- Notebook components live in `lib/widgets/notebook/` (`GraphPaper`, `NoteCard`, `Highlight`, `MarginNote`, `NoteHeading`, `NoteText`, `NotebookMark`, `NotebookShell`). Colours come from `ColorScheme` + the `NotebookColors` theme extension in `lib/theme/app_theme.dart` — don't hardcode hex values in screens.
 
 ---
 

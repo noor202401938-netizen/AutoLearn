@@ -61,7 +61,7 @@ class _StudentHomeState extends State<StudentHome> {
         index: _index,
         onSelect: _go,
         page: _page(),
-        tagline: 'economics, in your own notes',
+        tagline: 'learn anything, in your own notes',
         mobileTabs: const [0, 1, 3, 4],
       );
 }
@@ -327,12 +327,12 @@ class _TutorStickyNote extends StatelessWidget {
             onTap: onTap,
             color: nb.highlighter.withValues(alpha: dark ? 0.18 : 0.85),
             child: Row(children: [
-              const SupplyDemandSketch(size: 64, labels: false),
+              const NotebookMark(size: 64),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text('Stuck on a curve?', style: nb.hand(size: 26, color: ink)),
-                  Text('Ask the AI tutor — it explains with diagrams and checks your reasoning.',
+                  Text('Stuck on something?', style: nb.hand(size: 26, color: ink)),
+                  Text('Ask the AI tutor — it explains step by step and checks your reasoning.',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: ink)),
                 ]),
               ),

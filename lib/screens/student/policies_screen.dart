@@ -7,7 +7,7 @@ const _terms = '''
 
 AutoLearn is an educational service. Use it to learn, and don't use it to harm others, attack the service, or share content you don't have the right to share. We may suspend accounts that do.
 
-Course material, quizzes and AI feedback are for learning. They are not financial, legal or investment advice.
+Course material, quizzes and AI feedback are for learning. They are not professional advice.
 
 ## What we store
 

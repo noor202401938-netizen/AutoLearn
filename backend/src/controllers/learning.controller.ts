@@ -244,7 +244,7 @@ export const submitAssignment = async (req: AuthenticatedRequest, res: Response)
       try {
         const raw = await complete(
           [
-            { role: 'system', content: 'You are a fair, specific economics teaching assistant grading student work. Reply as JSON.' },
+            { role: 'system', content: 'You are a fair, specific teaching assistant grading student work. Reply as JSON.' },
             {
               role: 'user',
               content:

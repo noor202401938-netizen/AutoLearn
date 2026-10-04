@@ -118,7 +118,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             ChoiceChip(label: Text(l), selected: _level == l, onSelected: (_) => setState(() => _level = l)),
                         ]),
                         const SizedBox(height: 16),
-                        Text('What do you most want to understand?', style: theme.textTheme.titleSmall),
+                        Text('What do you most want to learn?', style: theme.textTheme.titleSmall),
                         const SizedBox(height: 8),
                         Wrap(spacing: 8, runSpacing: 8, children: [
                           for (final i in learnerInterests)

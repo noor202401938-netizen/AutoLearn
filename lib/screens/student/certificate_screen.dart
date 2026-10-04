@@ -103,7 +103,7 @@ class _Certificate extends StatelessWidget {
                   height: 80 * s,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: nb.annotation, width: 2)),
-                  child: SupplyDemandSketch(size: 52 * s, labels: false),
+                  child: NotebookMark(size: 52 * s),
                 ),
                 Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
