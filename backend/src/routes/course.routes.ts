@@ -9,14 +9,15 @@ import {
   rateCourse,
   getCourseStats,
 } from '../controllers/course.controller';
-import { authenticateToken } from '../middleware/auth.middleware';
+import { authenticateToken, optionalAuth } from '../middleware/auth.middleware';
 
 const router = Router();
 
 // Public routes
-router.get('/', (req, res, next) => (req.query.mine === 'true' ? authenticateToken(req, res, next) : next()), getAllCourses);
-router.get('/:id', getCourseById);
-router.get('/:id/stats', getCourseStats);
+// Public, but the answer depends on who asks: drafts are visible only to their teachers.
+router.get('/', optionalAuth, getAllCourses);
+router.get('/:id', optionalAuth, getCourseById);
+router.get('/:id/stats', optionalAuth, getCourseStats);
 
 // Protected routes (require authentication)
 router.use(authenticateToken);

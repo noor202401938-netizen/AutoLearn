@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../prisma';
 import { AuthenticatedRequest, isStaff } from '../middleware/auth.middleware';
-import { canManageCourse, canOwnCourse } from '../access';
+import { canManageCourse, canOwnCourse, mayView } from '../access';
 
 // Map DB record to Flutter-expected structure
 function mapCourse(course: any) {
@@ -90,26 +90,39 @@ export const getAllCourses = async (req: Request, res: Response): Promise<void> 
   try {
     const { category, level, isPublished, search, page, limit, mine } = req.query;
 
-    let filter: any = {};
+    const me = (req as AuthenticatedRequest).user;
+    const filter: any = {};
+    const all: any[] = []; // every entry must match, so conditions never override each other
     // A teacher's studio: only their own courses, drafts included.
     if (mine === 'true') {
-      const me = (req as AuthenticatedRequest).user;
       if (!me) {
         res.status(401).json({ error: 'Unauthorized: sign in to list your courses' });
         return;
       }
-      filter.OR = [{ createdBy: me.uid }, { coTeacherIds: { has: me.uid } }];
+      all.push({ OR: [{ createdBy: me.uid }, { coTeacherIds: { has: me.uid } }] });
+    }
+    // Drafts are visible only to admins and to the teachers of that course.
+    if (me?.role !== 'admin') {
+      all.push(
+        me?.role === 'teacher'
+          ? { OR: [{ isPublished: true }, { createdBy: me.uid }, { coTeacherIds: { has: me.uid } }] }
+          : { isPublished: true },
+      );
+    } else if (isPublished !== undefined) {
+      filter.isPublished = isPublished === 'true';
     }
     if (category) filter.category = String(category);
     if (level) filter.level = String(level);
-    if (isPublished !== undefined) filter.isPublished = isPublished === 'true';
     if (search) {
-      filter.OR = [
-        { title: { contains: String(search), mode: 'insensitive' } },
-        { description: { contains: String(search), mode: 'insensitive' } },
-        { instructor: { contains: String(search), mode: 'insensitive' } },
-      ];
+      all.push({
+        OR: [
+          { title: { contains: String(search), mode: 'insensitive' } },
+          { description: { contains: String(search), mode: 'insensitive' } },
+          { instructor: { contains: String(search), mode: 'insensitive' } },
+        ],
+      });
     }
+    if (all.length > 0) filter.AND = all;
 
     const pageNum = page ? parseInt(String(page), 10) : undefined;
     const limitNum = limit ? parseInt(String(limit), 10) : undefined;
@@ -149,7 +162,8 @@ export const getCourseById = async (req: Request, res: Response): Promise<void> 
       include: { modules: { include: { lessons: true } } },
     });
 
-    if (!course) {
+    // A draft looks exactly like a missing course to anyone who doesn't manage it.
+    if (!mayView((req as AuthenticatedRequest).user, course)) {
       res.status(404).json({ error: 'Course not found' });
       return;
     }
@@ -282,7 +296,8 @@ export const enrollInCourse = async (req: AuthenticatedRequest, res: Response): 
     }
 
     const course = await prisma.course.findUnique({ where: { id } });
-    if (!course) {
+    // Nobody can enrol in a course that isn't published yet.
+    if (!course || !course.isPublished) {
       res.status(404).json({ error: 'Course not found' });
       return;
     }
@@ -357,7 +372,7 @@ export const getCourseStats = async (req: Request, res: Response): Promise<void>
     const id = req.params.id as string;
     
     const course = await prisma.course.findUnique({ where: { id } });
-    if (!course) {
+    if (!mayView((req as AuthenticatedRequest).user, course) || !course) {
       res.status(404).json({ error: 'Course not found' });
       return;
     }

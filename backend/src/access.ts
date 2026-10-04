@@ -13,6 +13,11 @@ export function mayManage(user: Actor, course: CourseAccess | null): boolean {
   return user.role === 'teacher' && (course.createdBy === user.uid || (course.coTeacherIds ?? []).includes(user.uid));
 }
 
+/** Published courses are public; a draft is visible only to people who manage it. */
+export function mayView(user: Actor, course: (CourseAccess & { isPublished: boolean }) | null): boolean {
+  return !!course && (course.isPublished || mayManage(user, course));
+}
+
 export function mayOwn(user: Actor, course: CourseAccess | null): boolean {
   if (!user || !course) return false;
   return user.role === 'admin' || (user.role === 'teacher' && course.createdBy === user.uid);
