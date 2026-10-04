@@ -5,6 +5,7 @@ import '../repository/auth_repository.dart';
 import '../widgets/notebook/notebook.dart';
 import 'admin/admin_home.dart';
 import 'student/student_home.dart';
+import 'teacher/teacher_home.dart';
 
 /// Checks the saved session with the server, then opens the student or
 /// admin notebook. An expired or revoked session goes back to sign-in.
@@ -48,6 +49,7 @@ class _RoleBasedWrapperState extends State<RoleBasedWrapper> {
   @override
   Widget build(BuildContext context) {
     if (_role == 'admin') return const AdminHome(key: ValueKey('admin_home'));
+    if (_role == 'teacher') return const TeacherHome(key: ValueKey('teacher_home'));
     if (_role != null) return const StudentHome(key: ValueKey('student_home'));
     return Scaffold(
       body: Stack(children: [
