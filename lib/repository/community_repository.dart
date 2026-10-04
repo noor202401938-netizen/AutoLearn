@@ -67,7 +67,7 @@ class ForumAuthor {
       : id = j['id'] as String,
         name = j['name'] as String? ?? '',
         role = j['role'] as String? ?? 'student';
-  bool get isStaff => role == 'admin';
+  bool get isStaff => role == 'admin' || role == 'teacher';
 }
 
 class ForumReply {
@@ -100,6 +100,8 @@ class ForumThread {
   final String? acceptedReplyId;
   final DateTime createdAt;
   final List<ForumReply> replies;
+  /// True for admins, and for the teacher of the course the thread belongs to.
+  final bool canModerate;
   int upvotes;
   bool upvotedByMe;
 
@@ -114,6 +116,7 @@ class ForumThread {
         acceptedReplyId = j['acceptedReplyId'] as String?,
         createdAt = _date(j['createdAt']),
         replies = (j['replies'] as List? ?? const []).map((r) => ForumReply.fromJson(r as Map<String, dynamic>)).toList(),
+        canModerate = j['canModerate'] as bool? ?? false,
         upvotes = (j['upvotes'] as num?)?.toInt() ?? 0,
         upvotedByMe = j['upvotedByMe'] as bool? ?? false;
 }
@@ -152,8 +155,20 @@ class CommunityRepository {
 
   Future<ForumThread> thread(String id) async => ForumThread.fromJson(await _api.json('GET', '/forum/threads/$id'));
 
-  Future<ForumThread> createThread({required String title, required String body, required String category, List<String> tags = const []}) async =>
-      ForumThread.fromJson(await _api.json('POST', '/forum/threads', body: {'title': title, 'body': body, 'category': category, 'tags': tags}));
+  Future<ForumThread> createThread({
+    required String title,
+    required String body,
+    required String category,
+    String? courseId,
+    List<String> tags = const [],
+  }) async =>
+      ForumThread.fromJson(await _api.json('POST', '/forum/threads', body: {
+        'title': title,
+        'body': body,
+        'category': category,
+        'tags': tags,
+        if (courseId != null) 'courseId': courseId,
+      }));
 
   Future<ForumReply> reply(String threadId, String body) async =>
       ForumReply.fromJson(await _api.json('POST', '/forum/threads/$threadId/replies', body: {'body': body}));

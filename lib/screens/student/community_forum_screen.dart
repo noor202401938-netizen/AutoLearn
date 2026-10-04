@@ -243,8 +243,26 @@ class _AskDialogState extends State<_AskDialog> {
   final _title = TextEditingController();
   final _body = TextEditingController();
   String _category = 'course questions';
+  String? _courseId;
+  List<Map<String, dynamic>> _courses = const [];
   bool _saving = false;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCourses();
+  }
+
+  // Optional: tie the question to a course so its teacher can help and moderate.
+  Future<void> _loadCourses() async {
+    try {
+      final d = await ApiClient.instance.json('GET', '/user/enrollments');
+      if (mounted) setState(() => _courses = (d as List).map((e) => (e as Map<String, dynamic>)['course'] as Map<String, dynamic>).toList());
+    } on ApiException {
+      // The picker is optional; posting still works without it.
+    }
+  }
 
   Future<void> _post() async {
     setState(() {
@@ -252,7 +270,7 @@ class _AskDialogState extends State<_AskDialog> {
       _error = null;
     });
     try {
-      final t = await CommunityRepository().createThread(title: _title.text.trim(), body: _body.text.trim(), category: _category);
+      final t = await CommunityRepository().createThread(title: _title.text.trim(), body: _body.text.trim(), category: _category, courseId: _courseId);
       if (mounted) Navigator.pop(context, t);
     } on ApiException catch (e) {
       if (mounted) {
@@ -285,6 +303,18 @@ class _AskDialogState extends State<_AskDialog> {
               items: [for (final c in _categories.skip(1)) DropdownMenuItem(value: c, child: Text(c))],
               onChanged: (v) => _category = v!,
             ),
+            if (_courses.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String?>(
+                initialValue: _courseId,
+                decoration: const InputDecoration(labelText: 'About a course? (optional)'),
+                items: [
+                  const DropdownMenuItem(value: null, child: Text('No particular course')),
+                  for (final c in _courses) DropdownMenuItem(value: c['courseId'] as String, child: Text(c['title'] as String)),
+                ],
+                onChanged: (v) => _courseId = v,
+              ),
+            ],
             if (_error != null) ...[
               const SizedBox(height: 12),
               Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
@@ -312,7 +342,6 @@ class _ThreadPageState extends State<_ThreadPage> {
   ForumThread? _thread;
   String? _error;
   String? _me;
-  bool _isAdmin = false;
   bool _posting = false;
 
   @override
@@ -335,7 +364,6 @@ class _ThreadPageState extends State<_ThreadPage> {
       if (!mounted) return;
       setState(() {
         _me = user?['uid'] as String?;
-        _isAdmin = user?['role'] == 'admin';
         _thread = t;
       });
     } on ApiException catch (e) {
@@ -376,7 +404,7 @@ class _ThreadPageState extends State<_ThreadPage> {
     } else {
       body = _page(t);
     }
-    final canDelete = t != null && (t.author.id == _me || _isAdmin);
+    final canDelete = t != null && (t.author.id == _me || t.canModerate);
     return NotebookPage(
       title: 'Study group',
       actions: [
@@ -409,7 +437,7 @@ class _ThreadPageState extends State<_ThreadPage> {
   Widget _page(ForumThread t) {
     final theme = Theme.of(context);
     final nb = NotebookColors.of(context);
-    final canAccept = t.author.id == _me || _isAdmin;
+    final canAccept = t.author.id == _me || t.canModerate;
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 780),
