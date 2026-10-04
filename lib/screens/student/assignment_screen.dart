@@ -261,7 +261,7 @@ class _AssignmentScreenState extends State<AssignmentScreen> {
           ]),
         )
       else
-        MarginNote(s.gradingNote ?? 'waiting to be marked', size: 19, tilt: 0),
+        MarginNote(s.gradingNote == null ? 'waiting to be marked' : 'saved — it will be marked as soon as marking is available', size: 19, tilt: 0),
       const SizedBox(height: 20),
       Align(
         alignment: Alignment.centerLeft,
