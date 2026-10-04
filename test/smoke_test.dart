@@ -5,6 +5,7 @@ import 'package:autolearn/backend/api_client.dart';
 import 'package:autolearn/theme/app_theme.dart';
 import 'package:autolearn/utils/preference_notifier.dart';
 import 'package:autolearn/widgets/economics/supply_demand_widget.dart';
+import 'package:autolearn/widgets/notebook/notebook.dart';
 
 void main() {
 
@@ -71,6 +72,17 @@ void main() {
       await tester.tap(find.text('Reset market'));
       await tester.pump();
       expect(find.text('60.0'), findsOneWidget);
+    });
+
+    testWidgets('NoteText splits a paragraph from the list that follows it', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        theme: AppTheme.lightTheme,
+        home: const Scaffold(body: NoteText('A simple plan:\n- Day 1: learn it\n- Day 2: recall it\n\n1. First\n2. Second')),
+      ));
+      expect(find.text('•'), findsNWidgets(2));
+      expect(find.text('1.'), findsOneWidget);
+      expect(find.textContaining('Day 1: learn it'), findsOneWidget);
+      expect(find.textContaining('A simple plan: - Day'), findsNothing);
     });
   });
 }

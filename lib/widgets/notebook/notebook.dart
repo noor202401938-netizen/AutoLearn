@@ -366,33 +366,51 @@ class NoteText extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final base = style ?? theme.textTheme.bodyLarge!;
+    // Line by line: consecutive list lines form a list, consecutive plain
+    // lines form a paragraph; blank lines and headings end the current block.
+    final heading = RegExp(r'^(#{1,3})\s+(.*)');
+    final listItem = RegExp(r'^\s*(?:[-*•]|(\d+)[.)])\s+(.*)');
     final blocks = <Widget>[];
-    for (final raw in text.trim().split(RegExp(r'\n\s*\n'))) {
-      final lines = raw.split('\n');
-      final heading = RegExp(r'^(#{1,3})\s+(.*)').firstMatch(lines.first.trim());
-      if (lines.length == 1 && heading != null) {
-        blocks.add(Text(heading.group(2)!, style: heading.group(1)!.length == 1 ? theme.textTheme.headlineSmall : theme.textTheme.titleLarge));
-        continue;
+    final para = <String>[];
+    final items = <RegExpMatch>[];
+    void flush() {
+      if (para.isNotEmpty) {
+        blocks.add(Text.rich(_inline(para.join(' '), base)));
+        para.clear();
       }
-      final listItem = RegExp(r'^\s*(?:[-*•]|(\d+)[.)])\s+(.*)');
-      if (lines.every((l) => listItem.hasMatch(l) || l.trim().isEmpty)) {
+      if (items.isNotEmpty) {
         blocks.add(Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          for (final l in lines.where((l) => l.trim().isNotEmpty))
-            Builder(builder: (_) {
-              final m = listItem.firstMatch(l)!;
-              return Padding(
-                padding: const EdgeInsets.only(left: 4, bottom: 4),
-                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  SizedBox(width: 24, child: Text(m.group(1) != null ? '${m.group(1)}.' : '•', style: base)),
-                  Expanded(child: Text.rich(_inline(m.group(2)!, base))),
-                ]),
-              );
-            }),
+          for (final m in items)
+            Padding(
+              padding: const EdgeInsets.only(left: 4, bottom: 4),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                SizedBox(width: 24, child: Text(m.group(1) != null ? '${m.group(1)}.' : '•', style: base)),
+                Expanded(child: Text.rich(_inline(m.group(2)!, base))),
+              ]),
+            ),
         ]));
-        continue;
+        items.clear();
       }
-      blocks.add(Text.rich(_inline(lines.map((l) => l.trim()).join(' '), base)));
     }
+
+    for (final raw in text.trim().split('\n')) {
+      final line = raw.trim();
+      final h = heading.firstMatch(line);
+      final li = listItem.firstMatch(raw);
+      if (line.isEmpty) {
+        flush();
+      } else if (h != null) {
+        flush();
+        blocks.add(Text(h.group(2)!, style: h.group(1)!.length == 1 ? theme.textTheme.headlineSmall : theme.textTheme.titleLarge));
+      } else if (li != null) {
+        if (para.isNotEmpty) flush();
+        items.add(li);
+      } else {
+        if (items.isNotEmpty) flush();
+        para.add(line);
+      }
+    }
+    flush();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [for (final b in blocks) Padding(padding: const EdgeInsets.only(bottom: 12), child: b)],
