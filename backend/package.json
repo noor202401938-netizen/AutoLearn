@@ -7,7 +7,7 @@
     "build": "npx tsc",
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
-    "seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed.ts",
+    "seed": "ts-node --transpile-only prisma/seed.ts",
     "db:push": "npx prisma db push",
     "db:migrate": "npx prisma migrate deploy",
     "db:studio": "npx prisma studio",

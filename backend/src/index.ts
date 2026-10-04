@@ -36,7 +36,9 @@ let redisConnected = false;
 
 if (process.env.REDIS_URL && process.env.NODE_ENV !== 'test') {
   try {
-    redisClient = createClient({ url: process.env.REDIS_URL });
+    // Fail fast when Redis is down so the limiter falls back instead of queueing
+    // requests forever (passOnStoreError only helps if commands actually fail).
+    redisClient = createClient({ url: process.env.REDIS_URL, disableOfflineQueue: true });
     redisClient.on('error', () => {
       redisConnected = false;
     });
