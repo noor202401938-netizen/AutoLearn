@@ -4,18 +4,21 @@ import '../repository/auth_repository.dart';
 class AuthManager {
   final AuthRepository _authRepository = AuthRepository();
 
-  Future<String?> register(String email, String password) async {
+  Future<String?> register(String email, String password, {String? displayName}) async {
     if (!_isPasswordValid(password)) {
-      return "Password must be at least 8 characters long and alphanumeric.";
+      return 'Use at least 8 characters, with both letters and numbers.';
     }
 
     try {
-      final user = await _authRepository.registerUser(email, password);
-      return user != null ? null : "Failed to register user.";
-    } catch (e) {
-      return "Registration failed: ${e.toString()}";
+      final user = await _authRepository.registerUser(email, password, displayName: displayName);
+      return user != null ? null : 'Could not create your account. Please try again.';
+    } on Exception catch (e) {
+      return _clean(e);
     }
   }
+
+  /// "Exception: Exception: User already exists" -> "User already exists".
+  String _clean(Exception e) => e.toString().replaceAll(RegExp(r'^(Exception: )+|(Login error|Registration error): (Exception: )*'), '');
 
   Future<String?> login(String email, String password,
       {bool rememberMe = false}) async {
@@ -23,8 +26,8 @@ class AuthManager {
       final user =
           await _authRepository.loginUser(email, password, rememberMe: rememberMe);
       return user != null ? null : 'Invalid email or password.';
-    } catch (e) {
-      return 'Login failed: ${e.toString()}';
+    } on Exception catch (e) {
+      return _clean(e);
     }
   }
 
@@ -33,7 +36,8 @@ class AuthManager {
   }
 
   bool _isPasswordValid(String password) {
-    final alphanumeric = RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$');
+    // Letters and digits required; symbols allowed.
+    final alphanumeric = RegExp(r'^(?=.*[A-Za-z])(?=.*\d).{8,}$');
     return alphanumeric.hasMatch(password);
   }
 

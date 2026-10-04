@@ -46,7 +46,8 @@ class ProgressRepository {
     required int totalDuration,
     bool isCompleted = false,
   }) async {
-    await _apiClient.post('/user/progress', {
+    // Throws ApiException if the server didn't save it.
+    await _apiClient.json('POST', '/user/progress', body: {
       'lessonId': lessonId,
       'currentPosition': currentPosition,
       'totalDuration': totalDuration,

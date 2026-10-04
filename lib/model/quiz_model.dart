@@ -109,8 +109,9 @@ class QuestionModel {
     return QuestionModel(
       questionId: map['id'] ?? map['questionId'] ?? '',
       questionText: map['questionText'] ?? '',
+      // Accepts both 'multipleChoice' (app) and 'multiple_choice' (server/AI).
       type: QuestionType.values.firstWhere(
-        (e) => e.toString().split('.').last == map['type'],
+        (e) => e.name.toLowerCase() == '${map['type']}'.replaceAll('_', '').toLowerCase(),
         orElse: () => QuestionType.multipleChoice,
       ),
       options: map['options'] != null
@@ -172,6 +173,10 @@ class QuizSubmissionModel {
   final DateTime submittedAt;
   final int? timeSpent; // in seconds
 
+  /// Questions with correct answers and explanations — the server only sends
+  /// these after the quiz has been submitted.
+  final List<QuestionModel> review;
+
   QuizSubmissionModel({
     required this.submissionId,
     required this.userId,
@@ -186,6 +191,7 @@ class QuizSubmissionModel {
     required this.passed,
     required this.submittedAt,
     this.timeSpent,
+    this.review = const [],
   });
 
   Map<String, dynamic> toMap() {
@@ -210,7 +216,7 @@ class QuizSubmissionModel {
     return QuizSubmissionModel(
       submissionId: map['id'] ?? map['submissionId'] ?? '',
       userId: map['userId'] ?? '',
-      quizId: map['id'] ?? map['quizId'] ?? '',
+      quizId: map['quizId'] ?? '',
       courseId: map['courseId'] ?? '',
       moduleId: map['moduleId'] ?? '',
       lessonId: map['lessonId'] ?? '',
@@ -221,6 +227,9 @@ class QuizSubmissionModel {
       passed: map['passed'] ?? false,
       submittedAt: (DateTime.tryParse(map['submittedAt']?.toString() ?? '') ?? DateTime.now()),
       timeSpent: map['timeSpent'],
+      review: (map['review'] as List? ?? const [])
+          .map((q) => QuestionModel.fromMap(q as Map<String, dynamic>))
+          .toList(),
     );
   }
 }
@@ -306,6 +315,10 @@ class AssignmentSubmissionModel {
   final bool isGraded;
   final DateTime submittedAt;
   final DateTime? gradedAt;
+  final String? fileUrl;
+
+  /// Set by the server when the work was saved but couldn't be AI-graded.
+  final String? gradingNote;
 
   AssignmentSubmissionModel({
     required this.submissionId,
@@ -320,6 +333,8 @@ class AssignmentSubmissionModel {
     this.isGraded = false,
     required this.submittedAt,
     this.gradedAt,
+    this.fileUrl,
+    this.gradingNote,
   });
 
   Map<String, dynamic> toMap() {
@@ -343,7 +358,7 @@ class AssignmentSubmissionModel {
     return AssignmentSubmissionModel(
       submissionId: map['id'] ?? map['submissionId'] ?? '',
       userId: map['userId'] ?? '',
-      assignmentId: map['id'] ?? map['assignmentId'] ?? '',
+      assignmentId: map['assignmentId'] ?? '',
       courseId: map['courseId'] ?? '',
       moduleId: map['moduleId'] ?? '',
       lessonId: map['lessonId'] ?? '',
@@ -355,6 +370,8 @@ class AssignmentSubmissionModel {
       gradedAt: map['gradedAt'] != null
           ? (DateTime.tryParse(map['gradedAt']?.toString() ?? '') ?? DateTime.now())
           : null,
+      fileUrl: map['fileUrl'],
+      gradingNote: map['gradingNote'],
     );
   }
 }

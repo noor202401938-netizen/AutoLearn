@@ -40,7 +40,7 @@ class NotificationModel {
       notificationId: map['id'] ?? map['notificationId'] ?? '',
       userId: map['userId'] ?? '',
       title: map['title'] ?? '',
-      body: map['body'] ?? '',
+      body: map['body'] ?? map['message'] ?? '', // server calls it 'message'
       type: map['type'] ?? 'system',
       isRead: map['isRead'] ?? false,
       createdAt: (DateTime.tryParse(map['createdAt']?.toString() ?? '') ?? DateTime.now()),

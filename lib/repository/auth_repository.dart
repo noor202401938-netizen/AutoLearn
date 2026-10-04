@@ -98,22 +98,24 @@ class AuthRepository {
     }
   }
 
+  /// Emails a reset link. Returns null on success or an error message.
   Future<String?> sendPasswordResetEmail(String email) async {
     try {
-      // TODO: Implement POST /auth/password-reset on the backend
-      // For now, we return null (success) so the UI shows a user-friendly
-      // "check your email" message rather than an internal error string.
-      final response = await _apiClient.post('/auth/password-reset', {
-        'email': email,
-      });
-      if (response.statusCode == 200 || response.statusCode == 204) {
-        return null; // success
-      }
-      // Feature not yet deployed on backend — show friendly message
+      await _apiClient.json('POST', '/auth/password-reset', body: {'email': email});
       return null;
-    } catch (_) {
-      // Backend endpoint not yet available — treat as success so UI is clean
+    } on ApiException catch (e) {
+      return e.message;
+    }
+  }
+
+  /// Sets a new password using the token from the reset email.
+  /// Returns null on success or an error message.
+  Future<String?> confirmPasswordReset(String token, String newPassword) async {
+    try {
+      await _apiClient.json('POST', '/auth/password-reset/confirm', body: {'token': token, 'newPassword': newPassword});
       return null;
+    } on ApiException catch (e) {
+      return e.message;
     }
   }
 

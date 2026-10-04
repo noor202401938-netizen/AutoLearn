@@ -9,12 +9,11 @@ class ApiClient {
   // unless baked in at build time. We use const String.fromEnvironment instead.
   static const String _defaultBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: '',
+    defaultValue: 'http://localhost:3001/api',
   );
 
   static String get baseUrl {
-    assert(_defaultBaseUrl.isNotEmpty, 'API_BASE_URL is not set');
-    String url = _defaultBaseUrl;
+    String url = _defaultBaseUrl.isNotEmpty ? _defaultBaseUrl : 'http://localhost:3001/api';
 
     // Automatically append /api prefix if missing
     if (!url.endsWith('/api') && !url.endsWith('/api/')) {
@@ -105,4 +104,57 @@ class ApiClient {
       headers: headers,
     ).timeout(_timeout);
   }
+
+  /// Uploads a file; returns its server URL (e.g. `/uploads/123-456.pdf`).
+  Future<String> upload(List<int> bytes, String filename) async {
+    final token = await getToken();
+    final request = http.MultipartRequest('POST', Uri.parse('$baseUrl/upload'))
+      ..headers.addAll({if (token != null) 'Authorization': 'Bearer $token'})
+      ..files.add(http.MultipartFile.fromBytes('file', bytes, filename: filename));
+    final http.Response res;
+    try {
+      res = await http.Response.fromStream(await request.send().timeout(const Duration(seconds: 60)));
+    } on Exception {
+      throw const ApiException(0, "Can't reach the server. Check your connection.");
+    }
+    final decoded = res.body.isEmpty ? null : jsonDecode(res.body);
+    if (res.statusCode == 200 && decoded is Map && decoded['url'] is String) return decoded['url'] as String;
+    throw ApiException(res.statusCode,
+        decoded is Map && decoded['error'] is String ? decoded['error'] as String : 'Upload failed (${res.statusCode}).');
+  }
+
+  /// JSON request that returns the decoded body, or throws [ApiException]
+  /// with the server's own error message. AI-backed calls pass a longer
+  /// [timeout] because the model can take a while to answer.
+  Future<dynamic> json(String method, String endpoint,
+      {Map<String, dynamic>? body, Duration? timeout}) async {
+    final request = http.Request(method, Uri.parse('$baseUrl$endpoint'))
+      ..headers.addAll(await _getHeaders());
+    if (body != null) request.body = jsonEncode(body);
+    final client = http.Client();
+    final http.Response res;
+    try {
+      res = await http.Response.fromStream(
+          await client.send(request).timeout(timeout ?? _timeout));
+    } on Exception {
+      throw const ApiException(0, "Can't reach the server. Check your connection.");
+    } finally {
+      client.close();
+    }
+    final decoded = res.body.isEmpty ? null : jsonDecode(res.body);
+    if (res.statusCode >= 200 && res.statusCode < 300) return decoded;
+    final message = decoded is Map && decoded['error'] is String
+        ? decoded['error'] as String
+        : 'Something went wrong (${res.statusCode}).';
+    throw ApiException(res.statusCode, message);
+  }
+}
+
+class ApiException implements Exception {
+  final int status;
+  final String message;
+  const ApiException(this.status, this.message);
+
+  @override
+  String toString() => message;
 }

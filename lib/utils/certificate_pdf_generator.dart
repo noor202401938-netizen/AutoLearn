@@ -1,283 +1,79 @@
-// lib/utils/certificate_pdf_generator.dart
-import 'dart:io';
+import 'dart:typed_data';
+import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:intl/intl.dart';
 import '../model/certificate_model.dart';
 
+// Print colours mirror the app's paper & ink palette.
+final _ink = PdfColor.fromHex('#1D3557');
+final _paper = PdfColor.fromHex('#FFFCF4');
+final _red = PdfColor.fromHex('#C8553D');
+
 class CertificatePdfGenerator {
-  Future<File> generatePdf(CertificateModel certificate) async {
-    final pdf = pw.Document();
-    final dateFormat = DateFormat('dd MMMM yyyy');
-    final formattedDate = dateFormat.format(certificate.completionDate);
+  /// A landscape A4 certificate as PDF bytes.
+  Future<Uint8List> build(CertificateModel c) async {
+    final doc = pw.Document(title: 'Certificate — ${c.courseName}', author: 'AutoLearn');
+    final serif = pw.Font.times();
+    final serifBold = pw.Font.timesBold();
+    final serifItalic = pw.Font.timesItalic();
 
-    pdf.addPage(
-      pw.Page(
-        pageFormat: PdfPageFormat.a4.landscape,
-        margin: const pw.EdgeInsets.all(40),
-        build: (pw.Context context) {
-          return pw.Container(
-            decoration: pw.BoxDecoration(
-              border: pw.Border.all(color: PdfColors.black, width: 2),
-            ),
-            child: pw.Stack(
-              children: [
-                // Decorative corner elements
-                pw.Positioned(
-                  top: 0,
-                  right: 0,
-                  child: _buildCornerDecoration(),
+    doc.addPage(pw.Page(
+      pageFormat: PdfPageFormat.a4.landscape,
+      margin: const pw.EdgeInsets.all(28),
+      build: (_) => pw.Container(
+        color: _paper,
+        padding: const pw.EdgeInsets.all(10),
+        child: pw.Container(
+          decoration: pw.BoxDecoration(border: pw.Border.all(color: _ink, width: 2)),
+          padding: const pw.EdgeInsets.all(6),
+          child: pw.Container(
+            decoration: pw.BoxDecoration(border: pw.Border.all(color: _ink, width: 0.6)),
+            padding: const pw.EdgeInsets.symmetric(horizontal: 60, vertical: 40),
+            child: pw.Column(mainAxisAlignment: pw.MainAxisAlignment.center, children: [
+              pw.Text('AUTOLEARN', style: pw.TextStyle(font: serifBold, fontSize: 12, letterSpacing: 4, color: _ink)),
+              pw.SizedBox(height: 24),
+              pw.Text('Certificate of Completion', style: pw.TextStyle(font: serifBold, fontSize: 40, color: _ink)),
+              pw.SizedBox(height: 28),
+              pw.Text('This certifies that', style: pw.TextStyle(font: serifItalic, fontSize: 16, color: _ink)),
+              pw.SizedBox(height: 10),
+              pw.Text(c.userName, style: pw.TextStyle(font: serifBold, fontSize: 34, color: _ink)),
+              pw.Container(width: 320, height: 1, color: _red, margin: const pw.EdgeInsets.only(top: 6, bottom: 18)),
+              pw.Text('has completed the course', style: pw.TextStyle(font: serifItalic, fontSize: 16, color: _ink)),
+              pw.SizedBox(height: 10),
+              pw.Text(c.courseName, textAlign: pw.TextAlign.center, style: pw.TextStyle(font: serif, fontSize: 24, color: _ink)),
+              pw.Spacer(),
+              pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, crossAxisAlignment: pw.CrossAxisAlignment.end, children: [
+                pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+                  pw.Text(DateFormat('d MMMM yyyy').format(c.completionDate), style: pw.TextStyle(font: serif, fontSize: 13, color: _ink)),
+                  pw.Text('Date awarded', style: pw.TextStyle(font: serifItalic, fontSize: 10, color: _ink)),
+                ]),
+                // A small red seal.
+                pw.Container(
+                  width: 70,
+                  height: 70,
+                  alignment: pw.Alignment.center,
+                  decoration: pw.BoxDecoration(shape: pw.BoxShape.circle, border: pw.Border.all(color: _red, width: 2)),
+                  child: pw.Text('A', style: pw.TextStyle(font: serifBold, fontSize: 30, color: _red)),
                 ),
-                pw.Positioned(
-                  bottom: 0,
-                  left: 0,
-                  child: pw.Transform.rotate(
-                    angle: 3.14159, // 180 degrees
-                    child: _buildCornerDecoration(),
-                  ),
-                ),
-                
-                // Main content
-                pw.Padding(
-                  padding: const pw.EdgeInsets.all(60),
-                  child: pw.Column(
-                    mainAxisAlignment: pw.MainAxisAlignment.center,
-                    crossAxisAlignment: pw.CrossAxisAlignment.center,
-                    children: [
-                      // CERTIFICATE title
-                      pw.Text(
-                        'CERTIFICATE',
-                        style: pw.TextStyle(
-                          fontSize: 48,
-                          fontWeight: pw.FontWeight.bold,
-                          color: PdfColors.black,
-                        ),
-                        textAlign: pw.TextAlign.center,
-                      ),
-                      pw.SizedBox(height: 10),
-                      
-                      // OF COMPLETION
-                      pw.Text(
-                        'OF COMPLETION',
-                        style: pw.TextStyle(
-                          fontSize: 24,
-                          fontWeight: pw.FontWeight.normal,
-                          color: PdfColors.black,
-                        ),
-                        textAlign: pw.TextAlign.center,
-                      ),
-                      pw.SizedBox(height: 40),
-                      
-                      // IS PRESENTED TO
-                      pw.Text(
-                        'IS PRESENTED TO :',
-                        style: pw.TextStyle(
-                          fontSize: 16,
-                          fontWeight: pw.FontWeight.normal,
-                          color: PdfColors.black,
-                        ),
-                        textAlign: pw.TextAlign.center,
-                      ),
-                      pw.SizedBox(height: 20),
-                      
-                      // Name with lines
-                      pw.Stack(
-                        alignment: pw.Alignment.center,
-                        children: [
-                          pw.Container(
-                            width: 400,
-                            height: 1,
-                            color: PdfColors.black,
-                          ),
-                          pw.Container(
-                            padding: const pw.EdgeInsets.symmetric(horizontal: 20),
-                            decoration: pw.BoxDecoration(
-                              color: PdfColors.white,
-                            ),
-                            child: pw.Text(
-                              certificate.userName,
-                              style: pw.TextStyle(
-                                fontSize: 32,
-                                fontWeight: pw.FontWeight.bold,
-                                color: PdfColor.fromHex('#1E3A8A'), // Dark blue
-                              ),
-                              textAlign: pw.TextAlign.center,
-                            ),
-                          ),
-                        ],
-                      ),
-                      pw.Container(
-                        width: 400,
-                        height: 1,
-                        color: PdfColors.black,
-                        margin: const pw.EdgeInsets.only(top: 5),
-                      ),
-                      pw.SizedBox(height: 30),
-                      
-                      // Description text
-                      pw.Text(
-                        'For successfully completing the lesson "${certificate.lessonName}" '
-                        'in the course "${certificate.courseName}". '
-                        'Completed on $formattedDate.',
-                        style: pw.TextStyle(
-                          fontSize: 14,
-                          fontWeight: pw.FontWeight.normal,
-                          color: PdfColors.black,
-                        ),
-                        textAlign: pw.TextAlign.center,
-                      ),
-                      pw.SizedBox(height: 60),
-                      
-                      // Signatures section
-                      pw.Row(
-                        mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
-                        children: [
-                          // Left signature
-                          pw.Column(
-                            children: [
-                              pw.Text(
-                                'Instructor',
-                                style: pw.TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: pw.FontWeight.bold,
-                                  color: PdfColors.black,
-                                ),
-                              ),
-                              pw.SizedBox(height: 40),
-                              pw.Text(
-                                'GENERAL INSTRUCTOR',
-                                style: pw.TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: pw.FontWeight.normal,
-                                  color: PdfColors.grey700,
-                                ),
-                              ),
-                            ],
-                          ),
-                          
-                          // Center seal
-                          pw.Container(
-                            width: 80,
-                            height: 80,
-                            decoration: pw.BoxDecoration(
-                              shape: pw.BoxShape.circle,
-                              color: PdfColor.fromHex('#FFD700'), // Gold
-                              border: pw.Border.all(
-                                color: PdfColor.fromHex('#FFA500'),
-                                width: 2,
-                              ),
-                            ),
-                            child: pw.Center(
-                              child: pw.Text(
-                                '✓',
-                                style: pw.TextStyle(
-                                  fontSize: 40,
-                                  fontWeight: pw.FontWeight.bold,
-                                  color: PdfColors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                          
-                          // Right signature
-                          pw.Column(
-                            children: [
-                              pw.Text(
-                                'Director',
-                                style: pw.TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: pw.FontWeight.bold,
-                                  color: PdfColors.black,
-                                ),
-                              ),
-                              pw.SizedBox(height: 40),
-                              pw.Text(
-                                'CREATIVE DIRECTOR',
-                                style: pw.TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: pw.FontWeight.normal,
-                                  color: PdfColors.grey700,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-
-    // Save PDF to file
-    final directory = await getApplicationDocumentsDirectory();
-    final fileName = 'certificate_${certificate.certificateId.substring(0, 8)}.pdf';
-    final file = File('${directory.path}/$fileName');
-    await file.writeAsBytes(await pdf.save());
-    
-    return file;
-  }
-
-  pw.Widget _buildCornerDecoration() {
-    return pw.Container(
-      width: 150,
-      height: 150,
-      child: pw.Stack(
-        children: [
-          // Large blue curve
-          pw.Positioned(
-            top: 0,
-            right: 0,
-            child: pw.Container(
-              width: 120,
-              height: 120,
-              decoration: pw.BoxDecoration(
-                color: PdfColor.fromHex('#4169E1'), // Blue
-                shape: pw.BoxShape.circle,
-              ),
-            ),
+                pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.end, children: [
+                  pw.Text(c.certificateId, style: pw.TextStyle(font: pw.Font.courier(), fontSize: 9, color: _ink)),
+                  pw.Text('Certificate ID', style: pw.TextStyle(font: serifItalic, fontSize: 10, color: _ink)),
+                ]),
+              ]),
+            ]),
           ),
-          // Small gray curve
-          pw.Positioned(
-            top: 20,
-            right: 20,
-            child: pw.Container(
-              width: 100,
-              height: 100,
-              decoration: pw.BoxDecoration(
-                color: PdfColors.grey300,
-                shape: pw.BoxShape.circle,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
-    );
+    ));
+    return doc.save();
   }
 
-  Future<void> printPdf(CertificateModel certificate) async {
-    final pdf = await generatePdf(certificate);
-    final bytes = await pdf.readAsBytes();
-    
-    await Printing.layoutPdf(
-      onLayout: (PdfPageFormat format) async => bytes,
-    );
+  /// Downloads on the web; opens the share sheet on mobile/desktop.
+  Future<void> share(CertificateModel c) async {
+    final name = 'AutoLearn-certificate-${c.courseName.replaceAll(RegExp(r'[^A-Za-z0-9]+'), '-')}.pdf';
+    await Printing.sharePdf(bytes: await build(c), filename: name);
   }
 
-  Future<void> sharePdf(CertificateModel certificate) async {
-    final pdf = await generatePdf(certificate);
-    final bytes = await pdf.readAsBytes();
-    
-    await Printing.sharePdf(
-      bytes: bytes,
-      filename: 'certificate_${certificate.certificateId.substring(0, 8)}.pdf',
-    );
-  }
+  Future<void> print(CertificateModel c) => Printing.layoutPdf(onLayout: (_) => build(c));
 }
-
