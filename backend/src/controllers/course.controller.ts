@@ -1,10 +1,12 @@
 import { Request, Response } from 'express';
 import prisma from '../prisma';
 import { AuthenticatedRequest, isStaff } from '../middleware/auth.middleware';
-import { canManageCourse, canOwnCourse, mayView } from '../access';
+import { canManageCourse, canOwnCourse, mayReadContent, mayView } from '../access';
+import { lessonCountOf, parsePaging } from '../validation';
 
-// Map DB record to Flutter-expected structure
-function mapCourse(course: any) {
+// Map DB record to Flutter-expected structure. A locked course (paid, and the caller
+// hasn't enrolled) still shows its outline, but not the lesson text or video links.
+function mapCourse(course: any, contentLocked = false) {
   return {
     courseId: course.id,
     title: course.title,
@@ -35,14 +37,24 @@ function mapCourse(course: any) {
             title: l.title,
             type: l.type,
             duration: l.duration,
-            videoURL: l.videoUrl,
-            content: l.content,
+            videoURL: contentLocked ? null : l.videoUrl,
+            content: contentLocked ? null : l.content,
           })),
       })),
   };
 }
 
 const LESSON_TYPES = ['video', 'reading', 'quiz', 'assignment', 'project'];
+const EMPTY_PUBLISH_MESSAGE = 'Add at least one lesson before publishing this course';
+
+/** Why the course fields in a create/update body are unacceptable, or null. */
+export function courseFieldProblem(body: any): string | null {
+  const { title, description, price } = body ?? {};
+  if (title !== undefined && (typeof title !== 'string' || title.length > 200)) return 'Title must be text of at most 200 characters';
+  if (description !== undefined && (typeof description !== 'string' || description.length > 10000)) return 'Description must be text of at most 10000 characters';
+  if (price !== undefined && (typeof price !== 'number' || !Number.isFinite(price) || price < 0)) return 'Price must be a number that is zero or more';
+  return null;
+}
 
 /**
  * Makes the course's modules/lessons match `syllabus` exactly (order included).
@@ -124,8 +136,7 @@ export const getAllCourses = async (req: Request, res: Response): Promise<void> 
     }
     if (all.length > 0) filter.AND = all;
 
-    const pageNum = page ? parseInt(String(page), 10) : undefined;
-    const limitNum = limit ? parseInt(String(limit), 10) : undefined;
+    const { page: pageNum, limit: limitNum } = parsePaging(page, limit);
     const skip = pageNum && limitNum ? (pageNum - 1) * limitNum : undefined;
     const take = limitNum;
 
@@ -146,7 +157,13 @@ export const getAllCourses = async (req: Request, res: Response): Promise<void> 
       res.setHeader('X-Per-Page', limitNum.toString());
     }
 
-    res.status(200).json(courses.map(mapCourse));
+    const paidIds = courses.filter((c) => c.price > 0).map((c) => c.id);
+    const enrolled = new Set(
+      me && paidIds.length > 0
+        ? (await prisma.enrollment.findMany({ where: { userId: me.uid, courseId: { in: paidIds } }, select: { courseId: true } })).map((e) => e.courseId)
+        : [],
+    );
+    res.status(200).json(courses.map((c) => mapCourse(c, !mayReadContent(me, c, enrolled.has(c.id)))));
   } catch (error) {
     console.error('Error getting courses:', error);
     res.status(500).json({ error: 'Failed to fetch courses' });
@@ -168,7 +185,9 @@ export const getCourseById = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    res.status(200).json(mapCourse(course));
+    const me = (req as AuthenticatedRequest).user;
+    const enrolled = !!me && course!.price > 0 && (await prisma.enrollment.count({ where: { userId: me.uid, courseId: id } })) > 0;
+    res.status(200).json(mapCourse(course, !mayReadContent(me, course, enrolled)));
   } catch (error) {
     console.error('Error getting course:', error);
     res.status(500).json({ error: 'Failed to fetch course' });
@@ -192,12 +211,24 @@ export const createCourse = async (req: AuthenticatedRequest, res: Response): Pr
       res.status(400).json({ error: 'Title and description are required' });
       return;
     }
+    const problem = courseFieldProblem(req.body);
+    if (problem) {
+      res.status(400).json({ error: problem });
+      return;
+    }
+    if (isPublished && lessonCountOf(syllabus) === 0) {
+      res.status(400).json({ error: EMPTY_PUBLISH_MESSAGE });
+      return;
+    }
+    // Credit the teacher by name unless the editor typed a different instructor.
+    const author = await prisma.user.findUnique({ where: { id: req.user!.uid }, select: { displayName: true } });
+    const instructorName = (typeof instructor === 'string' && instructor.trim()) || author?.displayName || 'Admin';
 
     const course = await prisma.course.create({
       data: {
         title,
         description,
-        instructor: instructor || 'Admin',
+        instructor: instructorName,
         category: category || 'General',
         level: level || 'beginner',
         duration: duration || 0,
@@ -234,6 +265,17 @@ export const updateCourse = async (req: AuthenticatedRequest, res: Response): Pr
     const existing = await prisma.course.findUnique({ where: { id } });
     if (!existing) {
       res.status(404).json({ error: 'Course not found' });
+      return;
+    }
+    const problem = courseFieldProblem(req.body);
+    if (problem) {
+      res.status(400).json({ error: problem });
+      return;
+    }
+    // Check the state the course will be in after this save, before anything is written.
+    const lessonsAfter = Array.isArray(syllabus) ? lessonCountOf(syllabus) : await prisma.lesson.count({ where: { module: { courseId: id } } });
+    if ((isPublished ?? existing.isPublished) && lessonsAfter === 0) {
+      res.status(400).json({ error: EMPTY_PUBLISH_MESSAGE });
       return;
     }
 
@@ -377,15 +419,20 @@ export const getCourseStats = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    const averageTimeSpent = await prisma.progress.aggregate({
-      _avg: { totalDuration: true }
-    });
+    // Everything below is counted for this course only.
+    const lessons = await prisma.lesson.findMany({ where: { module: { courseId: id } }, select: { id: true } });
+    const [totalEnrollments, completed, quizzes, time] = await Promise.all([
+      prisma.enrollment.count({ where: { courseId: id } }),
+      prisma.enrollment.count({ where: { courseId: id, status: 'completed' } }),
+      prisma.quizSubmission.aggregate({ where: { quiz: { courseId: id } }, _avg: { score: true } }),
+      prisma.progress.aggregate({ where: { lessonId: { in: lessons.map((l) => l.id) } }, _avg: { totalDuration: true } }),
+    ]);
 
     res.status(200).json({
-      totalEnrollments: course.enrollmentCount,
-      completionRate: 0.0,
-      averageScore: course.rating,
-      averageTimeSpent: averageTimeSpent._avg?.totalDuration || 0,
+      totalEnrollments,
+      completionRate: totalEnrollments === 0 ? 0 : completed / totalEnrollments,
+      averageScore: quizzes._avg.score ?? 0, // average quiz score, 0-100
+      averageTimeSpent: time._avg.totalDuration ?? 0,
     });
   } catch (error) {
     console.error('Error fetching course stats:', error);

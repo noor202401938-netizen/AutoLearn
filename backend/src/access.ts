@@ -44,6 +44,34 @@ export async function managedCourseIds(user: { uid: string; role: string }): Pro
   return (await prisma.course.findMany({ where, select: { id: true } })).map((c) => c.id);
 }
 
+/**
+ * Lesson text, video links, quizzes and assignments of a paid course are for people who
+ * paid (so are enrolled) or who run the course. Free courses are open to read.
+ */
+export function mayReadContent(user: Actor, course: (CourseAccess & { price: number }) | null, enrolled: boolean): boolean {
+  if (!course) return false;
+  return course.price <= 0 || enrolled || mayManage(user, course);
+}
+
+export async function isEnrolled(userId: string | undefined, courseId: unknown): Promise<boolean> {
+  if (!userId || !isObjectId(courseId)) return false;
+  return (await prisma.enrollment.count({ where: { userId, courseId } })) > 0;
+}
+
+/** Progress, quiz and assignment writes need an enrolment (course staff may try their own course). */
+export async function canLearnIn(user: Actor, courseId: unknown): Promise<boolean> {
+  if (!user || !isObjectId(courseId)) return false;
+  return (await isEnrolled(user.uid, courseId)) || (await canManageCourse(user, courseId));
+}
+
+/** Whether this user may read the paid content of a course, looked up by id. */
+export async function canReadCourseContent(user: Actor, courseId: unknown): Promise<boolean> {
+  if (!isObjectId(courseId)) return true; // synthetic ids (e.g. final tests) belong to no real course
+  const course = await prisma.course.findUnique({ where: { id: courseId }, select: { createdBy: true, coTeacherIds: true, price: true } });
+  if (!course) return true;
+  return mayReadContent(user, course, course.price > 0 && (await isEnrolled(user?.uid, courseId)));
+}
+
 /** Ids of the courses this user created (every course for an admin). */
 export async function ownedCourseIds(user: { uid: string; role: string }): Promise<string[]> {
   const where = user.role === 'admin' ? {} : { createdBy: user.uid };
