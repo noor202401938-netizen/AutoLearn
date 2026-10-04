@@ -135,11 +135,13 @@ class _TodayPageState extends State<_TodayPage> {
     }
   }
 
-  void _openCourse(String id, String title) {
-    Navigator.push(
+  Future<void> _openCourse(String id, String title) async {
+    await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => CourseContentScreen(courseId: id, title: title)),
     );
+    // Progress and enrolments may have changed while the course was open.
+    if (mounted) _load();
   }
 
   @override
@@ -160,7 +162,8 @@ class _TodayPageState extends State<_TodayPage> {
           const SizedBox(height: 6),
           Wrap(crossAxisAlignment: WrapCrossAlignment.end, spacing: 16, runSpacing: 4, children: [
             Text(
-              _name.isEmpty ? 'Welcome back.' : 'Welcome back, $_name.',
+              // New students get a welcome; returning ones a welcome back.
+              '${_enrolled.isEmpty ? 'Welcome' : 'Welcome back'}${_name.isEmpty ? '' : ', ${_name.split(' ').first}'}.',
               style: theme.textTheme.displaySmall,
             ),
             if (streak > 1)
@@ -232,10 +235,10 @@ class _Ledger extends StatelessWidget {
     int n(String k) => (stats[k] as num?)?.toInt() ?? 0;
     final hours = (stats['hoursLearned'] as num?)?.toDouble() ?? 0;
     final items = [
-      ('${n('enrolledCourses')}', 'courses'),
+      ('${n('enrolledCourses')}', n('enrolledCourses') == 1 ? 'course' : 'courses'),
       (hours < 10 ? hours.toStringAsFixed(1) : hours.toStringAsFixed(0), 'hours studied'),
-      ('${n('totalLessonsWatched')}', 'lessons done'),
-      ('${n('certificates')}', 'certificates'),
+      ('${n('totalLessonsWatched')}', n('totalLessonsWatched') == 1 ? 'lesson done' : 'lessons done'),
+      ('${n('certificates')}', n('certificates') == 1 ? 'certificate' : 'certificates'),
     ];
     final wide = MediaQuery.of(context).size.width >= 700;
     Widget cell((String, String) it) => Padding(
