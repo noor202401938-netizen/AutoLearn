@@ -3,10 +3,15 @@ import { Response } from 'express';
 import prisma from '../prisma';
 import { AuthenticatedRequest } from '../middleware/auth.middleware';
 import { courseCompletion } from './learning.controller';
+import { canManageCourse } from '../access';
 
 const isObjectId = (s: unknown): s is string => typeof s === 'string' && /^[a-f0-9]{24}$/.test(s);
 const uid = (req: AuthenticatedRequest) => req.user!.uid;
 const isAdmin = (req: AuthenticatedRequest) => req.user?.role === 'admin';
+
+/** Admins moderate everything; a teacher moderates threads tied to courses they manage. */
+const canModerate = async (req: AuthenticatedRequest, courseId: string | null) =>
+  isAdmin(req) || (courseId !== null && (await canManageCourse(req.user, courseId)));
 
 function fail(res: Response, where: string, error: unknown) {
   console.error(`${where} error:`, error);
@@ -188,6 +193,12 @@ export const createThread = async (req: AuthenticatedRequest, res: Response): Pr
     return;
   }
   try {
+    // A thread may be tied to a course, but only one the asker is enrolled in (or manages).
+    let courseId: string | null = null;
+    if (isObjectId(req.body?.courseId)) {
+      const enrolled = await prisma.enrollment.count({ where: { userId: uid(req), courseId: req.body.courseId } });
+      if (enrolled > 0 || (await canManageCourse(req.user, req.body.courseId))) courseId = req.body.courseId;
+    }
     const t = await prisma.forumThread.create({
       data: {
         authorId: uid(req),
@@ -195,7 +206,7 @@ export const createThread = async (req: AuthenticatedRequest, res: Response): Pr
         body: body.slice(0, 10000),
         category: String(req.body?.category ?? 'general').slice(0, 40),
         tags: Array.isArray(req.body?.tags) ? req.body.tags.slice(0, 5).map((x: unknown) => String(x).slice(0, 30)) : [],
-        courseId: isObjectId(req.body?.courseId) ? req.body.courseId : null,
+        courseId,
       },
       include: { author },
     });
@@ -230,7 +241,7 @@ export const getThread = async (req: AuthenticatedRequest, res: Response): Promi
         accepted: r.id === t.acceptedReplyId,
       }))
       .sort((a, b) => Number(b.accepted) - Number(a.accepted));
-    res.status(200).json({ ...threadView(thread, me), replies: replyViews });
+    res.status(200).json({ ...threadView(thread, me), replies: replyViews, canModerate: await canModerate(req, t.courseId) });
   } catch (e) {
     fail(res, 'Get thread', e);
   }
@@ -297,7 +308,7 @@ export const upvoteReply = async (req: AuthenticatedRequest, res: Response): Pro
   }
 };
 
-// POST /api/forum/threads/:id/accept { replyId } — thread author or admin marks the answer
+// POST /api/forum/threads/:id/accept { replyId } — thread author, admin or course teacher marks the answer
 export const acceptReply = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const id = String(req.params.id);
@@ -307,7 +318,7 @@ export const acceptReply = async (req: AuthenticatedRequest, res: Response): Pro
       res.status(404).json({ error: 'Thread not found' });
       return;
     }
-    if (t.authorId !== uid(req) && !isAdmin(req)) {
+    if (t.authorId !== uid(req) && !(await canModerate(req, t.courseId))) {
       res.status(403).json({ error: 'Only the person who asked can accept an answer' });
       return;
     }
@@ -325,16 +336,16 @@ export const acceptReply = async (req: AuthenticatedRequest, res: Response): Pro
   }
 };
 
-// DELETE /api/forum/threads/:id — author or admin
+// DELETE /api/forum/threads/:id — author, admin, or the teacher of its course
 export const deleteThread = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const id = String(req.params.id);
-    const t = isObjectId(id) ? await prisma.forumThread.findUnique({ where: { id }, select: { authorId: true } }) : null;
+    const t = isObjectId(id) ? await prisma.forumThread.findUnique({ where: { id }, select: { authorId: true, courseId: true } }) : null;
     if (!t) {
       res.status(404).json({ error: 'Thread not found' });
       return;
     }
-    if (t.authorId !== uid(req) && !isAdmin(req)) {
+    if (t.authorId !== uid(req) && !(await canModerate(req, t.courseId))) {
       res.status(403).json({ error: 'You can only delete your own threads' });
       return;
     }
