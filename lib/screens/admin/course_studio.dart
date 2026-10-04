@@ -54,6 +54,10 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
   }
 
   Future<void> _togglePublished(CourseModel c) async {
+    if (!c.isPublished && c.syllabus.every((m) => m.lessons.isEmpty)) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Add at least one lesson before publishing this course')));
+      return;
+    }
     final ok = await _repo.updateCourse(c.courseId, c.copyWith(isPublished: !c.isPublished));
     if (ok == null && mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Couldn't update the course")));
     _load();
@@ -203,7 +207,7 @@ class _CourseEditorPageState extends State<CourseEditorPage> {
       courseId: _course?.courseId ?? '',
       title: _title.text.trim(),
       description: _description.text.trim(),
-      instructor: _instructor.text.trim().isEmpty ? 'AutoLearn Faculty' : _instructor.text.trim(),
+      instructor: _instructor.text.trim(), // blank: the server credits the signed-in teacher by name
       category: _category.text.trim().isEmpty ? 'General' : _category.text.trim(),
       level: _level,
       duration: int.tryParse(_hours.text) ?? 0,
@@ -222,6 +226,10 @@ class _CourseEditorPageState extends State<CourseEditorPage> {
 
   Future<void> _save() async {
     if (!_form.currentState!.validate()) return;
+    if (_published && _chapters.every((c) => c.lessons.isEmpty)) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Add at least one lesson before publishing this course')));
+      return;
+    }
     setState(() => _saving = true);
     final model = _build();
     final saved = _course == null ? await _repo.createCourse(model) : await _repo.updateCourse(_course!.courseId, model);
@@ -327,7 +335,7 @@ class _CourseEditorPageState extends State<CourseEditorPage> {
                     ),
                     const SizedBox(height: 12),
                     Wrap(spacing: 12, runSpacing: 12, children: [
-                      SizedBox(width: 260, child: TextFormField(controller: _instructor, decoration: const InputDecoration(labelText: 'Instructor'))),
+                      SizedBox(width: 260, child: TextFormField(controller: _instructor, decoration: const InputDecoration(labelText: 'Instructor', helperText: 'Leave blank to use your name'))),
                       SizedBox(width: 220, child: TextFormField(controller: _category, decoration: const InputDecoration(labelText: 'Category'))),
                       SizedBox(
                         width: 180,
