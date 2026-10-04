@@ -357,7 +357,7 @@ async function main() {
     await prisma.learningPath.create({
       data: {
         title: 'Economics foundations',
-        description: 'Start here. Learn to think like an economist: trade-offs, markets, and how policy changes behaviour.',
+        description: 'Learn to think like an economist: trade-offs, markets, and how policy changes behaviour.',
         level: 'beginner',
         skills: ['Opportunity cost', 'Supply & demand', 'Elasticity', 'Policy analysis'],
         courseIds: [course.id],
