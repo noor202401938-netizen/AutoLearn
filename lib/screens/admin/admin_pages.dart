@@ -9,16 +9,16 @@ import '../../widgets/notebook/notebook.dart';
 import '../student/change_password_screen.dart';
 
 /// Loads one JSON endpoint and renders it, with loading/error states.
-class _Loader extends StatefulWidget {
+class PageLoader extends StatefulWidget {
   final String endpoint;
   final Widget Function(BuildContext, dynamic data, Future<void> Function() reload) builder;
-  const _Loader({super.key, required this.endpoint, required this.builder});
+  const PageLoader({super.key, required this.endpoint, required this.builder});
 
   @override
-  State<_Loader> createState() => _LoaderState();
+  State<PageLoader> createState() => PageLoaderState();
 }
 
-class _LoaderState extends State<_Loader> {
+class PageLoaderState extends State<PageLoader> {
   dynamic _data;
   String? _error;
 
@@ -50,12 +50,12 @@ class _LoaderState extends State<_Loader> {
   }
 }
 
-Widget _pageTitle(BuildContext context, String title, String note) => Column(
+Widget pageTitle(BuildContext context, String title, String note) => Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [Text(title, style: Theme.of(context).textTheme.displaySmall), MarginNote(note)],
     );
 
-Widget _figure(BuildContext context, String value, String label) {
+Widget figureTile(BuildContext context, String value, String label) {
   final theme = Theme.of(context);
   return SizedBox(
     width: 170,
@@ -66,7 +66,7 @@ Widget _figure(BuildContext context, String value, String label) {
   );
 }
 
-void _toast(BuildContext context, String m) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
+void showToast(BuildContext context, String m) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
 
 // ── Overview ─────────────────────────────────────────────────────────────────
 
@@ -75,7 +75,7 @@ class AdminOverviewPage extends StatelessWidget {
   const AdminOverviewPage({super.key, required this.onNavigate});
 
   @override
-  Widget build(BuildContext context) => _Loader(
+  Widget build(BuildContext context) => PageLoader(
         endpoint: '/admin/analytics',
         builder: (context, d, _) {
           final theme = Theme.of(context);
@@ -86,16 +86,16 @@ class AdminOverviewPage extends StatelessWidget {
           final toMark = d['assignmentsToMark'] as int;
           final unanswered = d['unansweredQuestions'] as int;
           return ListView(padding: const EdgeInsets.fromLTRB(24, 32, 24, 48), children: [
-            _pageTitle(context, 'Overview', DateFormat('EEEE, d MMMM').format(DateTime.now())),
+            pageTitle(context, 'Overview', DateFormat('EEEE, d MMMM').format(DateTime.now())),
             const SizedBox(height: 24),
             NoteCard(
               child: Wrap(spacing: 24, runSpacing: 20, children: [
-                _figure(context, '${d['students']}', 'students'),
-                _figure(context, '${d['activeLearners7d']}', 'active this week'),
-                _figure(context, '${d['totalEnrollments']}', 'enrolments'),
-                _figure(context, '${((d['completionRate'] as num) * 100).round()}%', 'complete their course'),
-                _figure(context, avgQuiz == null ? '—' : '${avgQuiz.round()}%', 'average quiz score'),
-                _figure(context, money.format(d['totalRevenue'] as num), 'revenue'),
+                figureTile(context, '${d['students']}', 'students'),
+                figureTile(context, '${d['activeLearners7d']}', 'active this week'),
+                figureTile(context, '${d['totalEnrollments']}', 'enrolments'),
+                figureTile(context, '${((d['completionRate'] as num) * 100).round()}%', 'complete their course'),
+                figureTile(context, avgQuiz == null ? '—' : '${avgQuiz.round()}%', 'average quiz score'),
+                figureTile(context, money.format(d['totalRevenue'] as num), 'revenue'),
               ]),
             ),
             if (toMark > 0 || unanswered > 0) ...[
@@ -119,7 +119,7 @@ class AdminOverviewPage extends StatelessWidget {
             const SizedBox(height: 28),
             const NoteHeading('New students', note: 'last 8 weeks'),
             const SizedBox(height: 14),
-            SizedBox(height: 140, child: _WeekBars(weeks)),
+            SizedBox(height: 140, child: WeekBars(weeks)),
             const SizedBox(height: 28),
             NoteHeading('Courses', trailing: TextButton(onPressed: () => onNavigate(1), child: const Text('Manage'))),
             const SizedBox(height: 8),
@@ -139,10 +139,10 @@ class AdminOverviewPage extends StatelessWidget {
 }
 
 /// Hand-drawn weekly bar chart.
-class _WeekBars extends StatelessWidget {
+class WeekBars extends StatelessWidget {
   final List<Map<String, dynamic>> weeks;
   final String labelFormat;
-  const _WeekBars(this.weeks, {this.labelFormat = 'd MMM'});
+  const WeekBars(this.weeks, {this.labelFormat = 'd MMM'});
 
   @override
   Widget build(BuildContext context) {
@@ -190,12 +190,12 @@ class _AdminStudentsPageState extends State<AdminStudentsPage> {
       await f();
       await reload();
     } on ApiException catch (e) {
-      if (context.mounted) _toast(context, e.message);
+      if (context.mounted) showToast(context, e.message);
     }
   }
 
   @override
-  Widget build(BuildContext context) => _Loader(
+  Widget build(BuildContext context) => PageLoader(
         endpoint: '/auth/users',
         builder: (context, data, reload) {
           final theme = Theme.of(context);
@@ -205,7 +205,7 @@ class _AdminStudentsPageState extends State<AdminStudentsPage> {
             return q.isEmpty || '${u['displayName']} ${u['email']}'.toLowerCase().contains(q);
           }).toList();
           return ListView(padding: const EdgeInsets.fromLTRB(24, 32, 24, 48), children: [
-            _pageTitle(context, 'People', '${(data).length} accounts'),
+            pageTitle(context, 'People', '${(data).length} accounts'),
             const SizedBox(height: 20),
             TextField(
               decoration: const InputDecoration(prefixIcon: Icon(Icons.search), hintText: 'Search by name or email'),
@@ -220,8 +220,8 @@ class _AdminStudentsPageState extends State<AdminStudentsPage> {
                   subtitle: Text(
                     '${u['email']} · ${u['enrollmentCount']} ${u['enrollmentCount'] == 1 ? 'course' : 'courses'} · joined ${DateFormat('d MMM yyyy').format(DateTime.parse(u['createdAt'] as String))}',
                   ),
-                  leading: u['role'] == 'admin'
-                      ? Highlight('admin', style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurface))
+                  leading: u['role'] != 'student'
+                      ? Highlight('${u['role']}', style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurface))
                       : null,
                   trailing: Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: [
                     if (u['isActive'] != true) MarginNote('disabled', size: 17, tilt: 0),
@@ -229,16 +229,13 @@ class _AdminStudentsPageState extends State<AdminStudentsPage> {
                       tooltip: 'Actions',
                       onSelected: (a) => switch (a) {
                         'toggle' => _act(context, () => api.json('PATCH', '/auth/users/${u['uid']}/toggle-status', body: {}), reload),
-                        'role' => _act(
-                            context,
-                            () => api.json('PUT', '/users/${u['uid']}/role', body: {'role': u['role'] == 'admin' ? 'student' : 'admin'}),
-                            reload,
-                          ),
-                        _ => _confirmDelete(context, u, reload),
+                        'delete' => _confirmDelete(context, u, reload),
+                        final role => _act(context, () => api.json('PUT', '/users/${u['uid']}/role', body: {'role': role}), reload),
                       },
                       itemBuilder: (_) => [
                         PopupMenuItem(value: 'toggle', child: Text(u['isActive'] == true ? 'Disable sign-in' : 'Enable sign-in')),
-                        PopupMenuItem(value: 'role', child: Text(u['role'] == 'admin' ? 'Make student' : 'Make admin')),
+                        for (final role in const ['student', 'teacher', 'admin'])
+                          if (u['role'] != role) PopupMenuItem(value: role, child: Text('Make $role')),
                         const PopupMenuItem(value: 'delete', child: Text('Delete account')),
                       ],
                     ),
@@ -271,20 +268,20 @@ class AdminPaymentsPage extends StatelessWidget {
   const AdminPaymentsPage({super.key});
 
   @override
-  Widget build(BuildContext context) => _Loader(
+  Widget build(BuildContext context) => PageLoader(
         endpoint: '/finance/stats',
         builder: (context, stats, reloadStats) {
           final money = NumberFormat.simpleCurrency(name: 'USD');
           final monthly = (stats['monthly'] as List).cast<Map<String, dynamic>>();
           return ListView(padding: const EdgeInsets.fromLTRB(24, 32, 24, 48), children: [
-            _pageTitle(context, 'Payments', 'course sales through Stripe'),
+            pageTitle(context, 'Payments', 'course sales through Stripe'),
             const SizedBox(height: 24),
             NoteCard(
               child: Wrap(spacing: 24, runSpacing: 20, children: [
-                _figure(context, money.format(stats['totalRevenue'] as num), 'revenue'),
-                _figure(context, '${stats['successfulTransactions']}', 'sales'),
-                _figure(context, money.format(stats['refunded'] as num), 'refunded'),
-                _figure(context, money.format(stats['pending'] as num), 'pending'),
+                figureTile(context, money.format(stats['totalRevenue'] as num), 'revenue'),
+                figureTile(context, '${stats['successfulTransactions']}', 'sales'),
+                figureTile(context, money.format(stats['refunded'] as num), 'refunded'),
+                figureTile(context, money.format(stats['pending'] as num), 'pending'),
               ]),
             ),
             const SizedBox(height: 28),
@@ -292,7 +289,7 @@ class AdminPaymentsPage extends StatelessWidget {
             const SizedBox(height: 14),
             SizedBox(
               height: 140,
-              child: _WeekBars([
+              child: WeekBars([
                 for (final m in monthly) {'count': (m['revenue'] as num).round(), 'weekStart': '${m['month']}-01'},
               ], labelFormat: 'MMM'),
             ),
@@ -310,7 +307,7 @@ class _Transactions extends StatelessWidget {
   const _Transactions({required this.onChanged});
 
   @override
-  Widget build(BuildContext context) => _Loader(
+  Widget build(BuildContext context) => PageLoader(
         endpoint: '/payments',
         builder: (context, data, reload) {
           final theme = Theme.of(context);
@@ -345,7 +342,7 @@ class _Transactions extends StatelessWidget {
                           await reload();
                           await onChanged();
                         } on ApiException catch (e) {
-                          if (context.mounted) _toast(context, e.message);
+                          if (context.mounted) showToast(context, e.message);
                         }
                       },
                       child: const Text('Refund'),
@@ -381,11 +378,11 @@ class _AdminAnnouncementsPageState extends State<AdminAnnouncementsPage> {
       _title.clear();
       _message.clear();
       if (mounted) {
-        _toast(context, r['message'] as String? ?? 'Sent');
+        showToast(context, r['message'] as String? ?? 'Sent');
         setState(() => _historyKey++);
       }
     } on ApiException catch (e) {
-      if (mounted) _toast(context, e.message);
+      if (mounted) showToast(context, e.message);
     }
     if (mounted) setState(() => _sending = false);
   }
@@ -394,7 +391,7 @@ class _AdminAnnouncementsPageState extends State<AdminAnnouncementsPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return ListView(padding: const EdgeInsets.fromLTRB(24, 32, 24, 48), children: [
-      _pageTitle(context, 'Announcements', 'goes to every student\'s notifications'),
+      pageTitle(context, 'Announcements', 'goes to every student\'s notifications'),
       const SizedBox(height: 24),
       NoteCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -418,7 +415,7 @@ class _AdminAnnouncementsPageState extends State<AdminAnnouncementsPage> {
       const SizedBox(height: 8),
       SizedBox(
         height: 480,
-        child: _Loader(
+        child: PageLoader(
           key: ValueKey(_historyKey),
           endpoint: '/user/notifications/broadcast-history',
           builder: (context, data, _) {
@@ -443,13 +440,14 @@ class _AdminAnnouncementsPageState extends State<AdminAnnouncementsPage> {
 // ── Account ──────────────────────────────────────────────────────────────────
 
 class AdminAccountPage extends StatelessWidget {
-  const AdminAccountPage({super.key});
+  final String roleLabel;
+  const AdminAccountPage({super.key, this.roleLabel = 'administrator'});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return ListView(padding: const EdgeInsets.fromLTRB(24, 32, 24, 48), children: [
-      _pageTitle(context, 'Account', 'administrator'),
+      pageTitle(context, 'Account', roleLabel),
       const SizedBox(height: 24),
       NoteCard(
         padding: EdgeInsets.zero,

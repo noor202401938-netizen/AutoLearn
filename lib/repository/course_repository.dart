@@ -8,9 +8,10 @@ import '../model/course_model.dart';
 class CourseRepository {
   final ApiClient _apiClient = ApiClient.instance;
 
-  Future<List<CourseModel>> getAllCourses() async {
+  /// [mine] lists only the signed-in teacher's own courses, drafts included.
+  Future<List<CourseModel>> getAllCourses({bool mine = false}) async {
     try {
-      final response = await _apiClient.get('/courses');
+      final response = await _apiClient.get(mine ? '/courses?mine=true' : '/courses');
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => CourseModel.fromMap(json)).toList();

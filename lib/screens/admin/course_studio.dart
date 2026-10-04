@@ -25,7 +25,9 @@ bool _saved(String id) => RegExp(r'^[a-f0-9]{24}$').hasMatch(id);
 // ── Course list ──────────────────────────────────────────────────────────────
 
 class AdminCoursesPage extends StatefulWidget {
-  const AdminCoursesPage({super.key});
+  /// Teachers see only the courses they created.
+  final bool mine;
+  const AdminCoursesPage({super.key, this.mine = false});
 
   @override
   State<AdminCoursesPage> createState() => _AdminCoursesPageState();
@@ -42,7 +44,7 @@ class _AdminCoursesPageState extends State<AdminCoursesPage> {
   }
 
   Future<void> _load() async {
-    final c = await _repo.getAllCourses();
+    final c = await _repo.getAllCourses(mine: widget.mine);
     if (mounted) setState(() => _courses = c);
   }
 
